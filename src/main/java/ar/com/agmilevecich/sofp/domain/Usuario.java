@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "usuarios")
@@ -19,7 +20,7 @@ public class Usuario extends EntidadAuditable {
     @Column(nullable = false)
     private String apellido;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
 
     @Column(name = "password_hash", nullable = false)
@@ -31,51 +32,67 @@ public class Usuario extends EntidadAuditable {
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<PerfilFinanciero> perfilesFinancieros = new ArrayList<>();
 
-    public String getNombre() {
-        return nombre;
+    /**
+     * Constructor requerido por JPA.
+     */
+    protected Usuario() {
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    /**
+     * Constructor principal del dominio.
+     */
+    public Usuario(String nombre,
+                   String apellido,
+                   String email,
+                   String passwordHash) {
+
+        this.nombre = Objects.requireNonNull(nombre, "El nombre es obligatorio");
+        this.apellido = Objects.requireNonNull(apellido, "El apellido es obligatorio");
+        this.email = Objects.requireNonNull(email, "El email es obligatorio");
+        this.passwordHash = Objects.requireNonNull(passwordHash, "El password hash es obligatorio");
+        this.activo = true;
+    }
+
+    public String getNombre() {
+        return nombre;
     }
 
     public String getApellido() {
         return apellido;
     }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPasswordHash() {
         return passwordHash;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
     public boolean isActivo() {
         return activo;
-    }
-
-    public void setActivo(boolean activo) {
-        this.activo = activo;
     }
 
     public List<PerfilFinanciero> getPerfilesFinancieros() {
         return perfilesFinancieros;
     }
 
-    public void setPerfilesFinancieros(List<PerfilFinanciero> perfilesFinancieros) {
-        this.perfilesFinancieros = perfilesFinancieros;
+    /**
+     * Agrega un perfil financiero manteniendo ambas referencias sincronizadas.
+     */
+    public void agregarPerfilFinanciero(PerfilFinanciero perfil) {
+
+        Objects.requireNonNull(perfil, "El perfil financiero es obligatorio");
+
+        perfilesFinancieros.add(perfil);
+        perfil.asignarUsuario(this);
+    }
+
+    public void activar() {
+        this.activo = true;
+    }
+
+    public void desactivar() {
+        this.activo = false;
     }
 }
