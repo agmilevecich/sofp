@@ -28,24 +28,25 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 El proyecto está organizado alrededor del dominio y capas previstas para evolución posterior. Se han utilizado paquetes como `domain`, `config`, `util`, `repository`, `service`, `dto`, `enums`, `app` y `ui`.
 
-La persistencia utiliza la unidad `sofp-persistence-unit` y una base H2 en archivo.
+La persistencia de producción utiliza la unidad `sofp-persistence-unit` y una base H2 en archivo.
 
-## Estado funcional al último registro
+Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y la unidad `sofp-persistence-unit-test`, utilizando H2 en memoria y `create-drop`.
 
-El último commit confirmado en GitHub es:
+## Estado funcional actual
 
-`ce3383cc9cc83725eaf3895c533e85af2820c709`
+El último bloque trabajado es **Build 011 — Aislamiento y estabilización de tests JPA con H2**.
 
-**Build 010 — Implementación de la entidad Movimiento**
+Se incorporó y verificó:
 
-En este Build se incorporaron:
+- `JpaTestManager` separado de `JpaManager`.
+- Base H2 en memoria para tests.
+- Esquema de pruebas recreado mediante `hibernate.hbm2ddl.auto=create-drop`.
+- Aislamiento de datos entre pruebas.
+- Cierre de `EntityManager` y `JpaTestManager`.
+- Resolución del conflicto de unicidad de `Usuario.email` al ejecutar la batería completa.
+- Ejecución general de todos los tests con resultado verde.
 
-- Entidad `Movimiento`.
-- Enum `TipoMovimiento` con `INGRESO` y `EGRESO`.
-- Validación de importes positivos.
-- Relaciones de `Movimiento` con `Cuenta` y `Categoria`.
-- Test unitario `MovimientoTest`.
-- Test JPA `MovimientoJpaTest`.
+El commit de código de Build 011 en `main` todavía debe registrarse; esta rama conserva desde ahora el estado alcanzado para continuidad.
 
 ## Dominio construido hasta ahora
 
@@ -70,18 +71,17 @@ También existe infraestructura de auditoría y utilidades de validación.
 - Build 005 — Diseño de la entidad `Cuenta`.
 - Build 009.1 — Implementación de `Categoria`.
 - Build 010 — Implementación de `Movimiento`.
-
-Entre estos hitos también se consolidó el dominio, se definieron principios de arquitectura, se agregó `TipoCuenta`, utilidades de validación e `InstitucionFinanciera`.
+- Build 011 — Aislamiento y estabilización de tests JPA con H2.
 
 ## Tests
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
+En la última verificación, la batería general de tests terminó completamente en verde.
+
 ## Próximo paso
 
-Antes de comenzar una nueva funcionalidad, revisar este archivo, `docs/05_DECISIONES.md`, `docs/06_BUILDS.md`, `docs/07_TESTS.md` y `docs/08_PENDIENTES.md`.
-
-El siguiente trabajo funcional debe definirse a partir del estado real del código y los tests, no suponerse por el número del Build.
+Registrar el commit del código correspondiente a Build 011 en `main`. Después revisar `docs/08_PENDIENTES.md` y definir el siguiente bloque funcional a partir del estado real del código y los tests.
 
 ## Regla de continuidad
 
