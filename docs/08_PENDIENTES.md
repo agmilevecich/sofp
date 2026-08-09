@@ -4,8 +4,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Revisar el estado real del repositorio después del Build 010.
-- Ejecutar/verificar la batería completa de tests antes del siguiente Build.
+- Registrar en `main` el commit del código correspondiente a Build 011.
+- Confirmar que `main` y `docs/continuidad-sofp` quedan sincronizadas respecto del último estado documentado.
 - Definir el siguiente bloque funcional del dominio.
 - Continuar ampliando persistencia y repositorios según el diseño acordado.
 
