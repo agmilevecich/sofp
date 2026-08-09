@@ -23,6 +23,19 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Validación de importes positivos.
 - Tests unitarios y JPA para `Movimiento`.
 
+## 2026-08-09
+
+### Build 011 — Aislamiento y estabilización de tests JPA con H2
+
+- Se separó la infraestructura de pruebas JPA de la persistencia de producción mediante `JpaTestManager`.
+- Los tests utilizan H2 en memoria con `create-drop`.
+- Se aisló la información utilizada por los tests para evitar conflictos entre ejecuciones.
+- Se resolvió la violación de unicidad sobre `USUARIOS.EMAIL` que aparecía al ejecutar la batería general.
+- Se incorporó el cierre de `EntityManager` y `JpaTestManager` en los tests JPA correspondientes.
+- Se verificaron los tests JPA individualmente.
+- Se ejecutó la batería general del proyecto y todos los tests terminaron en verde.
+- El commit de código de Build 011 todavía está pendiente de registrarse en `main`.
+
 ## Estado al establecer el sistema de continuidad
 
 El repositorio queda preparado para conservar contexto de largo plazo mediante documentación versionada en `docs/`.
