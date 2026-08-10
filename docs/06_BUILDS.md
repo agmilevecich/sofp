@@ -115,3 +115,54 @@ Agregar cada Build nuevo inmediatamente después de cerrarlo, incluyendo:
 - resultado;
 - commit asociado;
 - próximo paso.
+
+## Build 013 — Repository JPA de Cuenta
+
+### Objetivo
+
+Incorporar la capa de persistencia JPA para la entidad `Cuenta`, manteniendo el desarrollo incremental y verificable mediante tests.
+
+### Cambios principales
+
+Se incorporó:
+
+- `CuentaRepository`
+- `CuentaRepositoryTest`
+
+El repositorio proporciona operaciones para:
+
+- Guardar cuentas nuevas.
+- Actualizar cuentas existentes.
+- Buscar una cuenta por ID.
+- Listar todas las cuentas.
+- Listar cuentas por `PerfilFinanciero`.
+
+El test verifica la integración de `Cuenta` con:
+
+- `Usuario`
+- `PerfilFinanciero`
+- `InstitucionFinanciera`
+- `Moneda`
+
+### Tests verificados
+
+`CuentaRepositoryTest` verifica:
+
+1. Guardar y buscar una cuenta por ID.
+2. Listar todas las cuentas.
+3. Listar cuentas por perfil financiero.
+4. Actualizar una cuenta existente.
+
+Además, se ejecutó la batería general de tests del proyecto.
+
+### Resultado
+
+Todos los tests del `CuentaRepositoryTest` terminaron en verde.
+
+La batería general de tests del proyecto también terminó completamente en verde.
+
+Build 013 queda cerrado con el repositorio y su test incorporados y verificados.
+
+### Próximo paso
+
+Definir el siguiente bloque funcional a partir del estado real del dominio, la persistencia disponible y los tests existentes.

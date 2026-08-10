@@ -26,7 +26,7 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Arquitectura conocida
 
-El proyecto está organizado alrededor del dominio y capas previstas para evolución posterior. Se han utilizado paquetes como `domain`, `config`, `util`, `repository`, `service`, `dto`, `enums`, `app` y `ui`.
+El proyecto está organizado alrededor del dominio y capas previstas para evolución posterior. Se han utilizado paquetes como `domain`, `config`, `util`, `persistence`, `service`, `dto`, `enums`, `app` y `ui`.
 
 La persistencia de producción utiliza la unidad `sofp-persistence-unit` y una base H2 en archivo.
 
@@ -34,27 +34,36 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 012 — Repositorios JPA de entidades base**.
+El último bloque trabajado es **Build 013 — Repository JPA de Cuenta**.
 
-Se incorporó y verificó la capa inicial de repositorios JPA para entidades ya existentes del dominio.
+Se incorporó y verificó la capa de persistencia para la entidad `Cuenta`.
 
-Repositorios incorporados:
+Repositorio incorporado:
 
-- `UsuarioRepository`
-- `PerfilFinancieroRepository`
-- `InstitucionFinancieraRepository`
-- `MonedaRepository`
+- `CuentaRepository`
 
-Tests incorporados:
+Test incorporado:
 
-- `UsuarioRepositoryTest`
-- `PerfilFinancieroRepositoryTest`
-- `InstitucionFinancieraRepositoryTest`
-- `MonedaRepositoryTest`
+- `CuentaRepositoryTest`
 
-Todos los tests correspondientes quedaron en verde.
+El repositorio permite:
 
-La infraestructura de pruebas JPA continúa utilizando H2 en memoria y aislamiento mediante `JpaTestManager`, por lo que el nuevo bloque se verifica sobre la infraestructura estabilizada en Build 011.
+- Guardar cuentas nuevas.
+- Actualizar cuentas existentes.
+- Buscar cuentas por ID.
+- Listar todas las cuentas.
+- Listar cuentas por `PerfilFinanciero`.
+
+El test verifica la integración de `Cuenta` con:
+
+- `Usuario`
+- `PerfilFinanciero`
+- `InstitucionFinanciera`
+- `Moneda`
+
+Todos los tests correspondientes al Build 013 quedaron en verde.
+
+También se ejecutó la batería general de tests del proyecto y todos los tests terminaron en verde.
 
 ## Dominio construido hasta ahora
 
@@ -74,6 +83,18 @@ Entre las entidades/enumeraciones ya trabajadas se encuentran:
 
 También existe infraestructura de auditoría y utilidades de validación.
 
+## Persistencia actual
+
+Repositorios JPA incorporados:
+
+- `UsuarioRepository`
+- `PerfilFinancieroRepository`
+- `InstitucionFinancieraRepository`
+- `MonedaRepository`
+- `CuentaRepository`
+
+Cada repositorio incorporado cuenta con sus tests correspondientes.
+
 ## Últimos Builds / hitos conocidos
 
 - Build 005 — Diseño de la entidad `Cuenta`.
@@ -81,6 +102,7 @@ También existe infraestructura de auditoría y utilidades de validación.
 - Build 010 — Implementación de `Movimiento`.
 - Build 011 — Aislamiento y estabilización de tests JPA con H2.
 - Build 012 — Repositorios JPA de entidades base.
+- Build 013 — Repository JPA de `Cuenta`.
 
 ## Commits recientes de código
 
@@ -91,7 +113,12 @@ También existe infraestructura de auditoría y utilidades de validación.
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En el último bloque se verificaron los cuatro repositorios y sus tests correspondientes, con todos los tests en verde.
+En el Build 013 se verificó:
+
+- `CuentaRepositoryTest`.
+- Batería general de tests del proyecto.
+
+Todos terminaron en verde.
 
 ## Próximo paso
 

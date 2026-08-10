@@ -12,6 +12,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 - Build 011: aislamiento y estabilización de tests JPA con H2.
 - Build 012: repositorios JPA de `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera` y `Moneda`, con sus tests correspondientes en verde.
+- Build 013: `CuentaRepository` y `CuentaRepositoryTest`, con la batería general de tests en verde.
+
 
 ## Pendientes de arquitectura / evolución
 

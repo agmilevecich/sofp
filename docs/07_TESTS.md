@@ -62,3 +62,22 @@ Cuando un test sea agregado, corregido o ejecutado como parte de un Build, regis
 - fecha/Build.
 
 No registrar como verde un test que no haya sido realmente ejecutado con éxito.
+
+## Build 013
+
+Se incorporó y verificó:
+
+- `CuentaRepositoryTest`
+
+El test verifica:
+
+- Guardado y búsqueda de una cuenta por ID.
+- Listado de cuentas.
+- Listado de cuentas por perfil financiero.
+- Actualización de una cuenta existente.
+
+Resultado: `CuentaRepositoryTest` terminó completamente en verde.
+
+También se ejecutó la batería general de tests del proyecto y todos los tests terminaron en verde.
+
+La infraestructura de pruebas continúa aislada mediante H2 en memoria y `JpaTestManager`.
