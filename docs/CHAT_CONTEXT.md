@@ -33,13 +33,22 @@ GitHub: `agmilevecich/sofp`
 
 Rama principal: `main`
 
+Rama de documentación/continuidad: `docs/continuidad-sofp`
+
 ## Estado de referencia
 
-Último Build confirmado: **Build 010**.
+Último Build confirmado: **Build 012 — Repositorios JPA de entidades base**.
 
-Último commit confirmado: `ce3383cc9cc83725eaf3895c533e85af2820c709`.
+Último commit de código confirmado: `5a3ebfb`.
 
-Mensaje: `Build 010 - Implementación de la entidad Movimiento`.
+Mensaje: `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
+
+Commits de código recientes:
+
+- `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
+- `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
+
+En el estado actual, `main` contiene los repositorios JPA de `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera` y `Moneda`, junto con sus tests correspondientes.
 
 ## Dominio actual
 
@@ -59,6 +68,17 @@ Enumeraciones conocidas:
 - TipoMoneda
 - TipoCuenta
 - TipoMovimiento
+
+## Persistencia
+
+Se incorporaron repositorios JPA para:
+
+- `UsuarioRepository`
+- `PerfilFinancieroRepository`
+- `InstitucionFinancieraRepository`
+- `MonedaRepository`
+
+Cada repositorio tiene su test correspondiente.
 
 ## Movimiento
 
