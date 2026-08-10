@@ -16,10 +16,14 @@ Los tests son parte del cierre de cada Build. Una funcionalidad se considera ver
 - `CategoriaJpaTest`
 - `CuentaJpaTest`
 - `MovimientoJpaTest`
+- `UsuarioRepositoryTest`
+- `PerfilFinancieroRepositoryTest`
+- `InstitucionFinancieraRepositoryTest`
+- `MonedaRepositoryTest`
 
-## Último bloque
+## Build 011
 
-Build 011 incorpora la estabilización de la infraestructura de pruebas JPA:
+Build 011 incorporó la estabilización de la infraestructura de pruebas JPA:
 
 - `JpaTestManager` separado de `JpaManager`.
 - H2 de pruebas en memoria.
@@ -28,17 +32,24 @@ Build 011 incorpora la estabilización de la infraestructura de pruebas JPA:
 - Cierre de `EntityManager` y `JpaTestManager` al finalizar las pruebas correspondientes.
 - Corrección del conflicto de unicidad del email de `Usuario` al ejecutar la batería completa.
 
-## Resultado de Build 011
+Resultado: todos los tests de la batería general terminaron en verde.
 
-Se ejecutaron los tests JPA individualmente y posteriormente la batería general del proyecto.
+## Build 012
 
-Resultado: **todos los tests terminaron en verde**.
+Se incorporaron y verificaron los tests de los nuevos repositorios JPA:
 
-En particular, dejó de ser necesario borrar manualmente `database/sofp.mv.db` entre tests para evitar conflictos de datos.
+- `UsuarioRepositoryTest`
+- `PerfilFinancieroRepositoryTest`
+- `InstitucionFinancieraRepositoryTest`
+- `MonedaRepositoryTest`
 
-## Incidencia resuelta
+Los cuatro tests de repositorio terminaron en verde.
 
-Al ejecutar la batería general anteriormente aparecía una violación de unicidad sobre `USUARIOS.EMAIL`, porque distintos tests compartían datos en la misma base H2 de pruebas. La infraestructura fue modificada para aislar la base utilizada por los tests.
+La infraestructura de pruebas continúa aislada mediante H2 en memoria y `JpaTestManager`.
+
+## Resultado actual
+
+El último bloque de trabajo quedó verificado con todos los tests correspondientes en verde. No se avanzó al siguiente bloque hasta comprobar el funcionamiento de los repositorios y sus pruebas.
 
 ## Regla de actualización
 
