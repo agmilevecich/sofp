@@ -138,6 +138,24 @@ La infraestructura de persistencia y pruebas JPA queda establecida como base par
 
 ---
 
+## Restauración posterior
+
+Durante las operaciones de reorganización de ramas realizadas posteriormente, parte de la infraestructura de aislamiento de tests quedó fuera de `main`, incluyendo `JpaTestManager`, `TestDataFactory` y `src/test/resources/META-INF/persistence.xml`.
+
+La infraestructura fue recuperada desde el historial Git y reincorporada al proyecto mediante el commit:
+
+```text
+c82b3dc test: restaurar aislamiento JPA con H2 en memoria
+```
+
+También se actualizaron nuevamente los tests que requieren persistencia para utilizar `JpaTestManager` en lugar de `JpaManager`.
+
+La batería general de tests volvió a ejecutarse correctamente, con todos los tests en verde.
+
+---
+
 ## Continuidad
 
 El proyecto queda preparado para continuar con el siguiente bloque funcional sin que las pruebas de persistencia dependan de la base de datos utilizada por la aplicación.
+
+La implementación restaurada en `main` constituye el estado técnico de referencia para continuar el desarrollo.
