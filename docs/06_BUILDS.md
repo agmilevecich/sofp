@@ -63,13 +63,46 @@ Separar la base H2 utilizada por los tests de la base H2 de desarrollo y consegu
 
 Todos los tests de la batería general terminaron en verde. Los tests JPA también funcionan individualmente sin necesidad de borrar manualmente `database/sofp.mv.db`.
 
-### Commit de código
+## Build 012 — Repositorios JPA de entidades base
 
-Pendiente de registrar en `main`. La documentación de continuidad se actualiza ahora para conservar el estado alcanzado.
+### Objetivo
+
+Incorporar la primera capa de repositorios JPA para entidades ya existentes del dominio, manteniendo el desarrollo incremental y verificable mediante tests.
+
+### Cambios principales
+
+Se incorporaron los siguientes repositorios:
+
+- `UsuarioRepository`
+- `PerfilFinancieroRepository`
+- `InstitucionFinancieraRepository`
+- `MonedaRepository`
+
+Se incorporaron sus tests correspondientes:
+
+- `UsuarioRepositoryTest`
+- `PerfilFinancieroRepositoryTest`
+- `InstitucionFinancieraRepositoryTest`
+- `MonedaRepositoryTest`
+
+El bloque se apoyó sobre la infraestructura de pruebas JPA aislada establecida en Build 011.
+
+### Commits asociados
+
+- `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
+- `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
+
+### Tests verificados
+
+Los tests de los cuatro repositorios fueron ejecutados correctamente y terminaron en verde.
+
+### Resultado
+
+Build 012 queda cerrado con los repositorios y sus tests incorporados y verificados.
 
 ### Próximo paso
 
-Registrar el commit del código de este Build en `main` y luego continuar con el siguiente bloque funcional definido a partir del estado real del proyecto.
+Definir el siguiente bloque funcional a partir del estado real del dominio, la persistencia disponible y los tests existentes.
 
 ### Regla para futuros Builds
 
