@@ -34,19 +34,27 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 011 — Aislamiento y estabilización de tests JPA con H2**.
+El último bloque trabajado es **Build 012 — Repositorios JPA de entidades base**.
 
-Se incorporó y verificó:
+Se incorporó y verificó la capa inicial de repositorios JPA para entidades ya existentes del dominio.
 
-- `JpaTestManager` separado de `JpaManager`.
-- Base H2 en memoria para tests.
-- Esquema de pruebas recreado mediante `hibernate.hbm2ddl.auto=create-drop`.
-- Aislamiento de datos entre pruebas.
-- Cierre de `EntityManager` y `JpaTestManager`.
-- Resolución del conflicto de unicidad de `Usuario.email` al ejecutar la batería completa.
-- Ejecución general de todos los tests con resultado verde.
+Repositorios incorporados:
 
-El commit de código de Build 011 en `main` todavía debe registrarse; esta rama conserva desde ahora el estado alcanzado para continuidad.
+- `UsuarioRepository`
+- `PerfilFinancieroRepository`
+- `InstitucionFinancieraRepository`
+- `MonedaRepository`
+
+Tests incorporados:
+
+- `UsuarioRepositoryTest`
+- `PerfilFinancieroRepositoryTest`
+- `InstitucionFinancieraRepositoryTest`
+- `MonedaRepositoryTest`
+
+Todos los tests correspondientes quedaron en verde.
+
+La infraestructura de pruebas JPA continúa utilizando H2 en memoria y aislamiento mediante `JpaTestManager`, por lo que el nuevo bloque se verifica sobre la infraestructura estabilizada en Build 011.
 
 ## Dominio construido hasta ahora
 
@@ -72,16 +80,22 @@ También existe infraestructura de auditoría y utilidades de validación.
 - Build 009.1 — Implementación de `Categoria`.
 - Build 010 — Implementación de `Movimiento`.
 - Build 011 — Aislamiento y estabilización de tests JPA con H2.
+- Build 012 — Repositorios JPA de entidades base.
+
+## Commits recientes de código
+
+- `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
+- `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
 
 ## Tests
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En la última verificación, la batería general de tests terminó completamente en verde.
+En el último bloque se verificaron los cuatro repositorios y sus tests correspondientes, con todos los tests en verde.
 
 ## Próximo paso
 
-Registrar el commit del código correspondiente a Build 011 en `main`. Después revisar `docs/08_PENDIENTES.md` y definir el siguiente bloque funcional a partir del estado real del código y los tests.
+Definir el siguiente bloque funcional a partir del estado real del código, los repositorios ya disponibles y los tests existentes. No avanzar sin mantener la regla de tests en verde y documentación actualizada.
 
 ## Regla de continuidad
 
