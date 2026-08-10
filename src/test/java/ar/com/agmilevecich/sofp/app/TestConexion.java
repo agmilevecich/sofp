@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.app;
 
 import ar.com.agmilevecich.sofp.config.JpaManager;
+import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,7 @@ class TestConexion {
         EntityManager entityManager = null;
 
         try {
-            entityManager = JpaManager.createEntityManager();
+            entityManager = JpaTestManager.createEntityManager();
             entityManager.getTransaction().begin();
             entityManager.getTransaction().commit();
 
@@ -20,7 +21,7 @@ class TestConexion {
             if (entityManager != null && entityManager.isOpen()) {
                 entityManager.close();
             }
-            JpaManager.close();
+            JpaTestManager.close();
         }
     }
 }

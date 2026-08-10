@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.domain;
 
 import ar.com.agmilevecich.sofp.config.JpaManager;
+import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,7 @@ class CuentaJpaTest {
     @Test
     void deberiaPersistirCuenta() {
 
-        EntityManager entityManager = JpaManager.createEntityManager();
+        EntityManager entityManager = JpaTestManager.createEntityManager();
 
         try {
 
@@ -92,6 +93,7 @@ class CuentaJpaTest {
         } finally {
 
             entityManager.close();
+            JpaTestManager.close();
         }
     }
 }

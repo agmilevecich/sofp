@@ -11,7 +11,7 @@ class JpaManagerTest {
     void deberiaCrearEntityManager() {
 
         EntityManager entityManager =
-                JpaManager.createEntityManager();
+                JpaTestManager.createEntityManager();
 
         assertNotNull(entityManager);
 
