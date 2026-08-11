@@ -37,18 +37,21 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build confirmado: **Build 012 — Repositorios JPA de entidades base**.
+Último Build confirmado: **Build 015 — Servicio de saldo de cuentas**.
 
-Último commit de código confirmado: `5a3ebfb`.
+Último commit de código confirmado: `4697815`.
 
-Mensaje: `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
+Mensaje: `feat: implementar servicio de saldo de cuentas`.
+
+El commit de Build 015 fue publicado en `main` de GitHub y Bitbucket.
 
 Commits de código recientes:
 
+- `4697815` — `feat: implementar servicio de saldo de cuentas`.
+- `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
+- `140d3eb` — `Build 013 - Implementación de CuentaRepository`.
 - `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
 - `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
-
-En el estado actual, `main` contiene los repositorios JPA de `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera` y `Moneda`, junto con sus tests correspondientes.
 
 ## Dominio actual
 
@@ -77,8 +80,31 @@ Se incorporaron repositorios JPA para:
 - `PerfilFinancieroRepository`
 - `InstitucionFinancieraRepository`
 - `MonedaRepository`
+- `CuentaRepository`
+- `MovimientoRepository`
 
 Cada repositorio tiene su test correspondiente.
+
+## Service
+
+Se inició la capa `service` con:
+
+- `CuentaService`
+
+`CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
+
+Reglas actuales del cálculo:
+
+- `INGRESO` suma.
+- `EGRESO` resta.
+- Sin movimientos → `BigDecimal.ZERO`.
+- Se procesan múltiples movimientos de una cuenta.
+
+Test asociado:
+
+- `CuentaServiceTest`
+
+El test cubre cuenta sin movimientos, ingreso, egreso y múltiples movimientos.
 
 ## Movimiento
 
@@ -97,6 +123,12 @@ Campos relevantes:
 `TipoMovimiento` contiene `INGRESO` y `EGRESO`.
 
 El importe se valida como positivo mediante `Validaciones.importePositivo`.
+
+## Tests
+
+La batería general del proyecto quedó en **68/68 tests en verde** al cerrar Build 015.
+
+La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En `CuentaServiceTest` se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
 ## Forma de trabajo acordada
 
