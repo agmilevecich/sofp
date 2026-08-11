@@ -166,3 +166,84 @@ Build 013 queda cerrado con el repositorio y su test incorporados y verificados.
 ### Próximo paso
 
 Definir el siguiente bloque funcional a partir del estado real del dominio, la persistencia disponible y los tests existentes.
+
+## Build 014 — Repository JPA de Movimiento
+
+### Objetivo
+
+Incorporar la capa de persistencia JPA para la entidad `Movimiento`, utilizando el repositorio para centralizar las operaciones de acceso a datos.
+
+### Cambios principales
+
+Se incorporó:
+
+- `MovimientoRepository`
+- `MovimientoRepositoryTest`
+
+El repositorio proporciona operaciones para:
+
+- Guardar movimientos nuevos.
+- Actualizar movimientos existentes.
+- Buscar movimientos por ID.
+- Listar todos los movimientos.
+- Listar movimientos por `Cuenta`.
+- Listar movimientos por `Categoria`.
+
+El test verifica la integración de `Movimiento` con `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `Moneda`, `Cuenta` y `Categoria`.
+
+### Resultado
+
+`MovimientoRepositoryTest` terminó en verde y la batería general del proyecto quedó en **64 tests en verde**.
+
+Build 014 queda cerrado con el repositorio y su test incorporados y verificados.
+
+### Commit asociado
+
+- `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
+
+## Build 015 — Servicio de saldo de cuentas
+
+### Objetivo
+
+Iniciar la capa `service` y centralizar en ella el cálculo del saldo de una cuenta a partir de sus movimientos.
+
+### Cambios principales
+
+Se incorporó:
+
+- `CuentaService`
+- `CuentaServiceTest`
+
+`CuentaService` recibe `MovimientoRepository` por constructor y expone `calcularSaldo(Long cuentaId)`.
+
+Reglas implementadas:
+
+- `INGRESO` suma al saldo.
+- `EGRESO` resta del saldo.
+- Una cuenta sin movimientos devuelve `BigDecimal.ZERO`.
+- Se procesan correctamente múltiples movimientos de la misma cuenta.
+
+### Tests verificados
+
+`CuentaServiceTest` verifica:
+
+1. Cuenta sin movimientos → `0.00`.
+2. Un ingreso de `10,000.00` → `10,000.00`.
+3. Un egreso de `3,000.00` → `-3,000.00`.
+4. Múltiples movimientos (`10,000 + 5,000 - 3,000`) → `12,000.00`.
+
+La batería general del proyecto terminó con **68/68 tests en verde**.
+
+Durante los tests se ajustó el `tearDown()` para cerrar `JpaTestManager` y mantener aislada la base H2 en memoria entre pruebas.
+
+### Resultado
+
+Build 015 queda cerrado con la primera pieza de la capa `service`, su comportamiento verificado y la batería general en verde.
+
+### Commit asociado
+
+- `4697815` — `feat: implementar servicio de saldo de cuentas`.
+
+### Próximo paso
+
+Definir el Build 016 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que deban incorporarse.
