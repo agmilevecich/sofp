@@ -20,6 +20,9 @@ Los tests son parte del cierre de cada Build. Una funcionalidad se considera ver
 - `PerfilFinancieroRepositoryTest`
 - `InstitucionFinancieraRepositoryTest`
 - `MonedaRepositoryTest`
+- `CuentaRepositoryTest`
+- `MovimientoRepositoryTest`
+- `CuentaServiceTest`
 
 ## Build 011
 
@@ -47,22 +50,6 @@ Los cuatro tests de repositorio terminaron en verde.
 
 La infraestructura de pruebas continúa aislada mediante H2 en memoria y `JpaTestManager`.
 
-## Resultado actual
-
-El último bloque de trabajo quedó verificado con todos los tests correspondientes en verde. No se avanzó al siguiente bloque hasta comprobar el funcionamiento de los repositorios y sus pruebas.
-
-## Regla de actualización
-
-Cuando un test sea agregado, corregido o ejecutado como parte de un Build, registrar aquí:
-
-- nombre del test;
-- objetivo;
-- resultado;
-- cualquier incidencia relevante;
-- fecha/Build.
-
-No registrar como verde un test que no haya sido realmente ejecutado con éxito.
-
 ## Build 013
 
 Se incorporó y verificó:
@@ -81,3 +68,56 @@ Resultado: `CuentaRepositoryTest` terminó completamente en verde.
 También se ejecutó la batería general de tests del proyecto y todos los tests terminaron en verde.
 
 La infraestructura de pruebas continúa aislada mediante H2 en memoria y `JpaTestManager`.
+
+## Build 014
+
+Se incorporó y verificó:
+
+- `MovimientoRepositoryTest`
+
+El test verifica:
+
+- Guardado y actualización de movimientos.
+- Búsqueda por ID.
+- Listado general.
+- Listado por cuenta.
+- Listado por categoría.
+
+Resultado: `MovimientoRepositoryTest` terminó en verde.
+
+La batería general del proyecto quedó en **64/64 tests en verde**.
+
+## Build 015
+
+Se incorporó y verificó:
+
+- `CuentaServiceTest`
+
+El test verifica el cálculo del saldo a partir de los movimientos de una cuenta:
+
+1. Cuenta sin movimientos → `0.00`.
+2. Un ingreso de `10,000.00` → `10,000.00`.
+3. Un egreso de `3,000.00` → `-3,000.00`.
+4. Múltiples movimientos (`10,000 + 5,000 - 3,000`) → `12,000.00`.
+
+Durante las pruebas se detectó que el `EntityManagerFactory` de tests podía reutilizar la misma base H2 en memoria entre pruebas. Se resolvió cerrando `JpaTestManager` en el `tearDown()` de `CuentaServiceTest`, manteniendo el aislamiento de cada test.
+
+Resultado: los 4 tests de `CuentaServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **68/68 tests terminaron en verde**.
+
+## Resultado actual
+
+El Build 015 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
+
+## Regla de actualización
+
+Cuando un test sea agregado, corregido o ejecutado como parte de un Build, registrar aquí:
+
+- nombre del test;
+- objetivo;
+- resultado;
+- cualquier incidencia relevante;
+- fecha/Build.
+
+No registrar como verde un test que no haya sido realmente ejecutado con éxito.
