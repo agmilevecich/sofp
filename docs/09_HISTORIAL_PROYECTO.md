@@ -36,6 +36,31 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Se ejecutó la batería general del proyecto y todos los tests terminaron en verde.
 - El commit de código de Build 011 todavía está pendiente de registrarse en `main`.
 
+### Build 014 — Repository JPA de Movimiento
+
+- Se incorporó `MovimientoRepository`.
+- Se incorporó `MovimientoRepositoryTest`.
+- Se verificaron guardado, actualización, búsqueda por ID, listado general, listado por cuenta y listado por categoría.
+- La batería general quedó en **64 tests en verde**.
+- Commit: `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
+
+## 2026-08-11
+
+### Build 015 — Servicio de saldo de cuentas
+
+- Se inició la capa `service`.
+- Se incorporó `CuentaService`, utilizando `MovimientoRepository` para calcular el saldo de una cuenta.
+- Se definieron las reglas `INGRESO` suma y `EGRESO` resta.
+- Se verificó el caso de cuenta sin movimientos.
+- Se verificó el cálculo con un ingreso.
+- Se verificó el cálculo con un egreso.
+- Se verificó el cálculo con múltiples movimientos.
+- Se incorporó `CuentaServiceTest` con 4 casos.
+- Se detectó y resolvió el aislamiento de la base H2 entre tests cerrando `JpaTestManager` en el `tearDown()`.
+- La batería general quedó en **68 tests en verde**.
+- Commit de código: `4697815` — `feat: implementar servicio de saldo de cuentas`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado al establecer el sistema de continuidad
 
 El repositorio queda preparado para conservar contexto de largo plazo mediante documentación versionada en `docs/`.
