@@ -17,7 +17,8 @@ public final class JpaTestManager {
 
     public static synchronized EntityManager createEntityManager() {
 
-        if (entityManagerFactory == null || !entityManagerFactory.isOpen()) {
+        if (entityManagerFactory == null
+                || !entityManagerFactory.isOpen()) {
 
             entityManagerFactory =
                     Persistence.createEntityManagerFactory(
