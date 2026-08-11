@@ -4,7 +4,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional del dominio.
+- Definir el siguiente bloque funcional del dominio para el Build 015.
 - Continuar ampliando persistencia y repositorios según el diseño acordado.
 - Mantener sincronizada la documentación de continuidad con el estado real de `main`.
 
@@ -13,7 +13,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Build 011: aislamiento y estabilización de tests JPA con H2.
 - Build 012: repositorios JPA de `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera` y `Moneda`, con sus tests correspondientes en verde.
 - Build 013: `CuentaRepository` y `CuentaRepositoryTest`, con la batería general de tests en verde.
-
+- Build 014: `MovimientoRepository` y `MovimientoRepositoryTest`, con la batería general de **64 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 

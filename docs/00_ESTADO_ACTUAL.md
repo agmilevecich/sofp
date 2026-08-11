@@ -34,36 +34,41 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 013 — Repository JPA de Cuenta**.
+El último bloque trabajado es **Build 014 — Repository JPA de Movimiento**.
 
-Se incorporó y verificó la capa de persistencia para la entidad `Cuenta`.
+Se incorporó y verificó la capa de persistencia para la entidad `Movimiento`.
 
 Repositorio incorporado:
 
-- `CuentaRepository`
+- `MovimientoRepository`
 
 Test incorporado:
 
-- `CuentaRepositoryTest`
+- `MovimientoRepositoryTest`
 
 El repositorio permite:
 
-- Guardar cuentas nuevas.
-- Actualizar cuentas existentes.
-- Buscar cuentas por ID.
-- Listar todas las cuentas.
-- Listar cuentas por `PerfilFinanciero`.
+- Guardar movimientos nuevos.
+- Actualizar movimientos existentes.
+- Buscar movimientos por ID.
+- Listar todos los movimientos.
+- Listar movimientos por `Cuenta`.
+- Listar movimientos por `Categoria`.
 
-El test verifica la integración de `Cuenta` con:
+El test verifica la integración de `Movimiento` con:
 
 - `Usuario`
 - `PerfilFinanciero`
 - `InstitucionFinanciera`
 - `Moneda`
+- `Cuenta`
+- `Categoria`
 
-Todos los tests correspondientes al Build 013 quedaron en verde.
+Durante la implementación también se ajustó `JpaTestManager` para mantener el aislamiento de las pruebas JPA con H2 en memoria.
 
-También se ejecutó la batería general de tests del proyecto y todos los tests terminaron en verde.
+El test `MovimientoRepositoryTest` quedó en verde.
+
+Se ejecutó la batería general del proyecto y los **64 tests quedaron en verde**.
 
 ## Dominio construido hasta ahora
 
@@ -92,6 +97,7 @@ Repositorios JPA incorporados:
 - `InstitucionFinancieraRepository`
 - `MonedaRepository`
 - `CuentaRepository`
+- `MovimientoRepository`
 
 Cada repositorio incorporado cuenta con sus tests correspondientes.
 
@@ -103,9 +109,12 @@ Cada repositorio incorporado cuenta con sus tests correspondientes.
 - Build 011 — Aislamiento y estabilización de tests JPA con H2.
 - Build 012 — Repositorios JPA de entidades base.
 - Build 013 — Repository JPA de `Cuenta`.
+- Build 014 — Repository JPA de `Movimiento`.
 
 ## Commits recientes de código
 
+- `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
+- `140d3eb` — `Build 013 - Implementación de CuentaRepository`.
 - `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
 - `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
 
@@ -113,16 +122,22 @@ Cada repositorio incorporado cuenta con sus tests correspondientes.
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En el Build 013 se verificó:
+En el Build 014 se verificó:
 
-- `CuentaRepositoryTest`.
+- `MovimientoRepositoryTest`.
 - Batería general de tests del proyecto.
 
-Todos terminaron en verde.
+La batería general quedó en **64/64 tests en verde**.
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional a partir del estado real del código, los repositorios ya disponibles y los tests existentes. No avanzar sin mantener la regla de tests en verde y documentación actualizada.
+Comenzar a definir el **Build 015** a partir del estado real del código, los repositorios ya disponibles y los tests existentes.
+
+No avanzar directamente a implementar el Build 015 sin definir primero:
+
+1. Qué pieza funcional se va a construir.
+2. Qué comportamiento debe tener.
+3. Qué tests deberán cubrirlo.
 
 ## Regla de continuidad
 
