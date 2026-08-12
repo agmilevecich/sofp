@@ -37,16 +37,17 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build confirmado: **Build 016 — Servicio de movimientos**.
+Último Build confirmado: **Build 017 — Repository JPA de Categoria**.
 
-Último commit de código confirmado: `8f8594e`.
+Último commit de código confirmado: `f462b3b`.
 
-Mensaje: `feat: implementar servicio de movimientos`.
+Mensaje: `feat: implementar CategoriaRepository`.
 
-El commit de Build 016 fue publicado en `main` de GitHub y Bitbucket.
+El commit de Build 017 fue publicado en `main` de GitHub y Bitbucket.
 
 Commits de código recientes:
 
+- `f462b3b` — `feat: implementar CategoriaRepository`.
 - `8f8594e` — `feat: implementar servicio de movimientos`.
 - `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
@@ -83,6 +84,7 @@ Se incorporaron repositorios JPA para:
 - `MonedaRepository`
 - `CuentaRepository`
 - `MovimientoRepository`
+- `CategoriaRepository`
 
 Cada repositorio tiene su test correspondiente.
 
@@ -140,6 +142,8 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 ## Tests
 
 La batería general del proyecto quedó en **74/74 tests en verde** al cerrar Build 016.
+
+En Build 017, `CategoriaRepositoryTest` fue ejecutado y todos sus casos terminaron en verde. No se documenta un nuevo total global hasta ejecutar explícitamente la batería completa después de incorporar el nuevo test.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
