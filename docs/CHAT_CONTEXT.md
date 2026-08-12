@@ -37,22 +37,22 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build confirmado: **Build 018 — Servicio de Categoria**.
+Último Build confirmado: **Build 019 — Servicio de PerfilFinanciero**.
 
-Último commit de código confirmado: `d57e0b4`.
+Último commit de código confirmado: `1cc00ca`.
 
-Mensaje: `feat: implementar CategoriaService`.
+Mensaje: `feat: implementar PerfilFinancieroService`.
 
-El commit de Build 018 fue publicado en `main` de GitHub y Bitbucket.
+El commit de Build 019 fue publicado en `main` de GitHub y Bitbucket.
 
 Commits de código recientes:
 
+- `1cc00ca` — `feat: implementar PerfilFinancieroService`.
 - `d57e0b4` — `feat: implementar CategoriaService`.
 - `f462b3b` — `feat: implementar CategoriaRepository`.
 - `8f8594e` — `feat: implementar servicio de movimientos`.
 - `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
-- `140d3eb` — `Build 013 - Implementación de CuentaRepository`.
 
 ## Dominio actual
 
@@ -94,6 +94,7 @@ La capa `service` contiene actualmente:
 - `CuentaService`
 - `MovimientoService`
 - `CategoriaService`
+- `PerfilFinancieroService`
 
 `CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
 
@@ -121,13 +122,24 @@ El registro de movimientos utiliza una transacción explícita, `flush()` antes 
 - `listarTodas()`.
 - `listarPorPerfilFinanciero(Long perfilFinancieroId)`.
 
+`PerfilFinancieroService` recibe `PerfilFinancieroRepository` por constructor y proporciona:
+
+- `guardar(PerfilFinanciero perfil)`.
+- `buscarPorId(Long id)`.
+- `listarTodos()`.
+- `listarPorUsuario(Long usuarioId)`.
+- `cambiarDescripcion(Long perfilId, String descripcion)`.
+- `activar(Long perfilId)`.
+- `desactivar(Long perfilId)`.
+
 Tests asociados:
 
 - `CuentaServiceTest`
 - `MovimientoServiceTest`
 - `CategoriaServiceTest`
+- `PerfilFinancieroServiceTest`
 
-`CategoriaServiceTest` cubre registro, búsqueda por ID, listado general y listado por perfil financiero.
+`PerfilFinancieroServiceTest` cubre guardado, búsqueda por ID, listado general, listado por usuario, cambio de descripción, activación y desactivación.
 
 ## Movimiento
 
@@ -149,9 +161,9 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto quedó en **82/82 tests en verde** al cerrar Build 018.
+La batería general del proyecto quedó en **88/88 tests en verde** al cerrar Build 019.
 
-`CategoriaServiceTest` terminó con sus 4 casos en verde y no se registran incidencias pendientes para este bloque.
+`PerfilFinancieroServiceTest` terminó con sus 6 casos en verde y no se registran incidencias pendientes para este bloque.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
