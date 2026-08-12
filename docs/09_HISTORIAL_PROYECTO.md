@@ -77,6 +77,15 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit de código: `8f8594e` — `feat: implementar servicio de movimientos`.
 - El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
+### Build 017 — Repository JPA de Categoria
+
+- Se incorporó `CategoriaRepository`.
+- Se incorporó `CategoriaRepositoryTest`.
+- Se verificaron las operaciones principales del repositorio y todos los casos del test terminaron en verde.
+- El nuevo bloque quedó validado sin incidencias pendientes.
+- Commit de código: `f462b3b` — `feat: implementar CategoriaRepository`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado al establecer el sistema de continuidad
 
 El repositorio queda preparado para conservar contexto de largo plazo mediante documentación versionada en `docs/`.
