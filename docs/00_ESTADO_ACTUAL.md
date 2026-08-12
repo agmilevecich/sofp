@@ -34,16 +34,21 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 017 — Repository JPA de Categoria**.
+El último bloque trabajado es **Build 018 — Servicio de Categoria**.
 
-Se completó la capa de persistencia JPA de `Categoria` con:
+Se completó la capa `service` de `Categoria` con:
 
-- `CategoriaRepository`
-- `CategoriaRepositoryTest`
+- `CategoriaService`
+- `CategoriaServiceTest`
 
-El repositorio sigue el patrón utilizado por los repositorios JPA existentes y permite centralizar las operaciones de persistencia de `Categoria`.
+`CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
 
-El test correspondiente verifica las operaciones principales del repositorio y terminó completamente en verde.
+- Registro de categorías.
+- Búsqueda por ID.
+- Listado general.
+- Listado por perfil financiero.
+
+El bloque fue validado mediante sus tests correspondientes y mediante la batería general del proyecto.
 
 ## Dominio construido hasta ahora
 
@@ -75,14 +80,13 @@ Repositorios JPA incorporados:
 - `MovimientoRepository`
 - `CategoriaRepository`
 
+## Service
+
 La capa `service` actualmente contiene:
 
 - `CuentaService`
 - `MovimientoService`
-
-Cada bloque incorporado cuenta con tests correspondientes.
-
-## Service
+- `CategoriaService`
 
 `CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
 
@@ -103,6 +107,13 @@ Reglas actuales del cálculo:
 
 El registro de movimientos utiliza una transacción explícita, `flush()` antes del `commit` y `rollback()` ante excepciones.
 
+`CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
+
+- `registrar(Categoria categoria)`.
+- `buscarPorId(Long id)`.
+- `listarTodas()`.
+- `listarPorPerfilFinanciero(Long perfilFinancieroId)`.
+
 ## Últimos Builds / hitos conocidos
 
 - Build 005 — Diseño de la entidad `Cuenta`.
@@ -115,35 +126,34 @@ El registro de movimientos utiliza una transacción explícita, `flush()` antes 
 - Build 015 — Servicio de saldo de cuentas.
 - Build 016 — Servicio de movimientos.
 - Build 017 — Repository JPA de `Categoria`.
+- Build 018 — Servicio de `Categoria`.
 
 ## Commits recientes de código
 
+- `d57e0b4` — `feat: implementar CategoriaService`.
 - `f462b3b` — `feat: implementar CategoriaRepository`.
 - `8f8594e` — `feat: implementar servicio de movimientos`.
 - `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
 - `140d3eb` — `Build 013 - Implementación de CuentaRepository`.
-- `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
-- `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
 
-El commit `f462b3b` fue publicado en `main` de GitHub y Bitbucket.
+El commit `d57e0b4` fue publicado en `main` de GitHub y Bitbucket.
 
 ## Tests
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En el Build 017 se verificó:
+En el Build 018 se verificó:
 
-- `CategoriaRepositoryTest` con todos sus casos en verde.
+- `CategoriaServiceTest` con sus 4 casos en verde.
+- La batería general del proyecto terminó con **82/82 tests en verde**.
 - No se registran incidencias pendientes para este bloque.
-
-La batería general previamente verificada en Build 016 fue de **74/74 tests en verde**. El nuevo test de Build 017 queda agregado a la batería conocida; no se documenta un nuevo total global hasta ejecutar explícitamente la batería completa.
 
 ## Próximo paso
 
-Definir el **Build 018** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+Definir el **Build 019** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
 
-No avanzar directamente a implementar el Build 018 sin definir primero:
+No avanzar directamente a implementar el Build 019 sin definir primero:
 
 1. Qué pieza funcional se va a construir.
 2. Qué comportamiento debe tener.

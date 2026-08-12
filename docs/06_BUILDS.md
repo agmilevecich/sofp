@@ -334,3 +334,52 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 ### Próximo paso
 
 Definir el Build 018 a partir del estado real del dominio, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+
+## Build 018 — Servicio de Categoria
+
+### Objetivo
+
+Ampliar la capa `service` incorporando el servicio de aplicación para `Categoria`, utilizando `CategoriaRepository` y manteniendo el desarrollo incremental y verificable mediante tests.
+
+### Cambios principales
+
+Se incorporó:
+
+- `CategoriaService`
+- `CategoriaServiceTest`
+
+`CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
+
+- Registrar una categoría.
+- Buscar una categoría por ID.
+- Listar todas las categorías.
+- Listar categorías por perfil financiero.
+
+El servicio mantiene separada la lógica de aplicación de las operaciones de persistencia realizadas por `CategoriaRepository`.
+
+### Tests verificados
+
+`CategoriaServiceTest` verifica:
+
+1. Registrar una categoría.
+2. Buscar una categoría por ID.
+3. Listar todas las categorías.
+4. Listar categorías por perfil financiero.
+
+Los 4 tests de `CategoriaServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **82/82 tests terminaron en verde**.
+
+### Resultado
+
+Build 018 queda cerrado con `CategoriaService` y `CategoriaServiceTest` incorporados, verificados y sin regresiones en la batería general.
+
+### Commit asociado
+
+- `d57e0b4` — `feat: implementar CategoriaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 019 a partir del estado real del dominio, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.

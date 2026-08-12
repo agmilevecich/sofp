@@ -25,6 +25,7 @@ Los tests son parte del cierre de cada Build. Una funcionalidad se considera ver
 - `CategoriaRepositoryTest`
 - `CuentaServiceTest`
 - `MovimientoServiceTest`
+- `CategoriaServiceTest`
 
 ## Build 011
 
@@ -147,9 +148,28 @@ Resultado: todos los tests de `CategoriaRepositoryTest` terminaron en verde.
 
 El bloque queda validado para cerrar el Build 017.
 
+## Build 018
+
+Se incorporó y verificó:
+
+- `CategoriaServiceTest`
+
+El test verifica:
+
+1. Registro de una categoría.
+2. Búsqueda de una categoría por ID.
+3. Listado de todas las categorías.
+4. Listado de categorías por perfil financiero.
+
+Resultado: los 4 tests de `CategoriaServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **82/82 tests terminaron en verde**.
+
+No se registran incidencias pendientes para este bloque.
+
 ## Resultado actual
 
-El Build 017 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
+El Build 018 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
 
 ## Regla de actualización
 
