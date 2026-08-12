@@ -34,36 +34,41 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 015 — Servicio de saldo de cuentas**.
+El último bloque trabajado es **Build 016 — Servicio de movimientos**.
 
-Se incorporó la primera pieza de la capa de servicios para calcular el saldo de una cuenta a partir de sus movimientos.
+Se amplió la capa `service` con el servicio encargado de registrar y consultar movimientos financieros.
 
 Servicio incorporado:
 
-- `CuentaService`
+- `MovimientoService`
 
-El servicio recibe `MovimientoRepository` por constructor y proporciona:
+El servicio recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona:
 
-- `calcularSaldo(Long cuentaId)`.
-- `INGRESO` suma al saldo.
-- `EGRESO` resta del saldo.
-- Una cuenta sin movimientos devuelve `BigDecimal.ZERO`.
-- El cálculo soporta múltiples movimientos de la misma cuenta.
+- `registrar(...)`.
+- `buscarPorId(Long id)`.
+- `listarTodos()`.
+- `listarPorCuenta(Long cuentaId)`.
+- `listarPorCategoria(Long categoriaId)`.
+- El registro se ejecuta dentro de una transacción.
+- Se realiza `flush()` antes del `commit` para garantizar la persistencia y disponibilidad del ID.
+- Ante una excepción se realiza `rollback()` si la transacción permanece activa.
 
 Test incorporado:
 
-- `CuentaServiceTest`
+- `MovimientoServiceTest`
 
 El test verifica:
 
-- Cuenta sin movimientos → saldo `0.00`.
-- Un ingreso de `10,000.00` → saldo `10,000.00`.
-- Un egreso de `3,000.00` → saldo `-3,000.00`.
-- Múltiples movimientos (`10,000 + 5,000 - 3,000`) → saldo `12,000.00`.
+- Registro de un `INGRESO`.
+- Registro de un `EGRESO`.
+- Listado de movimientos por cuenta.
+- Listado de movimientos por categoría.
+- Listado de todos los movimientos.
+- Búsqueda de un movimiento por ID.
 
-Durante la implementación se ajustó el `tearDown()` del test para cerrar `JpaTestManager` después de cada prueba y mantener aislada la base H2 en memoria entre tests.
+Durante la implementación se corrigieron casos relacionados con entidades transitorias, aislamiento de la base H2 y ausencia de transacción activa durante el `flush()`.
 
-La batería general del proyecto quedó en **68 tests en verde**.
+La batería general del proyecto quedó en **74 tests en verde**.
 
 ## Dominio construido hasta ahora
 
@@ -94,9 +99,10 @@ Repositorios JPA incorporados:
 - `CuentaRepository`
 - `MovimientoRepository`
 
-La capa `service` ya inició con:
+La capa `service` actualmente contiene:
 
 - `CuentaService`
+- `MovimientoService`
 
 Cada bloque incorporado cuenta con tests correspondientes.
 
@@ -110,31 +116,33 @@ Cada bloque incorporado cuenta con tests correspondientes.
 - Build 013 — Repository JPA de `Cuenta`.
 - Build 014 — Repository JPA de `Movimiento`.
 - Build 015 — Servicio de saldo de cuentas.
+- Build 016 — Servicio de movimientos.
 
 ## Commits recientes de código
 
+- `8f8594e` — `feat: implementar servicio de movimientos`.
 - `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
 - `140d3eb` — `Build 013 - Implementación de CuentaRepository`.
 - `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
 - `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
 
-El commit `4697815` fue publicado en `main` de GitHub y Bitbucket.
+El commit `8f8594e` fue publicado en `main` de GitHub y Bitbucket.
 
 ## Tests
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En el Build 015 se verificó:
+En el Build 016 se verificó:
 
-- `CuentaServiceTest` con 4 casos en verde.
-- Batería general del proyecto: **68/68 tests en verde**.
+- `MovimientoServiceTest` con 6 casos en verde.
+- Batería general del proyecto: **74/74 tests en verde**.
 
 ## Próximo paso
 
-Definir el **Build 016** a partir del estado real del código, la nueva capa `service`, los repositorios disponibles y los tests existentes.
+Definir el **Build 017** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
 
-No avanzar directamente a implementar el Build 016 sin definir primero:
+No avanzar directamente a implementar el Build 017 sin definir primero:
 
 1. Qué pieza funcional se va a construir.
 2. Qué comportamiento debe tener.

@@ -37,16 +37,17 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build confirmado: **Build 015 — Servicio de saldo de cuentas**.
+Último Build confirmado: **Build 016 — Servicio de movimientos**.
 
-Último commit de código confirmado: `4697815`.
+Último commit de código confirmado: `8f8594e`.
 
-Mensaje: `feat: implementar servicio de saldo de cuentas`.
+Mensaje: `feat: implementar servicio de movimientos`.
 
-El commit de Build 015 fue publicado en `main` de GitHub y Bitbucket.
+El commit de Build 016 fue publicado en `main` de GitHub y Bitbucket.
 
 Commits de código recientes:
 
+- `8f8594e` — `feat: implementar servicio de movimientos`.
 - `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
 - `140d3eb` — `Build 013 - Implementación de CuentaRepository`.
@@ -87,9 +88,10 @@ Cada repositorio tiene su test correspondiente.
 
 ## Service
 
-Se inició la capa `service` con:
+La capa `service` contiene actualmente:
 
 - `CuentaService`
+- `MovimientoService`
 
 `CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
 
@@ -100,11 +102,22 @@ Reglas actuales del cálculo:
 - Sin movimientos → `BigDecimal.ZERO`.
 - Se procesan múltiples movimientos de una cuenta.
 
-Test asociado:
+`MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona:
+
+- `registrar(...)`.
+- `buscarPorId(Long id)`.
+- `listarTodos()`.
+- `listarPorCuenta(Long cuentaId)`.
+- `listarPorCategoria(Long categoriaId)`.
+
+El registro de movimientos utiliza una transacción explícita, `flush()` antes del `commit` y `rollback()` ante excepciones.
+
+Tests asociados:
 
 - `CuentaServiceTest`
+- `MovimientoServiceTest`
 
-El test cubre cuenta sin movimientos, ingreso, egreso y múltiples movimientos.
+`MovimientoServiceTest` cubre registro de ingreso, registro de egreso, listados por cuenta y categoría, listado general y búsqueda por ID.
 
 ## Movimiento
 
@@ -126,9 +139,9 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto quedó en **68/68 tests en verde** al cerrar Build 015.
+La batería general del proyecto quedó en **74/74 tests en verde** al cerrar Build 016.
 
-La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En `CuentaServiceTest` se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
+La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
 ## Forma de trabajo acordada
 
@@ -182,5 +195,7 @@ Actualizar como mínimo:
 - `docs/06_BUILDS.md`
 - `docs/07_TESTS.md`
 - `docs/08_PENDIENTES.md`
+- `docs/09_HISTORIAL_PROYECTO.md`
+- `docs/CHAT_CONTEXT.md`
 
 Si hubo una decisión arquitectónica o de negocio importante, actualizar también `docs/05_DECISIONES.md`.

@@ -61,6 +61,22 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit de código: `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
+## 2026-08-12
+
+### Build 016 — Servicio de movimientos
+
+- Se amplió la capa `service` con `MovimientoService`.
+- Se incorporó `MovimientoServiceTest` con 6 casos.
+- Se implementó el registro de movimientos con transacción explícita.
+- Se agregó `flush()` antes del `commit` para asegurar la sincronización de la persistencia.
+- Se agregó `rollback()` ante excepciones cuando la transacción permanece activa.
+- Se implementaron búsquedas y listados por ID, cuenta y categoría, además del listado general.
+- Se resolvieron incidencias de entidades transitorias, aislamiento de H2 y ausencia de transacción activa.
+- Los 6 tests de `MovimientoServiceTest` terminaron en verde.
+- La batería general quedó en **74 tests en verde**.
+- Commit de código: `8f8594e` — `feat: implementar servicio de movimientos`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado al establecer el sistema de continuidad
 
 El repositorio queda preparado para conservar contexto de largo plazo mediante documentación versionada en `docs/`.

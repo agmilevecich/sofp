@@ -219,7 +219,7 @@ Se incorporó:
 Reglas implementadas:
 
 - `INGRESO` suma al saldo.
-- `EGRESO` resta del saldo.
+- `EGRESO` resta al saldo.
 - Una cuenta sin movimientos devuelve `BigDecimal.ZERO`.
 - Se procesan correctamente múltiples movimientos de la misma cuenta.
 
@@ -247,3 +247,55 @@ Build 015 queda cerrado con la primera pieza de la capa `service`, su comportami
 ### Próximo paso
 
 Definir el Build 016 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que deban incorporarse.
+
+## Build 016 — Servicio de movimientos
+
+### Objetivo
+
+Ampliar la capa `service` incorporando un servicio para registrar y consultar movimientos financieros, utilizando `MovimientoRepository` y control explícito de transacciones JPA.
+
+### Cambios principales
+
+Se incorporó:
+
+- `MovimientoService`
+- `MovimientoServiceTest`
+
+`MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona:
+
+- Registro de movimientos.
+- Búsqueda de movimientos por ID.
+- Listado general de movimientos.
+- Listado de movimientos por cuenta.
+- Listado de movimientos por categoría.
+
+El registro utiliza una transacción explícita, realiza `flush()` antes del `commit` y ejecuta `rollback()` ante excepciones cuando la transacción continúa activa.
+
+### Tests verificados
+
+`MovimientoServiceTest` verifica:
+
+1. Registrar un `INGRESO`.
+2. Registrar un `EGRESO`.
+3. Listar movimientos por cuenta.
+4. Listar movimientos por categoría.
+5. Listar todos los movimientos.
+6. Buscar un movimiento por ID.
+
+Durante la implementación se resolvieron incidencias relacionadas con entidades transitorias, aislamiento de la base H2 y ausencia de transacción activa durante el `flush()`.
+
+### Resultado
+
+Los 6 tests de `MovimientoServiceTest` terminaron en verde.
+
+La batería general del proyecto terminó con **74/74 tests en verde**.
+
+Build 016 queda cerrado con el servicio de movimientos incorporado, su comportamiento verificado y sin regresiones en la batería general.
+
+### Commit asociado
+
+- `8f8594e` — `feat: implementar servicio de movimientos`.
+
+### Próximo paso
+
+Definir el Build 017 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.

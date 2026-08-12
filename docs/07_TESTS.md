@@ -23,6 +23,7 @@ Los tests son parte del cierre de cada Build. Una funcionalidad se considera ver
 - `CuentaRepositoryTest`
 - `MovimientoRepositoryTest`
 - `CuentaServiceTest`
+- `MovimientoServiceTest`
 
 ## Build 011
 
@@ -106,9 +107,36 @@ Resultado: los 4 tests de `CuentaServiceTest` terminaron en verde.
 
 Además, se ejecutó la batería general del proyecto y los **68/68 tests terminaron en verde**.
 
+## Build 016
+
+Se incorporó y verificó:
+
+- `MovimientoServiceTest`
+
+El test verifica:
+
+1. Registro de un `INGRESO`.
+2. Registro de un `EGRESO`.
+3. Listado de movimientos por cuenta.
+4. Listado de movimientos por categoría.
+5. Listado de todos los movimientos.
+6. Búsqueda de un movimiento por ID.
+
+Durante la implementación se detectaron y resolvieron tres incidencias principales:
+
+- `TransientPropertyValueException` al persistir una `Cuenta` cuyo `PerfilFinanciero` todavía no estaba persistido.
+- Violación de unicidad de `Moneda.codigo` por reutilización de la infraestructura de H2 entre pruebas.
+- `TransactionRequiredException` durante `flush()` al no existir una transacción activa en el servicio.
+
+La solución final utiliza `JpaTestManager.close()` en el `tearDown()` para mantener el aislamiento de la base de pruebas y `MovimientoService` controla explícitamente `begin`, `flush`, `commit` y `rollback` durante el registro.
+
+Resultado: los 6 tests de `MovimientoServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **74/74 tests terminaron en verde**.
+
 ## Resultado actual
 
-El Build 015 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
+El Build 016 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
 
 ## Regla de actualización
 
