@@ -34,19 +34,22 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 018 — Servicio de Categoria**.
+El último bloque trabajado es **Build 019 — Servicio de PerfilFinanciero**.
 
-Se completó la capa `service` de `Categoria` con:
+Se completó la capa `service` de `PerfilFinanciero` con:
 
-- `CategoriaService`
-- `CategoriaServiceTest`
+- `PerfilFinancieroService`
+- `PerfilFinancieroServiceTest`
 
-`CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
+`PerfilFinancieroService` recibe `PerfilFinancieroRepository` por constructor y proporciona:
 
-- Registro de categorías.
+- Guardado de perfiles financieros.
 - Búsqueda por ID.
 - Listado general.
-- Listado por perfil financiero.
+- Listado por usuario.
+- Cambio de descripción.
+- Activación.
+- Desactivación.
 
 El bloque fue validado mediante sus tests correspondientes y mediante la batería general del proyecto.
 
@@ -87,6 +90,7 @@ La capa `service` actualmente contiene:
 - `CuentaService`
 - `MovimientoService`
 - `CategoriaService`
+- `PerfilFinancieroService`
 
 `CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
 
@@ -114,6 +118,16 @@ El registro de movimientos utiliza una transacción explícita, `flush()` antes 
 - `listarTodas()`.
 - `listarPorPerfilFinanciero(Long perfilFinancieroId)`.
 
+`PerfilFinancieroService` recibe `PerfilFinancieroRepository` por constructor y proporciona:
+
+- `guardar(PerfilFinanciero perfil)`.
+- `buscarPorId(Long id)`.
+- `listarTodos()`.
+- `listarPorUsuario(Long usuarioId)`.
+- `cambiarDescripcion(Long perfilId, String descripcion)`.
+- `activar(Long perfilId)`.
+- `desactivar(Long perfilId)`.
+
 ## Últimos Builds / hitos conocidos
 
 - Build 005 — Diseño de la entidad `Cuenta`.
@@ -127,33 +141,36 @@ El registro de movimientos utiliza una transacción explícita, `flush()` antes 
 - Build 016 — Servicio de movimientos.
 - Build 017 — Repository JPA de `Categoria`.
 - Build 018 — Servicio de `Categoria`.
+- Build 019 — Servicio de `PerfilFinanciero`.
 
 ## Commits recientes de código
 
+- `1cc00ca` — `feat: implementar PerfilFinancieroService`.
 - `d57e0b4` — `feat: implementar CategoriaService`.
 - `f462b3b` — `feat: implementar CategoriaRepository`.
 - `8f8594e` — `feat: implementar servicio de movimientos`.
 - `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
-- `140d3eb` — `Build 013 - Implementación de CuentaRepository`.
 
-El commit `d57e0b4` fue publicado en `main` de GitHub y Bitbucket.
+El commit `1cc00ca` fue publicado en `main` de GitHub y Bitbucket.
 
 ## Tests
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En el Build 018 se verificó:
+En el Build 019 se verificó:
 
-- `CategoriaServiceTest` con sus 4 casos en verde.
-- La batería general del proyecto terminó con **82/82 tests en verde**.
+- `PerfilFinancieroServiceTest` con sus 6 casos en verde.
+- La batería general del proyecto terminó con **88/88 tests en verde**.
 - No se registran incidencias pendientes para este bloque.
 
 ## Próximo paso
 
-Definir el **Build 019** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+Definir el **Build 020** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
 
-No avanzar directamente a implementar el Build 019 sin definir primero:
+El siguiente candidato funcional es `UsuarioService`, para completar progresivamente la capa de servicios alrededor de las entidades principales.
+
+No avanzar directamente a implementar el Build 020 sin definir primero:
 
 1. Qué pieza funcional se va a construir.
 2. Qué comportamiento debe tener.
