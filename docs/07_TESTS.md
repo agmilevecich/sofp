@@ -22,6 +22,7 @@ Los tests son parte del cierre de cada Build. Una funcionalidad se considera ver
 - `MonedaRepositoryTest`
 - `CuentaRepositoryTest`
 - `MovimientoRepositoryTest`
+- `CategoriaRepositoryTest`
 - `CuentaServiceTest`
 - `MovimientoServiceTest`
 
@@ -134,9 +135,21 @@ Resultado: los 6 tests de `MovimientoServiceTest` terminaron en verde.
 
 Además, se ejecutó la batería general del proyecto y los **74/74 tests terminaron en verde**.
 
+## Build 017
+
+Se incorporó y verificó:
+
+- `CategoriaRepositoryTest`
+
+El test cubre las operaciones principales del repositorio JPA de `Categoria` y fue ejecutado correctamente.
+
+Resultado: todos los tests de `CategoriaRepositoryTest` terminaron en verde.
+
+El bloque queda validado para cerrar el Build 017.
+
 ## Resultado actual
 
-El Build 016 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
+El Build 017 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
 
 ## Regla de actualización
 
