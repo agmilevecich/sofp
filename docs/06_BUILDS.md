@@ -299,3 +299,38 @@ Build 016 queda cerrado con el servicio de movimientos incorporado, su comportam
 ### Próximo paso
 
 Definir el Build 017 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+
+## Build 017 — Repository JPA de Categoria
+
+### Objetivo
+
+Completar la capa de persistencia para la entidad `Categoria`, incorporando su repositorio JPA y los tests correspondientes antes de continuar ampliando la capa `service`.
+
+### Cambios principales
+
+Se incorporó:
+
+- `CategoriaRepository`
+- `CategoriaRepositoryTest`
+
+El repositorio proporciona las operaciones de persistencia necesarias para `Categoria`, siguiendo el mismo patrón utilizado en los repositorios JPA existentes.
+
+### Tests verificados
+
+`CategoriaRepositoryTest` verifica las operaciones principales del repositorio y terminó completamente en verde.
+
+Los tests correspondientes al nuevo bloque fueron ejecutados correctamente, sin incidencias pendientes.
+
+### Resultado
+
+Build 017 queda cerrado con `CategoriaRepository` y `CategoriaRepositoryTest` incorporados y verificados.
+
+### Commit asociado
+
+- `f462b3b` — `feat: implementar CategoriaRepository`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 018 a partir del estado real del dominio, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
