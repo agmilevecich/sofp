@@ -383,3 +383,59 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 ### Próximo paso
 
 Definir el Build 019 a partir del estado real del dominio, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+
+## Build 019 — Servicio de PerfilFinanciero
+
+### Objetivo
+
+Ampliar la capa `service` incorporando el servicio de aplicación para `PerfilFinanciero`, utilizando `PerfilFinancieroRepository` y manteniendo el desarrollo incremental y verificable mediante tests.
+
+### Cambios principales
+
+Se incorporó:
+
+- `PerfilFinancieroService`
+- `PerfilFinancieroServiceTest`
+
+`PerfilFinancieroService` recibe `PerfilFinancieroRepository` por constructor y proporciona:
+
+- Guardar un perfil financiero.
+- Buscar un perfil por ID.
+- Listar todos los perfiles.
+- Listar perfiles por usuario.
+- Cambiar la descripción de un perfil.
+- Activar un perfil.
+- Desactivar un perfil.
+
+El servicio mantiene separada la lógica de aplicación de las operaciones de persistencia realizadas por `PerfilFinancieroRepository`.
+
+### Tests verificados
+
+`PerfilFinancieroServiceTest` verifica:
+
+1. Guardar y buscar un perfil por ID.
+2. Listar todos los perfiles.
+3. Listar perfiles por usuario.
+4. Cambiar la descripción.
+5. Desactivar un perfil.
+6. Activar un perfil.
+
+Los 6 tests de `PerfilFinancieroServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **88/88 tests terminaron en verde**.
+
+### Resultado
+
+Build 019 queda cerrado con `PerfilFinancieroService` y `PerfilFinancieroServiceTest` incorporados, verificados y sin regresiones en la batería general.
+
+### Commit asociado
+
+- `1cc00ca` — `feat: implementar PerfilFinancieroService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 020 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+
+El siguiente candidato funcional es `UsuarioService`, para completar progresivamente la capa de servicios alrededor de las entidades principales.
