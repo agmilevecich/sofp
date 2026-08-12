@@ -4,7 +4,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional del dominio para el Build 018.
+- Definir el siguiente bloque funcional del dominio para el Build 019.
 - Continuar ampliando la capa `service` y los casos de uso según el diseño acordado.
 - Mantener sincronizada la documentación de continuidad con el estado real de `main`.
 
@@ -17,6 +17,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Build 015: `CuentaService` y `CuentaServiceTest`, con la batería general de **68 tests en verde**.
 - Build 016: `MovimientoService` y `MovimientoServiceTest`, con la batería general de **74 tests en verde**.
 - Build 017: `CategoriaRepository` y `CategoriaRepositoryTest`, con los tests correspondientes en verde.
+- Build 018: `CategoriaService` y `CategoriaServiceTest`, con la batería general de **82 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 
