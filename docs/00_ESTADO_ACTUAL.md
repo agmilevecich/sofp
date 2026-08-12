@@ -34,41 +34,16 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 016 — Servicio de movimientos**.
+El último bloque trabajado es **Build 017 — Repository JPA de Categoria**.
 
-Se amplió la capa `service` con el servicio encargado de registrar y consultar movimientos financieros.
+Se completó la capa de persistencia JPA de `Categoria` con:
 
-Servicio incorporado:
+- `CategoriaRepository`
+- `CategoriaRepositoryTest`
 
-- `MovimientoService`
+El repositorio sigue el patrón utilizado por los repositorios JPA existentes y permite centralizar las operaciones de persistencia de `Categoria`.
 
-El servicio recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona:
-
-- `registrar(...)`.
-- `buscarPorId(Long id)`.
-- `listarTodos()`.
-- `listarPorCuenta(Long cuentaId)`.
-- `listarPorCategoria(Long categoriaId)`.
-- El registro se ejecuta dentro de una transacción.
-- Se realiza `flush()` antes del `commit` para garantizar la persistencia y disponibilidad del ID.
-- Ante una excepción se realiza `rollback()` si la transacción permanece activa.
-
-Test incorporado:
-
-- `MovimientoServiceTest`
-
-El test verifica:
-
-- Registro de un `INGRESO`.
-- Registro de un `EGRESO`.
-- Listado de movimientos por cuenta.
-- Listado de movimientos por categoría.
-- Listado de todos los movimientos.
-- Búsqueda de un movimiento por ID.
-
-Durante la implementación se corrigieron casos relacionados con entidades transitorias, aislamiento de la base H2 y ausencia de transacción activa durante el `flush()`.
-
-La batería general del proyecto quedó en **74 tests en verde**.
+El test correspondiente verifica las operaciones principales del repositorio y terminó completamente en verde.
 
 ## Dominio construido hasta ahora
 
@@ -98,6 +73,7 @@ Repositorios JPA incorporados:
 - `MonedaRepository`
 - `CuentaRepository`
 - `MovimientoRepository`
+- `CategoriaRepository`
 
 La capa `service` actualmente contiene:
 
@@ -105,6 +81,27 @@ La capa `service` actualmente contiene:
 - `MovimientoService`
 
 Cada bloque incorporado cuenta con tests correspondientes.
+
+## Service
+
+`CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
+
+Reglas actuales del cálculo:
+
+- `INGRESO` suma.
+- `EGRESO` resta.
+- Sin movimientos → `BigDecimal.ZERO`.
+- Se procesan múltiples movimientos de una cuenta.
+
+`MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona:
+
+- `registrar(...)`.
+- `buscarPorId(Long id)`.
+- `listarTodos()`.
+- `listarPorCuenta(Long cuentaId)`.
+- `listarPorCategoria(Long categoriaId)`.
+
+El registro de movimientos utiliza una transacción explícita, `flush()` antes del `commit` y `rollback()` ante excepciones.
 
 ## Últimos Builds / hitos conocidos
 
@@ -117,9 +114,11 @@ Cada bloque incorporado cuenta con tests correspondientes.
 - Build 014 — Repository JPA de `Movimiento`.
 - Build 015 — Servicio de saldo de cuentas.
 - Build 016 — Servicio de movimientos.
+- Build 017 — Repository JPA de `Categoria`.
 
 ## Commits recientes de código
 
+- `f462b3b` — `feat: implementar CategoriaRepository`.
 - `8f8594e` — `feat: implementar servicio de movimientos`.
 - `4697815` — `feat: implementar servicio de saldo de cuentas`.
 - `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
@@ -127,22 +126,24 @@ Cada bloque incorporado cuenta con tests correspondientes.
 - `9e1a9c3` — `feat(persistence): agregar repositories de Usuario y PerfilFinanciero`.
 - `5a3ebfb` — `Build: agrega repositorios de InstitucionFinanciera y Moneda`.
 
-El commit `8f8594e` fue publicado en `main` de GitHub y Bitbucket.
+El commit `f462b3b` fue publicado en `main` de GitHub y Bitbucket.
 
 ## Tests
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En el Build 016 se verificó:
+En el Build 017 se verificó:
 
-- `MovimientoServiceTest` con 6 casos en verde.
-- Batería general del proyecto: **74/74 tests en verde**.
+- `CategoriaRepositoryTest` con todos sus casos en verde.
+- No se registran incidencias pendientes para este bloque.
+
+La batería general previamente verificada en Build 016 fue de **74/74 tests en verde**. El nuevo test de Build 017 queda agregado a la batería conocida; no se documenta un nuevo total global hasta ejecutar explícitamente la batería completa.
 
 ## Próximo paso
 
-Definir el **Build 017** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+Definir el **Build 018** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
 
-No avanzar directamente a implementar el Build 017 sin definir primero:
+No avanzar directamente a implementar el Build 018 sin definir primero:
 
 1. Qué pieza funcional se va a construir.
 2. Qué comportamiento debe tener.
