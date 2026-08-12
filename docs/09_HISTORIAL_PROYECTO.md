@@ -98,6 +98,18 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit de código: `d57e0b4` — `feat: implementar CategoriaService`.
 - El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
+### Build 019 — Servicio de PerfilFinanciero
+
+- Se amplió la capa `service` con `PerfilFinancieroService`.
+- Se incorporó `PerfilFinancieroServiceTest` con 6 casos.
+- Se implementaron guardado, búsqueda por ID, listado general, listado por usuario, cambio de descripción, activación y desactivación.
+- El servicio utiliza `PerfilFinancieroRepository` como frontera de persistencia.
+- Los 6 tests de `PerfilFinancieroServiceTest` terminaron en verde.
+- Se ejecutó la batería general del proyecto y los **88/88 tests terminaron en verde**.
+- No quedaron incidencias pendientes para este bloque.
+- Commit de código: `1cc00ca` — `feat: implementar PerfilFinancieroService`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado al establecer el sistema de continuidad
 
 El repositorio queda preparado para conservar contexto de largo plazo mediante documentación versionada en `docs/`.
