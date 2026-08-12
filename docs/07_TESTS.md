@@ -26,6 +26,7 @@ Los tests son parte del cierre de cada Build. Una funcionalidad se considera ver
 - `CuentaServiceTest`
 - `MovimientoServiceTest`
 - `CategoriaServiceTest`
+- `PerfilFinancieroServiceTest`
 
 ## Build 011
 
@@ -167,9 +168,30 @@ Además, se ejecutó la batería general del proyecto y los **82/82 tests termin
 
 No se registran incidencias pendientes para este bloque.
 
+## Build 019
+
+Se incorporó y verificó:
+
+- `PerfilFinancieroServiceTest`
+
+El test verifica:
+
+1. Guardar y buscar un perfil por ID.
+2. Listar todos los perfiles.
+3. Listar perfiles por usuario.
+4. Cambiar la descripción.
+5. Desactivar un perfil.
+6. Activar un perfil.
+
+Resultado: los 6 tests de `PerfilFinancieroServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **88/88 tests terminaron en verde**.
+
+No se registran incidencias pendientes para este bloque.
+
 ## Resultado actual
 
-El Build 018 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
+El Build 019 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
 
 ## Regla de actualización
 
