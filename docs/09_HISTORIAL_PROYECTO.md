@@ -86,6 +86,18 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit de código: `f462b3b` — `feat: implementar CategoriaRepository`.
 - El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
+### Build 018 — Servicio de Categoria
+
+- Se amplió la capa `service` con `CategoriaService`.
+- Se incorporó `CategoriaServiceTest` con 4 casos.
+- Se implementaron el registro de categorías, búsqueda por ID, listado general y listado por perfil financiero.
+- El servicio utiliza `CategoriaRepository` como frontera de persistencia.
+- Los 4 tests de `CategoriaServiceTest` terminaron en verde.
+- Se ejecutó la batería general del proyecto y los **82/82 tests terminaron en verde**.
+- No quedaron incidencias pendientes para este bloque.
+- Commit de código: `d57e0b4` — `feat: implementar CategoriaService`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado al establecer el sistema de continuidad
 
 El repositorio queda preparado para conservar contexto de largo plazo mediante documentación versionada en `docs/`.
