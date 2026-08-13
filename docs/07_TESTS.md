@@ -279,3 +279,28 @@ La solución consistió en cerrar `JpaTestManager` en el `tearDown()` de `Moneda
 Además, se ejecutó la batería general del proyecto y los **109/109 tests terminaron en verde**.
 
 No se registran incidencias pendientes para este bloque.
+
+## Build 023
+
+Se amplió y verificó:
+
+- `CuentaServiceTest`
+
+El test quedó ampliado de 4 a **8 tests**, cubriendo las operaciones de gestión de `Cuenta` incorporadas al servicio y manteniendo la verificación del cálculo del saldo a partir de los movimientos.
+
+Se verificó el funcionamiento de:
+
+1. Registrar una cuenta.
+2. Buscar una cuenta por ID.
+3. Listar todas las cuentas.
+4. Listar cuentas por perfil financiero.
+5. Calcular saldo sin movimientos.
+6. Sumar ingresos al saldo.
+7. Restar egresos del saldo.
+8. Calcular correctamente un saldo con múltiples movimientos.
+
+Resultado: los **8/8 tests de `CuentaServiceTest` terminaron en verde**.
+
+Además, se ejecutó la batería general del proyecto y los **113/113 tests terminaron en verde**.
+
+No se registran incidencias pendientes para este bloque.
