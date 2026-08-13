@@ -282,7 +282,7 @@ El registro utiliza una transacción explícita, realiza `flush()` antes del `co
 5. Listar todos los movimientos.
 6. Buscar un movimiento por ID.
 
-Durante la implementación se resolvieron incidencias relacionadas con entidades transitorias, aislamiento de la base H2 y ausencia de transacción activa durante el `flush()`.
+Durante la implementación se resolvieron incidencias relacionadas con entidades transitorias, aislamiento de la base H2 y ausencia de transacción activa durante el `flush`.
 
 ### Resultado
 
@@ -558,3 +558,66 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 ### Próximo paso
 
 Definir el Build 022 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+
+## Build 022 — Servicio de Moneda
+
+### Objetivo
+
+Completar progresivamente la capa `service` incorporando el servicio de aplicación para `Moneda`, utilizando `MonedaRepository` y manteniendo el desarrollo incremental y verificable mediante tests.
+
+### Cambios principales
+
+Se incorporó:
+
+- `MonedaService`
+- `MonedaServiceTest`
+
+`MonedaService` recibe `MonedaRepository` por constructor y proporciona las operaciones de aplicación necesarias para:
+
+- Guardar una moneda.
+- Buscar una moneda por ID.
+- Buscar una moneda por código.
+- Listar todas las monedas.
+- Cambiar el nombre de una moneda.
+- Cambiar la cantidad de decimales.
+
+El servicio mantiene separada la lógica de aplicación de las operaciones de persistencia realizadas por `MonedaRepository`.
+
+### Tests verificados
+
+`MonedaServiceTest` verifica:
+
+1. Guardar y buscar una moneda por ID.
+2. Buscar una moneda por código.
+3. Listar todas las monedas.
+4. Cambiar el nombre de una moneda.
+5. Cambiar la cantidad de decimales.
+6. Lanzar excepción al intentar modificar el nombre de una moneda inexistente.
+7. Lanzar excepción al intentar modificar los decimales de una moneda inexistente.
+8. Verificar el comportamiento inicial de una moneda creada.
+
+Los 8 tests de `MonedaServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **109/109 tests terminaron en verde**.
+
+### Resultado
+
+Build 022 queda cerrado con `MonedaService` y `MonedaServiceTest` incorporados, verificados y sin regresiones en la batería general.
+
+### Incidencia durante las pruebas
+
+Durante la ejecución inicial de los tests se produjo una violación de unicidad sobre `MONEDAS(CODIGO)` al intentar insertar nuevamente la moneda `ARS`.
+
+La causa fue la reutilización del mismo `EntityManagerFactory` y, por lo tanto, de la base H2 en memoria entre tests.
+
+La solución consistió en cerrar `JpaTestManager` en el `tearDown()` de `MonedaServiceTest`, garantizando una nueva base H2 aislada para cada test.
+
+### Commit asociado
+
+- `0d0db87` — `feat: implementar MonedaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 023 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
