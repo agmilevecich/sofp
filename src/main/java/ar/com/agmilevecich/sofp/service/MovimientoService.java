@@ -78,6 +78,11 @@ public class MovimientoService {
 
     public Optional<Movimiento> buscarPorId(Long id) {
 
+        Objects.requireNonNull(
+                id,
+                "El id del movimiento es obligatorio"
+        );
+
         return movimientoRepository.buscarPorId(id);
     }
 
@@ -88,11 +93,164 @@ public class MovimientoService {
 
     public List<Movimiento> listarPorCuenta(Long cuentaId) {
 
-        return movimientoRepository.listarPorCuenta(cuentaId);
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        return movimientoRepository.listarPorCuenta(
+                cuentaId
+        );
     }
 
     public List<Movimiento> listarPorCategoria(Long categoriaId) {
 
-        return movimientoRepository.listarPorCategoria(categoriaId);
+        Objects.requireNonNull(
+                categoriaId,
+                "El id de la categoría es obligatorio"
+        );
+
+        return movimientoRepository.listarPorCategoria(
+                categoriaId
+        );
+    }
+
+    public Movimiento modificarDescripcion(
+            Long movimientoId,
+            String descripcion) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                descripcion,
+                "La descripción es obligatoria"
+        );
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            movimiento.cambiarDescripcion(descripcion);
+
+            Movimiento actualizado =
+                    movimientoRepository.guardar(movimiento);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizado;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Movimiento modificarObservaciones(
+            Long movimientoId,
+            String observaciones) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            movimiento.cambiarObservaciones(observaciones);
+
+            Movimiento actualizado =
+                    movimientoRepository.guardar(movimiento);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizado;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Movimiento cambiarCategoria(
+            Long movimientoId,
+            Categoria categoria) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                categoria,
+                "La categoría es obligatoria"
+        );
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            movimiento.cambiarCategoria(categoria);
+
+            Movimiento actualizado =
+                    movimientoRepository.guardar(movimiento);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizado;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    private Movimiento obtenerMovimiento(Long movimientoId) {
+
+        return movimientoRepository.buscarPorId(
+                movimientoId
+        ).orElseThrow(
+                () -> new IllegalArgumentException(
+                        "No existe un movimiento con id "
+                                + movimientoId
+                )
+        );
     }
 }

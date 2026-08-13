@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MovimientoServiceTest {
 
@@ -143,14 +144,17 @@ class MovimientoServiceTest {
 
         assertNotNull(movimiento);
         assertNotNull(movimiento.getId());
+
         assertEquals(
                 new BigDecimal("150000.00"),
                 movimiento.getImporte()
         );
+
         assertEquals(
                 TipoMovimiento.INGRESO,
                 movimiento.getTipoMovimiento()
         );
+
         assertEquals(
                 "Sueldo",
                 movimiento.getDescripcion()
@@ -178,14 +182,17 @@ class MovimientoServiceTest {
 
         assertNotNull(movimiento);
         assertNotNull(movimiento.getId());
+
         assertEquals(
                 new BigDecimal("25000.00"),
                 movimiento.getImporte()
         );
+
         assertEquals(
                 TipoMovimiento.EGRESO,
                 movimiento.getTipoMovimiento()
         );
+
         assertEquals(
                 "Compra supermercado",
                 movimiento.getDescripcion()
@@ -390,6 +397,159 @@ class MovimientoServiceTest {
         assertEquals(
                 "Transferencia recibida",
                 movimientoEncontrado.getDescripcion()
+        );
+    }
+
+    @Test
+    void deberiaModificarLaDescripcionDeUnMovimiento() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                13,
+                                10,
+                                0
+                        ),
+                        "Compra original"
+                );
+
+        Movimiento actualizado =
+                movimientoService.modificarDescripcion(
+                        movimiento.getId(),
+                        "Compra supermercado"
+                );
+
+        assertEquals(
+                movimiento.getId(),
+                actualizado.getId()
+        );
+
+        assertEquals(
+                "Compra supermercado",
+                actualizado.getDescripcion()
+        );
+    }
+
+    @Test
+    void deberiaModificarLasObservacionesDeUnMovimiento() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3500.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                13,
+                                11,
+                                0
+                        ),
+                        "Compra"
+                );
+
+        Movimiento actualizado =
+                movimientoService.modificarObservaciones(
+                        movimiento.getId(),
+                        "Pago realizado con tarjeta"
+                );
+
+        assertEquals(
+                movimiento.getId(),
+                actualizado.getId()
+        );
+
+        assertEquals(
+                "Pago realizado con tarjeta",
+                actualizado.getObservaciones()
+        );
+    }
+
+    @Test
+    void deberiaCambiarLaCategoriaDeUnMovimiento() {
+
+        Categoria nuevaCategoria =
+                new Categoria(
+                        "Transporte",
+                        perfilFinanciero
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(nuevaCategoria);
+
+        entityManager.getTransaction().commit();
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("7000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                13,
+                                12,
+                                0
+                        ),
+                        "Carga de combustible"
+                );
+
+        Movimiento actualizado =
+                movimientoService.cambiarCategoria(
+                        movimiento.getId(),
+                        nuevaCategoria
+                );
+
+        assertEquals(
+                movimiento.getId(),
+                actualizado.getId()
+        );
+
+        assertEquals(
+                nuevaCategoria.getId(),
+                actualizado.getCategoria().getId()
+        );
+
+        assertEquals(
+                "Transporte",
+                actualizado.getCategoria().getNombre()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaUnMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.modificarDescripcion(
+                        movimientoIdInexistente,
+                        "Nueva descripción"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaLaCategoriaDeUnMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.cambiarCategoria(
+                        movimientoIdInexistente,
+                        categoria
+                )
         );
     }
 }
