@@ -192,22 +192,6 @@ Además, se ejecutó la batería general del proyecto y los **88/88 tests termin
 
 No se registran incidencias pendientes para este bloque.
 
-## Resultado actual
-
-El Build 019 está cerrado y verificado. La infraestructura de pruebas JPA continúa funcionando con H2 en memoria y `JpaTestManager`.
-
-## Regla de actualización
-
-Cuando un test sea agregado, corregido o ejecutado como parte de un Build, registrar aquí:
-
-- nombre del test;
-- objetivo;
-- resultado;
-- cualquier incidencia relevante;
-- fecha/Build.
-
-No registrar como verde un test que no haya sido realmente ejecutado con éxito.
-
 ## Build 020
 
 Se incorporó y verificó:
@@ -282,7 +266,7 @@ No se registran incidencias pendientes para este bloque.
 
 ## Build 023
 
-Se amplió y verificó:
+Se incorporó y verificó:
 
 - `CuentaServiceTest`
 
@@ -296,11 +280,39 @@ Se verificó el funcionamiento de:
 4. Listar cuentas por perfil financiero.
 5. Calcular saldo sin movimientos.
 6. Sumar ingresos al saldo.
-7. Restar egresos del saldo.
+7. Restar egresos al saldo.
 8. Calcular correctamente un saldo con múltiples movimientos.
 
 Resultado: los **8/8 tests de `CuentaServiceTest` terminaron en verde**.
 
 Además, se ejecutó la batería general del proyecto y los **113/113 tests terminaron en verde**.
+
+No se registran incidencias pendientes para este bloque.
+
+## Build 024
+
+Se amplió y verificó:
+
+- `MovimientoServiceTest`
+
+El test quedó ampliado de 6 a **11 tests**, manteniendo las operaciones existentes y agregando casos de modificación y validación del servicio.
+
+Se verificó el funcionamiento de:
+
+1. Registrar un `INGRESO`.
+2. Registrar un `EGRESO`.
+3. Listar movimientos por cuenta.
+4. Listar movimientos por categoría.
+5. Listar todos los movimientos.
+6. Buscar un movimiento por ID.
+7. Modificar la descripción de un movimiento.
+8. Modificar las observaciones de un movimiento.
+9. Cambiar la categoría de un movimiento.
+10. Lanzar excepción al modificar un movimiento inexistente.
+11. Lanzar excepción al cambiar la categoría de un movimiento inexistente.
+
+Resultado: los **11/11 tests de `MovimientoServiceTest` terminaron en verde**.
+
+Además, se ejecutó la batería general del proyecto y los **118/118 tests terminaron en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 No se registran incidencias pendientes para este bloque.
