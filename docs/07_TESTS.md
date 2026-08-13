@@ -204,3 +204,23 @@ Cuando un test sea agregado, corregido o ejecutado como parte de un Build, regis
 - fecha/Build.
 
 No registrar como verde un test que no haya sido realmente ejecutado con éxito.
+
+## Build 020
+
+Se incorporó y verificó:
+
+- `UsuarioServiceTest`
+
+El test verifica:
+
+1. Guardar y buscar un usuario por ID.
+2. Buscar un usuario por email.
+3. Listar todos los usuarios.
+4. Activar un usuario.
+5. Desactivar un usuario.
+
+Resultado: los 5 tests de `UsuarioServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **93/93 tests terminaron en verde**.
+
+No se registran incidencias pendientes para este bloque.

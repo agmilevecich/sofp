@@ -439,3 +439,55 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 Definir el Build 020 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
 
 El siguiente candidato funcional es `UsuarioService`, para completar progresivamente la capa de servicios alrededor de las entidades principales.
+
+## Build 020 — Servicio de Usuario
+
+### Objetivo
+
+Completar progresivamente la capa `service` incorporando el servicio de aplicación para `Usuario`, utilizando `UsuarioRepository` y manteniendo el desarrollo incremental y verificable mediante tests.
+
+### Cambios principales
+
+Se incorporó:
+
+- `UsuarioService`
+- `UsuarioServiceTest`
+
+`UsuarioService` recibe `UsuarioRepository` por constructor y proporciona las operaciones de aplicación necesarias para:
+
+- Guardar un usuario.
+- Buscar un usuario por ID.
+- Buscar un usuario por email.
+- Listar todos los usuarios.
+- Activar un usuario.
+- Desactivar un usuario.
+
+El servicio mantiene separada la lógica de aplicación de las operaciones de persistencia realizadas por `UsuarioRepository`.
+
+### Tests verificados
+
+`UsuarioServiceTest` verifica:
+
+1. Guardar y buscar un usuario por ID.
+2. Buscar un usuario por email.
+3. Listar todos los usuarios.
+4. Activar un usuario.
+5. Desactivar un usuario.
+
+Los 5 tests de `UsuarioServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **93/93 tests terminaron en verde**.
+
+### Resultado
+
+Build 020 queda cerrado con `UsuarioService` y `UsuarioServiceTest` incorporados, verificados y sin regresiones en la batería general.
+
+### Commit asociado
+
+- `87786fe` — `feat: implementar UsuarioService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 021 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
