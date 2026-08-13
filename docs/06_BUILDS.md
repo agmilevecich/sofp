@@ -621,3 +621,54 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 ### Próximo paso
 
 Definir el Build 023 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+
+## Build 023 — Ampliación de CuentaService
+
+### Objetivo
+
+Ampliar `CuentaService` para centralizar las operaciones de aplicación de `Cuenta`, manteniendo el cálculo del saldo basado en movimientos y agregando las operaciones básicas de gestión de cuentas mediante `CuentaRepository`.
+
+### Cambios principales
+
+Se modificó:
+
+- `CuentaService`
+- `CuentaServiceTest`
+
+`CuentaService` incorpora el uso de:
+
+- `CuentaRepository` para las operaciones de persistencia de cuentas.
+- `MovimientoRepository` para el cálculo del saldo.
+
+El servicio proporciona:
+
+- Registrar una cuenta.
+- Buscar una cuenta por ID.
+- Listar todas las cuentas.
+- Listar cuentas por perfil financiero.
+- Calcular el saldo de una cuenta a partir de sus movimientos.
+
+Se mantiene la regla de saldo:
+
+- `INGRESO` suma al saldo.
+- `EGRESO` resta al saldo.
+
+### Tests verificados
+
+`CuentaServiceTest` quedó ampliado a **8 tests**, verificando tanto las operaciones de gestión de cuentas como el cálculo del saldo.
+
+La batería general del proyecto terminó con **113/113 tests en verde**.
+
+### Resultado
+
+Build 023 queda cerrado con la ampliación de `CuentaService`, sus tests correspondientes y sin regresiones en la batería general.
+
+### Commit asociado
+
+- `ea595d4` — `feat: ampliar CuentaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 024 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
