@@ -12,6 +12,7 @@ import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -20,25 +21,48 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CuentaServiceTest {
 
     private EntityManager entityManager;
+    private CuentaRepository cuentaRepository;
     private MovimientoRepository movimientoRepository;
     private CuentaService cuentaService;
 
     @BeforeEach
     void setUp() {
-        entityManager = JpaTestManager.createEntityManager();
-        movimientoRepository = new MovimientoRepository(entityManager);
-        cuentaService = new CuentaService(movimientoRepository);
+
+        entityManager =
+                JpaTestManager.createEntityManager();
+
+        cuentaRepository =
+                new CuentaRepository(
+                        entityManager
+                );
+
+        movimientoRepository =
+                new MovimientoRepository(
+                        entityManager
+                );
+
+        cuentaService =
+                new CuentaService(
+                        cuentaRepository,
+                        movimientoRepository
+                );
     }
 
     @AfterEach
     void tearDown() {
-        if (entityManager != null && entityManager.isOpen()) {
+
+        if (entityManager != null
+                && entityManager.isOpen()) {
+
             entityManager.close();
         }
 
@@ -50,7 +74,10 @@ class CuentaServiceTest {
 
         Long cuentaId = 999L;
 
-        BigDecimal saldo = cuentaService.calcularSaldo(cuentaId);
+        BigDecimal saldo =
+                cuentaService.calcularSaldo(
+                        cuentaId
+                );
 
         assertEquals(
                 BigDecimal.ZERO,
@@ -61,19 +88,23 @@ class CuentaServiceTest {
     @Test
     void deberiaSumarUnIngresoAlSaldo() {
 
-        Usuario usuario = new Usuario(
-                "Ariel",
-                "Test",
-                "ariel.test@example.com",
-                "hash"
-        );
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.test@example.com",
+                        "hash"
+                );
 
-        PerfilFinanciero perfil = new PerfilFinanciero(
-                "Perfil principal",
-                usuario
-        );
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
 
-        usuario.agregarPerfilFinanciero(perfil);
+        usuario.agregarPerfilFinanciero(
+                perfil
+        );
 
         InstitucionFinanciera institucion =
                 new InstitucionFinanciera(
@@ -81,34 +112,38 @@ class CuentaServiceTest {
                         TipoInstitucionFinanciera.BANCO
                 );
 
-        Moneda moneda = new Moneda(
-                "ARS",
-                "Peso argentino",
-                2,
-                TipoMoneda.FIAT
-        );
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
 
-        Cuenta cuenta = new Cuenta(
-                "Cuenta de prueba",
-                TipoCuenta.CAJA_AHORRO,
-                perfil,
-                institucion,
-                moneda
-        );
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
 
-        Categoria categoria = new Categoria(
-                "Ingresos",
-                perfil
-        );
+        Categoria categoria =
+                new Categoria(
+                        "Ingresos",
+                        perfil
+                );
 
-        Movimiento movimiento = new Movimiento(
-                cuenta,
-                categoria,
-                TipoMovimiento.INGRESO,
-                new BigDecimal("10000.00"),
-                LocalDateTime.now(),
-                "Ingreso de prueba"
-        );
+        Movimiento movimiento =
+                new Movimiento(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("10000.00"),
+                        LocalDateTime.now(),
+                        "Ingreso de prueba"
+                );
 
         entityManager.getTransaction().begin();
 
@@ -125,7 +160,9 @@ class CuentaServiceTest {
         entityManager.clear();
 
         BigDecimal saldo =
-                cuentaService.calcularSaldo(cuenta.getId());
+                cuentaService.calcularSaldo(
+                        cuenta.getId()
+                );
 
         assertEquals(
                 new BigDecimal("10000.00"),
@@ -136,19 +173,23 @@ class CuentaServiceTest {
     @Test
     void deberiaRestarUnEgresoDelSaldo() {
 
-        Usuario usuario = new Usuario(
-                "Ariel",
-                "Test",
-                "ariel.egreso@example.com",
-                "hash"
-        );
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.egreso@example.com",
+                        "hash"
+                );
 
-        PerfilFinanciero perfil = new PerfilFinanciero(
-                "Perfil principal",
-                usuario
-        );
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
 
-        usuario.agregarPerfilFinanciero(perfil);
+        usuario.agregarPerfilFinanciero(
+                perfil
+        );
 
         InstitucionFinanciera institucion =
                 new InstitucionFinanciera(
@@ -156,34 +197,38 @@ class CuentaServiceTest {
                         TipoInstitucionFinanciera.BANCO
                 );
 
-        Moneda moneda = new Moneda(
-                "ARS",
-                "Peso argentino",
-                2,
-                TipoMoneda.FIAT
-        );
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
 
-        Cuenta cuenta = new Cuenta(
-                "Cuenta de prueba",
-                TipoCuenta.CAJA_AHORRO,
-                perfil,
-                institucion,
-                moneda
-        );
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
 
-        Categoria categoria = new Categoria(
-                "Gastos",
-                perfil
-        );
+        Categoria categoria =
+                new Categoria(
+                        "Gastos",
+                        perfil
+                );
 
-        Movimiento movimiento = new Movimiento(
-                cuenta,
-                categoria,
-                TipoMovimiento.EGRESO,
-                new BigDecimal("3000.00"),
-                LocalDateTime.now(),
-                "Egreso de prueba"
-        );
+        Movimiento movimiento =
+                new Movimiento(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.now(),
+                        "Egreso de prueba"
+                );
 
         entityManager.getTransaction().begin();
 
@@ -200,7 +245,9 @@ class CuentaServiceTest {
         entityManager.clear();
 
         BigDecimal saldo =
-                cuentaService.calcularSaldo(cuenta.getId());
+                cuentaService.calcularSaldo(
+                        cuenta.getId()
+                );
 
         assertEquals(
                 new BigDecimal("-3000.00"),
@@ -211,19 +258,23 @@ class CuentaServiceTest {
     @Test
     void deberiaCalcularSaldoConMultiplesMovimientos() {
 
-        Usuario usuario = new Usuario(
-                "Ariel",
-                "Test",
-                "ariel.multiple@example.com",
-                "hash"
-        );
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.multiple@example.com",
+                        "hash"
+                );
 
-        PerfilFinanciero perfil = new PerfilFinanciero(
-                "Perfil principal",
-                usuario
-        );
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
 
-        usuario.agregarPerfilFinanciero(perfil);
+        usuario.agregarPerfilFinanciero(
+                perfil
+        );
 
         InstitucionFinanciera institucion =
                 new InstitucionFinanciera(
@@ -231,57 +282,64 @@ class CuentaServiceTest {
                         TipoInstitucionFinanciera.BANCO
                 );
 
-        Moneda moneda = new Moneda(
-                "ARS",
-                "Peso argentino",
-                2,
-                TipoMoneda.FIAT
-        );
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
 
-        Cuenta cuenta = new Cuenta(
-                "Cuenta de prueba",
-                TipoCuenta.CAJA_AHORRO,
-                perfil,
-                institucion,
-                moneda
-        );
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
 
-        Categoria categoriaIngresos = new Categoria(
-                "Ingresos",
-                perfil
-        );
+        Categoria categoriaIngresos =
+                new Categoria(
+                        "Ingresos",
+                        perfil
+                );
 
-        Categoria categoriaGastos = new Categoria(
-                "Gastos",
-                perfil
-        );
+        Categoria categoriaGastos =
+                new Categoria(
+                        "Gastos",
+                        perfil
+                );
 
-        Movimiento ingreso1 = new Movimiento(
-                cuenta,
-                categoriaIngresos,
-                TipoMovimiento.INGRESO,
-                new BigDecimal("10000.00"),
-                LocalDateTime.now().minusDays(2),
-                "Primer ingreso"
-        );
+        Movimiento ingreso1 =
+                new Movimiento(
+                        cuenta,
+                        categoriaIngresos,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("10000.00"),
+                        LocalDateTime.now().minusDays(2),
+                        "Primer ingreso"
+                );
 
-        Movimiento ingreso2 = new Movimiento(
-                cuenta,
-                categoriaIngresos,
-                TipoMovimiento.INGRESO,
-                new BigDecimal("5000.00"),
-                LocalDateTime.now().minusDays(1),
-                "Segundo ingreso"
-        );
+        Movimiento ingreso2 =
+                new Movimiento(
+                        cuenta,
+                        categoriaIngresos,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.now().minusDays(1),
+                        "Segundo ingreso"
+                );
 
-        Movimiento egreso = new Movimiento(
-                cuenta,
-                categoriaGastos,
-                TipoMovimiento.EGRESO,
-                new BigDecimal("3000.00"),
-                LocalDateTime.now(),
-                "Egreso"
-        );
+        Movimiento egreso =
+                new Movimiento(
+                        cuenta,
+                        categoriaGastos,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.now(),
+                        "Egreso"
+                );
 
         entityManager.getTransaction().begin();
 
@@ -301,11 +359,344 @@ class CuentaServiceTest {
         entityManager.clear();
 
         BigDecimal saldo =
-                cuentaService.calcularSaldo(cuenta.getId());
+                cuentaService.calcularSaldo(
+                        cuenta.getId()
+                );
 
         assertEquals(
                 new BigDecimal("12000.00"),
                 saldo
+        );
+    }
+
+    @Test
+    void deberiaRegistrarUnaCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.registrar.cuenta."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        Cuenta registrada =
+                cuentaService.registrar(
+                        cuenta
+                );
+
+        entityManager.getTransaction().commit();
+
+        assertTrue(
+                registrada.getId() != null
+        );
+
+        assertEquals(
+                "Cuenta principal",
+                registrada.getNombre()
+        );
+
+        assertEquals(
+                TipoCuenta.CAJA_AHORRO,
+                registrada.getTipoCuenta()
+        );
+    }
+
+    @Test
+    void deberiaBuscarCuentaPorId() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.buscar.cuenta."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(
+                cuenta
+        );
+
+        entityManager.getTransaction().commit();
+
+        Optional<Cuenta> resultado =
+                cuentaService.buscarPorId(
+                        cuenta.getId()
+                );
+
+        assertTrue(
+                resultado.isPresent()
+        );
+
+        assertEquals(
+                cuenta.getId(),
+                resultado.get().getId()
+        );
+
+        assertEquals(
+                "Cuenta principal",
+                resultado.get().getNombre()
+        );
+    }
+
+    @Test
+    void deberiaListarTodasLasCuentas() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.listar.cuentas."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta1 =
+                new Cuenta(
+                        "Cuenta A",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        Cuenta cuenta2 =
+                new Cuenta(
+                        "Cuenta B",
+                        TipoCuenta.CUENTA_CORRIENTE,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(
+                cuenta1
+        );
+
+        cuentaService.registrar(
+                cuenta2
+        );
+
+        entityManager.getTransaction().commit();
+
+        List<Cuenta> cuentas =
+                cuentaService.listarTodas();
+
+        assertEquals(
+                2,
+                cuentas.size()
+        );
+
+        assertEquals(
+                "Cuenta A",
+                cuentas.get(0).getNombre()
+        );
+
+        assertEquals(
+                "Cuenta B",
+                cuentas.get(1).getNombre()
+        );
+    }
+
+    @Test
+    void deberiaListarCuentasPorPerfilFinanciero() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.perfil.cuentas."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil1 =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        PerfilFinanciero perfil2 =
+                new PerfilFinanciero(
+                        "Perfil secundario",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuentaPerfil1 =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil1,
+                        institucion,
+                        moneda
+                );
+
+        Cuenta cuentaPerfil2 =
+                new Cuenta(
+                        "Cuenta secundaria",
+                        TipoCuenta.CUENTA_CORRIENTE,
+                        perfil2,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil1);
+        entityManager.persist(perfil2);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(
+                cuentaPerfil1
+        );
+
+        cuentaService.registrar(
+                cuentaPerfil2
+        );
+
+        entityManager.getTransaction().commit();
+
+        List<Cuenta> cuentas =
+                cuentaService.listarPorPerfilFinanciero(
+                        perfil1.getId()
+                );
+
+        assertEquals(
+                1,
+                cuentas.size()
+        );
+
+        assertEquals(
+                "Cuenta principal",
+                cuentas.get(0).getNombre()
+        );
+
+        assertEquals(
+                perfil1.getId(),
+                cuentas.get(0)
+                        .getPerfilFinanciero()
+                        .getId()
         );
     }
 }
