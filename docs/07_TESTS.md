@@ -27,6 +27,9 @@ Los tests son parte del cierre de cada Build. Una funcionalidad se considera ver
 - `MovimientoServiceTest`
 - `CategoriaServiceTest`
 - `PerfilFinancieroServiceTest`
+- `UsuarioServiceTest`
+- `InstitucionFinancieraServiceTest`
+- `MonedaServiceTest`
 
 ## Build 011
 
@@ -247,5 +250,32 @@ Resultado: los 8 tests de `InstitucionFinancieraServiceTest` terminaron en verde
 Durante la implementación se produjo inicialmente una diferencia en el test de listado de instituciones, debido a la presencia de registros persistidos previamente. El test fue corregido para aislar correctamente los datos de prueba.
 
 Además, se ejecutó la batería general del proyecto y los **101/101 tests terminaron en verde**.
+
+No se registran incidencias pendientes para este bloque.
+
+## Build 022
+
+Se incorporó y verificó:
+
+- `MonedaServiceTest`
+
+El test verifica:
+
+1. Guardar y buscar una moneda por ID.
+2. Buscar una moneda por código.
+3. Listar todas las monedas.
+4. Cambiar el nombre de una moneda.
+5. Cambiar la cantidad de decimales.
+6. Lanzar excepción al intentar modificar el nombre de una moneda inexistente.
+7. Lanzar excepción al intentar modificar los decimales de una moneda inexistente.
+8. Verificar el comportamiento inicial de una moneda creada.
+
+Resultado: los 8 tests de `MonedaServiceTest` terminaron en verde.
+
+Durante las pruebas se produjo inicialmente una violación de unicidad sobre `MONEDAS(CODIGO)` al intentar insertar nuevamente la moneda `ARS`. La causa fue la reutilización del mismo `EntityManagerFactory` y, por lo tanto, de la base H2 en memoria entre tests.
+
+La solución consistió en cerrar `JpaTestManager` en el `tearDown()` de `MonedaServiceTest`, garantizando una nueva base H2 aislada para cada test.
+
+Además, se ejecutó la batería general del proyecto y los **109/109 tests terminaron en verde**.
 
 No se registran incidencias pendientes para este bloque.
