@@ -4,7 +4,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional del dominio para el Build 023.
+- Definir el siguiente bloque funcional del dominio para el Build 024.
 - Continuar ampliando la capa `service` y los casos de uso según el diseño acordado.
 - Mantener sincronizada la documentación de continuidad con el estado real de `main`.
 
@@ -22,6 +22,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Build 020: `UsuarioService` y `UsuarioServiceTest`, con la batería general de **93 tests en verde**.
 - Build 021: `InstitucionFinancieraService` y `InstitucionFinancieraServiceTest`, con la batería general de **101 tests en verde**.
 - Build 022: `MonedaService` y `MonedaServiceTest`, con la batería general de **109 tests en verde**.
+- Build 023: ampliación de `CuentaService` y `CuentaServiceTest`, con la batería general de **113 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 
