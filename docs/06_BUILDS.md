@@ -491,3 +491,70 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 ### Próximo paso
 
 Definir el Build 021 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+
+## Build 021 — Servicio de InstitucionFinanciera
+
+### Objetivo
+
+Completar progresivamente la capa `service` incorporando el servicio de aplicación para `InstitucionFinanciera`, utilizando `InstitucionFinancieraRepository` y manteniendo el desarrollo incremental y verificable mediante tests.
+
+### Cambios principales
+
+Se incorporó:
+
+- `InstitucionFinancieraService`
+- `InstitucionFinancieraServiceTest`
+
+`InstitucionFinancieraService` recibe `InstitucionFinancieraRepository` por constructor y proporciona las operaciones de aplicación necesarias para:
+
+- Guardar una institución financiera.
+- Buscar una institución por ID.
+- Buscar una institución por nombre.
+- Listar todas las instituciones.
+- Renombrar una institución.
+- Actualizar el sitio web.
+- Actualizar la descripción.
+- Activar una institución.
+- Desactivar una institución.
+
+El servicio mantiene separada la lógica de aplicación de las operaciones de persistencia realizadas por `InstitucionFinancieraRepository`.
+
+### Tests verificados
+
+`InstitucionFinancieraServiceTest` verifica:
+
+1. Guardar y buscar una institución por ID.
+2. Buscar una institución por nombre.
+3. Listar todas las instituciones.
+4. Renombrar una institución.
+5. Actualizar el sitio web.
+6. Actualizar la descripción.
+7. Activar una institución.
+8. Desactivar una institución.
+
+Los 8 tests de `InstitucionFinancieraServiceTest` terminaron en verde.
+
+Además, se ejecutó la batería general del proyecto y los **101/101 tests terminaron en verde**.
+
+### Resultado
+
+Build 021 queda cerrado con `InstitucionFinancieraService` y `InstitucionFinancieraServiceTest` incorporados, verificados y sin regresiones en la batería general.
+
+### Incidencia durante las pruebas
+
+Durante la ejecución inicial de `debeListarTodasLasInstituciones` se produjo una diferencia entre la cantidad esperada y la cantidad real de registros:
+
+- Esperado: 2
+- Actual: 7
+
+La causa fue la existencia de registros persistidos previamente en el contexto de prueba. El test fue corregido para aislar correctamente los datos utilizados y posteriormente los 8 tests terminaron en verde.
+
+### Commit asociado
+
+- `20e21c3` — `feat: implementar InstitucionFinancieraService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 022 a partir del estado real de la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.

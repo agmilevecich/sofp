@@ -224,3 +224,28 @@ Resultado: los 5 tests de `UsuarioServiceTest` terminaron en verde.
 Además, se ejecutó la batería general del proyecto y los **93/93 tests terminaron en verde**.
 
 No se registran incidencias pendientes para este bloque.
+
+## Build 021
+
+Se incorporó y verificó:
+
+- `InstitucionFinancieraServiceTest`
+
+El test verifica:
+
+1. Guardar y buscar una institución financiera por ID.
+2. Buscar una institución financiera por nombre.
+3. Listar todas las instituciones financieras.
+4. Renombrar una institución financiera.
+5. Actualizar el sitio web.
+6. Actualizar la descripción.
+7. Activar una institución financiera.
+8. Desactivar una institución financiera.
+
+Resultado: los 8 tests de `InstitucionFinancieraServiceTest` terminaron en verde.
+
+Durante la implementación se produjo inicialmente una diferencia en el test de listado de instituciones, debido a la presencia de registros persistidos previamente. El test fue corregido para aislar correctamente los datos de prueba.
+
+Además, se ejecutó la batería general del proyecto y los **101/101 tests terminaron en verde**.
+
+No se registran incidencias pendientes para este bloque.
