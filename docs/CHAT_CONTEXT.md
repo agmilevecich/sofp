@@ -37,22 +37,24 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build confirmado: **Build 019 — Servicio de PerfilFinanciero**.
+Último Build confirmado: **Build 026 — Eliminación de Movimiento**.
 
-Último commit de código confirmado: `1cc00ca`.
+Último commit de código confirmado: `d386d02`.
 
-Mensaje: `feat: implementar PerfilFinancieroService`.
+Mensaje: `feat: completar operaciones de Movimiento`.
 
-El commit de Build 019 fue publicado en `main` de GitHub y Bitbucket.
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+La batería general confirmada es de **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 Commits de código recientes:
 
-- `1cc00ca` — `feat: implementar PerfilFinancieroService`.
-- `d57e0b4` — `feat: implementar CategoriaService`.
-- `f462b3b` — `feat: implementar CategoriaRepository`.
-- `8f8594e` — `feat: implementar servicio de movimientos`.
-- `4697815` — `feat: implementar servicio de saldo de cuentas`.
-- `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
+- `d386d02` — `feat: completar operaciones de Movimiento`.
+- `81883ea` — `feat: completar operaciones de MovimientoService`.
+- `da3b89d` — `feat: ampliar operaciones de Movimiento`.
+- `110f7d7` — `feat: ampliar MovimientoService`.
+- `ea595d4` — `feat: ampliar CuentaService`.
+- `0d0db87` — `feat: implementar MonedaService`.
 
 ## Dominio actual
 
@@ -87,6 +89,8 @@ Se incorporaron repositorios JPA para:
 
 Cada repositorio tiene su test correspondiente.
 
+`MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
+
 ## Service
 
 La capa `service` contiene actualmente:
@@ -95,6 +99,9 @@ La capa `service` contiene actualmente:
 - `MovimientoService`
 - `CategoriaService`
 - `PerfilFinancieroService`
+- `UsuarioService`
+- `InstitucionFinancieraService`
+- `MonedaService`
 
 `CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
 
@@ -112,8 +119,15 @@ Reglas actuales del cálculo:
 - `listarTodos()`.
 - `listarPorCuenta(Long cuentaId)`.
 - `listarPorCategoria(Long categoriaId)`.
+- `modificarDescripcion(Long movimientoId, String descripcion)`.
+- `modificarObservaciones(Long movimientoId, String observaciones)`.
+- `cambiarCategoria(Long movimientoId, Categoria categoria)`.
+- `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
+- `modificarImporte(Long movimientoId, BigDecimal importe)`.
+- `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
+- `eliminar(Long movimientoId)`.
 
-El registro de movimientos utiliza una transacción explícita, `flush()` antes del `commit` y `rollback()` ante excepciones.
+Las operaciones de registro, modificación y eliminación utilizan transacciones explícitas, `flush()` antes del `commit` y `rollback()` ante excepciones.
 
 `CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
 
@@ -138,8 +152,9 @@ Tests asociados:
 - `MovimientoServiceTest`
 - `CategoriaServiceTest`
 - `PerfilFinancieroServiceTest`
-
-`PerfilFinancieroServiceTest` cubre guardado, búsqueda por ID, listado general, listado por usuario, cambio de descripción, activación y desactivación.
+- `UsuarioServiceTest`
+- `InstitucionFinancieraServiceTest`
+- `MonedaServiceTest`
 
 ## Movimiento
 
@@ -159,13 +174,24 @@ Campos relevantes:
 
 El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
+`Movimiento` permite modificar tipo de movimiento, importe, fecha/hora, descripción, observaciones y categoría.
+
 ## Tests
 
-La batería general del proyecto quedó en **88/88 tests en verde** al cerrar Build 019.
-
-`PerfilFinancieroServiceTest` terminó con sus 6 casos en verde y no se registran incidencias pendientes para este bloque.
+La batería general del proyecto quedó en **121/121 tests en verde** al cerrar el Build 026.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
+
+## Builds recientes
+
+- Build 023 — Ampliación de `CuentaService`.
+- Build 024 — Ampliación inicial de `MovimientoService`.
+- Build 025 — Ampliación de `Movimiento` y nuevas operaciones de `MovimientoService`.
+- Build 026 — Eliminación de `Movimiento` desde `MovimientoRepository` y `MovimientoService`.
+
+## Próximo paso
+
+Definir el **Build 027** antes de implementar código nuevo, considerando el estado actual del dominio, los repositorios y servicios disponibles y los casos de uso pendientes.
 
 ## Forma de trabajo acordada
 
