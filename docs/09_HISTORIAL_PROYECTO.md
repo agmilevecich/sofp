@@ -163,7 +163,7 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
   - `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
 - Las nuevas operaciones mantienen el patrón transaccional de `MovimientoService`: validación, búsqueda, `begin`, modificación, `flush`, `commit` y `rollback` ante errores.
 - Se agregaron 3 nuevos tests a `MovimientoServiceTest`.
-- La batería general del proyecto quedó en **118/118 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- La batería general del proyecto quedó en **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 - Commit de dominio: `da3b89d` — `feat: ampliar operaciones de Movimiento`.
 - Commit de servicio y tests: `81883ea` — `feat: completar operaciones de MovimientoService`.
 - Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
