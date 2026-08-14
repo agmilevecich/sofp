@@ -129,33 +129,6 @@ Reglas actuales del cálculo:
 
 Las operaciones de registro, modificación y eliminación utilizan transacciones explícitas, `flush()` antes del `commit` y `rollback()` ante excepciones.
 
-`CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
-
-- `registrar(Categoria categoria)`.
-- `buscarPorId(Long id)`.
-- `listarTodas()`.
-- `listarPorPerfilFinanciero(Long perfilFinancieroId)`.
-
-`PerfilFinancieroService` recibe `PerfilFinancieroRepository` por constructor y proporciona:
-
-- `guardar(PerfilFinanciero perfil)`.
-- `buscarPorId(Long id)`.
-- `listarTodos()`.
-- `listarPorUsuario(Long usuarioId)`.
-- `cambiarDescripcion(Long perfilId, String descripcion)`.
-- `activar(Long perfilId)`.
-- `desactivar(Long perfilId)`.
-
-Tests asociados:
-
-- `CuentaServiceTest`
-- `MovimientoServiceTest`
-- `CategoriaServiceTest`
-- `PerfilFinancieroServiceTest`
-- `UsuarioServiceTest`
-- `InstitucionFinancieraServiceTest`
-- `MonedaServiceTest`
-
 ## Movimiento
 
 `Movimiento` representa un movimiento financiero asociado a una `Cuenta` y una `Categoria`.
