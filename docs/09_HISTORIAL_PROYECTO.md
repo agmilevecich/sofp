@@ -153,20 +153,25 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ### Build 025 — Ampliación de Movimiento y finalización de nuevas operaciones de MovimientoService
 
-- Se amplió la entidad `Movimiento` con:
-  - `cambiarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
-  - `cambiarImporte(BigDecimal importe)`.
-  - `cambiarFechaHora(LocalDateTime fechaHora)`.
-- Se completó `MovimientoService` con:
-  - `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
-  - `modificarImporte(Long movimientoId, BigDecimal importe)`.
-  - `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
-- Las nuevas operaciones mantienen el patrón transaccional de `MovimientoService`: validación, búsqueda, `begin`, modificación, `flush`, `commit` y `rollback` ante errores.
+- Se amplió la entidad `Movimiento` con operaciones para modificar tipo de movimiento, importe y fecha/hora.
+- Se completó `MovimientoService` con las operaciones correspondientes.
+- Las nuevas operaciones mantienen el patrón transaccional del servicio.
 - Se agregaron 3 nuevos tests a `MovimientoServiceTest`.
 - La batería general del proyecto quedó en **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 - Commit de dominio: `da3b89d` — `feat: ampliar operaciones de Movimiento`.
 - Commit de servicio y tests: `81883ea` — `feat: completar operaciones de MovimientoService`.
 - Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
+
+### Build 026 — Eliminación de Movimiento
+
+- Se completó la operación de eliminación de movimientos en la capa de persistencia y en la capa de servicio.
+- `MovimientoRepository` incorporó `eliminar(Movimiento movimiento)` y garantiza que la entidad esté gestionada antes de ejecutar `remove()` cuando corresponde.
+- `MovimientoService` incorporó `eliminar(Long movimientoId)`, validando el ID y la existencia del movimiento antes de iniciar la operación transaccional.
+- La eliminación utiliza `begin`, `flush`, `commit` y `rollback()` ante excepciones.
+- Se consolidó el nombre `modificarTipoMovimiento(...)` en la entidad `Movimiento` para mantener coherencia con el servicio.
+- Se ejecutó la batería general y quedó en **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- Commit de código: `d386d02` — `feat: completar operaciones de Movimiento`.
+- El commit fue publicado en `main` de GitHub y Bitbucket.
 
 ## Estado al establecer el sistema de continuidad
 
