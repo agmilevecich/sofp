@@ -323,9 +323,9 @@ Se amplió `Movimiento` y se completaron las nuevas operaciones correspondientes
 
 En `Movimiento` se agregaron y validaron:
 
-1. `cambiarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
-2. `cambiarImporte(BigDecimal importe)`.
-3. `cambiarFechaHora(LocalDateTime fechaHora)`.
+1. Modificación del tipo de movimiento.
+2. Modificación del importe.
+3. Modificación de la fecha y hora.
 
 En `MovimientoService` se agregaron:
 
@@ -338,3 +338,39 @@ Se incorporaron 3 nuevos casos en `MovimientoServiceTest` para verificar estas o
 Resultado: los **3 nuevos tests terminaron en verde** y la batería general del proyecto terminó en **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 No se registran incidencias pendientes para este bloque.
+
+## Build 026
+
+Se incorporó la eliminación de movimientos y se completó la operación correspondiente en el repositorio y servicio.
+
+En `MovimientoRepository` se incorporó:
+
+- `eliminar(Movimiento movimiento)`.
+- Validación del movimiento obligatorio.
+- Gestión de la entidad mediante `contains()`/`merge()` antes de `remove()` cuando es necesario.
+
+En `MovimientoService` se incorporó:
+
+- `eliminar(Long movimientoId)`.
+- Validación del ID.
+- Verificación de existencia del movimiento.
+- Eliminación dentro de una transacción explícita.
+- `flush()` antes del `commit` y `rollback()` ante excepciones.
+
+También se consolidó el nombre `modificarTipoMovimiento(...)` en `Movimiento` para mantener coherencia con el servicio.
+
+No se agregaron nuevos tests en este bloque; se ejecutó la batería general como comprobación de regresión.
+
+Resultado: **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+No se registran incidencias pendientes para este bloque.
+
+### Commit asociado
+
+- `d386d02` — `feat: completar operaciones de Movimiento`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+## Regla de cierre
+
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado y próximo paso.
