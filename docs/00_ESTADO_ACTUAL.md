@@ -38,26 +38,11 @@ El último bloque trabajado es **Build 026 — Eliminación de movimientos**.
 
 Se completó la gestión de `Movimiento` incorporando la eliminación desde las capas de persistencia y servicio, manteniendo el patrón transaccional y las validaciones existentes.
 
-En `Movimiento` se mantiene la operación:
+En `MovimientoRepository` se incorporó `eliminar(Movimiento movimiento)`, garantizando que la entidad esté gestionada antes de ejecutar `remove()`.
 
-- `modificarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
-- `cambiarImporte(BigDecimal importe)`.
-- `cambiarFechaHora(LocalDateTime fechaHora)`.
-- `cambiarDescripcion(String descripcion)`.
-- `cambiarObservaciones(String observaciones)`.
-- `cambiarCategoria(Categoria categoria)`.
+En `MovimientoService` se incorporó `eliminar(Long movimientoId)`, validando el ID, verificando la existencia del movimiento y ejecutando la eliminación dentro de una transacción explícita con `flush()`, `commit()` y `rollback()` ante excepciones.
 
-En `MovimientoRepository` se incorporó:
-
-- `eliminar(Movimiento movimiento)`.
-
-El repositorio garantiza que la entidad esté gestionada antes de ejecutar `remove()`.
-
-En `MovimientoService` se incorporó:
-
-- `eliminar(Long movimientoId)`.
-
-La eliminación valida el ID, verifica que el movimiento exista, inicia una transacción, delega la eliminación al repositorio, ejecuta `flush()`, confirma con `commit()` y realiza `rollback()` ante excepciones.
+También se consolidó el nombre `modificarTipoMovimiento(...)` en la entidad `Movimiento` para mantener coherencia con el servicio.
 
 ## Dominio construido hasta ahora
 
@@ -129,85 +114,16 @@ Reglas actuales del cálculo:
 
 El registro, las modificaciones y la eliminación de movimientos utilizan transacciones explícitas, `flush()` antes del `commit` y `rollback()` ante excepciones.
 
-`CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
-
-- `registrar(Categoria categoria)`.
-- `buscarPorId(Long id)`.
-- `listarTodas()`.
-- `listarPorPerfilFinanciero(Long perfilFinancieroId)`.
-
-`PerfilFinancieroService` recibe `PerfilFinancieroRepository` por constructor y proporciona:
-
-- `guardar(PerfilFinanciero perfil)`.
-- `buscarPorId(Long id)`.
-- `listarTodos()`.
-- `listarPorUsuario(Long usuarioId)`.
-- `cambiarDescripcion(Long perfilId, String descripcion)`.
-- `activar(Long perfilId)`.
-- `desactivar(Long perfilId)`.
-
-## Últimos Builds / hitos conocidos
-
-- Build 005 — Diseño de la entidad `Cuenta`.
-- Build 009.1 — Implementación de `Categoria`.
-- Build 010 — Implementación de `Movimiento`.
-- Build 011 — Aislamiento y estabilización de tests JPA con H2.
-- Build 012 — Repository JPA de entidades base.
-- Build 013 — Repository JPA de `Cuenta`.
-- Build 014 — Repository JPA de `Movimiento`.
-- Build 015 — Servicio de saldo de cuentas.
-- Build 016 — Servicio de movimientos.
-- Build 017 — Repository JPA de `Categoria`.
-- Build 018 — Servicio de `Categoria`.
-- Build 019 — Servicio de `PerfilFinanciero`.
-- Build 020 — Servicio de `Usuario`.
-- Build 021 — Servicio de `InstitucionFinanciera`.
-- Build 022 — Servicio de `Moneda`.
-- Build 023 — Ampliación de `CuentaService`.
-- Build 024 — Ampliación inicial de `MovimientoService`.
-- Build 025 — Ampliación de `Movimiento` y nuevas operaciones de `MovimientoService`.
-- Build 026 — Eliminación de `Movimiento` desde repositorio y servicio.
-
-## Commits recientes de código
-
-- `d386d02` — `feat: completar operaciones de Movimiento`.
-- `81883ea` — `feat: completar operaciones de MovimientoService`.
-- `da3b89d` — `feat: ampliar operaciones de Movimiento`.
-- `110f7d7` — `feat: ampliar MovimientoService`.
-- `ea595d4` — `feat: ampliar CuentaService`.
-- `0d0db87` — `feat: implementar MonedaService`.
-
-Los commits recientes fueron publicados en `main` de GitHub y Bitbucket.
-
 ## Tests
 
-El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
-
-En el Build 026 se verificó nuevamente la batería general del proyecto:
-
-- **121/121 tests en verde**.
-- `Failures: 0`.
-- `Errors: 0`.
-- `Skipped: 0`.
-
-No se registran incidencias pendientes para este bloque.
+La batería general confirmada al cerrar el Build 026 es de **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 ## Próximo paso
 
 Definir el **Build 027** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
 
-No avanzar directamente a implementar el Build 027 sin definir primero:
-
-1. Qué pieza funcional se va a construir.
-2. Qué comportamiento debe tener.
-3. Qué tests deberán cubrirlo.
+No avanzar directamente a implementar el Build 027 sin definir primero qué pieza funcional se va a construir, qué comportamiento debe tener y qué tests deberán cubrirlo.
 
 ## Regla de continuidad
 
-Cada bloque importante debe terminar con:
-
-1. Código funcionando.
-2. Tests en verde.
-3. Commit identificable.
-4. Actualización de documentación.
-5. Registro del próximo paso.
+Cada bloque importante debe terminar con código funcionando, tests en verde, commit identificable, actualización de documentación y registro del próximo paso.
