@@ -34,25 +34,30 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 025 — Ampliación de Movimiento y MovimientoService**.
+El último bloque trabajado es **Build 026 — Eliminación de movimientos**.
 
-Se completó la evolución de `Movimiento` y `MovimientoService` para permitir modificar datos del movimiento desde la capa de servicio.
+Se completó la gestión de `Movimiento` incorporando la eliminación desde las capas de persistencia y servicio, manteniendo el patrón transaccional y las validaciones existentes.
 
-En `Movimiento` se incorporaron:
+En `Movimiento` se mantiene la operación:
 
-- `cambiarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
+- `modificarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
 - `cambiarImporte(BigDecimal importe)`.
 - `cambiarFechaHora(LocalDateTime fechaHora)`.
+- `cambiarDescripcion(String descripcion)`.
+- `cambiarObservaciones(String observaciones)`.
+- `cambiarCategoria(Categoria categoria)`.
 
-Las modificaciones mantienen las validaciones existentes del dominio mediante `Objects.requireNonNull` y `Validaciones.importePositivo`.
+En `MovimientoRepository` se incorporó:
 
-En `MovimientoService` se incorporaron:
+- `eliminar(Movimiento movimiento)`.
 
-- `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
-- `modificarImporte(Long movimientoId, BigDecimal importe)`.
-- `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
+El repositorio garantiza que la entidad esté gestionada antes de ejecutar `remove()`.
 
-Estas operaciones siguen el patrón transaccional existente: validación de parámetros, búsqueda del movimiento, `begin`, modificación del agregado, `flush`, `commit` y `rollback` ante excepciones.
+En `MovimientoService` se incorporó:
+
+- `eliminar(Long movimientoId)`.
+
+La eliminación valida el ID, verifica que el movimiento exista, inicia una transacción, delega la eliminación al repositorio, ejecuta `flush()`, confirma con `commit()` y realiza `rollback()` ante excepciones.
 
 ## Dominio construido hasta ahora
 
@@ -83,6 +88,8 @@ Repositorios JPA incorporados:
 - `CuentaRepository`
 - `MovimientoRepository`
 - `CategoriaRepository`
+
+`MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
 ## Service
 
@@ -118,8 +125,9 @@ Reglas actuales del cálculo:
 - `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
 - `modificarImporte(Long movimientoId, BigDecimal importe)`.
 - `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
+- `eliminar(Long movimientoId)`.
 
-El registro y las modificaciones de movimientos utilizan transacciones explícitas, `flush()` antes del `commit` y `rollback()` ante excepciones.
+El registro, las modificaciones y la eliminación de movimientos utilizan transacciones explícitas, `flush()` antes del `commit` y `rollback()` ante excepciones.
 
 `CategoriaService` recibe `CategoriaRepository` por constructor y proporciona:
 
@@ -157,16 +165,17 @@ El registro y las modificaciones de movimientos utilizan transacciones explícit
 - Build 022 — Servicio de `Moneda`.
 - Build 023 — Ampliación de `CuentaService`.
 - Build 024 — Ampliación inicial de `MovimientoService`.
-- Build 025 — Ampliación de `Movimiento` y finalización de nuevas operaciones en `MovimientoService`.
+- Build 025 — Ampliación de `Movimiento` y nuevas operaciones de `MovimientoService`.
+- Build 026 — Eliminación de `Movimiento` desde repositorio y servicio.
 
 ## Commits recientes de código
 
+- `d386d02` — `feat: completar operaciones de Movimiento`.
 - `81883ea` — `feat: completar operaciones de MovimientoService`.
 - `da3b89d` — `feat: ampliar operaciones de Movimiento`.
 - `110f7d7` — `feat: ampliar MovimientoService`.
 - `ea595d4` — `feat: ampliar CuentaService`.
 - `0d0db87` — `feat: implementar MonedaService`.
-- `20e21c3` — `feat: implementar InstitucionFinancieraService`.
 
 Los commits recientes fueron publicados en `main` de GitHub y Bitbucket.
 
@@ -174,18 +183,20 @@ Los commits recientes fueron publicados en `main` de GitHub y Bitbucket.
 
 El flujo de desarrollo utiliza tests unitarios y tests JPA. El criterio de avance acordado es que los tests correspondientes al bloque estén en verde antes de considerar cerrado el Build.
 
-En el Build 025 se verificó:
+En el Build 026 se verificó nuevamente la batería general del proyecto:
 
-- `MovimientoServiceTest` ampliado con 3 casos nuevos para modificar tipo, importe y fecha/hora.
-- Los tests específicos de `MovimientoServiceTest` quedaron en verde.
-- La batería general del proyecto terminó con **118/118 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-- No se registran incidencias pendientes para este bloque.
+- **121/121 tests en verde**.
+- `Failures: 0`.
+- `Errors: 0`.
+- `Skipped: 0`.
+
+No se registran incidencias pendientes para este bloque.
 
 ## Próximo paso
 
-Definir el **Build 026** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
+Definir el **Build 027** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
 
-No avanzar directamente a implementar el Build 026 sin definir primero:
+No avanzar directamente a implementar el Build 027 sin definir primero:
 
 1. Qué pieza funcional se va a construir.
 2. Qué comportamiento debe tener.
