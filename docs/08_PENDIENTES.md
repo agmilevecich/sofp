@@ -24,8 +24,13 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Build 022: `MonedaService` y `MonedaServiceTest`, con la batería general de **109 tests en verde**.
 - Build 023: ampliación de `CuentaService` y `CuentaServiceTest`, con la batería general de **113 tests en verde**.
 - Build 024: ampliación inicial de `MovimientoService` y `MovimientoServiceTest`, con la batería general de **118 tests en verde**.
+<<<<<<< HEAD
 - Build 025: ampliación de `Movimiento` y finalización de las nuevas operaciones de `MovimientoService`, con la batería general de **121 tests en verde**.
 - Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, con la batería general de **121 tests en verde**.
+=======
+- Build 025: ampliación de `Movimiento` y finalización de nuevas operaciones de `MovimientoService`, con la batería general de **121 tests en verde**.
+- Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, consolidación de nombres de operaciones y batería general de **121 tests en verde**.
+>>>>>>> 5e5def5 (docs: actualizar pendientes con Build 026)
 
 ## Pendientes de arquitectura / evolución
 
