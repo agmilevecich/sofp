@@ -552,4 +552,112 @@ class MovimientoServiceTest {
                 )
         );
     }
+
+    @Test
+    void deberiaModificarTipoMovimiento() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("50000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                14,
+                                10,
+                                0
+                        ),
+                        "Movimiento original"
+                );
+
+        Movimiento actualizado =
+                movimientoService.modificarTipoMovimiento(
+                        movimiento.getId(),
+                        TipoMovimiento.EGRESO
+                );
+
+        assertNotNull(actualizado);
+
+        assertEquals(
+                TipoMovimiento.EGRESO,
+                actualizado.getTipoMovimiento()
+        );
+    }
+
+    @Test
+    void deberiaModificarImporte() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("50000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                14,
+                                10,
+                                0
+                        ),
+                        "Movimiento original"
+                );
+
+        Movimiento actualizado =
+                movimientoService.modificarImporte(
+                        movimiento.getId(),
+                        new BigDecimal("75000.00")
+                );
+
+        assertNotNull(actualizado);
+
+        assertEquals(
+                new BigDecimal("75000.00"),
+                actualizado.getImporte()
+        );
+    }
+
+    @Test
+    void deberiaModificarFechaHora() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("50000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                14,
+                                10,
+                                0
+                        ),
+                        "Movimiento original"
+                );
+
+        LocalDateTime nuevaFechaHora =
+                LocalDateTime.of(
+                        2026,
+                        8,
+                        15,
+                        15,
+                        30
+                );
+
+        Movimiento actualizado =
+                movimientoService.modificarFechaHora(
+                        movimiento.getId(),
+                        nuevaFechaHora
+                );
+
+        assertNotNull(actualizado);
+
+        assertEquals(
+                nuevaFechaHora,
+                actualizado.getFechaHora()
+        );
+    }
 }
