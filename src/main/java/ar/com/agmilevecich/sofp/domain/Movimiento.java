@@ -111,7 +111,7 @@ public class Movimiento extends EntidadAuditable {
         return observaciones;
     }
 
-    public void cambiarTipoMovimiento(
+    public void modificarTipoMovimiento(
             TipoMovimiento tipoMovimiento) {
 
         this.tipoMovimiento = Objects.requireNonNull(

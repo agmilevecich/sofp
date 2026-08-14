@@ -100,4 +100,22 @@ public class MovimientoRepository {
                 .setParameter("categoriaId", categoriaId)
                 .getResultList();
     }
+
+    public void eliminar(Movimiento movimiento) {
+
+        Objects.requireNonNull(
+                movimiento,
+                "El movimiento es obligatorio"
+        );
+
+        Movimiento movimientoGestionado =
+                movimiento;
+
+        if (!entityManager.contains(movimientoGestionado)) {
+            movimientoGestionado =
+                    entityManager.merge(movimientoGestionado);
+        }
+
+        entityManager.remove(movimientoGestionado);
+    }
 }

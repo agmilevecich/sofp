@@ -115,140 +115,6 @@ public class MovimientoService {
         );
     }
 
-    public Movimiento modificarTipoMovimiento(
-            Long movimientoId,
-            TipoMovimiento tipoMovimiento) {
-
-        Objects.requireNonNull(
-                movimientoId,
-                "El id del movimiento es obligatorio"
-        );
-
-        Objects.requireNonNull(
-                tipoMovimiento,
-                "El tipo de movimiento es obligatorio"
-        );
-
-        Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.cambiarTipoMovimiento(
-                    tipoMovimiento
-            );
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public Movimiento modificarImporte(
-            Long movimientoId,
-            BigDecimal importe) {
-
-        Objects.requireNonNull(
-                movimientoId,
-                "El id del movimiento es obligatorio"
-        );
-
-        Objects.requireNonNull(
-                importe,
-                "El importe es obligatorio"
-        );
-
-        Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.cambiarImporte(importe);
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public Movimiento modificarFechaHora(
-            Long movimientoId,
-            LocalDateTime fechaHora) {
-
-        Objects.requireNonNull(
-                movimientoId,
-                "El id del movimiento es obligatorio"
-        );
-
-        Objects.requireNonNull(
-                fechaHora,
-                "La fecha y hora son obligatorias"
-        );
-
-        Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.cambiarFechaHora(fechaHora);
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
     public Movimiento modificarDescripcion(
             Long movimientoId,
             String descripcion) {
@@ -365,6 +231,172 @@ public class MovimientoService {
             transaction.commit();
 
             return actualizado;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Movimiento modificarTipoMovimiento(
+            Long movimientoId,
+            TipoMovimiento tipoMovimiento) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                tipoMovimiento,
+                "El tipo de movimiento es obligatorio"
+        );
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            movimiento.modificarTipoMovimiento(
+                    tipoMovimiento
+            );
+
+            Movimiento actualizado =
+                    movimientoRepository.guardar(movimiento);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizado;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Movimiento modificarImporte(
+            Long movimientoId,
+            BigDecimal importe) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                importe,
+                "El importe es obligatorio"
+        );
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            movimiento.cambiarImporte(importe);
+
+            Movimiento actualizado =
+                    movimientoRepository.guardar(movimiento);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizado;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Movimiento modificarFechaHora(
+            Long movimientoId,
+            LocalDateTime fechaHora) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                fechaHora,
+                "La fecha y hora son obligatorias"
+        );
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            movimiento.cambiarFechaHora(fechaHora);
+
+            Movimiento actualizado =
+                    movimientoRepository.guardar(movimiento);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizado;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public void eliminar(Long movimientoId) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            movimientoRepository.eliminar(movimiento);
+
+            entityManager.flush();
+
+            transaction.commit();
 
         } catch (RuntimeException e) {
 
