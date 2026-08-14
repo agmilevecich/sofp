@@ -111,6 +111,31 @@ public class Movimiento extends EntidadAuditable {
         return observaciones;
     }
 
+    public void cambiarTipoMovimiento(
+            TipoMovimiento tipoMovimiento) {
+
+        this.tipoMovimiento = Objects.requireNonNull(
+                tipoMovimiento,
+                "El tipo de movimiento es obligatorio"
+        );
+    }
+
+    public void cambiarImporte(BigDecimal importe) {
+
+        this.importe = Validaciones.importePositivo(
+                importe,
+                "El importe es obligatorio"
+        );
+    }
+
+    public void cambiarFechaHora(LocalDateTime fechaHora) {
+
+        this.fechaHora = Objects.requireNonNull(
+                fechaHora,
+                "La fecha y hora son obligatorias"
+        );
+    }
+
     public void cambiarDescripcion(String descripcion) {
 
         this.descripcion = Validaciones.textoObligatorio(
@@ -120,6 +145,7 @@ public class Movimiento extends EntidadAuditable {
     }
 
     public void cambiarObservaciones(String observaciones) {
+
         this.observaciones = observaciones;
     }
 
