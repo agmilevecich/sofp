@@ -291,7 +291,7 @@ No se registran incidencias pendientes para este bloque.
 
 ## Build 024
 
-Se amplió y verificó:
+Se incorporó y verificó:
 
 - `MovimientoServiceTest`
 
@@ -314,5 +314,27 @@ Se verificó el funcionamiento de:
 Resultado: los **11/11 tests de `MovimientoServiceTest` terminaron en verde**.
 
 Además, se ejecutó la batería general del proyecto y los **118/118 tests terminaron en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+No se registran incidencias pendientes para este bloque.
+
+## Build 025
+
+Se amplió `Movimiento` y se completaron las nuevas operaciones correspondientes en `MovimientoService`.
+
+En `Movimiento` se agregaron y validaron:
+
+1. `cambiarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
+2. `cambiarImporte(BigDecimal importe)`.
+3. `cambiarFechaHora(LocalDateTime fechaHora)`.
+
+En `MovimientoService` se agregaron:
+
+1. `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
+2. `modificarImporte(Long movimientoId, BigDecimal importe)`.
+3. `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
+
+Se incorporaron 3 nuevos casos en `MovimientoServiceTest` para verificar estas operaciones.
+
+Resultado: los tests específicos de `MovimientoServiceTest` terminaron en verde y la batería general del proyecto terminó en **118/118 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 No se registran incidencias pendientes para este bloque.
