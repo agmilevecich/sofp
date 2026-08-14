@@ -110,6 +110,64 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit de código: `1cc00ca` — `feat: implementar PerfilFinancieroService`.
 - El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
+### Build 020 — Servicio de Usuario
+
+- Se amplió la capa `service` con `UsuarioService`.
+- Se incorporó `UsuarioServiceTest` con 5 casos.
+- Se implementaron guardado y búsqueda por ID, búsqueda por email, listado, activación y desactivación.
+- La batería general quedó en **93/93 tests en verde**.
+
+### Build 021 — Servicio de InstitucionFinanciera
+
+- Se amplió la capa `service` con `InstitucionFinancieraService`.
+- Se incorporó `InstitucionFinancieraServiceTest` con 8 casos.
+- Se implementaron búsqueda, listado, renombrado, actualización de sitio web y descripción, activación y desactivación.
+- La batería general quedó en **101/101 tests en verde**.
+
+### Build 022 — Servicio de Moneda
+
+- Se amplió la capa `service` con `MonedaService`.
+- Se incorporó `MonedaServiceTest` con 8 casos.
+- Se implementaron búsqueda, listado y modificación de nombre y decimales, incluyendo validaciones para monedas inexistentes.
+- Se resolvió el aislamiento de H2 mediante el cierre de `JpaTestManager` en el `tearDown()` correspondiente.
+- La batería general quedó en **109/109 tests en verde**.
+
+### Build 023 — Ampliación de CuentaService
+
+- Se amplió `CuentaService` para cubrir operaciones de gestión de `Cuenta`, además del cálculo de saldo.
+- Se amplió `CuentaServiceTest` hasta 8 casos.
+- Se verificaron registrar, buscar, listar y listar por perfil, junto con el cálculo de saldo.
+- La batería general quedó en **113/113 tests en verde**.
+- Commit de código: `ea595d4` — `feat: ampliar CuentaService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Build 024 — Ampliación inicial de MovimientoService
+
+- Se amplió `MovimientoService` para modificar descripción, observaciones y categoría.
+- Se agregaron validaciones de IDs y entidades obligatorias.
+- Se incorporó el manejo de movimiento inexistente mediante `IllegalArgumentException`.
+- `MovimientoServiceTest` quedó ampliado a 11 casos.
+- La batería general quedó en **118/118 tests en verde**.
+- Commit de código: `110f7d7` — `feat: ampliar MovimientoService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Build 025 — Ampliación de Movimiento y finalización de nuevas operaciones de MovimientoService
+
+- Se amplió la entidad `Movimiento` con:
+  - `cambiarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
+  - `cambiarImporte(BigDecimal importe)`.
+  - `cambiarFechaHora(LocalDateTime fechaHora)`.
+- Se completó `MovimientoService` con:
+  - `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
+  - `modificarImporte(Long movimientoId, BigDecimal importe)`.
+  - `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
+- Las nuevas operaciones mantienen el patrón transaccional de `MovimientoService`: validación, búsqueda, `begin`, modificación, `flush`, `commit` y `rollback` ante errores.
+- Se agregaron 3 nuevos tests a `MovimientoServiceTest`.
+- La batería general del proyecto quedó en **118/118 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- Commit de dominio: `da3b89d` — `feat: ampliar operaciones de Movimiento`.
+- Commit de servicio y tests: `81883ea` — `feat: completar operaciones de MovimientoService`.
+- Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
+
 ## Estado al establecer el sistema de continuidad
 
 El repositorio queda preparado para conservar contexto de largo plazo mediante documentación versionada en `docs/`.
