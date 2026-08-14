@@ -246,6 +246,85 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 
 Definir el Build 027 a partir del estado real del dominio, repositorios, servicios y casos de uso pendientes.
 
+## Build 025 — Ampliación de Movimiento y nuevas operaciones de MovimientoService
+
+### Objetivo
+
+Ampliar la entidad `Movimiento` y completar las operaciones de modificación de tipo, importe y fecha/hora en `MovimientoService`.
+
+### Cambios principales
+
+En `Movimiento` se incorporaron:
+
+- `modificarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
+- `cambiarImporte(BigDecimal importe)`.
+- `cambiarFechaHora(LocalDateTime fechaHora)`.
+
+En `MovimientoService` se incorporaron:
+
+- `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
+- `modificarImporte(Long movimientoId, BigDecimal importe)`.
+- `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
+
+Se mantuvo el patrón transaccional de validación, búsqueda, `begin`, modificación, `flush`, `commit` y `rollback` ante errores.
+
+### Tests verificados
+
+Se agregaron 3 casos nuevos en `MovimientoServiceTest` para modificar tipo, importe y fecha/hora.
+
+### Resultado
+
+Los **3 nuevos tests terminaron en verde** y la batería general terminó con **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+### Commits asociados
+
+- `da3b89d` — `feat: ampliar operaciones de Movimiento`.
+- `81883ea` — `feat: completar operaciones de MovimientoService`.
+
+Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
+
+## Build 026 — Completar operaciones de Movimiento
+
+### Objetivo
+
+Completar la gestión de movimientos incorporando la eliminación desde las capas de persistencia y servicio y consolidando los nombres de las operaciones de modificación.
+
+### Cambios principales
+
+Se incorporó en `MovimientoRepository`:
+
+- `eliminar(Movimiento movimiento)`.
+- La operación asegura que el movimiento esté gestionado por el `EntityManager` antes de ejecutar `remove`.
+
+Se incorporó en `MovimientoService`:
+
+- `eliminar(Long movimientoId)`.
+- Validación del identificador.
+- Búsqueda y validación de existencia del movimiento.
+- Transacción explícita con `begin`, eliminación, `flush`, `commit` y `rollback` ante errores.
+
+En `Movimiento` se consolidó el nombre de la operación de modificación de tipo como `modificarTipoMovimiento(...)`, manteniendo la validación del tipo obligatorio.
+
+### Tests verificados
+
+Se ejecutó la batería general del proyecto después de los cambios.
+
+### Resultado
+
+La batería general terminó con **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+No se registran regresiones ni incidencias pendientes para este bloque.
+
+### Commit asociado
+
+- `d386d02` — `feat: completar operaciones de Movimiento`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+### Próximo paso
+
+Definir el Build 027 a partir del estado real de los servicios, repositorios y casos de uso restantes.
+
 ## Regla para futuros Builds
 
 Agregar cada Build nuevo inmediatamente después de cerrarlo, incluyendo:
