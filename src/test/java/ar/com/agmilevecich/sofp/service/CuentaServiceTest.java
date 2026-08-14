@@ -53,7 +53,8 @@ class CuentaServiceTest {
         cuentaService =
                 new CuentaService(
                         cuentaRepository,
-                        movimientoRepository
+                        movimientoRepository,
+                        entityManager
                 );
     }
 
@@ -697,6 +698,470 @@ class CuentaServiceTest {
                 cuentas.get(0)
                         .getPerfilFinanciero()
                         .getId()
+        );
+    }
+
+    @Test
+    void deberiaModificarNombreDeCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.nombre."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta original",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta actualizada =
+                cuentaService.modificarNombre(
+                        cuenta.getId(),
+                        "Cuenta modificada"
+                );
+
+        assertEquals(
+                "Cuenta modificada",
+                actualizada.getNombre()
+        );
+    }
+
+    @Test
+    void deberiaModificarIdentificadorExternoDeCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.identificador."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta actualizada =
+                cuentaService.modificarIdentificadorExterno(
+                        cuenta.getId(),
+                        "CBU-123456789"
+                );
+
+        assertEquals(
+                "CBU-123456789",
+                actualizada.getIdentificadorExterno()
+        );
+    }
+
+    @Test
+    void deberiaModificarTipoDeCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.tipo."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta actualizada =
+                cuentaService.modificarTipoCuenta(
+                        cuenta.getId(),
+                        TipoCuenta.CUENTA_CORRIENTE
+                );
+
+        assertEquals(
+                TipoCuenta.CUENTA_CORRIENTE,
+                actualizada.getTipoCuenta()
+        );
+    }
+
+    @Test
+    void deberiaModificarInstitucionFinancieraDeCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.institucion."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucionOriginal =
+                new InstitucionFinanciera(
+                        "Banco Original",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        InstitucionFinanciera nuevaInstitucion =
+                new InstitucionFinanciera(
+                        "Banco Nuevo",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucionOriginal,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucionOriginal);
+        entityManager.persist(nuevaInstitucion);
+        entityManager.persist(moneda);
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta actualizada =
+                cuentaService.modificarInstitucionFinanciera(
+                        cuenta.getId(),
+                        nuevaInstitucion
+                );
+
+        assertEquals(
+                nuevaInstitucion.getId(),
+                actualizada
+                        .getInstitucionFinanciera()
+                        .getId()
+        );
+    }
+
+    @Test
+    void deberiaModificarMonedaDeCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.moneda."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda monedaOriginal =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Moneda nuevaMoneda =
+                new Moneda(
+                        "USD",
+                        "Dólar estadounidense",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        monedaOriginal
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(monedaOriginal);
+        entityManager.persist(nuevaMoneda);
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta actualizada =
+                cuentaService.modificarMoneda(
+                        cuenta.getId(),
+                        nuevaMoneda
+                );
+
+        assertEquals(
+                nuevaMoneda.getId(),
+                actualizada.getMoneda().getId()
+        );
+    }
+
+    @Test
+    void deberiaActivarCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.activar.cuenta."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        cuenta.desactivar();
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta actualizada =
+                cuentaService.activar(
+                        cuenta.getId()
+                );
+
+        assertTrue(
+                actualizada.isActiva()
+        );
+    }
+
+    @Test
+    void deberiaDesactivarCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.desactivar.cuenta."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta actualizada =
+                cuentaService.desactivar(
+                        cuenta.getId()
+                );
+
+        assertTrue(
+                !actualizada.isActiva()
         );
     }
 }

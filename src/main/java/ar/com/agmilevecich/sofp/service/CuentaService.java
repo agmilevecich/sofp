@@ -1,10 +1,15 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,10 +20,12 @@ public class CuentaService {
 
     private final CuentaRepository cuentaRepository;
     private final MovimientoRepository movimientoRepository;
+    private final EntityManager entityManager;
 
     public CuentaService(
             CuentaRepository cuentaRepository,
-            MovimientoRepository movimientoRepository) {
+            MovimientoRepository movimientoRepository,
+            EntityManager entityManager) {
 
         this.cuentaRepository =
                 Objects.requireNonNull(
@@ -30,6 +37,12 @@ public class CuentaService {
                 Objects.requireNonNull(
                         movimientoRepository,
                         "El MovimientoRepository es obligatorio"
+                );
+
+        this.entityManager =
+                Objects.requireNonNull(
+                        entityManager,
+                        "El EntityManager es obligatorio"
                 );
     }
 
@@ -102,5 +115,314 @@ public class CuentaService {
         }
 
         return saldo;
+    }
+
+    public Cuenta modificarNombre(
+            Long cuentaId,
+            String nombre) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                nombre,
+                "El nombre es obligatorio"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuenta.renombrar(nombre);
+
+            Cuenta actualizada =
+                    cuentaRepository.guardar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizada;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Cuenta modificarIdentificadorExterno(
+            Long cuentaId,
+            String identificadorExterno) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuenta.cambiarIdentificadorExterno(
+                    identificadorExterno
+            );
+
+            Cuenta actualizada =
+                    cuentaRepository.guardar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizada;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Cuenta modificarTipoCuenta(
+            Long cuentaId,
+            TipoCuenta tipoCuenta) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                tipoCuenta,
+                "El tipo de cuenta es obligatorio"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuenta.cambiarTipoCuenta(
+                    tipoCuenta
+            );
+
+            Cuenta actualizada =
+                    cuentaRepository.guardar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizada;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Cuenta modificarInstitucionFinanciera(
+            Long cuentaId,
+            InstitucionFinanciera institucionFinanciera) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                institucionFinanciera,
+                "La institución financiera es obligatoria"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuenta.cambiarInstitucionFinanciera(
+                    institucionFinanciera
+            );
+
+            Cuenta actualizada =
+                    cuentaRepository.guardar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizada;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Cuenta modificarMoneda(
+            Long cuentaId,
+            Moneda moneda) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                moneda,
+                "La moneda es obligatoria"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuenta.cambiarMoneda(
+                    moneda
+            );
+
+            Cuenta actualizada =
+                    cuentaRepository.guardar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizada;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Cuenta activar(Long cuentaId) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuenta.activar();
+
+            Cuenta actualizada =
+                    cuentaRepository.guardar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizada;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Cuenta desactivar(Long cuentaId) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuenta.desactivar();
+
+            Cuenta actualizada =
+                    cuentaRepository.guardar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+            return actualizada;
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    private Cuenta obtenerCuenta(Long cuentaId) {
+
+        return cuentaRepository.buscarPorId(
+                cuentaId
+        ).orElseThrow(
+                () -> new IllegalArgumentException(
+                        "No existe una cuenta con id "
+                                + cuentaId
+                )
+        );
     }
 }
