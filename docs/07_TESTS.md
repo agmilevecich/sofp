@@ -335,6 +335,6 @@ En `MovimientoService` se agregaron:
 
 Se incorporaron 3 nuevos casos en `MovimientoServiceTest` para verificar estas operaciones.
 
-Resultado: los tests específicos de `MovimientoServiceTest` terminaron en verde y la batería general del proyecto terminó en **118/118 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Resultado: los **3 nuevos tests terminaron en verde** y la batería general del proyecto terminó en **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 No se registran incidencias pendientes para este bloque.
