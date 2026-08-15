@@ -4,33 +4,29 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional del dominio para el Build 027.
+- Definir el siguiente bloque funcional del dominio para el Build 028.
 - Continuar ampliando la capa `service` y los casos de uso según el diseño acordado.
 - Mantener sincronizada la documentación de continuidad con el estado real de `main`.
 
 ## Trabajo recientemente completado
 
 - Build 011: aislamiento y estabilización de tests JPA con H2.
-- Build 012: repositorios JPA de `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera` y `Moneda`, con sus tests correspondientes en verde.
-- Build 013: `CuentaRepository` y `CuentaRepositoryTest`, con la batería general de tests en verde.
-- Build 014: `MovimientoRepository` y `MovimientoRepositoryTest`, con la batería general de **64 tests en verde**.
-- Build 015: `CuentaService` y `CuentaServiceTest`, con la batería general de **68 tests en verde**.
-- Build 016: `MovimientoService` y `MovimientoServiceTest`, con la batería general de **74 tests en verde**.
-- Build 017: `CategoriaRepository` y `CategoriaRepositoryTest`, con los tests correspondientes en verde.
-- Build 018: `CategoriaService` y `CategoriaServiceTest`, con la batería general de **82 tests en verde**.
-- Build 019: `PerfilFinancieroService` y `PerfilFinancieroServiceTest`, con la batería general de **88 tests en verde**.
-- Build 020: `UsuarioService` y `UsuarioServiceTest`, con la batería general de **93 tests en verde**.
-- Build 021: `InstitucionFinancieraService` y `InstitucionFinancieraServiceTest`, con la batería general de **101 tests en verde**.
-- Build 022: `MonedaService` y `MonedaServiceTest`, con la batería general de **109 tests en verde**.
-- Build 023: ampliación de `CuentaService` y `CuentaServiceTest`, con la batería general de **113 tests en verde**.
-- Build 024: ampliación inicial de `MovimientoService` y `MovimientoServiceTest`, con la batería general de **118 tests en verde**.
-<<<<<<< HEAD
-- Build 025: ampliación de `Movimiento` y finalización de las nuevas operaciones de `MovimientoService`, con la batería general de **121 tests en verde**.
-- Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, con la batería general de **121 tests en verde**.
-=======
-- Build 025: ampliación de `Movimiento` y finalización de nuevas operaciones de `MovimientoService`, con la batería general de **121 tests en verde**.
-- Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, consolidación de nombres de operaciones y batería general de **121 tests en verde**.
->>>>>>> 5e5def5 (docs: actualizar pendientes con Build 026)
+- Build 012: repositorios JPA de entidades base.
+- Build 013: `CuentaRepository` y `CuentaRepositoryTest`.
+- Build 014: `MovimientoRepository` y `MovimientoRepositoryTest`, con la batería general en 64 tests en verde.
+- Build 015: `CuentaService` y `CuentaServiceTest`, con la batería general en 68 tests en verde.
+- Build 016: `MovimientoService` y `MovimientoServiceTest`, con la batería general en 74 tests en verde.
+- Build 017: `CategoriaRepository` y `CategoriaRepositoryTest`.
+- Build 018: `CategoriaService` y `CategoriaServiceTest`, con la batería general en 82 tests en verde.
+- Build 019: `PerfilFinancieroService` y `PerfilFinancieroServiceTest`, con la batería general en 88 tests en verde.
+- Build 020: `UsuarioService` y `UsuarioServiceTest`, con la batería general en 93 tests en verde.
+- Build 021: `InstitucionFinancieraService` y `InstitucionFinancieraServiceTest`, con la batería general en 101 tests en verde.
+- Build 022: `MonedaService` y `MonedaServiceTest`, con la batería general en 109 tests en verde.
+- Build 023: ampliación de `CuentaService` y `CuentaServiceTest`, con la batería general en 113 tests en verde.
+- Build 024: ampliación inicial de `MovimientoService` y `MovimientoServiceTest`, con la batería general en 118 tests en verde.
+- Build 025: ampliación de `Movimiento` y finalización de nuevas operaciones de `MovimientoService`, con la batería general en 121 tests en verde.
+- Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, con la batería general en 121 tests en verde.
+- Build 027: ampliación de `CuentaService` con operaciones de modificación y activación/desactivación, con la batería general en **128 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 
