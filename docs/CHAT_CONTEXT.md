@@ -37,24 +37,38 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build confirmado: **Build 026 — Eliminación de Movimiento**.
+Último Build confirmado: **Build 027 — Ampliación de CuentaService**.
 
-Último commit de código confirmado: `d386d02`.
+La batería general confirmada es de **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-Mensaje: `feat: completar operaciones de Movimiento`.
+El código de Build 027 todavía debe quedar asociado a su commit de código en `main`.
 
-El commit fue publicado en `main` de GitHub y Bitbucket.
+## Build 027
 
-La batería general confirmada es de **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+`CuentaService` fue ampliado con:
 
-Commits de código recientes:
+- `registrar(Cuenta cuenta)`.
+- `buscarPorId(Long id)`.
+- `listarTodas()`.
+- `listarPorPerfilFinanciero(Long perfilFinancieroId)`.
+- `calcularSaldo(Long cuentaId)`.
+- `modificarNombre(Long cuentaId, String nombre)`.
+- `modificarIdentificadorExterno(Long cuentaId, String identificadorExterno)`.
+- `modificarTipoCuenta(Long cuentaId, TipoCuenta tipoCuenta)`.
+- `modificarInstitucionFinanciera(Long cuentaId, InstitucionFinanciera institucionFinanciera)`.
+- `modificarMoneda(Long cuentaId, Moneda moneda)`.
+- `activar(Long cuentaId)`.
+- `desactivar(Long cuentaId)`.
 
-- `d386d02` — `feat: completar operaciones de Movimiento`.
-- `81883ea` — `feat: completar operaciones de MovimientoService`.
-- `da3b89d` — `feat: ampliar operaciones de Movimiento`.
-- `110f7d7` — `feat: ampliar MovimientoService`.
-- `ea595d4` — `feat: ampliar CuentaService`.
-- `0d0db87` — `feat: implementar MonedaService`.
+El constructor recibe `CuentaRepository`, `MovimientoRepository` y `EntityManager`.
+
+Las operaciones de modificación y activación/desactivación validan los parámetros obligatorios, buscan la cuenta, ejecutan transacciones explícitas y utilizan `flush()` antes del `commit`, con `rollback()` ante excepciones.
+
+`obtenerCuenta(Long cuentaId)` centraliza la búsqueda y lanza `IllegalArgumentException` si la cuenta no existe.
+
+`CuentaServiceTest` incorporó siete casos nuevos para las operaciones de modificación y estado.
+
+Se verificó además `git diff --check`, sin errores.
 
 ## Dominio actual
 
@@ -87,7 +101,7 @@ Se incorporaron repositorios JPA para:
 - `MovimientoRepository`
 - `CategoriaRepository`
 
-Cada repositorio tiene su test correspondiente.
+`CuentaRepository` permite guardar, buscar por ID, listar todas y listar por perfil financiero.
 
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
@@ -103,31 +117,7 @@ La capa `service` contiene actualmente:
 - `InstitucionFinancieraService`
 - `MonedaService`
 
-`CuentaService` recibe `MovimientoRepository` por constructor y proporciona `calcularSaldo(Long cuentaId)`.
-
-Reglas actuales del cálculo:
-
-- `INGRESO` suma.
-- `EGRESO` resta.
-- Sin movimientos → `BigDecimal.ZERO`.
-- Se procesan múltiples movimientos de una cuenta.
-
-`MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona:
-
-- `registrar(...)`.
-- `buscarPorId(Long id)`.
-- `listarTodos()`.
-- `listarPorCuenta(Long cuentaId)`.
-- `listarPorCategoria(Long categoriaId)`.
-- `modificarDescripcion(Long movimientoId, String descripcion)`.
-- `modificarObservaciones(Long movimientoId, String observaciones)`.
-- `cambiarCategoria(Long movimientoId, Categoria categoria)`.
-- `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
-- `modificarImporte(Long movimientoId, BigDecimal importe)`.
-- `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
-- `eliminar(Long movimientoId)`.
-
-Las operaciones de registro, modificación y eliminación utilizan transacciones explícitas, `flush()` antes del `commit` y `rollback()` ante excepciones.
+`MovimientoService` utiliza `EntityManager` y `MovimientoRepository` y mantiene transacciones explícitas para registro, modificaciones y eliminación.
 
 ## Movimiento
 
@@ -151,7 +141,7 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto quedó en **121/121 tests en verde** al cerrar el Build 026.
+La batería general del proyecto quedó en **128/128 tests en verde** al cerrar el Build 027.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
@@ -161,10 +151,11 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-
 - Build 024 — Ampliación inicial de `MovimientoService`.
 - Build 025 — Ampliación de `Movimiento` y nuevas operaciones de `MovimientoService`.
 - Build 026 — Eliminación de `Movimiento` desde `MovimientoRepository` y `MovimientoService`.
+- Build 027 — Ampliación de `CuentaService` con modificaciones y activación/desactivación.
 
 ## Próximo paso
 
-Definir el **Build 027** antes de implementar código nuevo, considerando el estado actual del dominio, los repositorios y servicios disponibles y los casos de uso pendientes.
+Definir el **Build 028** antes de implementar código nuevo, considerando el estado actual del dominio, los repositorios y servicios disponibles y los casos de uso pendientes.
 
 ## Forma de trabajo acordada
 
