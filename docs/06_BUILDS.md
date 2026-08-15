@@ -43,40 +43,15 @@ Incluye:
 
 ## Build 011 — Aislamiento y estabilización de tests JPA con H2
 
-### Objetivo
-
-Separar la base H2 utilizada por los tests de la base H2 de desarrollo y conseguir que la batería completa de tests pueda ejecutarse de forma repetible, sin depender de borrar manualmente la base de datos.
-
-### Cambios principales
-
-- Se incorporó `JpaTestManager` para la infraestructura específica de pruebas.
-- Los tests JPA utilizan la unidad de persistencia `sofp-persistence-unit-test`.
-- Los tests utilizan H2 en memoria con `hibernate.hbm2ddl.auto=create-drop`.
-- Se evitó compartir los datos persistidos entre ejecuciones de tests mediante una base de test aislada.
-- Los tests JPA cierran correctamente el `EntityManager` y `JpaTestManager`.
-- Se resolvió el conflicto de unicidad del email de `Usuario` que aparecía al ejecutar la batería completa.
-- Se mantuvo separada la persistencia de producción (`JpaManager`) de la infraestructura de pruebas (`JpaTestManager`).
-
-### Tests verificados
-
-- `JpaManagerTest`
-- `UsuarioJpaTest`
-- `CategoriaJpaTest`
-- `CuentaJpaTest`
-- `MovimientoJpaTest`
-- Batería general de tests del proyecto.
-
-### Resultado
-
-Todos los tests de la batería general terminaron en verde. Los tests JPA también funcionan individualmente sin necesidad de borrar manualmente `database/sofp.mv.db`.
+Se incorporó `JpaTestManager`, se separó la unidad de persistencia de pruebas `sofp-persistence-unit-test` y se configuró H2 en memoria con `create-drop`. Se resolvieron problemas de aislamiento y unicidad de datos y se mantuvo separada la persistencia de producción de la infraestructura de pruebas.
 
 ## Build 012 — Repositorios JPA de entidades base
 
-Se incorporaron `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository` y sus tests correspondientes. Los tests terminaron en verde.
+Se incorporaron `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository` y sus tests correspondientes.
 
 ## Build 013 — Repository JPA de Cuenta
 
-Se incorporó `CuentaRepository` y `CuentaRepositoryTest`, cubriendo guardar/buscar, listar, listar por perfil y actualizar una cuenta existente. Todos los tests terminaron en verde.
+Se incorporó `CuentaRepository` y `CuentaRepositoryTest`, cubriendo guardar/buscar, listar, listar por perfil y actualizar una cuenta existente.
 
 ## Build 014 — Repository JPA de Movimiento
 
@@ -112,7 +87,7 @@ Resultado: **74/74 tests en verde**.
 
 ## Build 017 — Repository JPA de Categoria
 
-Se incorporó `CategoriaRepository` y `CategoriaRepositoryTest`. Los tests terminaron en verde.
+Se incorporó `CategoriaRepository` y `CategoriaRepositoryTest`.
 
 ### Commit asociado
 
@@ -211,28 +186,15 @@ Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
 
 ### Objetivo
 
-Completar la operación de eliminación de movimientos en las capas de persistencia y servicio, manteniendo las mismas reglas de validación y control transaccional utilizadas en el resto de `MovimientoService`.
+Completar la operación de eliminación de movimientos en las capas de persistencia y servicio, manteniendo las reglas de validación y control transaccional utilizadas en `MovimientoService`.
 
 ### Cambios principales
 
-Se incorporó en `MovimientoRepository`:
+En `MovimientoRepository` se incorporó `eliminar(Movimiento movimiento)`, garantizando que la entidad esté gestionada antes de ejecutar `remove()` cuando corresponde.
 
-- `eliminar(Movimiento movimiento)`.
-- Validación de que el movimiento sea obligatorio.
-- Garantía de que la entidad esté gestionada mediante `contains()`/`merge()` antes de ejecutar `remove()` cuando es necesario.
+En `MovimientoService` se incorporó `eliminar(Long movimientoId)`, con validación del ID, verificación de existencia y transacción explícita con `begin`, `flush`, `commit` y `rollback()` ante excepciones.
 
-Se incorporó en `MovimientoService`:
-
-- `eliminar(Long movimientoId)`.
-- Validación obligatoria del ID.
-- Verificación de existencia mediante `obtenerMovimiento(...)`.
-- Transacción explícita con `begin`, eliminación, `flush`, `commit` y `rollback` ante excepciones.
-
-También se consolidó el nombre `modificarTipoMovimiento(...)` en la entidad `Movimiento` para mantener coherencia con la operación equivalente del servicio.
-
-### Tests verificados
-
-Se ejecutó la batería general del proyecto después de los cambios.
+También se consolidó el nombre `modificarTipoMovimiento(...)` en la entidad `Movimiento`.
 
 Resultado: **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
@@ -242,176 +204,44 @@ Resultado: **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
-### Próximo paso
-
-Definir el Build 027 a partir del estado real del dominio, repositorios, servicios y casos de uso pendientes.
-
-## Build 025 — Ampliación de Movimiento y nuevas operaciones de MovimientoService
+## Build 027 — Ampliación de CuentaService
 
 ### Objetivo
 
-Ampliar la entidad `Movimiento` y completar las operaciones de modificación de tipo, importe y fecha/hora en `MovimientoService`.
+Completar las operaciones de modificación y activación/desactivación de `Cuenta` desde la capa `CuentaService`.
 
 ### Cambios principales
 
-En `Movimiento` se incorporaron:
+Se incorporaron en `CuentaService`:
 
-- `modificarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
-- `cambiarImporte(BigDecimal importe)`.
-- `cambiarFechaHora(LocalDateTime fechaHora)`.
+- `modificarNombre(Long cuentaId, String nombre)`.
+- `modificarIdentificadorExterno(Long cuentaId, String identificadorExterno)`.
+- `modificarTipoCuenta(Long cuentaId, TipoCuenta tipoCuenta)`.
+- `modificarInstitucionFinanciera(Long cuentaId, InstitucionFinanciera institucionFinanciera)`.
+- `modificarMoneda(Long cuentaId, Moneda moneda)`.
+- `activar(Long cuentaId)`.
+- `desactivar(Long cuentaId)`.
 
-En `MovimientoService` se incorporaron:
+El servicio recibe `EntityManager` por constructor y utiliza transacciones explícitas con `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
 
-- `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
-- `modificarImporte(Long movimientoId, BigDecimal importe)`.
-- `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
-
-Se mantuvo el patrón transaccional de validación, búsqueda, `begin`, modificación, `flush`, `commit` y `rollback` ante errores.
-
-### Tests verificados
-
-Se agregaron 3 casos nuevos en `MovimientoServiceTest` para modificar tipo, importe y fecha/hora.
-
-### Resultado
-
-Los **3 nuevos tests terminaron en verde** y la batería general terminó con **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-### Commits asociados
-
-- `da3b89d` — `feat: ampliar operaciones de Movimiento`.
-- `81883ea` — `feat: completar operaciones de MovimientoService`.
-
-Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
-
-## Build 026 — Completar operaciones de Movimiento
-
-### Objetivo
-
-Completar la gestión de movimientos incorporando la eliminación desde las capas de persistencia y servicio y consolidando los nombres de las operaciones de modificación.
-
-### Cambios principales
-
-Se incorporó en `MovimientoRepository`:
-
-- `eliminar(Movimiento movimiento)`.
-- La operación asegura que el movimiento esté gestionado por el `EntityManager` antes de ejecutar `remove`.
-
-Se incorporó en `MovimientoService`:
-
-- `eliminar(Long movimientoId)`.
-- Validación del identificador.
-- Búsqueda y validación de existencia del movimiento.
-- Transacción explícita con `begin`, eliminación, `flush`, `commit` y `rollback` ante errores.
-
-En `Movimiento` se consolidó el nombre de la operación de modificación de tipo como `modificarTipoMovimiento(...)`, manteniendo la validación del tipo obligatorio.
+Se agregó `obtenerCuenta(Long cuentaId)` para centralizar la búsqueda y la validación de cuenta inexistente mediante `IllegalArgumentException`.
 
 ### Tests verificados
 
-Se ejecutó la batería general del proyecto después de los cambios.
+`CuentaServiceTest` incorporó siete casos nuevos para las operaciones anteriores.
 
-### Resultado
+Resultado: **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La batería general terminó con **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-No se registran regresiones ni incidencias pendientes para este bloque.
+También se ejecutó `git diff --check`, sin errores de formato.
 
 ### Commit asociado
 
-- `d386d02` — `feat: completar operaciones de Movimiento`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
+El commit de código de Build 027 todavía queda pendiente de registrar en `main`.
 
 ### Próximo paso
 
-Definir el Build 027 a partir del estado real de los servicios, repositorios y casos de uso restantes.
-
-## Build 025 — Ampliación de Movimiento y nuevas operaciones de MovimientoService
-
-### Objetivo
-
-Ampliar la entidad `Movimiento` y completar las operaciones de modificación de tipo, importe y fecha/hora en `MovimientoService`.
-
-### Cambios principales
-
-En `Movimiento` se incorporaron:
-
-- `modificarTipoMovimiento(TipoMovimiento tipoMovimiento)`.
-- `cambiarImporte(BigDecimal importe)`.
-- `cambiarFechaHora(LocalDateTime fechaHora)`.
-
-En `MovimientoService` se incorporaron:
-
-- `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
-- `modificarImporte(Long movimientoId, BigDecimal importe)`.
-- `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
-
-Se mantuvo el patrón transaccional de validación, búsqueda, `begin`, modificación, `flush`, `commit` y `rollback` ante errores.
-
-### Tests verificados
-
-Se agregaron 3 casos nuevos en `MovimientoServiceTest` para modificar tipo, importe y fecha/hora.
-
-### Resultado
-
-Los **3 nuevos tests terminaron en verde** y la batería general terminó con **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-### Commits asociados
-
-- `da3b89d` — `feat: ampliar operaciones de Movimiento`.
-- `81883ea` — `feat: completar operaciones de MovimientoService`.
-
-Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
-
-## Build 026 — Completar operaciones de Movimiento
-
-### Objetivo
-
-Completar la gestión de movimientos incorporando la eliminación desde las capas de persistencia y servicio y consolidando los nombres de las operaciones de modificación.
-
-### Cambios principales
-
-Se incorporó en `MovimientoRepository`:
-
-- `eliminar(Movimiento movimiento)`.
-- La operación asegura que el movimiento esté gestionado por el `EntityManager` antes de ejecutar `remove`.
-
-Se incorporó en `MovimientoService`:
-
-- `eliminar(Long movimientoId)`.
-- Validación del identificador.
-- Búsqueda y validación de existencia del movimiento.
-- Transacción explícita con `begin`, eliminación, `flush`, `commit` y `rollback` ante errores.
-
-En `Movimiento` se consolidó el nombre de la operación de modificación de tipo como `modificarTipoMovimiento(...)`, manteniendo la validación del tipo obligatorio.
-
-### Tests verificados
-
-Se ejecutó la batería general del proyecto después de los cambios.
-
-### Resultado
-
-La batería general terminó con **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-No se registran regresiones ni incidencias pendientes para este bloque.
-
-### Commit asociado
-
-- `d386d02` — `feat: completar operaciones de Movimiento`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
-
-### Próximo paso
-
-Definir el Build 027 a partir del estado real de los servicios, repositorios y casos de uso restantes.
+Definir el Build 028 antes de implementar código nuevo.
 
 ## Regla para futuros Builds
 
-Agregar cada Build nuevo inmediatamente después de cerrarlo, incluyendo:
-
-- número y nombre;
-- objetivo;
-- cambios principales;
-- tests ejecutados;
-- resultado;
-- commit asociado;
-- próximo paso.
+Agregar cada Build nuevo inmediatamente después de verificar código, tests y commit, manteniendo sincronizados los documentos de continuidad.
