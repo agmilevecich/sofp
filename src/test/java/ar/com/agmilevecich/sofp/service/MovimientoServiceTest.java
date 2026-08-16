@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MovimientoServiceTest {
 
@@ -658,6 +659,39 @@ class MovimientoServiceTest {
         assertEquals(
                 nuevaFechaHora,
                 actualizado.getFechaHora()
+        );
+    }
+
+    @Test
+    void deberiaEliminarUnMovimiento() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                15,
+                                10,
+                                0
+                        ),
+                        "Movimiento a eliminar"
+                );
+
+        Long movimientoId =
+                movimiento.getId();
+
+        movimientoService.eliminar(
+                movimientoId
+        );
+
+        assertTrue(
+                movimientoService.buscarPorId(
+                        movimientoId
+                ).isEmpty()
         );
     }
 }
