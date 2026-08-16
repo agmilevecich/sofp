@@ -142,11 +142,23 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - La batería general pasó a **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 - Commit: `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
 
+## 2026-08-16
+
+### Build 028 — Ampliación de CategoriaService
+
+- Se amplió `CategoriaService` para completar la gestión de categorías desde la capa de servicio.
+- Se incorporaron operaciones de modificación y activación/desactivación, con validación de identificadores y existencia.
+- `CategoriaService` utiliza `EntityManager` junto con `CategoriaRepository` para gestionar explícitamente las operaciones transaccionales.
+- `CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones.
+- La batería general quedó en **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `git diff --check` no reportó errores.
+- Commit: `b5c200e` — `feat: ampliar CategoriaService`.
+
 ## Estado actual
 
-El código de `main` está en el commit `3e93be2`. La batería general confirmada es de **129/129 tests en verde**. El próximo bloque funcional a definir es el **Build 028**.
+El estado funcional más reciente corresponde al **Build 028**. La batería general confirmada es de **135/135 tests en verde**. La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp` antes de sincronizarla con `main`.
 
-La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp`.
+El siguiente bloque funcional queda pendiente de definición.
 
 ## Regla histórica
 
