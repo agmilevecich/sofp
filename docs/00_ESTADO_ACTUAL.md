@@ -34,29 +34,19 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque funcional trabajado es **Build 027 — Ampliación de CuentaService**.
+El último bloque funcional trabajado es **Build 028 — Ampliación de CategoriaService**.
 
-Se amplió `CuentaService` para completar las operaciones de modificación y activación/desactivación de cuentas, manteniendo el patrón transaccional utilizado por los servicios del proyecto.
+Se amplió `CategoriaService` para completar la gestión de categorías desde la capa de servicio, incorporando operaciones de modificación y activación/desactivación y manteniendo el patrón transaccional utilizado por los servicios anteriores.
 
-En `CuentaService` se incorporaron:
+`CategoriaService` pasó a utilizar `EntityManager` junto con `CategoriaRepository` para las operaciones que requieren transacción explícita. Se mantienen las operaciones existentes de registrar, buscar, listar y listar por perfil financiero.
 
-- `modificarNombre(Long cuentaId, String nombre)`.
-- `modificarIdentificadorExterno(Long cuentaId, String identificadorExterno)`.
-- `modificarTipoCuenta(Long cuentaId, TipoCuenta tipoCuenta)`.
-- `modificarInstitucionFinanciera(Long cuentaId, InstitucionFinanciera institucionFinanciera)`.
-- `modificarMoneda(Long cuentaId, Moneda moneda)`.
-- `activar(Long cuentaId)`.
-- `desactivar(Long cuentaId)`.
+Se incorporaron validaciones de identificadores y de existencia de la categoría para las nuevas operaciones.
 
-El servicio recibe `EntityManager` por constructor para gestionar explícitamente las transacciones. Las operaciones validan los identificadores y los parámetros obligatorios, buscan la cuenta y ejecutan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
+`CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones. La batería general quedó en **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-También se incorporó la validación de cuenta inexistente mediante `IllegalArgumentException` en el método privado `obtenerCuenta(...)`.
+También se ejecutó `git diff --check`, sin errores de formato.
 
-`CuentaServiceTest` fue ampliado con siete casos para las operaciones nuevas. La batería general quedó en **128/128 tests en verde** al cerrar el Build 027.
-
-Posteriormente se agregó cobertura específica para la eliminación de movimientos en `MovimientoServiceTest`, verificando que un movimiento registrado pueda eliminarse y que posteriormente `buscarPorId(...)` no lo encuentre. Con este test adicional, la batería general quedó en **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-El cambio de cobertura quedó registrado en `main` mediante el commit `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
+El commit de código del Build 028 es `b5c200e` — `feat: ampliar CategoriaService`.
 
 ## Dominio construido hasta ahora
 
@@ -104,53 +94,29 @@ La capa `service` actualmente contiene:
 - `InstitucionFinancieraService`
 - `MonedaService`
 
-`CuentaService` recibe `MovimientoRepository` y `EntityManager` por constructor y proporciona:
-
-- `registrar(Cuenta cuenta)`.
-- `buscarPorId(Long id)`.
-- `listarTodas()`.
-- `listarPorPerfilFinanciero(Long perfilFinancieroId)`.
-- `calcularSaldo(Long cuentaId)`.
-- `modificarNombre(...)`.
-- `modificarIdentificadorExterno(...)`.
-- `modificarTipoCuenta(...)`.
-- `modificarInstitucionFinanciera(...)`.
-- `modificarMoneda(...)`.
-- `activar(...)`.
-- `desactivar(...)`.
-
-Reglas actuales del cálculo:
-
-- `INGRESO` suma.
-- `EGRESO` resta.
-- Sin movimientos → `BigDecimal.ZERO`.
-- Se procesan múltiples movimientos de una cuenta.
+`CuentaService` recibe `MovimientoRepository` y `EntityManager` por constructor y proporciona operaciones de registro, búsqueda, listado, saldo, modificación y activación/desactivación.
 
 `MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona las operaciones de registro, búsqueda, listado, modificación y eliminación de movimientos.
 
-El registro, las modificaciones y la eliminación de movimientos utilizan transacciones explícitas, `flush()` antes del `commit` y `rollback()` ante excepciones.
+`CategoriaService` recibe `CategoriaRepository` y `EntityManager` y proporciona registro, búsqueda, listados, modificaciones y activación/desactivación de categorías. Las operaciones transaccionales utilizan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
 
 ## Tests
 
-La batería general confirmada actualmente es de **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La cobertura adicional incorporada en `MovimientoServiceTest` comprueba la eliminación efectiva de un movimiento mediante `MovimientoService.eliminar(...)`.
+La cobertura de `CategoriaServiceTest` fue ampliada en el Build 028 y se verificó tanto individualmente como mediante la batería general.
 
 ## Estado de Git
 
-El commit de referencia actual de `main` es:
+El commit de referencia del Build 028 es:
 
-- `3e93be2` — `test: cubrir eliminacion de MovimientoService`
+- `b5c200e` — `feat: ampliar CategoriaService`
 
-`main` de GitHub y Bitbucket se encuentran sincronizados con este commit.
-
-La rama `docs/continuidad-sofp` se utiliza para actualizar esta documentación de continuidad.
+La rama `docs/continuidad-sofp` está siendo actualizada para reflejar este estado antes de sincronizar la documentación con `main`.
 
 ## Próximo paso
 
-Definir el **Build 028** a partir del estado real del código, la capa `service`, los repositorios disponibles y los casos de uso que todavía deban incorporarse.
-
-No avanzar directamente a implementar el Build 028 sin definir primero qué pieza funcional se va a construir, qué comportamiento debe tener y qué tests deberán cubrirlo.
+Definir el siguiente bloque funcional a partir del estado real del dominio, repositorios y servicios disponibles, sin avanzar a un nuevo Build hasta decidir qué pieza funcional se va a construir y qué tests deberán cubrirla.
 
 ## Regla de continuidad
 
