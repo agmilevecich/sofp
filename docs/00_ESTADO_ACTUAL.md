@@ -34,7 +34,7 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 027 — Ampliación de CuentaService**.
+El último bloque funcional trabajado es **Build 027 — Ampliación de CuentaService**.
 
 Se amplió `CuentaService` para completar las operaciones de modificación y activación/desactivación de cuentas, manteniendo el patrón transaccional utilizado por los servicios del proyecto.
 
@@ -52,11 +52,11 @@ El servicio recibe `EntityManager` por constructor para gestionar explícitament
 
 También se incorporó la validación de cuenta inexistente mediante `IllegalArgumentException` en el método privado `obtenerCuenta(...)`.
 
-`CuentaServiceTest` fue ampliado con casos para las siete operaciones nuevas. La batería general del proyecto quedó en **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+`CuentaServiceTest` fue ampliado con siete casos para las operaciones nuevas. La batería general quedó en **128/128 tests en verde** al cerrar el Build 027.
 
-Antes de registrar el bloque se verificó además `git diff --check`, sin salida ni errores de formato.
+Posteriormente se agregó cobertura específica para la eliminación de movimientos en `MovimientoServiceTest`, verificando que un movimiento registrado pueda eliminarse y que posteriormente `buscarPorId(...)` no lo encuentre. Con este test adicional, la batería general quedó en **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-El código de este Build todavía debe quedar asociado a su commit de código en `main`; la documentación de continuidad se actualiza en esta rama de documentación.
+El cambio de cobertura quedó registrado en `main` mediante el commit `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
 
 ## Dominio construido hasta ahora
 
@@ -132,7 +132,19 @@ El registro, las modificaciones y la eliminación de movimientos utilizan transa
 
 ## Tests
 
-La batería general confirmada al cerrar el **Build 027** es de **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La cobertura adicional incorporada en `MovimientoServiceTest` comprueba la eliminación efectiva de un movimiento mediante `MovimientoService.eliminar(...)`.
+
+## Estado de Git
+
+El commit de referencia actual de `main` es:
+
+- `3e93be2` — `test: cubrir eliminacion de MovimientoService`
+
+`main` de GitHub y Bitbucket se encuentran sincronizados con este commit.
+
+La rama `docs/continuidad-sofp` se utiliza para actualizar esta documentación de continuidad.
 
 ## Próximo paso
 
