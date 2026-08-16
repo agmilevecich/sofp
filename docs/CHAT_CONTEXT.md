@@ -37,13 +37,11 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build funcional confirmado: **Build 027 — Ampliación de CuentaService**.
+Último Build funcional confirmado: **Build 028 — Ampliación de CategoriaService**.
 
-La batería general confirmada actualmente es de **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-El código de `main` está en el commit `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
-
-`main` de GitHub y Bitbucket se encuentran sincronizados con ese commit.
+El commit de código del Build 028 es `b5c200e` — `feat: ampliar CategoriaService`.
 
 ## Build 027
 
@@ -83,6 +81,22 @@ El test registra un movimiento, guarda su ID, ejecuta la eliminación y verifica
 La batería general pasó de 128 a **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 Commit: `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
+
+## Build 028 — Ampliación de CategoriaService
+
+`CategoriaService` fue ampliado para completar la gestión de categorías desde la capa de servicio.
+
+Se incorporaron operaciones de modificación y activación/desactivación, con validación de identificadores y existencia de la categoría.
+
+El servicio utiliza `CategoriaRepository` y `EntityManager`, manteniendo el patrón de transacciones explícitas utilizado en los servicios anteriores.
+
+`CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones y comprobar los cambios persistidos.
+
+Resultado de la batería general: **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Se ejecutó `git diff --check`, sin errores.
+
+Commit: `b5c200e` — `feat: ampliar CategoriaService`.
 
 ## Dominio actual
 
@@ -133,6 +147,8 @@ La capa `service` contiene actualmente:
 
 `MovimientoService` utiliza `EntityManager` y `MovimientoRepository` y mantiene transacciones explícitas para registro, modificaciones y eliminación.
 
+`CategoriaService` utiliza `EntityManager` y `CategoriaRepository` y mantiene el mismo patrón transaccional para las nuevas operaciones de modificación y estado.
+
 ## Movimiento
 
 `Movimiento` representa un movimiento financiero asociado a una `Cuenta` y una `Categoria`.
@@ -155,7 +171,7 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto está en **129/129 tests en verde**.
+La batería general del proyecto está en **135/135 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
@@ -167,10 +183,11 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-
 - Build 026 — Eliminación de `Movimiento` desde `MovimientoRepository` y `MovimientoService`.
 - Build 027 — Ampliación de `CuentaService` con modificaciones y activación/desactivación.
 - Cobertura posterior al Build 027 — test específico de eliminación de `MovimientoService`.
+- Build 028 — Ampliación de `CategoriaService`.
 
 ## Próximo paso
 
-Definir el **Build 028** antes de implementar código nuevo, considerando el estado actual del dominio, los repositorios y servicios disponibles y los casos de uso pendientes.
+Definir el siguiente bloque funcional antes de implementar código nuevo, considerando el estado actual del dominio, los repositorios y servicios disponibles y los casos de uso pendientes.
 
 ## Forma de trabajo acordada
 
