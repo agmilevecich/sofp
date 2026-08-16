@@ -247,9 +247,37 @@ Resultado actualizado: **129/129 tests en verde**, con `Failures: 0`, `Errors: 0
 
 Ambos cambios se encuentran publicados en `main` de GitHub y Bitbucket.
 
+## Build 028 — Ampliación de CategoriaService
+
+### Objetivo
+
+Completar las operaciones de la capa `CategoriaService` para que el servicio no se limite a registrar, buscar y listar categorías, sino que también permita gestionar su estado y sus datos modificables desde la capa de servicio.
+
+### Cambios principales
+
+Se amplió `CategoriaService` y se actualizó `CategoriaServiceTest`.
+
+El servicio pasó a utilizar `EntityManager` junto con `CategoriaRepository` para gestionar explícitamente las operaciones transaccionales de modificación y estado, manteniendo el patrón utilizado en los servicios anteriores.
+
+Se incorporaron las operaciones de modificación y activación/desactivación disponibles en la entidad `Categoria`, junto con la validación de los identificadores y de la existencia de la categoría.
+
+### Tests verificados
+
+`CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones del servicio.
+
+Resultado de la batería general: **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+### Commit asociado
+
+- `b5c200e` — `feat: ampliar CategoriaService`.
+
+El commit de código corresponde al estado local de `main` y queda registrado aquí como referencia para sincronizar la continuidad.
+
 ### Próximo paso
 
-Definir el Build 028 antes de implementar código nuevo.
+Definir el siguiente bloque funcional después de sincronizar la documentación con `main` y mantener la batería general en verde.
 
 ## Regla para futuros Builds
 
