@@ -54,12 +54,24 @@ Se incorporaron tests en `CuentaServiceTest` para:
 
 Las operaciones nuevas validan los parámetros obligatorios, verifican la existencia de la cuenta y utilizan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
 
-Resultado: **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Resultado al cerrar el Build 027: **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 También se ejecutó `git diff --check`, sin errores de formato.
 
-El commit de código de este Build todavía queda pendiente de registrar en `main`.
+## Cobertura adicional posterior al Build 027
+
+Se agregó un caso en `MovimientoServiceTest` para cubrir explícitamente la eliminación de un movimiento mediante `MovimientoService.eliminar(...)`.
+
+El test registra un movimiento, guarda su ID, ejecuta la eliminación y verifica mediante `buscarPorId(...)` que el movimiento ya no exista.
+
+`MovimientoServiceTest` pasó de 15 a **16 tests**, todos en verde en la ejecución individual.
+
+La batería general pasó de 128 a **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Commit asociado:
+
+- `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
 
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso.
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben quedar registrados para que la documentación refleje el estado real de los tests.
