@@ -32,7 +32,7 @@ class CategoriaServiceTest {
                 new CategoriaRepository(entityManager);
 
         categoriaService =
-                new CategoriaService(
+                new CategoriaService(entityManager,
                         categoriaRepository
                 );
     }
@@ -282,6 +282,247 @@ class CategoriaServiceTest {
                 categorias.get(0)
                         .getPerfilFinanciero()
                         .getId()
+        );
+    }
+
+    @Test
+    void deberiaModificarNombreDeCategoria() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.nombre." + System.nanoTime() + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+
+        categoriaService.registrar(
+                categoria
+        );
+
+        entityManager.getTransaction().commit();
+
+        Categoria actualizada =
+                categoriaService.modificarNombre(
+                        categoria.getId(),
+                        "Supermercado"
+                );
+
+        assertEquals(
+                categoria.getId(),
+                actualizada.getId()
+        );
+
+        assertEquals(
+                "Supermercado",
+                actualizada.getNombre()
+        );
+    }
+
+    @Test
+    void deberiaModificarDescripcionDeCategoria() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.descripcion." + System.nanoTime() + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+
+        categoriaService.registrar(
+                categoria
+        );
+
+        entityManager.getTransaction().commit();
+
+        Categoria actualizada =
+                categoriaService.modificarDescripcion(
+                        categoria.getId(),
+                        "Gastos relacionados con alimentos y supermercado"
+                );
+
+        assertEquals(
+                categoria.getId(),
+                actualizada.getId()
+        );
+
+        assertEquals(
+                "Gastos relacionados con alimentos y supermercado",
+                actualizada.getDescripcion()
+        );
+    }
+
+    @Test
+    void deberiaActivarCategoria() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.activar." + System.nanoTime() + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+
+        categoriaService.registrar(
+                categoria
+        );
+
+        categoria.desactivar();
+
+        entityManager.getTransaction().commit();
+
+        assertEquals(
+                false,
+                categoria.isActiva()
+        );
+
+        Categoria actualizada =
+                categoriaService.activar(
+                        categoria.getId()
+                );
+
+        assertEquals(
+                categoria.getId(),
+                actualizada.getId()
+        );
+
+        assertEquals(
+                true,
+                actualizada.isActiva()
+        );
+    }
+
+    @Test
+    void deberiaDesactivarCategoria() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.desactivar." + System.nanoTime() + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+
+        categoriaService.registrar(
+                categoria
+        );
+
+        entityManager.getTransaction().commit();
+
+        assertEquals(
+                true,
+                categoria.isActiva()
+        );
+
+        Categoria actualizada =
+                categoriaService.desactivar(
+                        categoria.getId()
+                );
+
+        assertEquals(
+                categoria.getId(),
+                actualizada.getId()
+        );
+
+        assertEquals(
+                false,
+                actualizada.isActiva()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaUnaCategoriaInexistente() {
+
+        Long categoriaIdInexistente = 999999L;
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> categoriaService.modificarNombre(
+                        categoriaIdInexistente,
+                        "Nueva categoría"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeDesactivaUnaCategoriaInexistente() {
+
+        Long categoriaIdInexistente = 999999L;
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> categoriaService.desactivar(
+                        categoriaIdInexistente
+                )
         );
     }
 }

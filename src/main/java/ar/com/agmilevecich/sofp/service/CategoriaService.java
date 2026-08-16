@@ -1,8 +1,8 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
-import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
+import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,10 +10,18 @@ import java.util.Optional;
 
 public class CategoriaService {
 
+    private final EntityManager entityManager;
     private final CategoriaRepository categoriaRepository;
 
     public CategoriaService(
+            EntityManager entityManager,
             CategoriaRepository categoriaRepository) {
+
+        this.entityManager =
+                Objects.requireNonNull(
+                        entityManager,
+                        "El EntityManager es obligatorio"
+                );
 
         this.categoriaRepository =
                 Objects.requireNonNull(
@@ -59,5 +67,146 @@ public class CategoriaService {
         return categoriaRepository.listarPorPerfilFinanciero(
                 perfilFinancieroId
         );
+    }
+
+    public Categoria modificarNombre(
+            Long categoriaId,
+            String nuevoNombre) {
+
+        Categoria categoria =
+                obtenerCategoria(categoriaId);
+
+        Objects.requireNonNull(
+                nuevoNombre,
+                "El nuevo nombre es obligatorio"
+        );
+
+        entityManager.getTransaction().begin();
+
+        try {
+
+            categoria.renombrar(
+                    nuevoNombre
+            );
+
+            entityManager.flush();
+
+            entityManager.getTransaction().commit();
+
+            return categoria;
+
+        } catch (RuntimeException e) {
+
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Categoria modificarDescripcion(
+            Long categoriaId,
+            String descripcion) {
+
+        Categoria categoria =
+                obtenerCategoria(categoriaId);
+
+        entityManager.getTransaction().begin();
+
+        try {
+
+            categoria.cambiarDescripcion(
+                    descripcion
+            );
+
+            entityManager.flush();
+
+            entityManager.getTransaction().commit();
+
+            return categoria;
+
+        } catch (RuntimeException e) {
+
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Categoria activar(
+            Long categoriaId) {
+
+        Categoria categoria =
+                obtenerCategoria(categoriaId);
+
+        entityManager.getTransaction().begin();
+
+        try {
+
+            categoria.activar();
+
+            entityManager.flush();
+
+            entityManager.getTransaction().commit();
+
+            return categoria;
+
+        } catch (RuntimeException e) {
+
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    public Categoria desactivar(
+            Long categoriaId) {
+
+        Categoria categoria =
+                obtenerCategoria(categoriaId);
+
+        entityManager.getTransaction().begin();
+
+        try {
+
+            categoria.desactivar();
+
+            entityManager.flush();
+
+            entityManager.getTransaction().commit();
+
+            return categoria;
+
+        } catch (RuntimeException e) {
+
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            throw e;
+        }
+    }
+
+    private Categoria obtenerCategoria(
+            Long categoriaId) {
+
+        Objects.requireNonNull(
+                categoriaId,
+                "El id de la categoría es obligatorio"
+        );
+
+        return categoriaRepository
+                .buscarPorId(categoriaId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "No existe la categoría con id: "
+                                        + categoriaId
+                        )
+                );
     }
 }
