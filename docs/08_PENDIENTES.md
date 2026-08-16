@@ -25,8 +25,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Build 023: ampliación de `CuentaService` y `CuentaServiceTest`, con la batería general en 113 tests en verde.
 - Build 024: ampliación inicial de `MovimientoService` y `MovimientoServiceTest`, con la batería general en 118 tests en verde.
 - Build 025: ampliación de `Movimiento` y finalización de nuevas operaciones de `MovimientoService`, con la batería general en 121 tests en verde.
-- Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, con la batería general en 121 tests en verde.
-- Build 027: ampliación de `CuentaService` con operaciones de modificación y activación/desactivación, con la batería general en **128 tests en verde**.
+- Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, con la batería general en 121 tests en verde al cerrar el Build.
+- Build 027: ampliación de `CuentaService` con operaciones de modificación y activación/desactivación, con la batería general en 128 tests en verde al cerrar el Build.
+- Cobertura posterior al Build 027: test específico de eliminación en `MovimientoServiceTest`, elevando la batería general a **129 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 
@@ -35,6 +36,12 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
 - Definir reportes y cálculos derivados de movimientos.
 - Ampliar las reglas de saldos y consistencia financiera.
+
+## Estado de Git de referencia
+
+- `main` está en `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
+- `main` de GitHub y Bitbucket se encuentran sincronizados.
+- La rama `docs/continuidad-sofp` contiene la documentación actualizada de continuidad.
 
 ## Regla
 
