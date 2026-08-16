@@ -37,11 +37,13 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build confirmado: **Build 027 — Ampliación de CuentaService**.
+Último Build funcional confirmado: **Build 027 — Ampliación de CuentaService**.
 
-La batería general confirmada es de **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-El código de Build 027 todavía debe quedar asociado a su commit de código en `main`.
+El código de `main` está en el commit `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
+
+`main` de GitHub y Bitbucket se encuentran sincronizados con ese commit.
 
 ## Build 027
 
@@ -69,6 +71,18 @@ Las operaciones de modificación y activación/desactivación validan los parám
 `CuentaServiceTest` incorporó siete casos nuevos para las operaciones de modificación y estado.
 
 Se verificó además `git diff --check`, sin errores.
+
+## Cobertura posterior al Build 027
+
+Se agregó un caso en `MovimientoServiceTest` para cubrir explícitamente la eliminación de un movimiento mediante `MovimientoService.eliminar(...)`.
+
+El test registra un movimiento, guarda su ID, ejecuta la eliminación y verifica mediante `buscarPorId(...)` que el movimiento ya no exista.
+
+`MovimientoServiceTest` pasó de 15 a **16 tests**, todos en verde en la ejecución individual.
+
+La batería general pasó de 128 a **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Commit: `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
 
 ## Dominio actual
 
@@ -141,7 +155,7 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto quedó en **128/128 tests en verde** al cerrar el Build 027.
+La batería general del proyecto está en **129/129 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
@@ -152,6 +166,7 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-
 - Build 025 — Ampliación de `Movimiento` y nuevas operaciones de `MovimientoService`.
 - Build 026 — Eliminación de `Movimiento` desde `MovimientoRepository` y `MovimientoService`.
 - Build 027 — Ampliación de `CuentaService` con modificaciones y activación/desactivación.
+- Cobertura posterior al Build 027 — test específico de eliminación de `MovimientoService`.
 
 ## Próximo paso
 
