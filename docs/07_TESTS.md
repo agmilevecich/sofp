@@ -72,6 +72,22 @@ Commit asociado:
 
 - `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
 
+## Build 028 — Ampliación de CategoriaService
+
+Se amplió `CategoriaService` y `CategoriaServiceTest` para completar la gestión de categorías desde la capa de servicio.
+
+Se incorporaron operaciones de modificación y activación/desactivación de categorías, con validación de identificadores y existencia y gestión transaccional mediante `EntityManager`.
+
+`CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones y comprobar la persistencia de los cambios.
+
+Resultado: **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+Commit asociado:
+
+- `b5c200e` — `feat: ampliar CategoriaService`.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben quedar registrados para que la documentación refleje el estado real de los tests.
