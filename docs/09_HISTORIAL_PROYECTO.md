@@ -121,7 +121,7 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 - Se incorporó la eliminación en `MovimientoRepository` y `MovimientoService`.
 - Se validaron ID y existencia del movimiento y se mantuvo el patrón transaccional explícito.
-- La batería general quedó en **121/121 tests en verde**.
+- La batería general quedó en **121/121 tests en verde** al cerrar el Build.
 - Commit: `d386d02` — `feat: completar operaciones de Movimiento`.
 
 ### Build 027 — Ampliación de CuentaService
@@ -131,13 +131,22 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - `CuentaService` pasó a recibir `EntityManager` por constructor para gestionar explícitamente estas transacciones.
 - Se incorporó `obtenerCuenta(...)` para centralizar la validación de cuenta inexistente.
 - `CuentaServiceTest` incorporó siete nuevos casos.
-- La batería general quedó en **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-- `git diff --check` no reportó errores.
-- El commit de código de Build 027 todavía está pendiente de registrar en `main`.
+- La batería general quedó en **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0` al cerrar el Build.
+- Commit: `00d862c` — `feat: ampliar CuentaService`.
+
+### Cobertura posterior al Build 027 — Eliminación de MovimientoService
+
+- Se agregó un caso específico en `MovimientoServiceTest` para cubrir la eliminación de un movimiento mediante `MovimientoService.eliminar(...)`.
+- El test verifica que, luego de eliminar el movimiento, `buscarPorId(...)` no lo encuentre.
+- `MovimientoServiceTest` pasó de 15 a **16 tests**, todos en verde en la ejecución individual.
+- La batería general pasó a **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- Commit: `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
 
 ## Estado actual
 
-La documentación de continuidad queda actualizada hasta el Build 027. El próximo bloque a definir es el **Build 028**.
+El código de `main` está en el commit `3e93be2`. La batería general confirmada es de **129/129 tests en verde**. El próximo bloque funcional a definir es el **Build 028**.
+
+La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp`.
 
 ## Regla histórica
 
