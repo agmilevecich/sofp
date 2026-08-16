@@ -230,13 +230,22 @@ Se agregó `obtenerCuenta(Long cuentaId)` para centralizar la búsqueda y la val
 
 `CuentaServiceTest` incorporó siete casos nuevos para las operaciones anteriores.
 
-Resultado: **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Resultado al cerrar el Build 027: **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 También se ejecutó `git diff --check`, sin errores de formato.
 
-### Commit asociado
+### Cobertura posterior del Build 027
 
-El commit de código de Build 027 todavía queda pendiente de registrar en `main`.
+Se agregó un test en `MovimientoServiceTest` para cubrir explícitamente la eliminación de un movimiento mediante `MovimientoService.eliminar(...)` y verificar que el movimiento deje de estar disponible mediante `buscarPorId(...)`.
+
+Resultado actualizado: **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+### Commits asociados
+
+- `00d862c` — `feat: ampliar CuentaService`.
+- `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
+
+Ambos cambios se encuentran publicados en `main` de GitHub y Bitbucket.
 
 ### Próximo paso
 
