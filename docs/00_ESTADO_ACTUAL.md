@@ -34,17 +34,17 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque funcional trabajado es **Build 031 — Eliminación en CuentaRepository**.
+El último bloque funcional trabajado es **Build 032 — Eliminación en CuentaService**.
 
-Se incorporó `CuentaRepository.eliminar(Cuenta cuenta)` para completar la eliminación de cuentas desde la capa de persistencia. La operación valida la cuenta, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+Se incorporó `CuentaService.eliminar(Long cuentaId)` para completar la eliminación de cuentas desde la capa de servicio. La operación valida el ID, verifica la existencia mediante `obtenerCuenta(...)`, inicia una transacción explícita, delega la eliminación en `CuentaRepository`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
 
-`CuentaRepositoryTest` fue ampliado con `deberiaEliminarCuentaExistente()`, verificando que la cuenta deje de estar disponible mediante `buscarPorId(...)` después del `commit`.
+`CuentaServiceTest` fue ampliado con `deberiaEliminarCuentaExistente()` y `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()`.
 
-La batería general quedó en **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 También se ejecutó `git diff --check`, sin errores de formato.
 
-El commit de código del Build 031 es `40768d3` — `feat: completar eliminacion de CuentaRepository`.
+El commit de código del Build 032 es `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
@@ -96,7 +96,7 @@ La capa `service` actualmente contiene:
 - `InstitucionFinancieraService`
 - `MonedaService`
 
-`CuentaService` recibe `MovimientoRepository` y `EntityManager` por constructor y proporciona operaciones de registro, búsqueda, listado, saldo, modificación y activación/desactivación. La eliminación de cuentas todavía no está incorporada en el servicio.
+`CuentaService` recibe `CuentaRepository`, `MovimientoRepository` y `EntityManager` por constructor y proporciona operaciones de registro, búsqueda, listado, saldo, modificación, activación/desactivación y eliminación de cuentas. La eliminación valida la existencia y utiliza una transacción explícita con `flush()`, `commit()` y `rollback()` ante excepciones.
 
 `MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona las operaciones de registro, búsqueda, listado, modificación y eliminación de movimientos.
 
@@ -104,25 +104,27 @@ La capa `service` actualmente contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 `CuentaRepositoryTest` cubre ahora guardar/buscar, listados, actualización y eliminación de cuentas.
+
+`CuentaServiceTest` cubre registro, búsqueda, listados, saldo, modificaciones, activación/desactivación, eliminación y validación de eliminación de cuenta inexistente.
 
 `CategoriaServiceTest` cubre registro, búsqueda, listados, modificaciones, activación/desactivación, eliminación y validación de eliminación de categoría inexistente.
 
 ## Estado de Git
 
-El commit de referencia del Build 031 es:
+El commit de referencia del Build 032 es:
 
-- `40768d3` — `feat: completar eliminacion de CuentaRepository`
+- `a1a817d` — `feat: completar eliminacion de CuentaService`
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
-La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 031.
+La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 032.
 
 ## Próximo paso
 
-Completar progresivamente la eliminación de `Cuenta` desde la capa `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`, con implementación verificable y tests correspondientes.
+Definir el siguiente bloque funcional antes de implementar código nuevo, revisando los casos de uso pendientes del dominio y determinando si corresponde continuar con otra pieza de `service` o persistencia.
 
 ## Regla de continuidad
 
