@@ -84,4 +84,19 @@ public class CuentaRepository {
                 )
                 .getResultList();
     }
+
+    public void eliminar(Cuenta cuenta) {
+
+        Objects.requireNonNull(
+                cuenta,
+                "La cuenta es obligatoria"
+        );
+
+        Cuenta gestionada =
+                entityManager.contains(cuenta)
+                        ? cuenta
+                        : entityManager.merge(cuenta);
+
+        entityManager.remove(gestionada);
+    }
 }

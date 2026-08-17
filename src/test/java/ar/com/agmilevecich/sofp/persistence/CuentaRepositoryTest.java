@@ -386,4 +386,82 @@ class CuentaRepositoryTest {
                 cuentaVerificada.getIdentificadorExterno()
         );
     }
+
+    @Test
+    void deberiaEliminarCuentaExistente() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Milevecich",
+                        "ariel.eliminar." + System.nanoTime() + "@test.com",
+                        "hash-test"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Santander",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        em.getTransaction().begin();
+
+        em.persist(usuario);
+        em.persist(perfil);
+        em.persist(institucion);
+        em.persist(moneda);
+
+        CuentaRepository repository =
+                new CuentaRepository(em);
+
+        repository.guardar(cuenta);
+
+        em.getTransaction().commit();
+
+        Long cuentaId = cuenta.getId();
+
+        em.clear();
+
+        Cuenta cuentaAEliminar =
+                repository.buscarPorId(cuentaId)
+                        .orElseThrow();
+
+        em.getTransaction().begin();
+
+        repository.eliminar(cuentaAEliminar);
+
+        em.getTransaction().commit();
+
+        em.clear();
+
+        Optional<Cuenta> resultado =
+                repository.buscarPorId(cuentaId);
+
+        assertTrue(
+                resultado.isEmpty()
+        );
+    }
 }
