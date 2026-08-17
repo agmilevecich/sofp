@@ -143,6 +143,27 @@ Commit asociado:
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
+## Build 032 — Eliminación en CuentaService
+
+Se incorporó `CuentaService.eliminar(Long cuentaId)` para completar la eliminación de cuentas desde la capa de servicio.
+
+La operación valida el ID, verifica la existencia mediante `obtenerCuenta(...)`, inicia una transacción explícita, delega la eliminación en `CuentaRepository.eliminar(...)`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
+
+Se incorporaron dos casos en `CuentaServiceTest`:
+
+1. `deberiaEliminarCuentaExistente()` — registra una cuenta, la elimina mediante el servicio y verifica que `buscarPorId(...)` no la encuentre.
+2. `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()` — verifica que eliminar una cuenta inexistente produzca `IllegalArgumentException`.
+
+Resultado: **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+Commit asociado:
+
+- `a1a817d` — `feat: completar eliminacion de CuentaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben quedar registrados para que la documentación refleje el estado real de los tests.
