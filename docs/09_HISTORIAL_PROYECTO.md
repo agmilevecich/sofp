@@ -186,11 +186,21 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit: `40768d3` — `feat: completar eliminacion de CuentaRepository`.
 - El commit fue publicado en `main` de GitHub y Bitbucket.
 
+### Build 032 — Eliminación en CuentaService
+
+- Se incorporó `CuentaService.eliminar(Long cuentaId)` para completar la eliminación de cuentas desde la capa de servicio.
+- La operación valida el ID, verifica la existencia mediante `obtenerCuenta(...)`, inicia una transacción explícita, delega la eliminación en `CuentaRepository.eliminar(...)`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
+- `CuentaServiceTest` incorporó `deberiaEliminarCuentaExistente()` y `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()`.
+- La batería general quedó en **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `git diff --check` no reportó errores.
+- Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado actual
 
-El estado funcional más reciente corresponde al **Build 031**. La batería general confirmada es de **139/139 tests en verde**. La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp` antes de sincronizarla con `main`.
+El estado funcional más reciente corresponde al **Build 032**. La batería general confirmada es de **141/141 tests en verde**. La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp` antes de sincronizarla con `main`.
 
-El siguiente bloque funcional queda orientado a completar la eliminación de `Cuenta` desde `CuentaService`, con implementación y tests verificables.
+El siguiente bloque funcional queda por definir revisando los casos de uso pendientes del dominio y determinando la siguiente pieza de `service` o persistencia.
 
 ## Regla histórica
 
