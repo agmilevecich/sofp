@@ -84,4 +84,19 @@ public class CategoriaRepository {
                 )
                 .getResultList();
     }
+
+    public void eliminar(Categoria categoria) {
+
+        Objects.requireNonNull(
+                categoria,
+                "La categoría es obligatoria"
+        );
+
+        Categoria gestionada =
+                entityManager.contains(categoria)
+                        ? categoria
+                        : entityManager.merge(categoria);
+
+        entityManager.remove(gestionada);
+    }
 }

@@ -306,4 +306,61 @@ class CategoriaRepositoryTest {
                 categoriaVerificada.getDescripcion()
         );
     }
+
+    @Test
+    void deberiaEliminarCategoriaExistente() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Milevecich",
+                        "ariel." + System.nanoTime() + "@test.com",
+                        "hash-test"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfil
+                );
+
+        em.getTransaction().begin();
+
+        em.persist(usuario);
+        em.persist(perfil);
+
+        CategoriaRepository repository =
+                new CategoriaRepository(em);
+
+        repository.guardar(categoria);
+
+        em.getTransaction().commit();
+
+        Long id = categoria.getId();
+
+        em.clear();
+
+        Categoria categoriaAEliminar =
+                repository.buscarPorId(id)
+                        .orElseThrow();
+
+        em.getTransaction().begin();
+
+        repository.eliminar(categoriaAEliminar);
+
+        em.getTransaction().commit();
+
+        em.clear();
+
+        Optional<Categoria> resultado =
+                repository.buscarPorId(id);
+
+        assertTrue(resultado.isEmpty());
+    }
 }
