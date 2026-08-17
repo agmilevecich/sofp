@@ -37,13 +37,50 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build funcional confirmado: **Build 028 — Ampliación de CategoriaService**.
+Último Build funcional confirmado: **Build 030 — Eliminación en CategoriaService**.
 
-La batería general confirmada actualmente es de **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-El commit de código del Build 028 es `b5c200e` — `feat: ampliar CategoriaService`.
+El commit de código del Build 030 es `59b9628` — `feat: completar eliminacion de CategoriaService`.
 
-## Build 027
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+## Build 029 — Eliminación en CategoriaRepository
+
+`CategoriaRepository` fue ampliado con:
+
+- `eliminar(Categoria categoria)`.
+
+La operación valida la categoría, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+
+`CategoriaRepositoryTest` incorporó `deberiaEliminarCategoriaExistente()`.
+
+Resultado: **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Commit: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+
+## Build 030 — Eliminación en CategoriaService
+
+`CategoriaService` fue ampliado con:
+
+- `eliminar(Long categoriaId)`.
+
+La operación valida el ID, obtiene la categoría mediante `obtenerCategoria(...)`, inicia una transacción explícita, delega la eliminación en `CategoriaRepository.eliminar(...)`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
+
+`CategoriaServiceTest` incorporó:
+
+- `deberiaEliminarCategoriaExistente()`.
+- `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()`.
+
+Resultado de la batería general: **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Se ejecutó `git diff --check`, sin errores.
+
+Commit: `59b9628` — `feat: completar eliminacion de CategoriaService`.
+
+## Builds anteriores relevantes
+
+### Build 027
 
 `CuentaService` fue ampliado con:
 
@@ -133,6 +170,8 @@ Se incorporaron repositorios JPA para:
 
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
+`CategoriaRepository` proporciona guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar categorías.
+
 ## Service
 
 La capa `service` contiene actualmente:
@@ -147,7 +186,7 @@ La capa `service` contiene actualmente:
 
 `MovimientoService` utiliza `EntityManager` y `MovimientoRepository` y mantiene transacciones explícitas para registro, modificaciones y eliminación.
 
-`CategoriaService` utiliza `EntityManager` y `CategoriaRepository` y mantiene el mismo patrón transaccional para las nuevas operaciones de modificación y estado.
+`CategoriaService` utiliza `EntityManager` y `CategoriaRepository` y mantiene el mismo patrón transaccional para registro, modificaciones, activación/desactivación y eliminación.
 
 ## Movimiento
 
@@ -171,7 +210,7 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto está en **135/135 tests en verde**.
+La batería general del proyecto está en **138/138 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
@@ -184,10 +223,12 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-
 - Build 027 — Ampliación de `CuentaService` con modificaciones y activación/desactivación.
 - Cobertura posterior al Build 027 — test específico de eliminación de `MovimientoService`.
 - Build 028 — Ampliación de `CategoriaService`.
+- Build 029 — Eliminación en `CategoriaRepository`.
+- Build 030 — Eliminación en `CategoriaService`.
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional antes de implementar código nuevo, considerando el estado actual del dominio, los repositorios y servicios disponibles y los casos de uso pendientes.
+Definir el siguiente bloque funcional antes de implementar código nuevo, considerando el estado actual del dominio, los casos de uso pendientes y la evolución de repositorios y servicios.
 
 ## Forma de trabajo acordada
 
