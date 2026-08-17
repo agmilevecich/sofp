@@ -34,19 +34,21 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque funcional trabajado es **Build 028 — Ampliación de CategoriaService**.
+El último bloque funcional trabajado es **Build 029 — Eliminación en CategoriaRepository**.
 
-Se amplió `CategoriaService` para completar la gestión de categorías desde la capa de servicio, incorporando operaciones de modificación y activación/desactivación y manteniendo el patrón transaccional utilizado por los servicios anteriores.
+Se incorporó `CategoriaRepository.eliminar(Categoria categoria)` para completar la eliminación de categorías en la capa de persistencia. La operación valida la categoría, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
 
-`CategoriaService` pasó a utilizar `EntityManager` junto con `CategoriaRepository` para las operaciones que requieren transacción explícita. Se mantienen las operaciones existentes de registrar, buscar, listar y listar por perfil financiero.
+`CategoriaRepositoryTest` fue ampliado con `deberiaEliminarCategoriaExistente()`, verificando que la categoría deje de estar disponible mediante `buscarPorId(...)` después de la eliminación.
 
-Se incorporaron validaciones de identificadores y de existencia de la categoría para las nuevas operaciones.
+La prueba específica de `CategoriaRepositoryTest` quedó en **5/5 tests en verde**.
 
-`CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones. La batería general quedó en **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 También se ejecutó `git diff --check`, sin errores de formato.
 
-El commit de código del Build 028 es `b5c200e` — `feat: ampliar CategoriaService`.
+El commit de código del Build 029 es `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
 
 ## Dominio construido hasta ahora
 
@@ -82,6 +84,8 @@ Repositorios JPA incorporados:
 
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
+`CategoriaRepository` proporciona guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar categorías.
+
 ## Service
 
 La capa `service` actualmente contiene:
@@ -102,21 +106,23 @@ La capa `service` actualmente contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La cobertura de `CategoriaServiceTest` fue ampliada en el Build 028 y se verificó tanto individualmente como mediante la batería general.
+La cobertura de `CategoriaRepositoryTest` fue ampliada en el Build 029 y se verificó tanto individualmente como mediante la batería general.
 
 ## Estado de Git
 
-El commit de referencia del Build 028 es:
+El commit de referencia del Build 029 es:
 
-- `b5c200e` — `feat: ampliar CategoriaService`
+- `46ad669` — `feat: completar eliminacion de CategoriaRepository`
 
-La rama `docs/continuidad-sofp` está siendo actualizada para reflejar este estado antes de sincronizar la documentación con `main`.
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
+La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 029, pendiente de sincronizarse con `main` cuando se cierre el bloque documental.
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional a partir del estado real del dominio, repositorios y servicios disponibles, sin avanzar a un nuevo Build hasta decidir qué pieza funcional se va a construir y qué tests deberán cubrirla.
+Evaluar la incorporación de la operación de eliminación en `CategoriaService`, siguiendo el patrón aplicado anteriormente en `MovimientoService`, junto con sus validaciones, control transaccional y tests correspondientes.
 
 ## Regla de continuidad
 
