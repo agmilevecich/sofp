@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 import java.util.Objects;
@@ -209,4 +210,38 @@ public class CategoriaService {
                         )
                 );
     }
+
+    public void eliminar(Long categoriaId) {
+
+        Objects.requireNonNull(
+                categoriaId,
+                "El id de la categoría es obligatorio"
+        );
+
+        Categoria categoria =
+                obtenerCategoria(categoriaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            categoriaRepository.eliminar(categoria);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
+
+
 }

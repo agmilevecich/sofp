@@ -525,4 +525,67 @@ class CategoriaServiceTest {
                 )
         );
     }
+
+    @Test
+    void deberiaEliminarCategoriaExistente() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.eliminar." + System.nanoTime() + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+
+        categoriaService.registrar(
+                categoria
+        );
+
+        entityManager.getTransaction().commit();
+
+        Long categoriaId = categoria.getId();
+
+        categoriaService.eliminar(
+                categoriaId
+        );
+
+        Optional<Categoria> resultado =
+                categoriaService.buscarPorId(
+                        categoriaId
+                );
+
+        assertTrue(
+                resultado.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente() {
+
+        Long categoriaIdInexistente = 999999L;
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> categoriaService.eliminar(
+                        categoriaIdInexistente
+                )
+        );
+    }
 }
