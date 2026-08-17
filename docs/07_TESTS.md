@@ -88,6 +88,43 @@ Commit asociado:
 
 - `b5c200e` — `feat: ampliar CategoriaService`.
 
+## Build 029 — Eliminación en CategoriaRepository
+
+Se incorporó la eliminación de categorías en `CategoriaRepository` mediante `eliminar(Categoria categoria)`.
+
+La operación valida la categoría, comprueba si está gestionada, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+
+`CategoriaRepositoryTest` incorporó `deberiaEliminarCategoriaExistente()`, verificando que la categoría deje de estar disponible mediante `buscarPorId(...)` después de la eliminación.
+
+Resultado: **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La prueba específica de `CategoriaRepositoryTest` quedó en **5/5 tests en verde**.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+Commit asociado:
+
+- `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+
+## Build 030 — Eliminación en CategoriaService
+
+Se incorporó `CategoriaService.eliminar(Long categoriaId)` para completar la eliminación de categorías desde la capa de servicio.
+
+La operación valida el ID, verifica la existencia mediante `obtenerCategoria(...)`, inicia una transacción explícita, delega la eliminación en `CategoriaRepository`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
+
+Se incorporaron dos casos en `CategoriaServiceTest`:
+
+1. `deberiaEliminarCategoriaExistente()` — registra una categoría, la elimina mediante el servicio y verifica que `buscarPorId(...)` no la encuentre.
+2. `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()` — verifica que eliminar una categoría inexistente produzca `IllegalArgumentException`.
+
+Resultado: **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+Commit asociado:
+
+- `59b9628` — `feat: completar eliminacion de CategoriaService`.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben quedar registrados para que la documentación refleje el estado real de los tests.
