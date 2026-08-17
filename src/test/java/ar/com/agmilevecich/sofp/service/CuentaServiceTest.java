@@ -1164,4 +1164,90 @@ class CuentaServiceTest {
                 !actualizada.isActiva()
         );
     }
+
+    @Test
+    void deberiaEliminarCuentaExistente() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.eliminar.cuenta."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(
+                cuenta
+        );
+
+        entityManager.getTransaction().commit();
+
+        Long cuentaId = cuenta.getId();
+
+        entityManager.clear();
+
+        cuentaService.eliminar(
+                cuentaId
+        );
+
+        Optional<Cuenta> resultado =
+                cuentaService.buscarPorId(
+                        cuentaId
+                );
+
+        assertTrue(
+                resultado.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente() {
+
+        Long cuentaIdInexistente = 999999L;
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.eliminar(
+                        cuentaIdInexistente
+                )
+        );
+    }
 }

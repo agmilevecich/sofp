@@ -425,4 +425,36 @@ public class CuentaService {
                 )
         );
     }
+
+    public void eliminar(Long cuentaId) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        Cuenta cuenta =
+                obtenerCuenta(cuentaId);
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
+
+        try {
+            transaction.begin();
+
+            cuentaRepository.eliminar(cuenta);
+
+            entityManager.flush();
+
+            transaction.commit();
+
+        } catch (RuntimeException e) {
+
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            throw e;
+        }
+    }
 }
