@@ -125,6 +125,24 @@ Commit asociado:
 
 - `59b9628` — `feat: completar eliminacion de CategoriaService`.
 
+## Build 031 — Eliminación en CuentaRepository
+
+Se incorporó `CuentaRepository.eliminar(Cuenta cuenta)` para completar la eliminación de cuentas en la capa de persistencia.
+
+La operación valida la cuenta, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+
+`CuentaRepositoryTest` incorporó `deberiaEliminarCuentaExistente()`, verificando que una cuenta persistida deje de estar disponible mediante `buscarPorId(...)` después de la eliminación y el `commit`.
+
+Resultado: **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+Commit asociado:
+
+- `40768d3` — `feat: completar eliminacion de CuentaRepository`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben quedar registrados para que la documentación refleje el estado real de los tests.
