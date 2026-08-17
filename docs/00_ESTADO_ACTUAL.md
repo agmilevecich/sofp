@@ -34,17 +34,17 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque funcional trabajado es **Build 030 — Eliminación en CategoriaService**.
+El último bloque funcional trabajado es **Build 031 — Eliminación en CuentaRepository**.
 
-Se incorporó `CategoriaService.eliminar(Long categoriaId)` para completar la eliminación de categorías desde la capa de servicio. La operación valida el ID, verifica la existencia mediante `obtenerCategoria(...)`, inicia una transacción explícita, delega la eliminación en `CategoriaRepository`, ejecuta `flush()`, realiza `commit()` y aplica `rollback()` ante excepciones.
+Se incorporó `CuentaRepository.eliminar(Cuenta cuenta)` para completar la eliminación de cuentas desde la capa de persistencia. La operación valida la cuenta, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
 
-`CategoriaServiceTest` fue ampliado con `deberiaEliminarCategoriaExistente()` y `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()`.
+`CuentaRepositoryTest` fue ampliado con `deberiaEliminarCuentaExistente()`, verificando que la cuenta deje de estar disponible mediante `buscarPorId(...)` después del `commit`.
 
-La batería general quedó en **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 También se ejecutó `git diff --check`, sin errores de formato.
 
-El commit de código del Build 030 es `59b9628` — `feat: completar eliminacion de CategoriaService`.
+El commit de código del Build 031 es `40768d3` — `feat: completar eliminacion de CuentaRepository`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
@@ -78,7 +78,7 @@ Repositorios JPA incorporados:
 - `MovimientoRepository`
 - `CategoriaRepository`
 
-`CuentaRepository` proporciona guardar, buscar por ID, listar todas y listar por perfil financiero.
+`CuentaRepository` proporciona guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar cuentas.
 
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
@@ -96,7 +96,7 @@ La capa `service` actualmente contiene:
 - `InstitucionFinancieraService`
 - `MonedaService`
 
-`CuentaService` recibe `MovimientoRepository` y `EntityManager` por constructor y proporciona operaciones de registro, búsqueda, listado, saldo, modificación y activación/desactivación.
+`CuentaService` recibe `MovimientoRepository` y `EntityManager` por constructor y proporciona operaciones de registro, búsqueda, listado, saldo, modificación y activación/desactivación. La eliminación de cuentas todavía no está incorporada en el servicio.
 
 `MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona las operaciones de registro, búsqueda, listado, modificación y eliminación de movimientos.
 
@@ -104,23 +104,25 @@ La capa `service` actualmente contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-`CategoriaServiceTest` cubre ahora el registro, búsqueda, listados, modificaciones, activación/desactivación, eliminación y validación de eliminación de categoría inexistente.
+`CuentaRepositoryTest` cubre ahora guardar/buscar, listados, actualización y eliminación de cuentas.
+
+`CategoriaServiceTest` cubre registro, búsqueda, listados, modificaciones, activación/desactivación, eliminación y validación de eliminación de categoría inexistente.
 
 ## Estado de Git
 
-El commit de referencia del Build 030 es:
+El commit de referencia del Build 031 es:
 
-- `59b9628` — `feat: completar eliminacion de CategoriaService`
+- `40768d3` — `feat: completar eliminacion de CuentaRepository`
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
-La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 030.
+La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 031.
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional antes de implementar código nuevo, revisando el estado de dominio, repositorios y servicios y los casos de uso pendientes.
+Completar progresivamente la eliminación de `Cuenta` desde la capa `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`, con implementación verificable y tests correspondientes.
 
 ## Regla de continuidad
 
