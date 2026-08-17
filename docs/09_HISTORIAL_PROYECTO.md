@@ -154,9 +154,31 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - `git diff --check` no reportó errores.
 - Commit: `b5c200e` — `feat: ampliar CategoriaService`.
 
+## 2026-08-17
+
+### Build 029 — Eliminación en CategoriaRepository
+
+- Se incorporó `CategoriaRepository.eliminar(Categoria categoria)`.
+- La operación valida la categoría, comprueba si está gestionada, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+- `CategoriaRepositoryTest` incorporó `deberiaEliminarCategoriaExistente()`.
+- La prueba específica quedó en **5/5 tests en verde**.
+- La batería general quedó en **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `git diff --check` no reportó errores.
+- Commit: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+
+### Build 030 — Eliminación en CategoriaService
+
+- Se incorporó `CategoriaService.eliminar(Long categoriaId)` para completar la eliminación de categorías desde la capa de servicio.
+- La operación valida el ID, verifica la existencia mediante `obtenerCategoria(...)`, inicia una transacción explícita, delega la eliminación en `CategoriaRepository`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
+- `CategoriaServiceTest` incorporó `deberiaEliminarCategoriaExistente()` y `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()`.
+- La batería general quedó en **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `git diff --check` no reportó errores.
+- Commit: `59b9628` — `feat: completar eliminacion de CategoriaService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado actual
 
-El estado funcional más reciente corresponde al **Build 028**. La batería general confirmada es de **135/135 tests en verde**. La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp` antes de sincronizarla con `main`.
+El estado funcional más reciente corresponde al **Build 030**. La batería general confirmada es de **138/138 tests en verde**. La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp` antes de sincronizarla con `main`.
 
 El siguiente bloque funcional queda pendiente de definición.
 
