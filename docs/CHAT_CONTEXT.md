@@ -37,13 +37,32 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build funcional confirmado: **Build 031 — Eliminación en CuentaRepository**.
+Último Build funcional confirmado: **Build 032 — Eliminación en CuentaService**.
 
-La batería general confirmada actualmente es de **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-El commit de código del Build 031 es `40768d3` — `feat: completar eliminacion de CuentaRepository`.
+El commit de código del Build 032 es `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
+
+## Build 032 — Eliminación en CuentaService
+
+`CuentaService` fue ampliado con:
+
+- `eliminar(Long cuentaId)`.
+
+La operación valida el ID, obtiene la cuenta mediante `obtenerCuenta(...)`, inicia una transacción explícita, delega la eliminación en `CuentaRepository.eliminar(...)`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
+
+`CuentaServiceTest` incorporó:
+
+- `deberiaEliminarCuentaExistente()`.
+- `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()`.
+
+Resultado: **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Se ejecutó `git diff --check`, sin errores.
+
+Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
 ## Build 031 — Eliminación en CuentaRepository
 
@@ -204,7 +223,7 @@ La capa `service` contiene actualmente:
 
 `CategoriaService` utiliza `EntityManager` y `CategoriaRepository` y mantiene el mismo patrón transaccional para registro, modificaciones, activación/desactivación y eliminación.
 
-`CuentaService` actualmente cubre registro, búsqueda, listados, saldo, modificaciones y activación/desactivación. La eliminación de cuentas todavía queda pendiente en la capa de servicio.
+`CuentaService` actualmente cubre registro, búsqueda, listados, saldo, modificaciones, activación/desactivación y eliminación. La eliminación se realiza mediante `CuentaRepository` dentro de una transacción explícita.
 
 ## Movimiento
 
@@ -228,7 +247,7 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto está en **139/139 tests en verde**.
+La batería general del proyecto está en **141/141 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
@@ -244,10 +263,11 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-
 - Build 029 — Eliminación en `CategoriaRepository`.
 - Build 030 — Eliminación en `CategoriaService`.
 - Build 031 — Eliminación en `CuentaRepository`.
+- Build 032 — Eliminación en `CuentaService`.
 
 ## Próximo paso
 
-Completar progresivamente la eliminación de `Cuenta` desde `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`, con implementación verificable y tests correspondientes.
+Definir el siguiente bloque funcional antes de implementar código nuevo, revisando los casos de uso pendientes del dominio y determinando la siguiente pieza de `service` o persistencia.
 
 ## Forma de trabajo acordada
 
