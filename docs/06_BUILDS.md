@@ -275,9 +275,42 @@ También se ejecutó `git diff --check`, sin errores de formato.
 
 El commit de código corresponde al estado local de `main` y queda registrado aquí como referencia para sincronizar la continuidad.
 
+## Build 029 — Eliminación en CategoriaRepository
+
+### Objetivo
+
+Completar la operación de eliminación de categorías en la capa de persistencia, manteniendo el patrón JPA utilizado en los repositorios anteriores y cubriendo la operación con una prueba específica.
+
+### Cambios principales
+
+En `CategoriaRepository` se incorporó `eliminar(Categoria categoria)`.
+
+La operación:
+
+- valida que la categoría no sea `null`;
+- comprueba si la entidad está gestionada mediante `EntityManager.contains(...)`;
+- utiliza `EntityManager.merge(...)` cuando la entidad no está gestionada;
+- ejecuta `EntityManager.remove(...)` sobre la instancia gestionada.
+
+En `CategoriaRepositoryTest` se incorporó `deberiaEliminarCategoriaExistente()`, verificando que una categoría persistida deje de estar disponible mediante `buscarPorId(...)` después de la eliminación.
+
+### Tests verificados
+
+La prueba específica de `CategoriaRepositoryTest` quedó en **5/5 tests en verde**.
+
+La batería general quedó en **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+### Commit asociado
+
+- `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ### Próximo paso
 
-Definir el siguiente bloque funcional después de sincronizar la documentación con `main` y mantener la batería general en verde.
+Evaluar la incorporación de la operación de eliminación en `CategoriaService`, siguiendo el patrón aplicado anteriormente en `MovimientoService`, junto con sus validaciones, control transaccional y tests correspondientes.
 
 ## Regla para futuros Builds
 
