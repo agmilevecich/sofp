@@ -4,8 +4,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional antes de implementar código nuevo.
-- Revisar los casos de uso pendientes del dominio y decidir la siguiente pieza de `service` o persistencia.
+- Completar progresivamente la eliminación de `Cuenta` desde `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`.
+- Incorporar los tests correspondientes para la eliminación desde el servicio y verificar la batería general.
 - Mantener sincronizada la documentación de continuidad con el estado real de `main`.
 
 ## Trabajo recientemente completado
@@ -31,6 +31,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Build 028: ampliación de `CategoriaService` y `CategoriaServiceTest`, elevando la batería general a **135 tests en verde**.
 - Build 029: incorporación de eliminación en `CategoriaRepository` y su test, elevando la batería general a **136 tests en verde**.
 - Build 030: incorporación de eliminación en `CategoriaService` y dos tests específicos, elevando la batería general a **138 tests en verde**.
+- Build 031: incorporación de eliminación en `CuentaRepository` y su test específico, elevando la batería general a **139 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 
@@ -42,7 +43,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Estado de Git de referencia
 
-- Build 030: `59b9628` — `feat: completar eliminacion de CategoriaService`.
+- Build 031: `40768d3` — `feat: completar eliminacion de CuentaRepository`.
 - El commit de código fue publicado en `main` de GitHub y Bitbucket.
 - La documentación de continuidad se está actualizando en `docs/continuidad-sofp`.
 
