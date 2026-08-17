@@ -34,19 +34,17 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque funcional trabajado es **Build 029 — Eliminación en CategoriaRepository**.
+El último bloque funcional trabajado es **Build 030 — Eliminación en CategoriaService**.
 
-Se incorporó `CategoriaRepository.eliminar(Categoria categoria)` para completar la eliminación de categorías en la capa de persistencia. La operación valida la categoría, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+Se incorporó `CategoriaService.eliminar(Long categoriaId)` para completar la eliminación de categorías desde la capa de servicio. La operación valida el ID, verifica la existencia mediante `obtenerCategoria(...)`, inicia una transacción explícita, delega la eliminación en `CategoriaRepository`, ejecuta `flush()`, realiza `commit()` y aplica `rollback()` ante excepciones.
 
-`CategoriaRepositoryTest` fue ampliado con `deberiaEliminarCategoriaExistente()`, verificando que la categoría deje de estar disponible mediante `buscarPorId(...)` después de la eliminación.
+`CategoriaServiceTest` fue ampliado con `deberiaEliminarCategoriaExistente()` y `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()`.
 
-La prueba específica de `CategoriaRepositoryTest` quedó en **5/5 tests en verde**.
-
-La batería general quedó en **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 También se ejecutó `git diff --check`, sin errores de formato.
 
-El commit de código del Build 029 es `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+El commit de código del Build 030 es `59b9628` — `feat: completar eliminacion de CategoriaService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
@@ -102,27 +100,27 @@ La capa `service` actualmente contiene:
 
 `MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona las operaciones de registro, búsqueda, listado, modificación y eliminación de movimientos.
 
-`CategoriaService` recibe `CategoriaRepository` y `EntityManager` y proporciona registro, búsqueda, listados, modificaciones y activación/desactivación de categorías. Las operaciones transaccionales utilizan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
+`CategoriaService` recibe `CategoriaRepository` y `EntityManager` y proporciona registro, búsqueda, listados, modificaciones, activación/desactivación y eliminación de categorías. Las operaciones transaccionales utilizan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
 
 ## Tests
 
-La batería general confirmada actualmente es de **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La cobertura de `CategoriaRepositoryTest` fue ampliada en el Build 029 y se verificó tanto individualmente como mediante la batería general.
+`CategoriaServiceTest` cubre ahora el registro, búsqueda, listados, modificaciones, activación/desactivación, eliminación y validación de eliminación de categoría inexistente.
 
 ## Estado de Git
 
-El commit de referencia del Build 029 es:
+El commit de referencia del Build 030 es:
 
-- `46ad669` — `feat: completar eliminacion de CategoriaRepository`
+- `59b9628` — `feat: completar eliminacion de CategoriaService`
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
-La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 029, pendiente de sincronizarse con `main` cuando se cierre el bloque documental.
+La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 030.
 
 ## Próximo paso
 
-Evaluar la incorporación de la operación de eliminación en `CategoriaService`, siguiendo el patrón aplicado anteriormente en `MovimientoService`, junto con sus validaciones, control transaccional y tests correspondientes.
+Definir el siguiente bloque funcional antes de implementar código nuevo, revisando el estado de dominio, repositorios y servicios y los casos de uso pendientes.
 
 ## Regla de continuidad
 
