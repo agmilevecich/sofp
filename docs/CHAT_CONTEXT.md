@@ -37,27 +37,29 @@ Rama de documentación/continuidad: `docs/continuidad-sofp`
 
 ## Estado de referencia
 
-Último Build funcional confirmado: **Build 030 — Eliminación en CategoriaService**.
+Último Build funcional confirmado: **Build 031 — Eliminación en CuentaRepository**.
 
-La batería general confirmada actualmente es de **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-El commit de código del Build 030 es `59b9628` — `feat: completar eliminacion de CategoriaService`.
+El commit de código del Build 031 es `40768d3` — `feat: completar eliminacion de CuentaRepository`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
-## Build 029 — Eliminación en CategoriaRepository
+## Build 031 — Eliminación en CuentaRepository
 
-`CategoriaRepository` fue ampliado con:
+`CuentaRepository` fue ampliado con:
 
-- `eliminar(Categoria categoria)`.
+- `eliminar(Cuenta cuenta)`.
 
-La operación valida la categoría, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+La operación valida la cuenta, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
 
-`CategoriaRepositoryTest` incorporó `deberiaEliminarCategoriaExistente()`.
+`CuentaRepositoryTest` incorporó `deberiaEliminarCuentaExistente()` y verifica que, después del `commit`, `buscarPorId(...)` no encuentre la cuenta eliminada.
 
-Resultado: **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Resultado: **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-Commit: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+Se ejecutó `git diff --check`, sin errores.
+
+Commit: `40768d3` — `feat: completar eliminacion de CuentaRepository`.
 
 ## Build 030 — Eliminación en CategoriaService
 
@@ -77,6 +79,20 @@ Resultado de la batería general: **138/138 tests en verde**, con `Failures: 0`,
 Se ejecutó `git diff --check`, sin errores.
 
 Commit: `59b9628` — `feat: completar eliminacion de CategoriaService`.
+
+## Build 029 — Eliminación en CategoriaRepository
+
+`CategoriaRepository` fue ampliado con:
+
+- `eliminar(Categoria categoria)`.
+
+La operación valida la categoría, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+
+`CategoriaRepositoryTest` incorporó `deberiaEliminarCategoriaExistente()`.
+
+Resultado: **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Commit: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
 
 ## Builds anteriores relevantes
 
@@ -166,7 +182,7 @@ Se incorporaron repositorios JPA para:
 - `MovimientoRepository`
 - `CategoriaRepository`
 
-`CuentaRepository` permite guardar, buscar por ID, listar todas y listar por perfil financiero.
+`CuentaRepository` permite guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar cuentas.
 
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
@@ -187,6 +203,8 @@ La capa `service` contiene actualmente:
 `MovimientoService` utiliza `EntityManager` y `MovimientoRepository` y mantiene transacciones explícitas para registro, modificaciones y eliminación.
 
 `CategoriaService` utiliza `EntityManager` y `CategoriaRepository` y mantiene el mismo patrón transaccional para registro, modificaciones, activación/desactivación y eliminación.
+
+`CuentaService` actualmente cubre registro, búsqueda, listados, saldo, modificaciones y activación/desactivación. La eliminación de cuentas todavía queda pendiente en la capa de servicio.
 
 ## Movimiento
 
@@ -210,7 +228,7 @@ El importe se valida como positivo mediante `Validaciones.importePositivo`.
 
 ## Tests
 
-La batería general del proyecto está en **138/138 tests en verde**.
+La batería general del proyecto está en **139/139 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en el `tearDown()` para garantizar el aislamiento de la base entre tests.
 
@@ -225,10 +243,11 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-
 - Build 028 — Ampliación de `CategoriaService`.
 - Build 029 — Eliminación en `CategoriaRepository`.
 - Build 030 — Eliminación en `CategoriaService`.
+- Build 031 — Eliminación en `CuentaRepository`.
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional antes de implementar código nuevo, considerando el estado actual del dominio, los casos de uso pendientes y la evolución de repositorios y servicios.
+Completar progresivamente la eliminación de `Cuenta` desde `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`, con implementación verificable y tests correspondientes.
 
 ## Forma de trabajo acordada
 
