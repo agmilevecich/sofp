@@ -4,8 +4,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Evaluar la incorporación de la operación de eliminación en `CategoriaService` siguiendo el patrón de `MovimientoService`.
-- Definir las validaciones y pruebas correspondientes para la eliminación desde la capa de servicio.
+- Definir el siguiente bloque funcional antes de implementar código nuevo.
+- Revisar los casos de uso pendientes del dominio y decidir la siguiente pieza de `service` o persistencia.
 - Mantener sincronizada la documentación de continuidad con el estado real de `main`.
 
 ## Trabajo recientemente completado
@@ -30,6 +30,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Cobertura posterior al Build 027: test específico de eliminación en `MovimientoServiceTest`, elevando la batería general a **129 tests en verde**.
 - Build 028: ampliación de `CategoriaService` y `CategoriaServiceTest`, elevando la batería general a **135 tests en verde**.
 - Build 029: incorporación de eliminación en `CategoriaRepository` y su test, elevando la batería general a **136 tests en verde**.
+- Build 030: incorporación de eliminación en `CategoriaService` y dos tests específicos, elevando la batería general a **138 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 
@@ -41,7 +42,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Estado de Git de referencia
 
-- Build 029: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+- Build 030: `59b9628` — `feat: completar eliminacion de CategoriaService`.
 - El commit de código fue publicado en `main` de GitHub y Bitbucket.
 - La documentación de continuidad se está actualizando en `docs/continuidad-sofp`.
 
