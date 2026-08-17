@@ -176,11 +176,21 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit: `59b9628` — `feat: completar eliminacion de CategoriaService`.
 - El commit fue publicado en `main` de GitHub y Bitbucket.
 
+### Build 031 — Eliminación en CuentaRepository
+
+- Se incorporó `CuentaRepository.eliminar(Cuenta cuenta)` para completar la eliminación de cuentas en la capa de persistencia.
+- La operación valida la cuenta, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
+- `CuentaRepositoryTest` incorporó `deberiaEliminarCuentaExistente()`, verificando que la cuenta deje de estar disponible mediante `buscarPorId(...)` después de la eliminación y el `commit`.
+- La batería general quedó en **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `git diff --check` no reportó errores.
+- Commit: `40768d3` — `feat: completar eliminacion de CuentaRepository`.
+- El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ## Estado actual
 
-El estado funcional más reciente corresponde al **Build 030**. La batería general confirmada es de **138/138 tests en verde**. La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp` antes de sincronizarla con `main`.
+El estado funcional más reciente corresponde al **Build 031**. La batería general confirmada es de **139/139 tests en verde**. La documentación de continuidad se actualiza en la rama `docs/continuidad-sofp` antes de sincronizarla con `main`.
 
-El siguiente bloque funcional queda pendiente de definición.
+El siguiente bloque funcional queda orientado a completar la eliminación de `Cuenta` desde `CuentaService`, con implementación y tests verificables.
 
 ## Regla histórica
 
