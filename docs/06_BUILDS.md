@@ -346,9 +346,40 @@ También se ejecutó `git diff --check`, sin errores de formato.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
+## Build 031 — Eliminación en CuentaRepository
+
+### Objetivo
+
+Completar la operación de eliminación de cuentas en la capa de persistencia, manteniendo el patrón JPA utilizado en los repositorios anteriores y cubriendo la operación con una prueba específica.
+
+### Cambios principales
+
+En `CuentaRepository` se incorporó `eliminar(Cuenta cuenta)`.
+
+La operación:
+
+- valida que la cuenta no sea `null`;
+- comprueba si la entidad está gestionada mediante `EntityManager.contains(...)`;
+- utiliza `EntityManager.merge(...)` cuando la entidad no está gestionada;
+- ejecuta `EntityManager.remove(...)` sobre la instancia gestionada.
+
+En `CuentaRepositoryTest` se incorporó `deberiaEliminarCuentaExistente()`, verificando que una cuenta persistida deje de estar disponible mediante `buscarPorId(...)` después de la eliminación y el `commit`.
+
+### Tests verificados
+
+La batería general quedó en **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+### Commit asociado
+
+- `40768d3` — `feat: completar eliminacion de CuentaRepository`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ### Próximo paso
 
-Definir el siguiente bloque funcional antes de implementar código nuevo.
+Completar progresivamente la eliminación de `Cuenta` desde `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`, con implementación verificable y tests correspondientes.
 
 ## Regla para futuros Builds
 
