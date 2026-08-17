@@ -4,8 +4,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional del dominio después del Build 028.
-- Continuar ampliando la capa `service` y los casos de uso según el diseño acordado.
+- Evaluar la incorporación de la operación de eliminación en `CategoriaService` siguiendo el patrón de `MovimientoService`.
+- Definir las validaciones y pruebas correspondientes para la eliminación desde la capa de servicio.
 - Mantener sincronizada la documentación de continuidad con el estado real de `main`.
 
 ## Trabajo recientemente completado
@@ -29,6 +29,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 - Build 027: ampliación de `CuentaService` con operaciones de modificación y activación/desactivación, con la batería general en 128 tests en verde al cerrar el Build.
 - Cobertura posterior al Build 027: test específico de eliminación en `MovimientoServiceTest`, elevando la batería general a **129 tests en verde**.
 - Build 028: ampliación de `CategoriaService` y `CategoriaServiceTest`, elevando la batería general a **135 tests en verde**.
+- Build 029: incorporación de eliminación en `CategoriaRepository` y su test, elevando la batería general a **136 tests en verde**.
 
 ## Pendientes de arquitectura / evolución
 
@@ -40,9 +41,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Estado de Git de referencia
 
-- Build 028: `b5c200e` — `feat: ampliar CategoriaService`.
-- La documentación de continuidad se está registrando en `docs/continuidad-sofp`.
-- El código del Build 028 se encuentra en el `main` local pendiente de sincronización con los remotos cuando corresponda.
+- Build 029: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+- La documentación de continuidad se está actualizando en `docs/continuidad-sofp`.
 
 ## Regla
 
