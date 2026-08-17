@@ -308,9 +308,47 @@ También se ejecutó `git diff --check`, sin errores de formato.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
+## Build 030 — Eliminación en CategoriaService
+
+### Objetivo
+
+Completar la operación de eliminación de categorías desde la capa de servicio, delegando la eliminación en `CategoriaRepository` y manteniendo el patrón transaccional utilizado en `MovimientoService`.
+
+### Cambios principales
+
+En `CategoriaService` se incorporó `eliminar(Long categoriaId)`.
+
+La operación:
+
+- valida que el ID no sea `null`;
+- obtiene la categoría mediante `obtenerCategoria(...)`;
+- lanza `IllegalArgumentException` cuando la categoría no existe;
+- inicia una transacción explícita;
+- delega la eliminación en `CategoriaRepository.eliminar(...)`;
+- ejecuta `flush()`;
+- realiza `commit()`;
+- ejecuta `rollback()` ante excepciones.
+
+En `CategoriaServiceTest` se incorporaron:
+
+- `deberiaEliminarCategoriaExistente()`;
+- `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()`.
+
+### Tests verificados
+
+La batería general quedó en **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+### Commit asociado
+
+- `59b9628` — `feat: completar eliminacion de CategoriaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ### Próximo paso
 
-Evaluar la incorporación de la operación de eliminación en `CategoriaService`, siguiendo el patrón aplicado anteriormente en `MovimientoService`, junto con sus validaciones, control transaccional y tests correspondientes.
+Definir el siguiente bloque funcional antes de implementar código nuevo.
 
 ## Regla para futuros Builds
 
