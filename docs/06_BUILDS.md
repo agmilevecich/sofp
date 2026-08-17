@@ -381,6 +381,44 @@ El commit fue publicado en `main` de GitHub y Bitbucket.
 
 Completar progresivamente la eliminación de `Cuenta` desde `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`, con implementación verificable y tests correspondientes.
 
+## Build 032 — Eliminación en CuentaService
+
+### Objetivo
+
+Completar la operación de eliminación de cuentas desde la capa de servicio, delegando la eliminación en `CuentaRepository` y manteniendo el patrón transaccional utilizado en `MovimientoService` y `CategoriaService`.
+
+### Cambios principales
+
+En `CuentaService` se incorporó `eliminar(Long cuentaId)`.
+
+La operación:
+
+- valida que el ID no sea `null`;
+- obtiene la cuenta mediante `obtenerCuenta(...)`;
+- lanza `IllegalArgumentException` cuando la cuenta no existe;
+- inicia una transacción explícita;
+- delega la eliminación en `CuentaRepository.eliminar(...)`;
+- ejecuta `flush()`;
+- realiza `commit()`;
+- ejecuta `rollback()` ante excepciones.
+
+En `CuentaServiceTest` se incorporaron:
+
+- `deberiaEliminarCuentaExistente()`;
+- `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()`.
+
+### Tests verificados
+
+La batería general quedó en **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+También se ejecutó `git diff --check`, sin errores de formato.
+
+### Commit asociado
+
+- `a1a817d` — `feat: completar eliminacion de CuentaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
+
 ## Regla para futuros Builds
 
 Agregar cada Build nuevo inmediatamente después de verificar código, tests y commit, manteniendo sincronizados los documentos de continuidad.
