@@ -4,9 +4,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Revisar el estado de Git de los cambios de `MonedaServiceTest` y registrar el commit de código cuando corresponda.
-- Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
 - Revisar los casos de uso pendientes del dominio y definir el siguiente Build.
+- Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
 - No implementar código nuevo hasta definir objetivo y tests del siguiente bloque.
 
 ## Trabajo recientemente completado
@@ -29,11 +28,13 @@ La batería general quedó en **210/210 tests en verde**, con `Failures: 0`, `Er
 
 La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 18:52:19 -03:00.
 
-El commit específico de código de Build 037 todavía no fue registrado. No se debe considerar publicado hasta contar con un SHA verificable.
+Commit de código: `2d124f6` — `test: ampliar cobertura de MonedaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
 ## Estado de Git de referencia
 
-- Último commit de código confirmado: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
+- Último commit de código confirmado: `2d124f6` — `test: ampliar cobertura de MonedaService`.
 - La documentación de Build 037 quedó registrada en `docs/01-builds/Build-037.md`.
 - La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
 
