@@ -4,6 +4,18 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-18
 
+### Build 036 — Ampliación de cobertura de InstitucionFinancieraService
+
+- Se amplió `InstitucionFinancieraServiceTest` con **15 tests nuevos**.
+- Se cubrieron institución nula al guardar, IDs nulos, búsquedas inexistentes y operaciones sobre instituciones inexistentes.
+- `InstitucionFinancieraServiceTest` quedó en **23/23 tests en verde**.
+- La batería general quedó en **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- `git diff --check` sin errores de whitespace.
+- Las líneas en blanco accidentales de `InstitucionFinancieraService.java` fueron descartadas antes del commit.
+- Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ### Build 035 — Ampliación de cobertura de CuentaService
 
 - Se amplió `CuentaServiceTest` con **20 tests nuevos**.
@@ -30,9 +42,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 035**. El código de producción no fue modificado en este Build; se amplió la cobertura de pruebas de `CuentaService`.
+El último bloque confirmado es el **Build 036**. El código de producción no fue modificado en este Build; se amplió la cobertura de pruebas de `InstitucionFinancieraService`.
 
-La batería general actual es de **186/186 tests en verde**.
+La batería general actual es de **201/201 tests en verde**.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -45,6 +57,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 033 — Reglas de negocio de `Movimiento`.
 - Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
 - Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
+- Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
 
 ## Regla histórica
 
