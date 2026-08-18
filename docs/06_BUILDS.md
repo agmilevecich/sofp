@@ -197,19 +197,11 @@ Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
 Se ampliaron los tests de `MovimientoServiceTest` sin modificar código de producción.
 
-Se agregaron **17 tests nuevos** para cubrir:
-
-- IDs nulos en búsqueda, listados, modificaciones y eliminación.
-- Descripción, categoría, tipo, importe y fecha/hora nulos.
-- Búsqueda de movimientos inexistentes.
-- Modificación de tipo, importe y fecha/hora de movimientos inexistentes.
-- Eliminación de movimientos inexistentes.
+Se agregaron **17 tests nuevos**.
 
 `MovimientoServiceTest`: **32/32 tests en verde**.
 
 Batería general: **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-`BUILD SUCCESS` y `git diff --check` sin errores.
 
 Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
@@ -217,17 +209,11 @@ Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
 Se ampliaron los tests de `CuentaServiceTest` sin modificar código de producción.
 
-Se agregaron **20 tests nuevos** para cubrir:
-
-- IDs nulos en cálculo de saldo, búsqueda, listado por perfil y operaciones de modificación/activación/desactivación/eliminación.
-- Parámetros nulos y cuentas inexistentes en las operaciones de modificación.
-- Activación, desactivación y eliminación con ID nulo o cuenta inexistente.
+Se agregaron **20 tests nuevos**.
 
 `CuentaServiceTest`: **40/40 tests en verde**.
 
 Batería general: **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-`BUILD SUCCESS`.
 
 Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
 
@@ -237,13 +223,7 @@ El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
 Se ampliaron los tests de `InstitucionFinancieraServiceTest` sin modificar código de producción.
 
-Se agregaron **15 tests nuevos** para cubrir:
-
-- Institución nula al guardar.
-- IDs nulos en búsqueda, modificaciones, activación y desactivación.
-- Búsquedas por ID y nombre inexistentes.
-- Operaciones de modificación sobre instituciones inexistentes.
-- Activación y desactivación de instituciones inexistentes.
+Se agregaron **15 tests nuevos**.
 
 `InstitucionFinancieraServiceTest`: **23/23 tests en verde**.
 
@@ -257,6 +237,20 @@ Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
 
 El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
+## Build 037 — Ampliación de cobertura de MonedaService
+
+Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
+
+La revisión se realizó sobre `MonedaService`, `Moneda` y `MonedaRepository` para asegurar que la cobertura reflejara el comportamiento real del servicio.
+
+Batería general: **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 18:52:19 -03:00.
+
+El commit específico de código de este Build todavía no está registrado; queda pendiente verificar y registrar el estado de Git antes de asociar un SHA.
+
+La documentación específica quedó registrada en `docs/01-builds/Build-037.md`.
+
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
