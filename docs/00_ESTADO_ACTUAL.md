@@ -26,21 +26,19 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 036 — Ampliación de cobertura de InstitucionFinancieraService**.
+El último bloque trabajado es **Build 037 — Ampliación de cobertura de MonedaService**.
 
-El Build 035 había ampliado la cobertura de `CuentaServiceTest` y el Build 036 continúa esa línea ampliando la cobertura de `InstitucionFinancieraServiceTest`, sin modificar código de producción.
+Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
 
-En `InstitucionFinancieraServiceTest` se agregaron **15 tests**, llevando la clase a **23/23 tests en verde**.
-
-La batería general quedó en **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS`.
-
-También se ejecutó `git diff --check`, sin errores de whitespace. Las líneas en blanco accidentales que aparecieron en `InstitucionFinancieraService.java` fueron descartadas antes del commit, por lo que el commit de Build 036 contiene únicamente cambios de tests.
+La batería general quedó en **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 18:52:19 -03:00.
 
 ## Commit actual de código
 
+El último commit de código confirmado continúa siendo:
+
 - `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`
 
-Este commit contiene la ampliación de `InstitucionFinancieraServiceTest` y está publicado en `main` de GitHub y Bitbucket.
+El commit específico de los cambios de `MonedaServiceTest` todavía no está registrado y no se debe asociar un SHA hasta verificarlo.
 
 ## Dominio construido
 
@@ -91,32 +89,34 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **201/201 tests en verde**.
+La batería general confirmada actualmente es de **210/210 tests en verde**.
 
 Clases de servicio y cantidad actual de tests:
 
 - `CategoriaServiceTest`: **12**
 - `CuentaServiceTest`: **40**
 - `InstitucionFinancieraServiceTest`: **23**
-- `MonedaServiceTest`: **8**
+- `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **6**
 - `UsuarioServiceTest`: **5**
+
+Total de tests de services: **140**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Git
 
-El trabajo de código más reciente está en `main` mediante el commit `bd7f4bd`.
+El trabajo de código más reciente confirmado en `main` es `bd7f4bd`.
 
-La documentación de continuidad se actualiza en `docs/continuidad-sofp`.
+La documentación de continuidad de Build 037 fue actualizada directamente en la rama `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Revisar los casos de uso pendientes del dominio y definir el siguiente bloque funcional antes de implementar código nuevo.
+Verificar el estado local de Git de los cambios de `MonedaServiceTest`, ejecutar las comprobaciones finales y registrar el commit de código si corresponde.
 
-No comenzar otro bloque de código hasta definir claramente su objetivo y los tests que deben cubrirlo.
+Después, continuar con la definición del siguiente bloque funcional antes de implementar código nuevo.
 
 ## Regla de continuidad
 
-Cada bloque importante debe terminar con código funcionando, tests en verde, commit identificable, actualización de documentación y registro del próximo paso.
+Cada bloque importante debe terminar con código funcionando, tests en verde, commit identificable cuando corresponda, actualización de documentación y registro del próximo paso.
