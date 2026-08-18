@@ -5,7 +5,6 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 ## Pendientes inmediatos
 
 - Sincronizar la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
-- Publicar el commit de código `4d9dc2a` de `main` en los remotos.
 - Revisar los casos de uso pendientes del dominio y definir el siguiente Build.
 - No implementar código nuevo hasta definir objetivo y tests del siguiente bloque.
 
@@ -17,14 +16,17 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 032: eliminación en `CuentaService`.
 - Build 033: reglas de negocio de `Movimiento`.
 - Build 034: ampliación de cobertura de `MovimientoServiceTest`.
+- Build 035: ampliación de cobertura de `CuentaServiceTest`.
 
-## Build 034
+## Build 035
 
-Se agregaron 17 tests nuevos en `MovimientoServiceTest`, alcanzando **32/32 tests en verde**.
+Se agregaron 20 tests nuevos en `CuentaServiceTest`, alcanzando **40/40 tests en verde**.
 
-La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-Commit de código: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
+Commit de código: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket.
 
 ## Pendientes de arquitectura / evolución
 
@@ -36,9 +38,9 @@ Commit de código: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
 ## Estado de Git de referencia
 
-- Código actual de `main`: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
+- Código actual de `main`: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
 - La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
-- La documentación de Build 034 fue registrada en `docs/01-builds/Build-034.md`.
+- La documentación de Build 035 fue registrada en `docs/01-builds/Build-035.md`.
 
 ## Regla
 
