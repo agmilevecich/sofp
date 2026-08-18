@@ -24,39 +24,27 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 - JUnit 5.11.4
 - BigDecimal para importes monetarios
 
-## Arquitectura conocida
-
-El proyecto está organizado alrededor del dominio y capas previstas para evolución posterior. Se utilizan paquetes como `domain`, `config`, `util`, `persistence`, `service`, `dto`, `enums`, `app` y `ui`.
-
-La persistencia de producción utiliza la unidad `sofp-persistence-unit` y una base H2 en archivo.
-
-Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y la unidad `sofp-persistence-unit-test`, utilizando H2 en memoria y `create-drop`.
-
 ## Estado funcional actual
 
-El último bloque funcional trabajado es **Build 033 — Reglas de negocio de Movimiento**.
+El último bloque trabajado es **Build 034 — Ampliación de cobertura de MovimientoService**.
 
-Se incorporaron en `MovimientoService` tres reglas de negocio para asegurar la coherencia entre `Movimiento`, `Cuenta`, `Categoria` y `PerfilFinanciero`:
+El Build 033 había incorporado las reglas de negocio de `Movimiento` y el Build 034 amplió exclusivamente la cobertura de tests, sin modificar código de producción.
 
-1. Al registrar un movimiento, `Cuenta` y `Categoria` deben pertenecer al mismo `PerfilFinanciero`.
-2. No se pueden registrar movimientos en una cuenta desactivada.
-3. No se puede cambiar un movimiento a una categoría perteneciente a otro perfil financiero.
+En `MovimientoServiceTest` se agregaron **17 tests**, llevando la clase a **32/32 tests en verde**.
 
-La validación contextual entre cuenta, categoría y perfil financiero se mantiene en `MovimientoService`, donde se reutiliza el método privado `validarPerfilFinanciero(...)`.
+La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS`.
 
-`MovimientoServiceTest` quedó con **18/18 tests en verde**.
+También se ejecutó `git diff --check`, sin errores.
 
-La batería general quedó en **144/144 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+## Commit actual de código
 
-También se ejecutó `git diff --check`, sin errores de formato.
+- `4d9dc2a` — `test: ampliar cobertura de MovimientoService`
 
-El commit de código del Build 033 es `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
+Este commit contiene únicamente la ampliación de `MovimientoServiceTest` y se encuentra en `main` local.
 
-El commit fue publicado en `main` de GitHub y Bitbucket.
+## Dominio construido
 
-## Dominio construido hasta ahora
-
-Entre las entidades/enumeraciones ya trabajadas se encuentran:
+Entidades principales:
 
 - `Usuario`
 - `PerfilFinanciero`
@@ -65,14 +53,15 @@ Entre las entidades/enumeraciones ya trabajadas se encuentran:
 - `Cuenta`
 - `Categoria`
 - `Movimiento`
+
+Enumeraciones principales:
+
 - `TipoInstitucionFinanciera`
 - `TipoMoneda`
 - `TipoCuenta`
 - `TipoMovimiento`
 
-También existe infraestructura de auditoría y utilidades de validación.
-
-## Persistencia actual
+## Persistencia
 
 Repositorios JPA incorporados:
 
@@ -84,15 +73,11 @@ Repositorios JPA incorporados:
 - `MovimientoRepository`
 - `CategoriaRepository`
 
-`CuentaRepository` proporciona guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar cuentas.
-
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
-`CategoriaRepository` proporciona guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar categorías.
+## Services
 
-## Service
-
-La capa `service` actualmente contiene:
+La capa `service` contiene:
 
 - `CuentaService`
 - `MovimientoService`
@@ -102,37 +87,25 @@ La capa `service` actualmente contiene:
 - `InstitucionFinancieraService`
 - `MonedaService`
 
-`CuentaService` recibe `CuentaRepository`, `MovimientoRepository` y `EntityManager` por constructor y proporciona operaciones de registro, búsqueda, listado, saldo, modificación, activación/desactivación y eliminación de cuentas. La eliminación valida la existencia y utiliza una transacción explícita con `flush()`, `commit()` y `rollback()` ante excepciones.
-
-`MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona operaciones de registro, búsqueda, listado, modificación y eliminación de movimientos. Desde Build 033 también centraliza reglas de coherencia entre cuenta, categoría y perfil financiero y rechaza movimientos sobre cuentas desactivadas.
-
-`CategoriaService` recibe `CategoriaRepository` y `EntityManager` y proporciona registro, búsqueda, listados, modificaciones, activación/desactivación y eliminación de categorías. Las operaciones transaccionales utilizan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
+`MovimientoService` gestiona registro, búsqueda, listados, modificaciones y eliminación mediante transacciones explícitas. Desde Build 033 valida coherencia entre cuenta, categoría y perfil financiero y rechaza movimientos sobre cuentas desactivadas.
 
 ## Tests
 
-La batería general confirmada actualmente es de **144/144 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **163/163 tests en verde**.
 
-`CuentaRepositoryTest` cubre guardar/buscar, listados, actualización y eliminación de cuentas.
+`MovimientoServiceTest` cuenta con **32/32 tests en verde**.
 
-`CuentaServiceTest` cubre registro, búsqueda, listados, saldo, modificaciones, activación/desactivación, eliminación y validación de eliminación de cuenta inexistente.
+La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
-`CategoriaServiceTest` cubre registro, búsqueda, listados, modificaciones, activación/desactivación, eliminación y validación de eliminación de categoría inexistente.
+## Git
 
-`MovimientoServiceTest` cubre registro, búsqueda, listados, modificaciones, eliminación y las reglas de negocio incorporadas en Build 033.
+El trabajo de código más reciente está en `main` mediante el commit `4d9dc2a`.
 
-## Estado de Git
-
-El commit de referencia del Build 033 es:
-
-- `b18ca96` — `feat: agregar reglas de negocio a movimientos`
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
-
-La documentación de continuidad registra el estado correspondiente al Build 033.
+La documentación de continuidad se actualiza en `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional antes de implementar código nuevo, revisando los casos de uso pendientes del dominio y determinando si corresponde continuar con otra pieza de `service` o persistencia.
+Cerrar documentalmente el Build 034, sincronizar las ramas/remotos y después definir el siguiente bloque funcional antes de implementar código nuevo.
 
 No comenzar otro bloque de código hasta definir claramente su objetivo y los tests que deben cubrirlo.
 
