@@ -958,4 +958,307 @@ class MovimientoServiceTest {
                 )
         );
     }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeBuscaMovimientoConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.buscarPorId(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeListaPorCuentaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.listarPorCuenta(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeListaPorCategoriaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.listarPorCategoria(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaDescripcionConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarDescripcion(
+                        null,
+                        "Nueva descripción"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaDescripcionConDescripcionNula() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                16,
+                                10,
+                                0
+                        ),
+                        "Compra"
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarDescripcion(
+                        movimiento.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaCategoriaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.cambiarCategoria(
+                        null,
+                        categoria
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaCategoriaConCategoriaNula() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                16,
+                                11,
+                                0
+                        ),
+                        "Compra"
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.cambiarCategoria(
+                        movimiento.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaTipoConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarTipoMovimiento(
+                        null,
+                        TipoMovimiento.INGRESO
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaTipoConTipoNulo() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                16,
+                                12,
+                                0
+                        ),
+                        "Movimiento"
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarTipoMovimiento(
+                        movimiento.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaImporteConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarImporte(
+                        null,
+                        new BigDecimal("5000.00")
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaImporteConImporteNulo() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                16,
+                                13,
+                                0
+                        ),
+                        "Movimiento"
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarImporte(
+                        movimiento.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaFechaHoraConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarFechaHora(
+                        null,
+                        LocalDateTime.now()
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaFechaHoraConFechaNula() {
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                16,
+                                14,
+                                0
+                        ),
+                        "Movimiento"
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarFechaHora(
+                        movimiento.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeEliminaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.eliminar(null)
+        );
+    }
+
+    @Test
+    void deberiaDevolverOptionalVacioCuandoSeBuscaMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertTrue(
+                movimientoService.buscarPorId(
+                        movimientoIdInexistente
+                ).isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaTipoDeMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.modificarTipoMovimiento(
+                        movimientoIdInexistente,
+                        TipoMovimiento.EGRESO
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaImporteDeMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.modificarImporte(
+                        movimientoIdInexistente,
+                        new BigDecimal("5000.00")
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaFechaHoraDeMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.modificarFechaHora(
+                        movimientoIdInexistente,
+                        LocalDateTime.now()
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeEliminaUnMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.eliminar(
+                        movimientoIdInexistente
+                )
+        );
+    }
 }
