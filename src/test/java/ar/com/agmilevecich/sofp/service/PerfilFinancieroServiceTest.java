@@ -369,4 +369,69 @@ class PerfilFinancieroServiceTest {
                 verificado.isActivo()
         );
     }
+
+    @Test
+    void debeLanzarExcepcionAlGuardarPerfilNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> perfilFinancieroService.guardar(null)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlBuscarPorIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> perfilFinancieroService.buscarPorId(null)
+        );
+    }
+
+    @Test
+    void debeDevolverVacioAlBuscarPorIdInexistente() {
+
+        assertTrue(
+                perfilFinancieroService.buscarPorId(999999L).isEmpty()
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlListarPorUsuarioConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> perfilFinancieroService.listarPorUsuario(null)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlCambiarDescripcionDePerfilInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> perfilFinancieroService.cambiarDescripcion(
+                        999999L,
+                        "Descripción inexistente"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActivarPerfilInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> perfilFinancieroService.activar(999999L)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlDesactivarPerfilInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> perfilFinancieroService.desactivar(999999L)
+        );
+    }
 }
