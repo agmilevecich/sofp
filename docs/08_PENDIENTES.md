@@ -1,38 +1,30 @@
 # SOFP — Pendientes
 
-Este documento contiene únicamente trabajo pendiente o por decidir. Debe mantenerse actualizado para que una nueva sesión pueda retomar el proyecto rápidamente.
+Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional antes de implementar código nuevo.
-- Revisar los casos de uso pendientes del dominio y decidir la siguiente pieza de `service` o persistencia.
-- Mantener sincronizada la documentación de continuidad con el estado real de `main`.
+- Sincronizar la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
+- Publicar el commit de código `4d9dc2a` de `main` en los remotos.
+- Revisar los casos de uso pendientes del dominio y definir el siguiente Build.
+- No implementar código nuevo hasta definir objetivo y tests del siguiente bloque.
 
 ## Trabajo recientemente completado
 
-- Build 011: aislamiento y estabilización de tests JPA con H2.
-- Build 012: repositorios JPA de entidades base.
-- Build 013: `CuentaRepository` y `CuentaRepositoryTest`.
-- Build 014: `MovimientoRepository` y `MovimientoRepositoryTest`, con la batería general en 64 tests en verde.
-- Build 015: `CuentaService` y `CuentaServiceTest`, con la batería general en 68 tests en verde.
-- Build 016: `MovimientoService` y `MovimientoServiceTest`, con la batería general en 74 tests en verde.
-- Build 017: `CategoriaRepository` y `CategoriaRepositoryTest`.
-- Build 018: `CategoriaService` y `CategoriaServiceTest`, con la batería general en 82 tests en verde.
-- Build 019: `PerfilFinancieroService` y `PerfilFinancieroServiceTest`, con la batería general en 88 tests en verde.
-- Build 020: `UsuarioService` y `UsuarioServiceTest`, con la batería general en 93 tests en verde.
-- Build 021: `InstitucionFinancieraService` y `InstitucionFinancieraServiceTest`, con la batería general en 101 tests en verde.
-- Build 022: `MonedaService` y `MonedaServiceTest`, con la batería general en 109 tests en verde.
-- Build 023: ampliación de `CuentaService` y `CuentaServiceTest`, con la batería general en 113 tests en verde.
-- Build 024: ampliación inicial de `MovimientoService` y `MovimientoServiceTest`, con la batería general en 118 tests en verde.
-- Build 025: ampliación de `Movimiento` y finalización de nuevas operaciones de `MovimientoService`, con la batería general en 121 tests en verde.
-- Build 026: incorporación de eliminación de movimientos en `MovimientoRepository` y `MovimientoService`, con la batería general en 121 tests en verde al cerrar el Build.
-- Build 027: ampliación de `CuentaService` con operaciones de modificación y activación/desactivación, con la batería general en 128 tests en verde al cerrar el Build.
-- Cobertura posterior al Build 027: test específico de eliminación en `MovimientoServiceTest`, elevando la batería general a **129 tests en verde**.
-- Build 028: ampliación de `CategoriaService` y `CategoriaServiceTest`, elevando la batería general a **135 tests en verde**.
-- Build 029: incorporación de eliminación en `CategoriaRepository` y su test, elevando la batería general a **136 tests en verde**.
-- Build 030: incorporación de eliminación en `CategoriaService` y dos tests específicos, elevando la batería general a **138 tests en verde**.
-- Build 031: incorporación de eliminación en `CuentaRepository` y su test específico, elevando la batería general a **139 tests en verde**.
-- Build 032: incorporación de eliminación en `CuentaService` y dos tests específicos, elevando la batería general a **141 tests en verde**.
+- Build 029: eliminación en `CategoriaRepository`.
+- Build 030: eliminación en `CategoriaService`.
+- Build 031: eliminación en `CuentaRepository`.
+- Build 032: eliminación en `CuentaService`.
+- Build 033: reglas de negocio de `Movimiento`.
+- Build 034: ampliación de cobertura de `MovimientoServiceTest`.
+
+## Build 034
+
+Se agregaron 17 tests nuevos en `MovimientoServiceTest`, alcanzando **32/32 tests en verde**.
+
+La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+Commit de código: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
 ## Pendientes de arquitectura / evolución
 
@@ -44,9 +36,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir. Debe manten
 
 ## Estado de Git de referencia
 
-- Build 032: `a1a817d` — `feat: completar eliminacion de CuentaService`.
-- El commit de código fue publicado en `main` de GitHub y Bitbucket.
-- La documentación de continuidad se está actualizando en `docs/continuidad-sofp`.
+- Código actual de `main`: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
+- La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
+- La documentación de Build 034 fue registrada en `docs/01-builds/Build-034.md`.
 
 ## Regla
 
