@@ -28,38 +28,47 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 18/08/2026
 
-Último Build: **Build 034 — Ampliación de cobertura de MovimientoService**.
+Último Build: **Build 035 — Ampliación de cobertura de CuentaService**.
 
 Último commit de código:
 
-- `4d9dc2a` — `test: ampliar cobertura de MovimientoService`
+- `57b8ad5` — `test: ampliar cobertura de CuentaService`
 
-El Build 034 agregó **17 tests** a `MovimientoServiceTest`.
+El Build 035 agregó **20 tests** a `CuentaServiceTest`.
 
 Resultado:
 
+- `CuentaServiceTest`: **40/40 tests en verde**.
 - `MovimientoServiceTest`: **32/32 tests en verde**.
-- Batería general: **163/163 tests en verde**.
+- Batería general: **186/186 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - BUILD SUCCESS.
 
-`git diff --check` no reportó errores.
+`git diff --check` no reportó errores de whitespace.
 
-## Build 034
+El commit `57b8ad5` fue publicado en `main` de GitHub y Bitbucket.
 
-El objetivo fue ampliar la cobertura de `MovimientoService` sin modificar código de producción.
+## Build 035
+
+El objetivo fue ampliar la cobertura de `CuentaService` sin modificar código de producción.
 
 Se cubrieron:
 
-- IDs nulos en búsqueda, listados, modificaciones y eliminación.
-- Descripción, categoría, tipo, importe y fecha/hora nulos.
-- Búsqueda de movimientos inexistentes.
-- Modificación de tipo, importe y fecha/hora de movimientos inexistentes.
-- Eliminación de movimientos inexistentes.
+- IDs nulos en cálculo de saldo, búsqueda, listado por perfil y operaciones de modificación, activación, desactivación y eliminación.
+- Parámetros nulos en las operaciones de modificación.
+- Cuentas inexistentes en las operaciones de modificación, activación, desactivación y eliminación.
 
-La documentación específica quedó registrada en `docs/01-builds/Build-034.md`.
+La documentación específica quedó registrada en `docs/01-builds/Build-035.md`.
+
+## Build 034
+
+El Build 034 incorporó 17 tests en `MovimientoServiceTest` para ampliar la cobertura sin modificar código de producción.
+
+Resultado: **163/163 tests en verde**.
+
+Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
 ## Build 033
 
@@ -122,13 +131,17 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La batería general actual está en **163/163 tests en verde**.
+La batería general actual está en **186/186 tests en verde**.
+
+`CuentaServiceTest` cuenta con **40/40 tests en verde**.
+
+`MovimientoServiceTest` cuenta con **32/32 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Próximo paso
 
-Sincronizar la documentación y el código con los remotos y, antes de implementar el siguiente Build, revisar los casos de uso pendientes del dominio y definir la próxima pieza funcional.
+Revisar los casos de uso pendientes del dominio y, antes de implementar el siguiente Build, definir claramente su objetivo y los tests que deben cubrirlo.
 
 No comenzar otro bloque de código hasta definir claramente su objetivo y los tests que deben cubrirlo.
 
