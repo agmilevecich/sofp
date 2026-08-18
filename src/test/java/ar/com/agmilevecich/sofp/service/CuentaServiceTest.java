@@ -24,8 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CuentaServiceTest {
 
@@ -1243,11 +1242,282 @@ class CuentaServiceTest {
 
         Long cuentaIdInexistente = 999999L;
 
-        org.junit.jupiter.api.Assertions.assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> cuentaService.eliminar(
                         cuentaIdInexistente
                 )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCalculaSaldoConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.calcularSaldo(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeBuscaCuentaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.buscarPorId(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeListaPorPerfilFinancieroConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.listarPorPerfilFinanciero(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaNombreConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarNombre(
+                        null,
+                        "Nueva cuenta"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaNombreConNombreNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarNombre(
+                        999999L,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaNombreDeCuentaInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.modificarNombre(
+                        999999L,
+                        "Nueva cuenta"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaIdentificadorConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarIdentificadorExterno(
+                        null,
+                        "CBU-123"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaIdentificadorDeCuentaInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.modificarIdentificadorExterno(
+                        999999L,
+                        "CBU-123"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaTipoConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarTipoCuenta(
+                        null,
+                        TipoCuenta.CAJA_AHORRO
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaTipoConTipoNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarTipoCuenta(
+                        999999L,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaTipoDeCuentaInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.modificarTipoCuenta(
+                        999999L,
+                        TipoCuenta.CAJA_AHORRO
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaInstitucionConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarInstitucionFinanciera(
+                        null,
+                        new InstitucionFinanciera(
+                                "Banco Test",
+                                TipoInstitucionFinanciera.BANCO
+                        )
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaInstitucionConInstitucionNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarInstitucionFinanciera(
+                        999999L,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaInstitucionDeCuentaInexistente() {
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.modificarInstitucionFinanciera(
+                        999999L,
+                        institucion
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaMonedaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarMoneda(
+                        null,
+                        new Moneda(
+                                "ARS",
+                                "Peso argentino",
+                                2,
+                                TipoMoneda.FIAT
+                        )
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaMonedaConMonedaNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.modificarMoneda(
+                        999999L,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaMonedaDeCuentaInexistente() {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.modificarMoneda(
+                        999999L,
+                        moneda
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeActivaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.activar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeActivaCuentaInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.activar(999999L)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeDesactivaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.desactivar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeDesactivaCuentaInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.desactivar(999999L)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeEliminaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.eliminar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeEliminaCuentaInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> cuentaService.eliminar(999999L)
         );
     }
 }
