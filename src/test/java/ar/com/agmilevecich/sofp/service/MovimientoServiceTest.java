@@ -694,4 +694,268 @@ class MovimientoServiceTest {
                 ).isEmpty()
         );
     }
+
+    @Test
+    void deberiaRechazarMovimientoCuandoCuentaYCategoriaPertenecenADistintosPerfiles() {
+
+        Usuario usuario1 =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.perfil1."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        Usuario usuario2 =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.perfil2."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil1 =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario1
+                );
+
+        PerfilFinanciero perfil2 =
+                new PerfilFinanciero(
+                        "Perfil secundario",
+                        usuario2
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda = entityManager
+                .createQuery(
+                        "SELECT m FROM Moneda m WHERE m.codigo = :codigo",
+                        Moneda.class
+                )
+                .setParameter("codigo", "ARS")
+                .getSingleResult();
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil1,
+                        institucion,
+                        moneda
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Gastos",
+                        perfil2
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario1);
+        entityManager.persist(usuario2);
+        entityManager.persist(perfil1);
+        entityManager.persist(perfil2);
+        entityManager.persist(institucion);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.now(),
+                        "Movimiento inválido"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarMovimientoCuandoLaCuentaEstaDesactivada() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.cuenta.desactivada."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda = entityManager
+                .createQuery(
+                        "SELECT m FROM Moneda m WHERE m.codigo = :codigo",
+                        Moneda.class
+                )
+                .setParameter("codigo", "ARS")
+                .getSingleResult();
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta desactivada",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Gastos",
+                        perfil
+                );
+
+        cuenta.desactivar();
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.now(),
+                        "Movimiento sobre cuenta desactivada"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCambioDeCategoriaCuandoPerteneceAOtroPerfil() {
+
+        Usuario usuario1 =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.cambio.categoria1."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        Usuario usuario2 =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.cambio.categoria2."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil1 =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario1
+                );
+
+        PerfilFinanciero perfil2 =
+                new PerfilFinanciero(
+                        "Perfil secundario",
+                        usuario2
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda = entityManager
+                .createQuery(
+                        "SELECT m FROM Moneda m WHERE m.codigo = :codigo",
+                        Moneda.class
+                )
+                .setParameter("codigo", "ARS")
+                .getSingleResult();
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil1,
+                        institucion,
+                        moneda
+                );
+
+        Categoria categoria1 =
+                new Categoria(
+                        "Gastos",
+                        perfil1
+                );
+
+        Categoria categoria2 =
+                new Categoria(
+                        "Gastos personales",
+                        perfil2
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario1);
+        entityManager.persist(usuario2);
+        entityManager.persist(perfil1);
+        entityManager.persist(perfil2);
+        entityManager.persist(institucion);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria1);
+        entityManager.persist(categoria2);
+
+        entityManager.getTransaction().commit();
+
+        Movimiento movimiento =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria1,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.now(),
+                        "Movimiento válido"
+                );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.cambiarCategoria(
+                        movimiento.getId(),
+                        categoria2
+                )
+        );
+    }
 }

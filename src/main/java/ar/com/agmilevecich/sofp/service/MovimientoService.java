@@ -42,6 +42,17 @@ public class MovimientoService {
             LocalDateTime fechaHora,
             String descripcion) {
 
+        validarPerfilFinanciero(
+                cuenta,
+                categoria
+        );
+
+        if (!cuenta.isActiva()) {
+            throw new IllegalArgumentException(
+                    "No se puede registrar un movimiento en una cuenta desactivada"
+            );
+        }
+
         Movimiento movimiento = new Movimiento(
                 cuenta,
                 categoria,
@@ -214,6 +225,11 @@ public class MovimientoService {
 
         Movimiento movimiento =
                 obtenerMovimiento(movimientoId);
+
+        validarPerfilFinanciero(
+                movimiento.getCuenta(),
+                categoria
+        );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -405,6 +421,36 @@ public class MovimientoService {
             }
 
             throw e;
+        }
+    }
+
+    private void validarPerfilFinanciero(
+            Cuenta cuenta,
+            Categoria categoria) {
+
+        Objects.requireNonNull(
+                cuenta,
+                "La cuenta es obligatoria"
+        );
+
+        Objects.requireNonNull(
+                categoria,
+                "La categoría es obligatoria"
+        );
+
+        Long cuentaPerfilId =
+                cuenta.getPerfilFinanciero().getId();
+
+        Long categoriaPerfilId =
+                categoria.getPerfilFinanciero().getId();
+
+        if (!Objects.equals(
+                cuentaPerfilId,
+                categoriaPerfilId
+        )) {
+            throw new IllegalArgumentException(
+                    "La cuenta y la categoría deben pertenecer al mismo perfil financiero"
+            );
         }
     }
 
