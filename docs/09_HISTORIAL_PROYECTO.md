@@ -4,6 +4,15 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-18
 
+### Build 037 — Ampliación de cobertura de MonedaService
+
+- Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
+- Se revisaron `MonedaService`, `Moneda` y `MonedaRepository` para mantener la cobertura alineada con el comportamiento real del servicio.
+- La batería general quedó en **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- La ejecución general finalizó a las 18:52:19 -03:00.
+- El commit específico de código todavía no está registrado; queda pendiente verificar el estado de Git y asociar el SHA cuando exista.
+
 ### Build 036 — Ampliación de cobertura de InstitucionFinancieraService
 
 - Se amplió `InstitucionFinancieraServiceTest` con **15 tests nuevos**.
@@ -42,9 +51,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 036**. El código de producción no fue modificado en este Build; se amplió la cobertura de pruebas de `InstitucionFinancieraService`.
+El último bloque confirmado es el **Build 037**. Se amplió la cobertura de pruebas de `MonedaService` y la batería general quedó en **210/210 tests en verde**.
 
-La batería general actual es de **201/201 tests en verde**.
+El último commit de código confirmado continúa siendo `bd7f4bd`. El commit de código de Build 037 queda pendiente de verificar y registrar.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -58,6 +67,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
 - Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
 - Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
+- Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
 
 ## Regla histórica
 
