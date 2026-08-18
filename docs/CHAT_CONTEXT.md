@@ -28,43 +28,47 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 18/08/2026
 
-Último Build: **Build 036 — Ampliación de cobertura de InstitucionFinancieraService**.
+Último Build: **Build 037 — Ampliación de cobertura de MonedaService**.
 
-Último commit de código:
+Último commit de código confirmado:
 
 - `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`
 
-El Build 036 agregó **15 tests** a `InstitucionFinancieraServiceTest`.
+Build 037 amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
 
 Resultado:
 
-- `InstitucionFinancieraServiceTest`: **23/23 tests en verde**.
-- `CuentaServiceTest`: **40/40 tests en verde**.
-- `MovimientoServiceTest`: **37 tests**.
-- Batería general: **201/201 tests en verde**.
+- `CategoriaServiceTest`: **12**
+- `CuentaServiceTest`: **40**
+- `InstitucionFinancieraServiceTest`: **23**
+- `MonedaServiceTest`: **17**
+- `MovimientoServiceTest`: **37**
+- `PerfilFinancieroServiceTest`: **6**
+- `UsuarioServiceTest`: **5**
+- Total de tests de services: **140**.
+- Batería general: **210/210 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - BUILD SUCCESS.
 
-`git diff --check` no reportó errores de whitespace.
+La ejecución general de Build 037 finalizó el 18/08/2026 a las 18:52:19 -03:00.
 
-El commit `bd7f4bd` fue publicado en `main` de GitHub y Bitbucket.
+El commit específico de código de Build 037 todavía no está registrado. No se debe inventar un SHA hasta verificar el estado local de Git.
+
+## Build 037
+
+Se revisaron `MonedaService`, `Moneda` y `MonedaRepository` y se amplió `MonedaServiceTest` para aumentar la cobertura del servicio.
+
+La clase pasó de **8 a 17 tests en verde** y la batería general pasó de **201 a 210 tests en verde**.
+
+La documentación específica quedó registrada en `docs/01-builds/Build-037.md`.
 
 ## Build 036
 
-El objetivo fue ampliar la cobertura de `InstitucionFinancieraService` sin modificar código de producción.
+El Build 036 agregó **15 tests** a `InstitucionFinancieraServiceTest`, alcanzando **23/23 tests en verde** y una batería general de **201/201 tests en verde**.
 
-Se cubrieron:
-
-- Institución financiera nula al guardar.
-- ID nulo al buscar por ID y nombre nulo al buscar por nombre.
-- Búsquedas por ID y nombre inexistentes.
-- IDs nulos en renombrado, actualización del sitio web, actualización de descripción, activación y desactivación.
-- Operaciones de modificación sobre instituciones inexistentes.
-- Activación y desactivación de instituciones inexistentes.
-
-La documentación específica quedó registrada en `docs/01-builds/Build-036.md`.
+Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
 
 ## Build 035
 
@@ -141,25 +145,27 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La batería general actual está en **201/201 tests en verde**.
+La batería general actual está en **210/210 tests en verde**.
 
 Conteo actual de tests de services:
 
 - `CategoriaServiceTest`: **12**
 - `CuentaServiceTest`: **40**
 - `InstitucionFinancieraServiceTest`: **23**
-- `MonedaServiceTest`: **8**
+- `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **6**
 - `UsuarioServiceTest`: **5**
+
+Total: **140 tests de services**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Próximo paso
 
-Revisar los casos de uso pendientes del dominio y, antes de implementar el siguiente Build, definir claramente su objetivo y los tests que deben cubrirlo.
+Verificar el estado local de Git de los cambios de `MonedaServiceTest`, ejecutar `git diff --check` y `git status`, y registrar el commit de código de Build 037 si corresponde.
 
-No comenzar otro bloque de código hasta definir claramente su objetivo y los tests que deben cubrirlo.
+Después, definir claramente el siguiente bloque funcional antes de implementar código nuevo.
 
 ## Forma de trabajo acordada
 
