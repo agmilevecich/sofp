@@ -28,19 +28,20 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 18/08/2026
 
-Último Build: **Build 035 — Ampliación de cobertura de CuentaService**.
+Último Build: **Build 036 — Ampliación de cobertura de InstitucionFinancieraService**.
 
 Último commit de código:
 
-- `57b8ad5` — `test: ampliar cobertura de CuentaService`
+- `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`
 
-El Build 035 agregó **20 tests** a `CuentaServiceTest`.
+El Build 036 agregó **15 tests** a `InstitucionFinancieraServiceTest`.
 
 Resultado:
 
+- `InstitucionFinancieraServiceTest`: **23/23 tests en verde**.
 - `CuentaServiceTest`: **40/40 tests en verde**.
-- `MovimientoServiceTest`: **32/32 tests en verde**.
-- Batería general: **186/186 tests en verde**.
+- `MovimientoServiceTest`: **37 tests**.
+- Batería general: **201/201 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
@@ -48,25 +49,34 @@ Resultado:
 
 `git diff --check` no reportó errores de whitespace.
 
-El commit `57b8ad5` fue publicado en `main` de GitHub y Bitbucket.
+El commit `bd7f4bd` fue publicado en `main` de GitHub y Bitbucket.
 
-## Build 035
+## Build 036
 
-El objetivo fue ampliar la cobertura de `CuentaService` sin modificar código de producción.
+El objetivo fue ampliar la cobertura de `InstitucionFinancieraService` sin modificar código de producción.
 
 Se cubrieron:
 
-- IDs nulos en cálculo de saldo, búsqueda, listado por perfil y operaciones de modificación, activación, desactivación y eliminación.
-- Parámetros nulos en las operaciones de modificación.
-- Cuentas inexistentes en las operaciones de modificación, activación, desactivación y eliminación.
+- Institución financiera nula al guardar.
+- ID nulo al buscar por ID y nombre nulo al buscar por nombre.
+- Búsquedas por ID y nombre inexistentes.
+- IDs nulos en renombrado, actualización del sitio web, actualización de descripción, activación y desactivación.
+- Operaciones de modificación sobre instituciones inexistentes.
+- Activación y desactivación de instituciones inexistentes.
 
-La documentación específica quedó registrada en `docs/01-builds/Build-035.md`.
+La documentación específica quedó registrada en `docs/01-builds/Build-036.md`.
+
+## Build 035
+
+El Build 035 agregó 20 tests a `CuentaServiceTest`, alcanzando **40/40 tests en verde** y una batería general de **186/186 tests en verde**.
+
+Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
 
 ## Build 034
 
 El Build 034 incorporó 17 tests en `MovimientoServiceTest` para ampliar la cobertura sin modificar código de producción.
 
-Resultado: **163/163 tests en verde**.
+Resultado al cerrar ese Build: **163/163 tests en verde**.
 
 Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
@@ -78,9 +88,9 @@ El Build 033 incorporó tres reglas de negocio en `MovimientoService`:
 2. No se puede registrar un movimiento sobre una Cuenta desactivada.
 3. No se puede cambiar la Categoría de un Movimiento por una categoría de otro Perfil Financiero.
 
-Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
-
 Resultado al cerrar ese Build: **144/144 tests en verde**.
+
+Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
 ## Dominio actual
 
@@ -131,11 +141,17 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La batería general actual está en **186/186 tests en verde**.
+La batería general actual está en **201/201 tests en verde**.
 
-`CuentaServiceTest` cuenta con **40/40 tests en verde**.
+Conteo actual de tests de services:
 
-`MovimientoServiceTest` cuenta con **32/32 tests en verde**.
+- `CategoriaServiceTest`: **12**
+- `CuentaServiceTest`: **40**
+- `InstitucionFinancieraServiceTest`: **23**
+- `MonedaServiceTest`: **8**
+- `MovimientoServiceTest`: **37**
+- `PerfilFinancieroServiceTest`: **6**
+- `UsuarioServiceTest`: **5**
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
