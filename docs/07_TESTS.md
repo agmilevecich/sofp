@@ -2,167 +2,45 @@
 
 Este documento registra la evolución de la batería de tests y los resultados verificados por Build.
 
-## Build 025
+## Estado actual
 
-Se amplió `Movimiento` y se completaron las nuevas operaciones correspondientes en `MovimientoService`.
+### Build 034 — Ampliación de cobertura de MovimientoService
 
-En `Movimiento` se agregaron y validaron:
+Se ampliaron los tests de `MovimientoServiceTest` sin modificar código de producción.
 
-1. Modificación del tipo de movimiento.
-2. Modificación del importe.
-3. Modificación de la fecha y hora.
+Se agregaron **17 tests**, cubriendo validaciones de parámetros nulos, búsquedas inexistentes y operaciones de modificación/eliminación sobre movimientos inexistentes.
 
-En `MovimientoService` se agregaron:
+`MovimientoServiceTest` quedó con **32/32 tests en verde**.
 
-1. `modificarTipoMovimiento(Long movimientoId, TipoMovimiento tipoMovimiento)`.
-2. `modificarImporte(Long movimientoId, BigDecimal importe)`.
-3. `modificarFechaHora(Long movimientoId, LocalDateTime fechaHora)`.
+La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-Se incorporaron 3 nuevos casos en `MovimientoServiceTest`.
-
-Resultado: **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-## Build 026
-
-Se incorporó la eliminación de movimientos y se completó la operación correspondiente en el repositorio y servicio.
-
-En `MovimientoRepository` se incorporó `eliminar(Movimiento movimiento)`, con gestión de la entidad antes de `remove()` cuando corresponde.
-
-En `MovimientoService` se incorporó `eliminar(Long movimientoId)`, con validación del ID, verificación de existencia y transacción explícita con `flush()`, `commit()` y `rollback()` ante excepciones.
-
-También se consolidó el nombre `modificarTipoMovimiento(...)` en `Movimiento`.
-
-No se agregaron nuevos tests en este bloque; se ejecutó la batería general como comprobación de regresión.
-
-Resultado: **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-## Build 027
-
-Se amplió `CuentaService` para completar las operaciones de modificación y activación/desactivación de cuentas.
-
-Se incorporaron tests en `CuentaServiceTest` para:
-
-1. Modificar el nombre de una cuenta.
-2. Modificar el identificador externo.
-3. Modificar el tipo de cuenta.
-4. Modificar la institución financiera.
-5. Modificar la moneda.
-6. Activar una cuenta.
-7. Desactivar una cuenta.
-
-`CuentaService` pasó a recibir `EntityManager` por constructor para gestionar explícitamente las transacciones de estas operaciones.
-
-Las operaciones nuevas validan los parámetros obligatorios, verifican la existencia de la cuenta y utilizan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
-
-Resultado al cerrar el Build 027: **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-## Cobertura adicional posterior al Build 027
-
-Se agregó un caso en `MovimientoServiceTest` para cubrir explícitamente la eliminación de un movimiento mediante `MovimientoService.eliminar(...)`.
-
-El test registra un movimiento, guarda su ID, ejecuta la eliminación y verifica mediante `buscarPorId(...)` que el movimiento ya no exista.
-
-`MovimientoServiceTest` pasó de 15 a **16 tests**, todos en verde en la ejecución individual.
-
-La batería general pasó de 128 a **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La ejecución terminó con `BUILD SUCCESS` y `git diff --check` no reportó errores.
 
 Commit asociado:
 
-- `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
+- `4d9dc2a` — `test: ampliar cobertura de MovimientoService`
 
-## Build 028 — Ampliación de CategoriaService
+## Builds recientes
 
-Se amplió `CategoriaService` y `CategoriaServiceTest` para completar la gestión de categorías desde la capa de servicio.
+### Build 033
 
-Se incorporaron operaciones de modificación y activación/desactivación de categorías, con validación de identificadores y existencia y gestión transaccional mediante `EntityManager`.
+Se incorporaron tres reglas de negocio en `MovimientoService`: cuenta y categoría deben pertenecer al mismo perfil financiero; no se registran movimientos sobre cuentas desactivadas; y no se permite cambiar a una categoría de otro perfil.
 
-`CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones y comprobar la persistencia de los cambios.
+Resultado: **144/144 tests en verde**.
 
-Resultado: **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
-También se ejecutó `git diff --check`, sin errores de formato.
+### Build 032
 
-Commit asociado:
+Se completó la eliminación de cuentas desde `CuentaService`.
 
-- `b5c200e` — `feat: ampliar CategoriaService`.
+Resultado: **141/141 tests en verde**.
 
-## Build 029 — Eliminación en CategoriaRepository
+Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
-Se incorporó la eliminación de categorías en `CategoriaRepository` mediante `eliminar(Categoria categoria)`.
+## Histórico de cobertura
 
-La operación valida la categoría, comprueba si está gestionada, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
-
-`CategoriaRepositoryTest` incorporó `deberiaEliminarCategoriaExistente()`, verificando que la categoría deje de estar disponible mediante `buscarPorId(...)` después de la eliminación.
-
-Resultado: **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La prueba específica de `CategoriaRepositoryTest` quedó en **5/5 tests en verde**.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-Commit asociado:
-
-- `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
-
-## Build 030 — Eliminación en CategoriaService
-
-Se incorporó `CategoriaService.eliminar(Long categoriaId)` para completar la eliminación de categorías desde la capa de servicio.
-
-La operación valida el ID, verifica la existencia mediante `obtenerCategoria(...)`, inicia una transacción explícita, delega la eliminación en `CategoriaRepository`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
-
-Se incorporaron dos casos en `CategoriaServiceTest`:
-
-1. `deberiaEliminarCategoriaExistente()` — registra una categoría, la elimina mediante el servicio y verifica que `buscarPorId(...)` no la encuentre.
-2. `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()` — verifica que eliminar una categoría inexistente produzca `IllegalArgumentException`.
-
-Resultado: **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-Commit asociado:
-
-- `59b9628` — `feat: completar eliminacion de CategoriaService`.
-
-## Build 031 — Eliminación en CuentaRepository
-
-Se incorporó `CuentaRepository.eliminar(Cuenta cuenta)` para completar la eliminación de cuentas en la capa de persistencia.
-
-La operación valida la cuenta, comprueba si está gestionada mediante `EntityManager.contains(...)`, utiliza `merge(...)` cuando corresponde y ejecuta `remove(...)` sobre la instancia gestionada.
-
-`CuentaRepositoryTest` incorporó `deberiaEliminarCuentaExistente()`, verificando que una cuenta persistida deje de estar disponible mediante `buscarPorId(...)` después de la eliminación y el `commit`.
-
-Resultado: **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-Commit asociado:
-
-- `40768d3` — `feat: completar eliminacion de CuentaRepository`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
-
-## Build 032 — Eliminación en CuentaService
-
-Se incorporó `CuentaService.eliminar(Long cuentaId)` para completar la eliminación de cuentas desde la capa de servicio.
-
-La operación valida el ID, verifica la existencia mediante `obtenerCuenta(...)`, inicia una transacción explícita, delega la eliminación en `CuentaRepository.eliminar(...)`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
-
-Se incorporaron dos casos en `CuentaServiceTest`:
-
-1. `deberiaEliminarCuentaExistente()` — registra una cuenta, la elimina mediante el servicio y verifica que `buscarPorId(...)` no la encuentre.
-2. `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()` — verifica que eliminar una cuenta inexistente produzca `IllegalArgumentException`.
-
-Resultado: **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-Commit asociado:
-
-- `a1a817d` — `feat: completar eliminacion de CuentaService`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 034 con **163 tests en verde**.
 
 ## Regla de cierre
 
