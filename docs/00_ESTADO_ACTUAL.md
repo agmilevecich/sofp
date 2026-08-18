@@ -26,21 +26,21 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 034 — Ampliación de cobertura de MovimientoService**.
+El último bloque trabajado es **Build 035 — Ampliación de cobertura de CuentaService**.
 
-El Build 033 había incorporado las reglas de negocio de `Movimiento` y el Build 034 amplió exclusivamente la cobertura de tests, sin modificar código de producción.
+El Build 034 había ampliado exclusivamente la cobertura de `MovimientoServiceTest` y el Build 035 continúa esa línea ampliando la cobertura de `CuentaServiceTest`, sin modificar código de producción.
 
-En `MovimientoServiceTest` se agregaron **17 tests**, llevando la clase a **32/32 tests en verde**.
+En `CuentaServiceTest` se agregaron **20 tests**, llevando la clase a **40/40 tests en verde**.
 
-La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS`.
+La batería general quedó en **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS`.
 
-También se ejecutó `git diff --check`, sin errores.
+También se ejecutó `git diff --check`, sin errores de whitespace.
 
 ## Commit actual de código
 
-- `4d9dc2a` — `test: ampliar cobertura de MovimientoService`
+- `57b8ad5` — `test: ampliar cobertura de CuentaService`
 
-Este commit contiene únicamente la ampliación de `MovimientoServiceTest` y se encuentra en `main` local.
+Este commit contiene únicamente la ampliación de `CuentaServiceTest` y está publicado en `main` de GitHub y Bitbucket.
 
 ## Dominio construido
 
@@ -91,7 +91,9 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **163/163 tests en verde**.
+La batería general confirmada actualmente es de **186/186 tests en verde**.
+
+`CuentaServiceTest` cuenta con **40/40 tests en verde**.
 
 `MovimientoServiceTest` cuenta con **32/32 tests en verde**.
 
@@ -99,13 +101,13 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 ## Git
 
-El trabajo de código más reciente está en `main` mediante el commit `4d9dc2a`.
+El trabajo de código más reciente está en `main` mediante el commit `57b8ad5`.
 
 La documentación de continuidad se actualiza en `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Cerrar documentalmente el Build 034, sincronizar las ramas/remotos y después definir el siguiente bloque funcional antes de implementar código nuevo.
+Revisar los casos de uso pendientes del dominio y definir el siguiente bloque funcional antes de implementar código nuevo.
 
 No comenzar otro bloque de código hasta definir claramente su objetivo y los tests que deben cubrirlo.
 
