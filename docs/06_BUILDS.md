@@ -233,6 +233,30 @@ Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
 
 El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
+## Build 036 — Ampliación de cobertura de InstitucionFinancieraService
+
+Se ampliaron los tests de `InstitucionFinancieraServiceTest` sin modificar código de producción.
+
+Se agregaron **15 tests nuevos** para cubrir:
+
+- Institución nula al guardar.
+- IDs nulos en búsqueda, modificaciones, activación y desactivación.
+- Búsquedas por ID y nombre inexistentes.
+- Operaciones de modificación sobre instituciones inexistentes.
+- Activación y desactivación de instituciones inexistentes.
+
+`InstitucionFinancieraServiceTest`: **23/23 tests en verde**.
+
+Batería general: **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+`BUILD SUCCESS` y `git diff --check` sin errores.
+
+Las líneas en blanco accidentales que aparecieron en `InstitucionFinancieraService.java` fueron descartadas antes del commit; el Build 036 no modifica código de producción.
+
+Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
+
+El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
