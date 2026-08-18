@@ -4,6 +4,22 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 035 — Ampliación de cobertura de CuentaService
+
+Se ampliaron los tests de `CuentaServiceTest` sin modificar código de producción.
+
+Se agregaron **20 tests**, cubriendo validaciones de parámetros nulos, cuentas inexistentes y operaciones de modificación, activación, desactivación y eliminación.
+
+`CuentaServiceTest` quedó con **40/40 tests en verde**.
+
+La batería general quedó en **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` y `git diff --check` no reportó errores de whitespace.
+
+Commit asociado:
+
+- `57b8ad5` — `test: ampliar cobertura de CuentaService`
+
 ### Build 034 — Ampliación de cobertura de MovimientoService
 
 Se ampliaron los tests de `MovimientoServiceTest` sin modificar código de producción.
@@ -40,7 +56,7 @@ Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 034 con **163 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 035 con **186 tests en verde**.
 
 ## Regla de cierre
 
