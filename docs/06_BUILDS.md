@@ -1,424 +1,218 @@
 # SOFP — Historial de Builds
 
-## Build 001
+## Builds 001–010
 
-Configuración inicial del proyecto.
-
-## Build 002
-
-Configuración inicial de persistencia y base de datos.
-
-## Build 003
-
-Primeras entidades y consolidación del dominio.
-
-## Build 004
-
-Evolución del modelo de dominio y pruebas.
-
-## Build 005
-
-Diseño de la entidad `Cuenta`.
-
-## Builds posteriores
-
-Se realizaron trabajos de consolidación del dominio, arquitectura, validaciones, instituciones financieras, categorías y cuentas.
-
-## Build 009.1
-
-Implementación de la entidad `Categoria`.
-
-## Build 010
-
-Implementación de la entidad `Movimiento`.
-
-Incluye:
-
-- Entidad `Movimiento`.
-- Enum `TipoMovimiento`.
-- Validación de importe positivo.
-- Relaciones con `Cuenta` y `Categoria`.
-- Test unitario.
-- Test JPA.
+- **Build 001:** configuración inicial del proyecto.
+- **Build 002:** configuración inicial de persistencia y base de datos.
+- **Build 003:** primeras entidades y consolidación del dominio.
+- **Build 004:** evolución del modelo de dominio y pruebas.
+- **Build 005:** diseño de `Cuenta`.
+- **Builds posteriores:** consolidación de dominio, arquitectura, validaciones e instituciones financieras.
+- **Build 009.1:** implementación de `Categoria`.
+- **Build 010:** implementación de `Movimiento`, `TipoMovimiento`, relaciones, validación de importe positivo y tests unitarios/JPA.
 
 ## Build 011 — Aislamiento y estabilización de tests JPA con H2
 
-Se incorporó `JpaTestManager`, se separó la unidad de persistencia de pruebas `sofp-persistence-unit-test` y se configuró H2 en memoria con `create-drop`. Se resolvieron problemas de aislamiento y unicidad de datos y se mantuvo separada la persistencia de producción de la infraestructura de pruebas.
+Se incorporó `JpaTestManager`, la unidad `sofp-persistence-unit-test`, H2 en memoria y `create-drop`, separando la persistencia de producción de la infraestructura de pruebas.
 
 ## Build 012 — Repositorios JPA de entidades base
 
-Se incorporaron `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository` y sus tests correspondientes.
+Se incorporaron `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository` y `MonedaRepository`, junto con sus tests.
 
 ## Build 013 — Repository JPA de Cuenta
 
-Se incorporó `CuentaRepository` y `CuentaRepositoryTest`, cubriendo guardar/buscar, listar, listar por perfil y actualizar una cuenta existente.
+Se incorporó `CuentaRepository` y sus pruebas para guardar/buscar, listar, listar por perfil y actualizar.
 
 ## Build 014 — Repository JPA de Movimiento
 
-Se incorporó `MovimientoRepository` y `MovimientoRepositoryTest`.
-
-El repositorio proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta y listar por categoría.
+Se incorporó `MovimientoRepository` y `MovimientoRepositoryTest` para guardar, actualizar, buscar, listar todos, listar por cuenta y listar por categoría.
 
 Resultado: **64/64 tests en verde**.
 
-### Commit asociado
-
-- `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
+Commit: `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
 
 ## Build 015 — Servicio de saldo de cuentas
 
-Se incorporó `CuentaService` y `CuentaServiceTest` para centralizar el cálculo del saldo a partir de movimientos. `INGRESO` suma, `EGRESO` resta y una cuenta sin movimientos devuelve `BigDecimal.ZERO`.
+Se incorporó `CuentaService` y `CuentaServiceTest` para calcular saldo: `INGRESO` suma, `EGRESO` resta y una cuenta sin movimientos devuelve `BigDecimal.ZERO`.
 
 Resultado: **68/68 tests en verde**.
 
-### Commit asociado
-
-- `4697815` — `feat: implementar servicio de saldo de cuentas`.
+Commit: `4697815` — `feat: implementar servicio de saldo de cuentas`.
 
 ## Build 016 — Servicio de movimientos
 
-Se incorporó `MovimientoService` y `MovimientoServiceTest` para registrar, buscar y listar movimientos. El registro utiliza transacciones explícitas, `flush()`, `commit()` y `rollback()`.
+Se incorporó `MovimientoService` y `MovimientoServiceTest` para registrar, buscar y listar movimientos mediante transacciones explícitas.
 
 Resultado: **74/74 tests en verde**.
 
-### Commit asociado
-
-- `8f8594e` — `feat: implementar servicio de movimientos`.
+Commit: `8f8594e` — `feat: implementar servicio de movimientos`.
 
 ## Build 017 — Repository JPA de Categoria
 
 Se incorporó `CategoriaRepository` y `CategoriaRepositoryTest`.
 
-### Commit asociado
-
-- `f462b3b` — `feat: implementar CategoriaRepository`.
+Commit: `f462b3b` — `feat: implementar CategoriaRepository`.
 
 ## Build 018 — Servicio de Categoria
 
-Se incorporó `CategoriaService` y `CategoriaServiceTest` para registrar, buscar, listar y listar por perfil financiero.
+Se incorporó `CategoriaService` y sus tests para registrar, buscar, listar y listar por perfil.
 
 Resultado: **82/82 tests en verde**.
 
-### Commit asociado
-
-- `d57e0b4` — `feat: implementar CategoriaService`.
+Commit: `d57e0b4` — `feat: implementar CategoriaService`.
 
 ## Build 019 — Servicio de PerfilFinanciero
 
-Se incorporó `PerfilFinancieroService` y `PerfilFinancieroServiceTest` para guardar, buscar, listar por usuario, cambiar descripción, activar y desactivar perfiles.
+Se incorporó `PerfilFinancieroService` y sus tests para guardar, buscar, listar por usuario, cambiar descripción y activar/desactivar.
 
 Resultado: **88/88 tests en verde**.
 
-### Commit asociado
-
-- `1cc00ca` — `feat: implementar PerfilFinancieroService`.
+Commit: `1cc00ca` — `feat: implementar PerfilFinancieroService`.
 
 ## Build 020 — Servicio de Usuario
 
-Se incorporó `UsuarioService` y `UsuarioServiceTest` para guardar, buscar por ID, buscar por email, listar, activar y desactivar usuarios.
+Se incorporó `UsuarioService` y sus tests para guardar, buscar, listar, activar y desactivar usuarios.
 
 Resultado: **93/93 tests en verde**.
 
-### Commit asociado
-
-- `87786fe` — `feat: implementar UsuarioService`.
+Commit: `87786fe` — `feat: implementar UsuarioService`.
 
 ## Build 021 — Servicio de InstitucionFinanciera
 
-Se incorporó `InstitucionFinancieraService` y `InstitucionFinancieraServiceTest` para buscar, listar, renombrar, actualizar sitio web y descripción, activar y desactivar instituciones.
+Se incorporó `InstitucionFinancieraService` y sus tests para búsqueda, listado, modificaciones y activación/desactivación.
 
 Resultado: **101/101 tests en verde**.
 
-### Commit asociado
-
-- `20e21c3` — `feat: implementar InstitucionFinancieraService`.
+Commit: `20e21c3` — `feat: implementar InstitucionFinancieraService`.
 
 ## Build 022 — Servicio de Moneda
 
-Se incorporó `MonedaService` y `MonedaServiceTest` para buscar, listar, cambiar nombre y cambiar cantidad de decimales. Se corrigió el aislamiento de H2 mediante `JpaTestManager.close()`.
+Se incorporó `MonedaService` y sus tests. Se corrigió el aislamiento de H2 mediante `JpaTestManager.close()`.
 
 Resultado: **109/109 tests en verde**.
 
-### Commit asociado
-
-- `0d0db87` — `feat: implementar MonedaService`.
+Commit: `0d0db87` — `feat: implementar MonedaService`.
 
 ## Build 023 — Ampliación de CuentaService
 
-Se amplió `CuentaService` y `CuentaServiceTest` para cubrir registrar, buscar, listar, listar por perfil y las verificaciones de saldo.
+Se amplió `CuentaService` y `CuentaServiceTest` para registrar, buscar, listar, listar por perfil y verificar saldo.
 
 Resultado: **113/113 tests en verde**.
 
-### Commit asociado
-
-- `ea595d4` — `feat: ampliar CuentaService`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
+Commit: `ea595d4` — `feat: ampliar CuentaService`.
 
 ## Build 024 — Ampliación de MovimientoService
 
-Se amplió `MovimientoService` para modificar descripción, observaciones y categoría, además de reforzar validaciones de IDs y existencia del movimiento. `MovimientoServiceTest` pasó de 6 a **11 tests**.
+Se ampliaron las operaciones de modificación de descripción, observaciones y categoría y las validaciones de IDs/existencia.
 
-Resultado: **118/118 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Resultado: **118/118 tests en verde**.
 
-### Commit asociado
+Commit: `110f7d7` — `feat: ampliar MovimientoService`.
 
-- `110f7d7` — `feat: ampliar MovimientoService`.
+## Build 025 — Ampliación de Movimiento y MovimientoService
 
-El commit fue publicado en `main` de GitHub y Bitbucket.
+Se incorporaron modificaciones de tipo, importe y fecha/hora en `Movimiento` y `MovimientoService`.
 
-## Build 025 — Ampliación de Movimiento y nuevas operaciones de MovimientoService
+Resultado: **121/121 tests en verde**.
 
-Se amplió `Movimiento` con operaciones para modificar tipo de movimiento, importe y fecha/hora, y se incorporaron las operaciones equivalentes en `MovimientoService`.
-
-Se agregaron 3 nuevos tests a `MovimientoServiceTest`.
-
-Resultado: **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-### Commits asociados
-
-- `da3b89d` — `feat: ampliar operaciones de Movimiento`.
-- `81883ea` — `feat: completar operaciones de MovimientoService`.
-
-Ambos commits fueron publicados en `main` de GitHub y Bitbucket.
+Commits: `da3b89d` y `81883ea`.
 
 ## Build 026 — Eliminación de Movimiento
 
-### Objetivo
+Se incorporó eliminación en `MovimientoRepository` y `MovimientoService`, con validación de ID, existencia y transacción explícita.
 
-Completar la operación de eliminación de movimientos en las capas de persistencia y servicio, manteniendo las reglas de validación y control transaccional utilizadas en `MovimientoService`.
+Resultado: **121/121 tests en verde**.
 
-### Cambios principales
-
-En `MovimientoRepository` se incorporó `eliminar(Movimiento movimiento)`, garantizando que la entidad esté gestionada antes de ejecutar `remove()` cuando corresponde.
-
-En `MovimientoService` se incorporó `eliminar(Long movimientoId)`, con validación del ID, verificación de existencia y transacción explícita con `begin`, `flush`, `commit` y `rollback()` ante excepciones.
-
-También se consolidó el nombre `modificarTipoMovimiento(...)` en la entidad `Movimiento`.
-
-Resultado: **121/121 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-### Commit asociado
-
-- `d386d02` — `feat: completar operaciones de Movimiento`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
+Commit: `d386d02` — `feat: completar operaciones de Movimiento`.
 
 ## Build 027 — Ampliación de CuentaService
 
-### Objetivo
+Se incorporaron modificaciones de cuenta y activación/desactivación, junto con `obtenerCuenta(...)` y transacciones explícitas.
 
-Completar las operaciones de modificación y activación/desactivación de `Cuenta` desde la capa `CuentaService`.
+Resultado: **128/128 tests en verde**.
 
-### Cambios principales
+Commit: `00d862c` — `feat: ampliar CuentaService`.
 
-Se incorporaron en `CuentaService`:
+### Cobertura posterior al Build 027
 
-- `modificarNombre(Long cuentaId, String nombre)`.
-- `modificarIdentificadorExterno(Long cuentaId, String identificadorExterno)`.
-- `modificarTipoCuenta(Long cuentaId, TipoCuenta tipoCuenta)`.
-- `modificarInstitucionFinanciera(Long cuentaId, InstitucionFinanciera institucionFinanciera)`.
-- `modificarMoneda(Long cuentaId, Moneda moneda)`.
-- `activar(Long cuentaId)`.
-- `desactivar(Long cuentaId)`.
+Se agregó un test específico para eliminación de `MovimientoService`.
 
-El servicio recibe `EntityManager` por constructor y utiliza transacciones explícitas con `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
+Resultado: **129/129 tests en verde**.
 
-Se agregó `obtenerCuenta(Long cuentaId)` para centralizar la búsqueda y la validación de cuenta inexistente mediante `IllegalArgumentException`.
-
-### Tests verificados
-
-`CuentaServiceTest` incorporó siete casos nuevos para las operaciones anteriores.
-
-Resultado al cerrar el Build 027: **128/128 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-### Cobertura posterior del Build 027
-
-Se agregó un test en `MovimientoServiceTest` para cubrir explícitamente la eliminación de un movimiento mediante `MovimientoService.eliminar(...)` y verificar que el movimiento deje de estar disponible mediante `buscarPorId(...)`.
-
-Resultado actualizado: **129/129 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-### Commits asociados
-
-- `00d862c` — `feat: ampliar CuentaService`.
-- `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
-
-Ambos cambios se encuentran publicados en `main` de GitHub y Bitbucket.
+Commit: `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
 
 ## Build 028 — Ampliación de CategoriaService
 
-### Objetivo
+Se completaron operaciones de modificación y activación/desactivación de categorías.
 
-Completar las operaciones de la capa `CategoriaService` para que el servicio no se limite a registrar, buscar y listar categorías, sino que también permita gestionar su estado y sus datos modificables desde la capa de servicio.
+Resultado: **135/135 tests en verde**.
 
-### Cambios principales
-
-Se amplió `CategoriaService` y se actualizó `CategoriaServiceTest`.
-
-El servicio pasó a utilizar `EntityManager` junto con `CategoriaRepository` para gestionar explícitamente las operaciones transaccionales de modificación y estado, manteniendo el patrón utilizado en los servicios anteriores.
-
-Se incorporaron las operaciones de modificación y activación/desactivación disponibles en la entidad `Categoria`, junto con la validación de los identificadores y de la existencia de la categoría.
-
-### Tests verificados
-
-`CategoriaServiceTest` fue ampliado para cubrir las nuevas operaciones del servicio.
-
-Resultado de la batería general: **135/135 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-### Commit asociado
-
-- `b5c200e` — `feat: ampliar CategoriaService`.
-
-El commit de código corresponde al estado local de `main` y queda registrado aquí como referencia para sincronizar la continuidad.
+Commit: `b5c200e` — `feat: ampliar CategoriaService`.
 
 ## Build 029 — Eliminación en CategoriaRepository
 
-### Objetivo
+Se incorporó `CategoriaRepository.eliminar(...)` y su test específico.
 
-Completar la operación de eliminación de categorías en la capa de persistencia, manteniendo el patrón JPA utilizado en los repositorios anteriores y cubriendo la operación con una prueba específica.
+Resultado: **136/136 tests en verde**.
 
-### Cambios principales
-
-En `CategoriaRepository` se incorporó `eliminar(Categoria categoria)`.
-
-La operación:
-
-- valida que la categoría no sea `null`;
-- comprueba si la entidad está gestionada mediante `EntityManager.contains(...)`;
-- utiliza `EntityManager.merge(...)` cuando la entidad no está gestionada;
-- ejecuta `EntityManager.remove(...)` sobre la instancia gestionada.
-
-En `CategoriaRepositoryTest` se incorporó `deberiaEliminarCategoriaExistente()`, verificando que una categoría persistida deje de estar disponible mediante `buscarPorId(...)` después de la eliminación.
-
-### Tests verificados
-
-La prueba específica de `CategoriaRepositoryTest` quedó en **5/5 tests en verde**.
-
-La batería general quedó en **136/136 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-### Commit asociado
-
-- `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
+Commit: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
 
 ## Build 030 — Eliminación en CategoriaService
 
-### Objetivo
+Se incorporó `CategoriaService.eliminar(...)`, con validación, existencia y transacción explícita, más dos tests específicos.
 
-Completar la operación de eliminación de categorías desde la capa de servicio, delegando la eliminación en `CategoriaRepository` y manteniendo el patrón transaccional utilizado en `MovimientoService`.
+Resultado: **138/138 tests en verde**.
 
-### Cambios principales
-
-En `CategoriaService` se incorporó `eliminar(Long categoriaId)`.
-
-La operación:
-
-- valida que el ID no sea `null`;
-- obtiene la categoría mediante `obtenerCategoria(...)`;
-- lanza `IllegalArgumentException` cuando la categoría no existe;
-- inicia una transacción explícita;
-- delega la eliminación en `CategoriaRepository.eliminar(...)`;
-- ejecuta `flush()`;
-- realiza `commit()`;
-- ejecuta `rollback()` ante excepciones.
-
-En `CategoriaServiceTest` se incorporaron:
-
-- `deberiaEliminarCategoriaExistente()`;
-- `deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente()`.
-
-### Tests verificados
-
-La batería general quedó en **138/138 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-### Commit asociado
-
-- `59b9628` — `feat: completar eliminacion de CategoriaService`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
+Commit: `59b9628` — `feat: completar eliminacion de CategoriaService`.
 
 ## Build 031 — Eliminación en CuentaRepository
 
-### Objetivo
+Se incorporó `CuentaRepository.eliminar(...)` y su test específico.
 
-Completar la operación de eliminación de cuentas en la capa de persistencia, manteniendo el patrón JPA utilizado en los repositorios anteriores y cubriendo la operación con una prueba específica.
+Resultado: **139/139 tests en verde**.
 
-### Cambios principales
-
-En `CuentaRepository` se incorporó `eliminar(Cuenta cuenta)`.
-
-La operación:
-
-- valida que la cuenta no sea `null`;
-- comprueba si la entidad está gestionada mediante `EntityManager.contains(...)`;
-- utiliza `EntityManager.merge(...)` cuando la entidad no está gestionada;
-- ejecuta `EntityManager.remove(...)` sobre la instancia gestionada.
-
-En `CuentaRepositoryTest` se incorporó `deberiaEliminarCuentaExistente()`, verificando que una cuenta persistida deje de estar disponible mediante `buscarPorId(...)` después de la eliminación y el `commit`.
-
-### Tests verificados
-
-La batería general quedó en **139/139 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-También se ejecutó `git diff --check`, sin errores de formato.
-
-### Commit asociado
-
-- `40768d3` — `feat: completar eliminacion de CuentaRepository`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket.
-
-### Próximo paso
-
-Completar progresivamente la eliminación de `Cuenta` desde `CuentaService`, siguiendo el patrón ya aplicado en `MovimientoService` y `CategoriaService`, con implementación verificable y tests correspondientes.
+Commit: `40768d3` — `feat: completar eliminacion de CuentaRepository`.
 
 ## Build 032 — Eliminación en CuentaService
 
-### Objetivo
+Se incorporó `CuentaService.eliminar(...)`, con validación, existencia y transacción explícita, más tests para eliminación existente e inexistente.
 
-Completar la operación de eliminación de cuentas desde la capa de servicio, delegando la eliminación en `CuentaRepository` y manteniendo el patrón transaccional utilizado en `MovimientoService` y `CategoriaService`.
+Resultado: **141/141 tests en verde**.
 
-### Cambios principales
+Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
-En `CuentaService` se incorporó `eliminar(Long cuentaId)`.
+## Build 033 — Reglas de negocio de Movimiento
 
-La operación:
+Se incorporaron en `MovimientoService` tres reglas:
 
-- valida que el ID no sea `null`;
-- obtiene la cuenta mediante `obtenerCuenta(...)`;
-- lanza `IllegalArgumentException` cuando la cuenta no existe;
-- inicia una transacción explícita;
-- delega la eliminación en `CuentaRepository.eliminar(...)`;
-- ejecuta `flush()`;
-- realiza `commit()`;
-- ejecuta `rollback()` ante excepciones.
+1. Cuenta y Categoría deben pertenecer al mismo Perfil Financiero.
+2. No se pueden registrar movimientos en una cuenta desactivada.
+3. No se puede cambiar un movimiento a una categoría de otro perfil financiero.
 
-En `CuentaServiceTest` se incorporaron:
+Resultado: **144/144 tests en verde**.
 
-- `deberiaEliminarCuentaExistente()`;
-- `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()`.
+Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
-### Tests verificados
+## Build 034 — Ampliación de cobertura de MovimientoService
 
-La batería general quedó en **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Se ampliaron los tests de `MovimientoServiceTest` sin modificar código de producción.
 
-También se ejecutó `git diff --check`, sin errores de formato.
+Se agregaron **17 tests nuevos** para cubrir:
 
-### Commit asociado
+- IDs nulos en búsqueda, listados, modificaciones y eliminación.
+- Descripción, categoría, tipo, importe y fecha/hora nulos.
+- Búsqueda de movimientos inexistentes.
+- Modificación de tipo, importe y fecha/hora de movimientos inexistentes.
+- Eliminación de movimientos inexistentes.
 
-- `a1a817d` — `feat: completar eliminacion de CuentaService`.
+`MovimientoServiceTest`: **32/32 tests en verde**.
 
-El commit fue publicado en `main` de GitHub y Bitbucket.
+Batería general: **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-## Regla para futuros Builds
+`BUILD SUCCESS` y `git diff --check` sin errores.
 
-Agregar cada Build nuevo inmediatamente después de verificar código, tests y commit, manteniendo sincronizados los documentos de continuidad.
+Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
+
+## Regla de cierre
+
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
