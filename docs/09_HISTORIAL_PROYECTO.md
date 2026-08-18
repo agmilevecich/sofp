@@ -4,6 +4,18 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-18
 
+### Build 035 — Ampliación de cobertura de CuentaService
+
+- Se amplió `CuentaServiceTest` con **20 tests nuevos**.
+- Se cubrieron IDs nulos en cálculo de saldo, búsqueda, listado por perfil y operaciones de modificación/activación/desactivación/eliminación.
+- Se cubrieron parámetros nulos y cuentas inexistentes en las operaciones de modificación.
+- `CuentaServiceTest` quedó en **40/40 tests en verde**.
+- La batería general quedó en **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- `git diff --check` sin errores de whitespace.
+- Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
+- El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ### Build 034 — Ampliación de cobertura de MovimientoService
 
 - Se amplió `MovimientoServiceTest` con **17 tests nuevos**.
@@ -18,9 +30,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque funcional confirmado es el **Build 034**. El código de producción no fue modificado en este Build; se amplió la cobertura de pruebas de `MovimientoService`.
+El último bloque confirmado es el **Build 035**. El código de producción no fue modificado en este Build; se amplió la cobertura de pruebas de `CuentaService`.
 
-La batería general actual es de **163/163 tests en verde**.
+La batería general actual es de **186/186 tests en verde**.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -32,6 +44,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 032 — Eliminación en `CuentaService`.
 - Build 033 — Reglas de negocio de `Movimiento`.
 - Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
+- Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
 
 ## Regla histórica
 
