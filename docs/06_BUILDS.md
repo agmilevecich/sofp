@@ -213,6 +213,26 @@ Batería general: **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `
 
 Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
+## Build 035 — Ampliación de cobertura de CuentaService
+
+Se ampliaron los tests de `CuentaServiceTest` sin modificar código de producción.
+
+Se agregaron **20 tests nuevos** para cubrir:
+
+- IDs nulos en cálculo de saldo, búsqueda, listado por perfil y operaciones de modificación/activación/desactivación/eliminación.
+- Parámetros nulos y cuentas inexistentes en las operaciones de modificación.
+- Activación, desactivación y eliminación con ID nulo o cuenta inexistente.
+
+`CuentaServiceTest`: **40/40 tests en verde**.
+
+Batería general: **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+`BUILD SUCCESS`.
+
+Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
+
+El commit de código fue publicado en `main` de GitHub y Bitbucket.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
