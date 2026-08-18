@@ -26,17 +26,17 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 037 — Ampliación de cobertura de MonedaService**.
+El último bloque trabajado es **Build 038 — Ampliación de cobertura de PerfilFinancieroService**.
 
-Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
+Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
 
-La batería general quedó en **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 18:52:19 -03:00.
+La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
 
 ## Commit actual de código
 
-El commit de código de Build 037 ya fue registrado y publicado:
+El commit de código de Build 038 ya fue registrado y publicado:
 
-- `2d124f6` — `test: ampliar cobertura de MonedaService`
+- `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`
 
 Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
@@ -89,7 +89,7 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **210/210 tests en verde**.
+La batería general confirmada actualmente es de **217/217 tests en verde**.
 
 Clases de servicio y cantidad actual de tests:
 
@@ -98,16 +98,16 @@ Clases de servicio y cantidad actual de tests:
 - `InstitucionFinancieraServiceTest`: **23**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
-- `PerfilFinancieroServiceTest`: **6**
+- `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **5**
 
-Total de tests de services: **140**.
+Total de tests de services: **147**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Git
 
-El último commit de código confirmado en `main` es `2d124f6` — `test: ampliar cobertura de MonedaService`.
+El último commit de código confirmado en `main` es `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
 
 El commit fue publicado tanto en GitHub como en Bitbucket y el working tree quedó limpio después de `git pushall`.
 

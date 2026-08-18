@@ -4,6 +4,16 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-18
 
+### Build 038 — Ampliación de cobertura de PerfilFinancieroService
+
+- Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
+- Se incorporaron **7 tests nuevos**, cubriendo validaciones de parámetros nulos, búsquedas inexistentes y operaciones sobre perfiles inexistentes.
+- La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- La ejecución general finalizó a las 19:27:39 -03:00.
+- Commit: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ### Build 037 — Ampliación de cobertura de MonedaService
 
 - Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
@@ -51,9 +61,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 037**. Se amplió la cobertura de pruebas de `MonedaService` y la batería general quedó en **210/210 tests en verde**.
+El último bloque confirmado es el **Build 038**. Se amplió la cobertura de pruebas de `PerfilFinancieroService` y la batería general quedó en **217/217 tests en verde**.
 
-El último commit de código confirmado continúa siendo `bd7f4bd`. El commit de código de Build 037 queda pendiente de verificar y registrar.
+El último commit de código confirmado es `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 

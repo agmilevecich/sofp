@@ -28,13 +28,13 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 18/08/2026
 
-Último Build: **Build 037 — Ampliación de cobertura de MonedaService**.
+Último Build: **Build 038 — Ampliación de cobertura de PerfilFinancieroService**.
 
 Último commit de código confirmado:
 
-- `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`
+- `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`
 
-Build 037 amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
+Build 038 amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
 
 Resultado:
 
@@ -43,18 +43,18 @@ Resultado:
 - `InstitucionFinancieraServiceTest`: **23**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
-- `PerfilFinancieroServiceTest`: **6**
+- `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **5**
-- Total de tests de services: **140**.
-- Batería general: **210/210 tests en verde**.
+- Total de tests de services: **147**.
+- Batería general: **217/217 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - BUILD SUCCESS.
 
-La ejecución general de Build 037 finalizó el 18/08/2026 a las 18:52:19 -03:00.
+La ejecución general de Build 038 finalizó el 18/08/2026 a las 19:27:39 -03:00.
 
-El commit específico de código de Build 037 todavía no está registrado. No se debe inventar un SHA hasta verificar el estado local de Git.
+El commit de código de Build 038 ya está registrado y publicado: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
 
 ## Build 037
 

@@ -4,17 +4,19 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
-### Build 037 — Ampliación de cobertura de MonedaService
+### Build 038 — Ampliación de cobertura de PerfilFinancieroService
 
-Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
+Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
 
-Se revisaron `MonedaService`, `Moneda` y `MonedaRepository` para mantener la cobertura alineada con el comportamiento real del servicio.
+Se revisaron `PerfilFinancieroService`, `PerfilFinanciero` y `PerfilFinancieroRepository` para mantener la cobertura alineada con el comportamiento real del servicio.
 
-La batería general quedó en **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 18:52:19 -03:00.
+La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
 
-El commit específico de código de Build 037 todavía no está registrado.
+Commit asociado:
+
+- `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`
 
 ### Build 036 — Ampliación de cobertura de InstitucionFinancieraService
 
@@ -67,12 +69,12 @@ Commit asociado:
 - `InstitucionFinancieraServiceTest`: **23**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
-- `PerfilFinancieroServiceTest`: **6**
+- `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **5**
 
-Total de tests de services: **140**.
+Total de tests de services: **147**.
 
-La batería general del proyecto es de **210/210 tests en verde**.
+La batería general del proyecto es de **217/217 tests en verde**.
 
 ## Histórico de cobertura
 

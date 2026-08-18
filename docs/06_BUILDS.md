@@ -251,6 +251,22 @@ El commit específico de código de este Build todavía no está registrado; que
 
 La documentación específica quedó registrada en `docs/01-builds/Build-037.md`.
 
+
+
+## Build 038 — Ampliación de cobertura de PerfilFinancieroService
+
+Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
+
+Se incorporaron **7 tests nuevos**, cubriendo validaciones de parámetros nulos, búsquedas inexistentes y operaciones de modificación, activación y desactivación sobre perfiles inexistentes.
+
+La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
+
+Commit: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
+
+El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
