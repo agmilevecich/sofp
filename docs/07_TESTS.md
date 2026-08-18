@@ -4,6 +4,22 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 036 — Ampliación de cobertura de InstitucionFinancieraService
+
+Se ampliaron los tests de `InstitucionFinancieraServiceTest` sin modificar código de producción.
+
+Se agregaron **15 tests**, cubriendo validaciones de parámetros nulos, búsquedas inexistentes y operaciones de modificación, activación y desactivación sobre instituciones inexistentes.
+
+`InstitucionFinancieraServiceTest` quedó con **23/23 tests en verde**.
+
+La batería general quedó en **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` y `git diff --check` no reportó errores de whitespace.
+
+Commit asociado:
+
+- `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`
+
 ### Build 035 — Ampliación de cobertura de CuentaService
 
 Se ampliaron los tests de `CuentaServiceTest` sin modificar código de producción.
@@ -36,6 +52,20 @@ Commit asociado:
 
 - `4d9dc2a` — `test: ampliar cobertura de MovimientoService`
 
+## Conteo actual por test de service
+
+- `CategoriaServiceTest`: **12**
+- `CuentaServiceTest`: **40**
+- `InstitucionFinancieraServiceTest`: **23**
+- `MonedaServiceTest`: **8**
+- `MovimientoServiceTest`: **37**
+- `PerfilFinancieroServiceTest`: **6**
+- `UsuarioServiceTest`: **5**
+
+Total de tests de services: **131**.
+
+La batería general del proyecto es de **201/201 tests en verde**.
+
 ## Builds recientes
 
 ### Build 033
@@ -56,7 +86,7 @@ Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 035 con **186 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 036 con **201 tests en verde**.
 
 ## Regla de cierre
 
