@@ -26,21 +26,21 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 035 — Ampliación de cobertura de CuentaService**.
+El último bloque trabajado es **Build 036 — Ampliación de cobertura de InstitucionFinancieraService**.
 
-El Build 034 había ampliado exclusivamente la cobertura de `MovimientoServiceTest` y el Build 035 continúa esa línea ampliando la cobertura de `CuentaServiceTest`, sin modificar código de producción.
+El Build 035 había ampliado la cobertura de `CuentaServiceTest` y el Build 036 continúa esa línea ampliando la cobertura de `InstitucionFinancieraServiceTest`, sin modificar código de producción.
 
-En `CuentaServiceTest` se agregaron **20 tests**, llevando la clase a **40/40 tests en verde**.
+En `InstitucionFinancieraServiceTest` se agregaron **15 tests**, llevando la clase a **23/23 tests en verde**.
 
-La batería general quedó en **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS`.
+La batería general quedó en **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS`.
 
-También se ejecutó `git diff --check`, sin errores de whitespace.
+También se ejecutó `git diff --check`, sin errores de whitespace. Las líneas en blanco accidentales que aparecieron en `InstitucionFinancieraService.java` fueron descartadas antes del commit, por lo que el commit de Build 036 contiene únicamente cambios de tests.
 
 ## Commit actual de código
 
-- `57b8ad5` — `test: ampliar cobertura de CuentaService`
+- `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`
 
-Este commit contiene únicamente la ampliación de `CuentaServiceTest` y está publicado en `main` de GitHub y Bitbucket.
+Este commit contiene la ampliación de `InstitucionFinancieraServiceTest` y está publicado en `main` de GitHub y Bitbucket.
 
 ## Dominio construido
 
@@ -91,17 +91,23 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **186/186 tests en verde**.
+La batería general confirmada actualmente es de **201/201 tests en verde**.
 
-`CuentaServiceTest` cuenta con **40/40 tests en verde**.
+Clases de servicio y cantidad actual de tests:
 
-`MovimientoServiceTest` cuenta con **32/32 tests en verde**.
+- `CategoriaServiceTest`: **12**
+- `CuentaServiceTest`: **40**
+- `InstitucionFinancieraServiceTest`: **23**
+- `MonedaServiceTest`: **8**
+- `MovimientoServiceTest`: **37**
+- `PerfilFinancieroServiceTest`: **6**
+- `UsuarioServiceTest`: **5**
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Git
 
-El trabajo de código más reciente está en `main` mediante el commit `57b8ad5`.
+El trabajo de código más reciente está en `main` mediante el commit `bd7f4bd`.
 
 La documentación de continuidad se actualiza en `docs/continuidad-sofp`.
 
