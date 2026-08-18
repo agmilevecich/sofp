@@ -34,17 +34,23 @@ Para pruebas JPA existe una infraestructura separada mediante `JpaTestManager` y
 
 ## Estado funcional actual
 
-El último bloque funcional trabajado es **Build 032 — Eliminación en CuentaService**.
+El último bloque funcional trabajado es **Build 033 — Reglas de negocio de Movimiento**.
 
-Se incorporó `CuentaService.eliminar(Long cuentaId)` para completar la eliminación de cuentas desde la capa de servicio. La operación valida el ID, verifica la existencia mediante `obtenerCuenta(...)`, inicia una transacción explícita, delega la eliminación en `CuentaRepository`, ejecuta `flush()` y `commit()`, y realiza `rollback()` ante excepciones.
+Se incorporaron en `MovimientoService` tres reglas de negocio para asegurar la coherencia entre `Movimiento`, `Cuenta`, `Categoria` y `PerfilFinanciero`:
 
-`CuentaServiceTest` fue ampliado con `deberiaEliminarCuentaExistente()` y `deberiaLanzarExcepcionCuandoSeEliminaUnaCuentaInexistente()`.
+1. Al registrar un movimiento, `Cuenta` y `Categoria` deben pertenecer al mismo `PerfilFinanciero`.
+2. No se pueden registrar movimientos en una cuenta desactivada.
+3. No se puede cambiar un movimiento a una categoría perteneciente a otro perfil financiero.
 
-La batería general quedó en **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La validación contextual entre cuenta, categoría y perfil financiero se mantiene en `MovimientoService`, donde se reutiliza el método privado `validarPerfilFinanciero(...)`.
+
+`MovimientoServiceTest` quedó con **18/18 tests en verde**.
+
+La batería general quedó en **144/144 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
 También se ejecutó `git diff --check`, sin errores de formato.
 
-El commit de código del Build 032 es `a1a817d` — `feat: completar eliminacion de CuentaService`.
+El commit de código del Build 033 es `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
@@ -98,33 +104,37 @@ La capa `service` actualmente contiene:
 
 `CuentaService` recibe `CuentaRepository`, `MovimientoRepository` y `EntityManager` por constructor y proporciona operaciones de registro, búsqueda, listado, saldo, modificación, activación/desactivación y eliminación de cuentas. La eliminación valida la existencia y utiliza una transacción explícita con `flush()`, `commit()` y `rollback()` ante excepciones.
 
-`MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona las operaciones de registro, búsqueda, listado, modificación y eliminación de movimientos.
+`MovimientoService` recibe `EntityManager` y `MovimientoRepository` por constructor y proporciona operaciones de registro, búsqueda, listado, modificación y eliminación de movimientos. Desde Build 033 también centraliza reglas de coherencia entre cuenta, categoría y perfil financiero y rechaza movimientos sobre cuentas desactivadas.
 
 `CategoriaService` recibe `CategoriaRepository` y `EntityManager` y proporciona registro, búsqueda, listados, modificaciones, activación/desactivación y eliminación de categorías. Las operaciones transaccionales utilizan `begin`, modificación, `flush`, `commit` y `rollback()` ante excepciones.
 
 ## Tests
 
-La batería general confirmada actualmente es de **141/141 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general confirmada actualmente es de **144/144 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-`CuentaRepositoryTest` cubre ahora guardar/buscar, listados, actualización y eliminación de cuentas.
+`CuentaRepositoryTest` cubre guardar/buscar, listados, actualización y eliminación de cuentas.
 
 `CuentaServiceTest` cubre registro, búsqueda, listados, saldo, modificaciones, activación/desactivación, eliminación y validación de eliminación de cuenta inexistente.
 
 `CategoriaServiceTest` cubre registro, búsqueda, listados, modificaciones, activación/desactivación, eliminación y validación de eliminación de categoría inexistente.
 
+`MovimientoServiceTest` cubre registro, búsqueda, listados, modificaciones, eliminación y las reglas de negocio incorporadas en Build 033.
+
 ## Estado de Git
 
-El commit de referencia del Build 032 es:
+El commit de referencia del Build 033 es:
 
-- `a1a817d` — `feat: completar eliminacion de CuentaService`
+- `b18ca96` — `feat: agregar reglas de negocio a movimientos`
 
 El commit fue publicado en `main` de GitHub y Bitbucket.
 
-La rama `docs/continuidad-sofp` contiene la actualización documental correspondiente al Build 032.
+La documentación de continuidad registra el estado correspondiente al Build 033.
 
 ## Próximo paso
 
 Definir el siguiente bloque funcional antes de implementar código nuevo, revisando los casos de uso pendientes del dominio y determinando si corresponde continuar con otra pieza de `service` o persistencia.
+
+No comenzar otro bloque de código hasta definir claramente su objetivo y los tests que deben cubrirlo.
 
 ## Regla de continuidad
 
