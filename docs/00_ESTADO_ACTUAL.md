@@ -34,11 +34,11 @@ La batería general quedó en **210/210 tests en verde**, con `Failures: 0`, `Er
 
 ## Commit actual de código
 
-El último commit de código confirmado continúa siendo:
+El commit de código de Build 037 ya fue registrado y publicado:
 
-- `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`
+- `2d124f6` — `test: ampliar cobertura de MonedaService`
 
-El commit específico de los cambios de `MonedaServiceTest` todavía no está registrado y no se debe asociar un SHA hasta verificarlo.
+Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
 ## Dominio construido
 
@@ -107,15 +107,17 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 ## Git
 
-El trabajo de código más reciente confirmado en `main` es `bd7f4bd`.
+El último commit de código confirmado en `main` es `2d124f6` — `test: ampliar cobertura de MonedaService`.
 
-La documentación de continuidad de Build 037 fue actualizada directamente en la rama `docs/continuidad-sofp`.
+El commit fue publicado tanto en GitHub como en Bitbucket y el working tree quedó limpio después de `git pushall`.
+
+La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Verificar el estado local de Git de los cambios de `MonedaServiceTest`, ejecutar las comprobaciones finales y registrar el commit de código si corresponde.
+Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-Después, continuar con la definición del siguiente bloque funcional antes de implementar código nuevo.
+No hay cambios de código pendientes de publicar en Build 037.
 
 ## Regla de continuidad
 
