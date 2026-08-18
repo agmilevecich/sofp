@@ -317,4 +317,157 @@ class InstitucionFinancieraServiceTest {
 
         assertTrue(actualizada.isActiva());
     }
+
+    @Test
+    void debeLanzarExcepcionAlGuardarInstitucionNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.guardar(null)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlBuscarPorIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.buscarPorId(null)
+        );
+    }
+
+    @Test
+    void debeDevolverVacioAlBuscarPorIdInexistente() {
+
+        assertTrue(
+                service.buscarPorId(999999L).isEmpty()
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlBuscarPorNombreNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.buscarPorNombre(null)
+        );
+    }
+
+    @Test
+    void debeDevolverVacioAlBuscarPorNombreInexistente() {
+
+        assertTrue(
+                service.buscarPorNombre(
+                        "Institución inexistente"
+                ).isEmpty()
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlRenombrarConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.renombrar(
+                        null,
+                        "Nuevo Nombre"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlRenombrarInstitucionInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.renombrar(
+                        999999L,
+                        "Nuevo Nombre"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActualizarSitioWebConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.actualizarSitioWeb(
+                        null,
+                        "https://www.test.com"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActualizarSitioWebDeInstitucionInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.actualizarSitioWeb(
+                        999999L,
+                        "https://www.test.com"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActualizarDescripcionConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.actualizarDescripcion(
+                        null,
+                        "Descripción de prueba"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActualizarDescripcionDeInstitucionInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.actualizarDescripcion(
+                        999999L,
+                        "Descripción de prueba"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActivarConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.activar(null)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActivarInstitucionInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.activar(999999L)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlDesactivarConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.desactivar(null)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlDesactivarInstitucionInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.desactivar(999999L)
+        );
+    }
 }
