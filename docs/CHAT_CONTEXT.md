@@ -1,20 +1,12 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-Este archivo es el punto de entrada para continuar el proyecto SOFP en una nueva conversación. La fuente permanente de verdad es el repositorio, Git, la documentación y los tests; los chats son sesiones de trabajo.
-
-## Cómo usarlo
-
-Al iniciar una nueva conversación sobre SOFP, indicar:
-
-> Vamos a continuar el proyecto SOFP. Usa `docs/CHAT_CONTEXT.md` como contexto principal y revisa también `docs/00_ESTADO_ACTUAL.md`.
-
-Luego trabajar sobre el estado real del repositorio y no sobre recuerdos de conversaciones anteriores.
+Este archivo es el punto de entrada para continuar el proyecto SOFP en una nueva conversación. La fuente permanente de verdad es el repositorio, Git, la documentación y los tests.
 
 ## Proyecto
 
 SOFP — Sistema Operativo Financiero Personal.
 
-Aplicación Java de finanzas personales, desarrollada progresivamente con dominio sólido, persistencia JPA, servicios transaccionales y tests automatizados.
+Aplicación Java de finanzas personales, desarrollada progresivamente con dominio, persistencia JPA, servicios transaccionales y tests automatizados.
 
 ## Tecnologías
 
@@ -34,173 +26,56 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 - Rama principal de trabajo: `main`
 - Rama de documentación/continuidad: `docs/continuidad-sofp`
 
-El código del Build 033 fue publicado en `main` de GitHub y Bitbucket. Esta actualización de continuidad se registra en `docs/continuidad-sofp`.
-
 ## Estado actual — 18/08/2026
 
-Último Build funcional confirmado: **Build 033 — Reglas de negocio de Movimiento**.
+Último Build: **Build 034 — Ampliación de cobertura de MovimientoService**.
 
 Último commit de código:
 
-- `b18ca96` — `feat: agregar reglas de negocio a movimientos`
+- `4d9dc2a` — `test: ampliar cobertura de MovimientoService`
 
-La batería general actual es de **144/144 tests en verde**, con:
+El Build 034 agregó **17 tests** a `MovimientoServiceTest`.
 
-- Failures: 0
-- Errors: 0
-- Skipped: 0
-- BUILD SUCCESS
+Resultado:
 
-`MovimientoServiceTest` quedó con **18/18 tests en verde**.
+- `MovimientoServiceTest`: **32/32 tests en verde**.
+- Batería general: **163/163 tests en verde**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- BUILD SUCCESS.
 
-Se ejecutó `git diff --check` sin errores antes del commit.
+`git diff --check` no reportó errores.
 
-El commit `b18ca96` fue publicado mediante `git pushall` en:
+## Build 034
 
-- GitHub `main`: `7e2f4cf` → `b18ca96`
-- Bitbucket `main`: `7e2f4cf` → `b18ca96`
+El objetivo fue ampliar la cobertura de `MovimientoService` sin modificar código de producción.
 
-## Build 033 — Reglas de negocio de Movimiento
+Se cubrieron:
 
-### Objetivo
+- IDs nulos en búsqueda, listados, modificaciones y eliminación.
+- Descripción, categoría, tipo, importe y fecha/hora nulos.
+- Búsqueda de movimientos inexistentes.
+- Modificación de tipo, importe y fecha/hora de movimientos inexistentes.
+- Eliminación de movimientos inexistentes.
 
-Incorporar reglas de negocio que aseguren la coherencia entre `Movimiento`, `Cuenta`, `Categoria` y `PerfilFinanciero`, evitando movimientos inconsistentes.
+La documentación específica quedó registrada en `docs/01-builds/Build-034.md`.
 
-### Regla 033.1 — Cuenta y Categoría del mismo Perfil Financiero
+## Build 033
 
-Al registrar un movimiento, `Cuenta` y `Categoria` deben pertenecer al mismo `PerfilFinanciero`.
-
-Se incorporó en `MovimientoService` el método privado:
-
-- `validarPerfilFinanciero(Cuenta cuenta, Categoria categoria)`.
-
-La validación compara los IDs de los perfiles financieros mediante `Objects.equals(...)` y lanza `IllegalArgumentException` cuando son diferentes.
-
-`registrar(...)` ejecuta esta validación antes de crear el `Movimiento`.
-
-Test incorporado:
-
-- `deberiaRechazarMovimientoCuandoCuentaYCategoriaPertenecenADistintosPerfiles()`.
-
-El test crea dos usuarios, dos perfiles, una cuenta del primer perfil y una categoría del segundo perfil y verifica que el registro sea rechazado.
-
-### Regla 033.2 — No registrar movimientos en cuentas desactivadas
-
-`MovimientoService.registrar(...)` ahora verifica `cuenta.isActiva()`.
-
-Si la cuenta está desactivada, lanza:
-
-`IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada")`.
-
-Test incorporado:
-
-- `deberiaRechazarMovimientoCuandoLaCuentaEstaDesactivada()`.
-
-El test utiliza `cuenta.desactivar()` y verifica que el registro sea rechazado.
-
-### Regla 033.3 — No cambiar a una categoría de otro perfil
-
-`MovimientoService.cambiarCategoria(...)` ahora valida que la nueva categoría pertenezca al mismo perfil financiero que la cuenta asociada al movimiento.
-
-Se reutiliza `validarPerfilFinanciero(...)` con:
-
-- `movimiento.getCuenta()`
-- nueva `categoria`
-
-Test incorporado:
-
-- `deberiaRechazarCambioDeCategoriaCuandoPerteneceAOtroPerfil()`.
-
-El test primero registra un movimiento válido con una categoría del mismo perfil y luego intenta cambiarlo a una categoría de otro perfil.
-
-### Resultado
-
-`MovimientoServiceTest`: **18/18 tests en verde**.
-
-Batería general: **144/144 tests en verde**.
-
-### Commit asociado
-
-- `b18ca96` — `feat: agregar reglas de negocio a movimientos`
-
-Publicado en GitHub y Bitbucket.
-
-## Decisión de dominio del Build 033
-
-Se decidió que estas tres reglas forman parte de las reglas de negocio de `Movimiento`:
+El Build 033 incorporó tres reglas de negocio en `MovimientoService`:
 
 1. Cuenta y Categoría deben pertenecer al mismo Perfil Financiero.
 2. No se puede registrar un movimiento sobre una Cuenta desactivada.
-3. No se puede cambiar la Categoría de un Movimiento por una categoría perteneciente a otro Perfil Financiero.
+3. No se puede cambiar la Categoría de un Movimiento por una categoría de otro Perfil Financiero.
 
-La validación que involucra varias entidades se mantiene en `MovimientoService`, no en el constructor de `Movimiento`, porque corresponde a una regla de negocio contextual y el servicio dispone del contexto necesario para comprobar las relaciones.
+Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
-## Consideración de tests y H2
-
-Los nuevos tests que necesitan una moneda ARS reutilizan la moneda existente mediante una consulta JPQL:
-
-`SELECT m FROM Moneda m WHERE m.codigo = :codigo`
-
-Esto evita intentar insertar repetidamente `ARS`, cuyo código tiene restricción de unicidad en `MONEDAS(CODIGO)`.
-
-Este problema había aparecido como `ConstraintViolationException` de H2 por duplicación de `ARS` y quedó resuelto en los tests nuevos mediante la reutilización de la moneda existente.
-
-## Builds recientes
-
-- Build 023 — Ampliación de `CuentaService`.
-- Build 024 — Ampliación de `MovimientoService`.
-- Build 025 — Ampliación de `Movimiento` y nuevas operaciones de `MovimientoService`.
-- Build 026 — Eliminación de `Movimiento` desde repository y service.
-- Build 027 — Ampliación de `CuentaService` con modificaciones y activación/desactivación.
-- Cobertura posterior al Build 027 — test específico de eliminación de `MovimientoService`.
-- Build 028 — Ampliación de `CategoriaService`.
-- Build 029 — Eliminación en `CategoriaRepository`.
-- Build 030 — Eliminación en `CategoriaService`.
-- Build 031 — Eliminación en `CuentaRepository`.
-- Build 032 — Eliminación en `CuentaService`.
-- Build 033 — Reglas de negocio de `Movimiento`.
-
-## Builds 029–032
-
-### Build 029 — Eliminación en CategoriaRepository
-
-Se incorporó `CategoriaRepository.eliminar(Categoria categoria)`, comprobando gestión de la entidad con `EntityManager.contains(...)`, utilizando `merge(...)` cuando corresponde y ejecutando `remove(...)` sobre la instancia gestionada.
-
-Resultado: **136/136 tests en verde**.
-
-Commit: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
-
-### Build 030 — Eliminación en CategoriaService
-
-Se incorporó `CategoriaService.eliminar(Long categoriaId)` con validación, búsqueda, transacción explícita, `flush`, `commit` y `rollback`.
-
-Se agregaron tests para eliminación existente e inexistente.
-
-Resultado: **138/138 tests en verde**.
-
-Commit: `59b9628` — `feat: completar eliminacion de CategoriaService`.
-
-### Build 031 — Eliminación en CuentaRepository
-
-Se incorporó `CuentaRepository.eliminar(Cuenta cuenta)` siguiendo el patrón JPA de los repositorios anteriores.
-
-Resultado: **139/139 tests en verde**.
-
-Commit: `40768d3` — `feat: completar eliminacion de CuentaRepository`.
-
-### Build 032 — Eliminación en CuentaService
-
-Se incorporó `CuentaService.eliminar(Long cuentaId)` con validación, búsqueda, transacción explícita, delegación a repository, `flush`, `commit` y `rollback`.
-
-Se agregaron tests para eliminación existente e inexistente.
-
-Resultado: **141/141 tests en verde**.
-
-Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
+Resultado al cerrar ese Build: **144/144 tests en verde**.
 
 ## Dominio actual
 
-Entidades principales conocidas:
+Entidades principales:
 
 - Usuario
 - PerfilFinanciero
@@ -210,102 +85,66 @@ Entidades principales conocidas:
 - Categoria
 - Movimiento
 
-Enumeraciones conocidas:
+Enumeraciones:
 
 - TipoInstitucionFinanciera
 - TipoMoneda
 - TipoCuenta
 - TipoMovimiento
 
-La estructura Java actual utiliza el paquete `ar.com.agmilevecich.sofp.domain` para las entidades del dominio.
-
 ## Persistencia
 
 Repositorios JPA conocidos:
 
-- `UsuarioRepository`
-- `PerfilFinancieroRepository`
-- `InstitucionFinancieraRepository`
-- `MonedaRepository`
-- `CuentaRepository`
-- `MovimientoRepository`
-- `CategoriaRepository`
+- UsuarioRepository
+- PerfilFinancieroRepository
+- InstitucionFinancieraRepository
+- MonedaRepository
+- CuentaRepository
+- MovimientoRepository
+- CategoriaRepository
 
-`CuentaRepository` permite guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar cuentas.
-
-`MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
-
-`CategoriaRepository` proporciona guardar, buscar por ID, listar todas, listar por perfil financiero y eliminar categorías.
+`MovimientoRepository` permite guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
 ## Services
 
 La capa `service` contiene actualmente:
 
-- `CuentaService`
-- `MovimientoService`
-- `CategoriaService`
-- `PerfilFinancieroService`
-- `UsuarioService`
-- `InstitucionFinancieraService`
-- `MonedaService`
+- CuentaService
+- MovimientoService
+- CategoriaService
+- PerfilFinancieroService
+- UsuarioService
+- InstitucionFinancieraService
+- MonedaService
 
-`MovimientoService` utiliza `EntityManager` y `MovimientoRepository` y mantiene transacciones explícitas para registro, modificaciones y eliminación. Desde Build 033 también centraliza la validación de coherencia entre cuenta, categoría y perfil financiero.
-
-`CategoriaService` utiliza `EntityManager` y `CategoriaRepository` y mantiene el patrón transaccional para registro, modificaciones, activación/desactivación y eliminación.
-
-`CuentaService` cubre registro, búsqueda, listados, saldo, modificaciones, activación/desactivación y eliminación.
-
-## Movimiento
-
-`Movimiento` representa un movimiento financiero asociado a una `Cuenta` y una `Categoria`.
-
-Campos relevantes:
-
-- cuenta
-- categoria
-- tipoMovimiento
-- importe
-- fechaHora
-- descripcion
-- observaciones
-
-`TipoMovimiento` contiene `INGRESO` y `EGRESO`.
-
-El importe se valida como positivo mediante `Validaciones.importePositivo`.
-
-`Movimiento` permite modificar tipo de movimiento, importe, fecha/hora, descripción, observaciones y categoría.
+`MovimientoService` utiliza `EntityManager` y `MovimientoRepository`, mantiene transacciones explícitas y centraliza las reglas contextuales de cuenta, categoría y perfil financiero.
 
 ## Tests
 
-La batería general actual está en **144/144 tests en verde**.
+La batería general actual está en **163/163 tests en verde**.
 
-La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y `create-drop`. En los tests de servicios se cierra `JpaTestManager` en `tearDown()` para garantizar el aislamiento de la base entre tests.
+La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Próximo paso
 
-El Build 033 está cerrado y publicado. Antes de implementar el siguiente Build, revisar los casos de uso pendientes del dominio y definir la siguiente pieza funcional de forma incremental.
+Sincronizar la documentación y el código con los remotos y, antes de implementar el siguiente Build, revisar los casos de uso pendientes del dominio y definir la próxima pieza funcional.
 
 No comenzar otro bloque de código hasta definir claramente su objetivo y los tests que deben cubrirlo.
 
 ## Forma de trabajo acordada
 
-Trabajar por Builds pequeños y verificables:
-
-1. Explicar qué vamos a construir.
+1. Definir qué vamos a construir.
 2. Implementar una pieza concreta.
-3. Ejecutar los tests correspondientes.
+3. Ejecutar tests.
 4. Confirmar que quedan en verde.
-5. Revisar que no se rompa lo anterior.
+5. Revisar regresiones.
 6. Registrar el Build.
 7. Hacer commit.
 8. Actualizar documentación.
 9. Definir el siguiente paso.
 
-No avanzar acumulando cambios sin verificar.
-
-## Regla permanente sobre la fuente de verdad
-
-La conversación de ChatGPT NO es la fuente permanente de verdad del proyecto.
+## Fuente de verdad
 
 La fuente permanente es:
 
@@ -315,19 +154,6 @@ La fuente permanente es:
 4. Tests automatizados.
 
 Los chats son sesiones de trabajo que consultan y actualizan esa fuente.
-
-## Al comenzar una nueva sesión
-
-Primero comprobar:
-
-- Estado actual.
-- Último commit.
-- Último Build.
-- Tests existentes.
-- Decisiones importantes.
-- Pendientes.
-
-Después continuar desde ahí.
 
 ## Al cerrar una sesión
 
