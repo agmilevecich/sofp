@@ -205,4 +205,119 @@ class MonedaServiceTest {
         assertEquals("EUR", guardada.getCodigo());
         assertEquals("Euro", guardada.getNombre());
     }
+
+    @Test
+    void debeLanzarExcepcionAlGuardarMonedaNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> monedaService.guardar(null)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlBuscarPorIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> monedaService.buscarPorId(null)
+        );
+    }
+
+    @Test
+    void debeDevolverVacioAlBuscarPorIdInexistente() {
+
+        assertTrue(
+                monedaService.buscarPorId(999999L).isEmpty()
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlBuscarPorCodigoNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> monedaService.buscarPorCodigo(null)
+        );
+    }
+
+    @Test
+    void debeDevolverVacioAlBuscarPorCodigoInexistente() {
+
+        assertTrue(
+                monedaService.buscarPorCodigo("XXX").isEmpty()
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlCambiarNombreConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> monedaService.cambiarNombre(
+                        null,
+                        "Nuevo nombre"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlCambiarNombreConNombreNulo() {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        monedaService.guardar(moneda);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> monedaService.cambiarNombre(
+                        moneda.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlCambiarDecimalesConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> monedaService.cambiarCantidadDecimales(
+                        null,
+                        4
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlCambiarDecimalesConCantidadNula() {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        monedaService.guardar(moneda);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> monedaService.cambiarCantidadDecimales(
+                        moneda.getId(),
+                        null
+                )
+        );
+    }
 }
