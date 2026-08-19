@@ -287,6 +287,32 @@ Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
+## Build 043 — Ampliación de cobertura de MovimientoService
+
+Se amplió `MovimientoServiceTest` sin modificar código de producción.
+
+`MovimientoServiceTest` pasó de **37 a 50 tests en verde**.
+
+La batería general pasó de **246 a 259 tests en verde**.
+
+Durante la ejecución inicial se detectaron dos expectativas incorrectas en tests de registro: `Movimiento` valida `importe` y `descripcion` mediante `Validaciones`, devolviendo `IllegalArgumentException` para valores nulos. Los tests fueron ajustados al contrato real del dominio.
+
+Resultado final:
+
+- Tests run: **259**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+
+La ejecución general terminó el **19/08/2026 a las 19:51:15 -03:00**.
+
+`git diff --check` no reportó errores de whitespace antes del commit.
+
+Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
