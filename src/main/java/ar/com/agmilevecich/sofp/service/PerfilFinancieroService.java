@@ -60,14 +60,18 @@ public class PerfilFinancieroService {
             Long perfilId,
             String descripcion) {
 
+        Objects.requireNonNull(
+                perfilId,
+                "El id del perfil financiero es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                descripcion,
+                "La descripción es obligatoria"
+        );
+
         PerfilFinanciero perfil =
-                perfilFinancieroRepository.buscarPorId(perfilId)
-                        .orElseThrow(
-                                () -> new IllegalArgumentException(
-                                        "No existe el perfil financiero con id: "
-                                                + perfilId
-                                )
-                        );
+                obtenerPorId(perfilId);
 
         perfil.cambiarDescripcion(descripcion);
 
@@ -76,14 +80,13 @@ public class PerfilFinancieroService {
 
     public PerfilFinanciero activar(Long perfilId) {
 
+        Objects.requireNonNull(
+                perfilId,
+                "El id del perfil financiero es obligatorio"
+        );
+
         PerfilFinanciero perfil =
-                perfilFinancieroRepository.buscarPorId(perfilId)
-                        .orElseThrow(
-                                () -> new IllegalArgumentException(
-                                        "No existe el perfil financiero con id: "
-                                                + perfilId
-                                )
-                        );
+                obtenerPorId(perfilId);
 
         perfil.activar();
 
@@ -92,17 +95,32 @@ public class PerfilFinancieroService {
 
     public PerfilFinanciero desactivar(Long perfilId) {
 
+        Objects.requireNonNull(
+                perfilId,
+                "El id del perfil financiero es obligatorio"
+        );
+
         PerfilFinanciero perfil =
-                perfilFinancieroRepository.buscarPorId(perfilId)
-                        .orElseThrow(
-                                () -> new IllegalArgumentException(
-                                        "No existe el perfil financiero con id: "
-                                                + perfilId
-                                )
-                        );
+                obtenerPorId(perfilId);
 
         perfil.desactivar();
 
         return perfilFinancieroRepository.guardar(perfil);
+    }
+
+    private PerfilFinanciero obtenerPorId(Long perfilId) {
+
+        Objects.requireNonNull(
+                perfilId,
+                "El id del perfil financiero es obligatorio"
+        );
+
+        return perfilFinancieroRepository.buscarPorId(perfilId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException(
+                                "No existe el perfil financiero con id: "
+                                        + perfilId
+                        )
+                );
     }
 }

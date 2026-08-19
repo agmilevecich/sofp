@@ -1,9 +1,9 @@
 package ar.com.agmilevecich.sofp.service;
 
+import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
-import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,19 +20,35 @@ class InstitucionFinancieraServiceTest {
 
     @BeforeEach
     void setUp() {
-        entityManager = JpaTestManager.createEntityManager();
+
+        entityManager =
+                JpaTestManager.createEntityManager();
 
         InstitucionFinancieraRepository repository =
-                new InstitucionFinancieraRepository(entityManager);
+                new InstitucionFinancieraRepository(
+                        entityManager
+                );
 
-        service = new InstitucionFinancieraService(repository);
+        service =
+                new InstitucionFinancieraService(
+                        repository
+                );
     }
 
     @AfterEach
     void tearDown() {
-        if (entityManager != null && entityManager.isOpen()) {
+
+        if (entityManager != null
+                && entityManager.isOpen()) {
+
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
             entityManager.close();
         }
+
+        JpaTestManager.close();
     }
 
     @Test
@@ -87,8 +103,9 @@ class InstitucionFinancieraServiceTest {
         entityManager.clear();
 
         InstitucionFinanciera encontrada =
-                service.buscarPorNombre("Banco Galicia")
-                        .orElseThrow();
+                service.buscarPorNombre(
+                        "Banco Galicia"
+                ).orElseThrow();
 
         assertEquals(
                 institucion.getId(),
@@ -121,14 +138,27 @@ class InstitucionFinancieraServiceTest {
         List<InstitucionFinanciera> instituciones =
                 service.listarTodas();
 
-        assertTrue(
-                instituciones.stream()
-                        .anyMatch(i -> i.getId().equals(primera.getId()))
+        assertEquals(
+                2,
+                instituciones.size()
         );
 
         assertTrue(
                 instituciones.stream()
-                        .anyMatch(i -> i.getId().equals(segunda.getId()))
+                        .anyMatch(
+                                i -> i.getId().equals(
+                                        primera.getId()
+                                )
+                        )
+        );
+
+        assertTrue(
+                instituciones.stream()
+                        .anyMatch(
+                                i -> i.getId().equals(
+                                        segunda.getId()
+                                )
+                        )
         );
     }
 
@@ -161,8 +191,9 @@ class InstitucionFinancieraServiceTest {
         entityManager.clear();
 
         InstitucionFinanciera actualizada =
-                service.buscarPorId(institucion.getId())
-                        .orElseThrow();
+                service.buscarPorId(
+                        institucion.getId()
+                ).orElseThrow();
 
         assertEquals(
                 "Nuevo Nombre",
@@ -199,8 +230,9 @@ class InstitucionFinancieraServiceTest {
         entityManager.clear();
 
         InstitucionFinanciera actualizada =
-                service.buscarPorId(institucion.getId())
-                        .orElseThrow();
+                service.buscarPorId(
+                        institucion.getId()
+                ).orElseThrow();
 
         assertEquals(
                 "https://www.bancoprovincia.com.ar",
@@ -237,8 +269,9 @@ class InstitucionFinancieraServiceTest {
         entityManager.clear();
 
         InstitucionFinanciera actualizada =
-                service.buscarPorId(institucion.getId())
-                        .orElseThrow();
+                service.buscarPorId(
+                        institucion.getId()
+                ).orElseThrow();
 
         assertEquals(
                 "Institución financiera de prueba",
@@ -265,17 +298,22 @@ class InstitucionFinancieraServiceTest {
 
         entityManager.getTransaction().begin();
 
-        service.desactivar(institucion.getId());
+        service.desactivar(
+                institucion.getId()
+        );
 
         entityManager.getTransaction().commit();
 
         entityManager.clear();
 
         InstitucionFinanciera actualizada =
-                service.buscarPorId(institucion.getId())
-                        .orElseThrow();
+                service.buscarPorId(
+                        institucion.getId()
+                ).orElseThrow();
 
-        assertFalse(actualizada.isActiva());
+        assertFalse(
+                actualizada.isActiva()
+        );
     }
 
     @Test
@@ -297,7 +335,9 @@ class InstitucionFinancieraServiceTest {
 
         entityManager.getTransaction().begin();
 
-        service.desactivar(institucion.getId());
+        service.desactivar(
+                institucion.getId()
+        );
 
         entityManager.getTransaction().commit();
 
@@ -305,17 +345,22 @@ class InstitucionFinancieraServiceTest {
 
         entityManager.getTransaction().begin();
 
-        service.activar(institucion.getId());
+        service.activar(
+                institucion.getId()
+        );
 
         entityManager.getTransaction().commit();
 
         entityManager.clear();
 
         InstitucionFinanciera actualizada =
-                service.buscarPorId(institucion.getId())
-                        .orElseThrow();
+                service.buscarPorId(
+                        institucion.getId()
+                ).orElseThrow();
 
-        assertTrue(actualizada.isActiva());
+        assertTrue(
+                actualizada.isActiva()
+        );
     }
 
     @Test
@@ -376,6 +421,32 @@ class InstitucionFinancieraServiceTest {
     }
 
     @Test
+    void debeLanzarExcepcionAlRenombrarConNombreNulo() {
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test Nombre Nulo",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        entityManager.getTransaction().begin();
+
+        service.guardar(institucion);
+
+        entityManager.getTransaction().commit();
+
+        entityManager.clear();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.renombrar(
+                        institucion.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
     void debeLanzarExcepcionAlRenombrarInstitucionInexistente() {
 
         assertThrows(
@@ -398,6 +469,7 @@ class InstitucionFinancieraServiceTest {
                 )
         );
     }
+
 
     @Test
     void debeLanzarExcepcionAlActualizarSitioWebDeInstitucionInexistente() {
@@ -468,6 +540,58 @@ class InstitucionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> service.desactivar(999999L)
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActualizarSitioWebConSitioWebNulo() {
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test Sitio Web Nulo",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        entityManager.getTransaction().begin();
+
+        service.guardar(institucion);
+
+        entityManager.getTransaction().commit();
+
+        entityManager.clear();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.actualizarSitioWeb(
+                        institucion.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActualizarDescripcionConDescripcionNula() {
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test Descripcion Nula",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        entityManager.getTransaction().begin();
+
+        service.guardar(institucion);
+
+        entityManager.getTransaction().commit();
+
+        entityManager.clear();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> service.actualizarDescripcion(
+                        institucion.getId(),
+                        null
+                )
         );
     }
 }

@@ -37,11 +37,22 @@ public class InstitucionFinanciera extends EntidadAuditable {
     /**
      * Constructor principal del dominio.
      */
-    public InstitucionFinanciera(String nombre,
-                                 TipoInstitucionFinanciera tipo) {
+    public InstitucionFinanciera(
+            String nombre,
+            TipoInstitucionFinanciera tipo) {
 
-        this.nombre = Objects.requireNonNull(nombre, "El nombre es obligatorio");
-        this.tipo = Objects.requireNonNull(tipo, "El tipo es obligatorio");
+        this.nombre =
+                Objects.requireNonNull(
+                        nombre,
+                        "El nombre es obligatorio"
+                );
+
+        this.tipo =
+                Objects.requireNonNull(
+                        tipo,
+                        "El tipo es obligatorio"
+                );
+
         this.activa = true;
     }
 
@@ -74,15 +85,30 @@ public class InstitucionFinanciera extends EntidadAuditable {
     // ===========================
 
     public void renombrar(String nuevoNombre) {
-        this.nombre = Objects.requireNonNull(nuevoNombre, "El nombre es obligatorio");
+
+        this.nombre =
+                Objects.requireNonNull(
+                        nuevoNombre,
+                        "El nombre es obligatorio"
+                );
     }
 
     public void actualizarSitioWeb(String sitioWeb) {
-        this.sitioWeb = sitioWeb;
+
+        this.sitioWeb =
+                Objects.requireNonNull(
+                        sitioWeb,
+                        "El sitio web es obligatorio"
+                );
     }
 
     public void actualizarDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+
+        this.descripcion =
+                Objects.requireNonNull(
+                        descripcion,
+                        "La descripción es obligatoria"
+                );
     }
 
     public void activar() {
@@ -101,5 +127,4 @@ public class InstitucionFinanciera extends EntidadAuditable {
                 ", activa=" + activa +
                 '}';
     }
-
 }

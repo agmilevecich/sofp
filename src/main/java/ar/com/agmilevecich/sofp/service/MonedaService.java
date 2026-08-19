@@ -12,6 +12,7 @@ public class MonedaService {
     private final MonedaRepository monedaRepository;
 
     public MonedaService(MonedaRepository monedaRepository) {
+
         this.monedaRepository =
                 Objects.requireNonNull(
                         monedaRepository,
@@ -20,6 +21,7 @@ public class MonedaService {
     }
 
     public Moneda guardar(Moneda moneda) {
+
         Objects.requireNonNull(
                 moneda,
                 "La moneda es obligatoria"
@@ -29,6 +31,7 @@ public class MonedaService {
     }
 
     public Optional<Moneda> buscarPorId(Long id) {
+
         Objects.requireNonNull(
                 id,
                 "El id es obligatorio"
@@ -38,6 +41,7 @@ public class MonedaService {
     }
 
     public Optional<Moneda> buscarPorCodigo(String codigo) {
+
         Objects.requireNonNull(
                 codigo,
                 "El código es obligatorio"
@@ -47,6 +51,7 @@ public class MonedaService {
     }
 
     public List<Moneda> listarTodas() {
+
         return monedaRepository.listarTodas();
     }
 
@@ -54,13 +59,19 @@ public class MonedaService {
             Long monedaId,
             String nuevoNombre) {
 
-        Moneda moneda = monedaRepository
-                .buscarPorId(monedaId)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(
-                                "No existe una moneda con id: " + monedaId
-                        )
-                );
+        Objects.requireNonNull(
+                monedaId,
+                "El id de la moneda es obligatorio"
+        );
+
+        Moneda moneda =
+                monedaRepository.buscarPorId(monedaId)
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "No existe una moneda con id: "
+                                                + monedaId
+                                )
+                        );
 
         moneda.cambiarNombre(nuevoNombre);
 
@@ -71,13 +82,19 @@ public class MonedaService {
             Long monedaId,
             Integer cantidadDecimales) {
 
-        Moneda moneda = monedaRepository
-                .buscarPorId(monedaId)
-                .orElseThrow(
-                        () -> new IllegalArgumentException(
-                                "No existe una moneda con id: " + monedaId
-                        )
-                );
+        Objects.requireNonNull(
+                monedaId,
+                "El id de la moneda es obligatorio"
+        );
+
+        Moneda moneda =
+                monedaRepository.buscarPorId(monedaId)
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "No existe una moneda con id: "
+                                                + monedaId
+                                )
+                        );
 
         moneda.cambiarCantidadDecimales(cantidadDecimales);
 
