@@ -28,43 +28,53 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 19/08/2026
 
-Último Build: **Build 040 — Ampliación de cobertura de CategoriaService**.
+Último Build: **Build 041 — Reforzamiento de validaciones de servicios y dominio**.
 
 Último commit de código confirmado:
 
-- `9be5972` — `test: ampliar cobertura de CategoriaService`
+- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
 
-Build 040 amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**, con 9 tests nuevos para cubrir validaciones de parámetros nulos. No se modificó código de producción.
+Build 041 reforzó validaciones de parámetros nulos en `InstitucionFinanciera`, `MonedaService` y `PerfilFinancieroService`, y amplió `InstitucionFinancieraServiceTest` de **23 a 26 tests en verde**.
 
 Resultado:
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **40**
-- `InstitucionFinancieraServiceTest`: **23**
+- `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
-- Total de tests de services: **166**.
-- Batería general: **236/236 tests en verde**.
+- Total de tests de services: **169**.
+- Batería general: **239/239 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - BUILD SUCCESS.
 
-La ejecución general de Build 040 finalizó el 19/08/2026 a las 11:28:34 -03:00.
+La ejecución general de Build 041 finalizó el 19/08/2026 a las 15:09:48 -03:00.
 
-El commit de código de Build 040 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+El commit de código de Build 041 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
+## Build 041
+
+Se reforzó `InstitucionFinanciera` para rechazar valores nulos en constructor y operaciones de modificación.
+
+En `MonedaService` se incorporó validación explícita de IDs nulos en `cambiarNombre(...)` y `cambiarCantidadDecimales(...)`.
+
+En `PerfilFinancieroService` se incorporaron validaciones explícitas de IDs y descripción y se centralizó la obtención de perfiles existentes mediante `obtenerPorId(...)`.
+
+`InstitucionFinancieraServiceTest` incorporó 3 tests nuevos para nombre nulo, sitio web nulo y descripción nula.
+
+La documentación específica quedó registrada en `docs/01-builds/Build-041.md`.
 
 ## Build 040
 
-Se amplió `CategoriaServiceTest` con 9 tests nuevos, cubriendo registro de categoría nula, búsqueda por ID nulo, listado por perfil financiero con ID nulo, modificación de nombre con ID nulo y nombre nulo, modificación de descripción con ID nulo, activación con ID nulo, desactivación con ID nulo y eliminación con ID nulo.
+Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**, con 9 tests nuevos para cubrir validaciones de parámetros nulos. No se modificó código de producción.
 
-El test de nombre nulo utiliza una categoría existente porque `CategoriaService.modificarNombre(...)` primero obtiene la categoría y luego valida el nuevo nombre.
+La batería general quedó en **236/236 tests en verde**.
 
-No se modificó `CategoriaService.java` ni ningún otro código de producción.
-
-La documentación específica quedó registrada en `docs/01-builds/Build-040.md`.
+Commit: `9be5972` — `test: ampliar cobertura de CategoriaService`.
 
 ## Build 039
 
@@ -157,19 +167,19 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La batería general actual está en **236/236 tests en verde**.
+La batería general actual está en **239/239 tests en verde**.
 
 Conteo actual de tests de services:
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **40**
-- `InstitucionFinancieraServiceTest`: **23**
+- `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total: **166 tests de services**.
+Total: **169 tests de services**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
@@ -177,7 +187,7 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-No hay cambios de código pendientes de publicar en Build 040.
+No hay cambios de código pendientes de publicar en Build 041.
 
 ## Forma de trabajo acordada
 
