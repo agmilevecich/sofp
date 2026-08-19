@@ -4,6 +4,24 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 039 — Ampliación de cobertura de UsuarioService
+
+Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**.
+
+Se incorporaron **10 tests nuevos**, cubriendo búsquedas inexistentes, listado vacío, parámetros nulos y operaciones de activación/desactivación sobre usuarios inexistentes.
+
+Se modificó `UsuarioService` para validar explícitamente IDs nulos en `activar(...)` y `desactivar(...)`.
+
+La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
+
+`git diff --check` no reportó errores de whitespace.
+
+Commit asociado:
+
+- `0e27dfe` — `test: ampliar cobertura de UsuarioService`
+
 ### Build 038 — Ampliación de cobertura de PerfilFinancieroService
 
 Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
@@ -70,15 +88,15 @@ Commit asociado:
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **5**
+- `UsuarioServiceTest`: **15**
 
-Total de tests de services: **147**.
+Total de tests de services: **157**.
 
-La batería general del proyecto es de **217/217 tests en verde**.
+La batería general del proyecto es de **227/227 tests en verde**.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 037 con **210 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 039 con **227 tests en verde**.
 
 ## Regla de cierre
 
