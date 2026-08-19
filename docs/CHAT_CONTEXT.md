@@ -28,13 +28,13 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 19/08/2026
 
-Último Build: **Build 042 — Ampliación de cobertura de CuentaService**.
+Último Build: **Build 043 — Ampliación de cobertura de MovimientoService**.
 
 Último commit de código confirmado:
 
-- `526b378` — `test: ampliar cobertura de CuentaService`
+- `b6384f0` — `test: ampliar cobertura de MovimientoService`
 
-Build 042 amplió `CuentaServiceTest` sin modificar código de producción, pasando de **40 a 47 tests en verde**.
+Build 043 amplió `MovimientoServiceTest` sin modificar código de producción, pasando de **37 a 50 tests en verde**.
 
 Resultado:
 
@@ -42,27 +42,37 @@ Resultado:
 - `CuentaServiceTest`: **47**
 - `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **37**
+- `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
-- Total de tests de services: **176**.
-- Batería general: **246/246 tests en verde**.
+- Total de tests de services: **189**.
+- Batería general: **259/259 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - BUILD SUCCESS.
 
-La ejecución general de Build 042 finalizó el 19/08/2026 a las 16:46:27 -03:00.
+La ejecución general de Build 043 finalizó el 19/08/2026 a las 19:51:15 -03:00.
 
-El commit de código de Build 042 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+El commit de código de Build 043 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
-## Build 042
+## Build 043
 
-Se amplió `CuentaServiceTest` con la cobertura acordada durante la revisión de `CuentaService`.
+Se amplió `MovimientoServiceTest` con la cobertura acordada durante la revisión de `MovimientoService`.
 
 No se modificó código de producción.
 
-La documentación específica quedó registrada en `docs/01-builds/Build-042.md`.
+Durante la ejecución inicial se corrigieron dos expectativas de excepción en tests de registro: `Movimiento` valida `importe` y `descripcion` mediante `Validaciones` y devuelve `IllegalArgumentException` para valores nulos.
+
+La documentación específica quedó registrada en `docs/01-builds/Build-043.md`.
+
+## Build 042
+
+Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**, sin modificar código de producción.
+
+La batería general quedó en **246/246 tests en verde**.
+
+Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
 
 ## Build 041
 
@@ -139,7 +149,7 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La batería general actual está en **246/246 tests en verde**.
+La batería general actual está en **259/259 tests en verde**.
 
 Conteo actual de tests de services:
 
@@ -147,11 +157,11 @@ Conteo actual de tests de services:
 - `CuentaServiceTest`: **47**
 - `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **37**
+- `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total: **176 tests de services**.
+Total: **189 tests de services**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
@@ -159,7 +169,7 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-No hay cambios de código pendientes de publicar en Build 042.
+No hay cambios de código pendientes de publicar en Build 043.
 
 ## Forma de trabajo acordada
 
