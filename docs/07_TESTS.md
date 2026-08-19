@@ -4,6 +4,26 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 040 — Ampliación de cobertura de CategoriaService
+
+Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**.
+
+Se incorporaron **9 tests nuevos**, cubriendo registro de categoría nula, búsqueda por ID nulo, listado por perfil financiero con ID nulo, modificación de nombre con ID nulo y nombre nulo, modificación de descripción con ID nulo, activación con ID nulo, desactivación con ID nulo y eliminación con ID nulo.
+
+El test de nombre nulo utiliza una categoría existente para respetar el orden real de validación de `CategoriaService.modificarNombre(...)`.
+
+No se modificó código de producción.
+
+La batería general quedó en **236/236 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 11:28:34 -03:00.
+
+`git diff --check` no reportó errores de whitespace.
+
+Commit asociado:
+
+- `9be5972` — `test: ampliar cobertura de CategoriaService`
+
 ### Build 039 — Ampliación de cobertura de UsuarioService
 
 Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**.
@@ -78,11 +98,11 @@ La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Er
 
 Commit asociado:
 
-- `4d9dc2a` — `test: ampliar cobertura de MovimientoService`
+- `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
 ## Conteo actual por test de service
 
-- `CategoriaServiceTest`: **12**
+- `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **40**
 - `InstitucionFinancieraServiceTest`: **23**
 - `MonedaServiceTest`: **17**
@@ -90,13 +110,13 @@ Commit asociado:
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total de tests de services: **157**.
+Total de tests de services: **166**.
 
-La batería general del proyecto es de **227/227 tests en verde**.
+La batería general del proyecto es de **236/236 tests en verde**.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 039 con **227 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 040 con **236 tests en verde**.
 
 ## Regla de cierre
 
