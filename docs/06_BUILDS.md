@@ -251,8 +251,6 @@ El commit específico de código de este Build todavía no está registrado; que
 
 La documentación específica quedó registrada en `docs/01-builds/Build-037.md`.
 
-
-
 ## Build 038 — Ampliación de cobertura de PerfilFinancieroService
 
 Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
@@ -264,6 +262,22 @@ La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Er
 La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
 
 Commit: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
+
+El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
+## Build 039 — Ampliación de cobertura de UsuarioService
+
+Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**.
+
+Se incorporaron **10 tests nuevos**, cubriendo búsquedas inexistentes, listado vacío, parámetros nulos y operaciones de activación/desactivación sobre usuarios inexistentes.
+
+En `UsuarioService` se incorporó validación explícita de IDs nulos en `activar(...)` y `desactivar(...)`, manteniendo un contrato consistente con el resto de la capa `service`.
+
+La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
+
+Commit: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
 
 El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
