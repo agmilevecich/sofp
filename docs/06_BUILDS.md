@@ -247,8 +247,6 @@ Batería general: **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `
 
 La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 18:52:19 -03:00.
 
-El commit específico de código de este Build todavía no está registrado; queda pendiente verificar y registrar el estado de Git antes de asociar un SHA.
-
 La documentación específica quedó registrada en `docs/01-builds/Build-037.md`.
 
 ## Build 038 — Ampliación de cobertura de PerfilFinancieroService
@@ -280,6 +278,26 @@ La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
 Commit: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
 
 El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
+## Build 040 — Ampliación de cobertura de CategoriaService
+
+Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**.
+
+Se incorporaron **9 tests nuevos** para cubrir validaciones de parámetros nulos en registro, búsqueda, listado por perfil, modificación de nombre y descripción, activación, desactivación y eliminación.
+
+El test de nombre nulo se ajustó para utilizar una categoría existente, respetando el orden real de validación de `CategoriaService.modificarNombre(...)`.
+
+No se modificó código de producción.
+
+La batería general quedó en **236/236 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 11:28:34 -03:00.
+
+Commit: `9be5972` — `test: ampliar cobertura de CategoriaService`.
+
+El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
+La documentación específica quedó registrada en `docs/01-builds/Build-040.md`.
 
 ## Regla de cierre
 
