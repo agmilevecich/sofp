@@ -24,23 +24,26 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 040: ampliación de cobertura de `CategoriaServiceTest`.
 - Build 041: reforzamiento de validaciones de servicios y dominio y ampliación de cobertura de `InstitucionFinancieraServiceTest`.
 - Build 042: ampliación de cobertura de `CuentaServiceTest`.
+- Build 043: ampliación de cobertura de `MovimientoServiceTest`.
 
-## Build 042
+## Build 043
 
-Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**, sin modificar código de producción.
+Se amplió `MovimientoServiceTest`, pasando de **37 a 50 tests en verde**, sin modificar código de producción.
 
-La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 16:46:27 -03:00.
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 19:51:15 -03:00.
 
-Commit de código: `526b378` — `test: ampliar cobertura de CuentaService`.
+Commit de código: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
+La documentación específica quedó registrada en `docs/01-builds/Build-043.md`.
+
 ## Estado de Git de referencia
 
-- Último commit de código confirmado: `526b378` — `test: ampliar cobertura de CuentaService`.
-- La documentación específica de Build 042 quedó registrada en `docs/01-builds/Build-042.md`.
+- Último commit de código confirmado: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
+- La documentación específica de Build 043 quedó registrada en `docs/01-builds/Build-043.md`.
 - La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
 
 ## Pendientes de arquitectura / evolución
