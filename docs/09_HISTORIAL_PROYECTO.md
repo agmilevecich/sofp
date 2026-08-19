@@ -4,6 +4,21 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-19
 
+### Build 041 — Reforzamiento de validaciones de servicios y dominio
+
+- Se reforzaron validaciones de parámetros nulos en `InstitucionFinanciera`, `MonedaService` y `PerfilFinancieroService`.
+- En `InstitucionFinanciera` se establecieron como obligatorios el nombre y el tipo del constructor, y los nuevos valores de nombre, sitio web y descripción en las operaciones de modificación.
+- En `MonedaService` se incorporó validación explícita de IDs en las operaciones de modificación.
+- En `PerfilFinancieroService` se incorporaron validaciones explícitas de IDs y descripción y se centralizó la obtención de perfiles mediante `obtenerPorId(...)`.
+- `InstitucionFinancieraServiceTest` pasó de **23 a 26 tests en verde**.
+- Se incorporaron 3 tests nuevos para nombre nulo, sitio web nulo y descripción nula.
+- La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- La ejecución general finalizó a las 15:09:48 -03:00.
+- `git diff --check` sin errores de whitespace.
+- Commit: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
+- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ### Build 040 — Ampliación de cobertura de CategoriaService
 
 - Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**.
@@ -80,9 +95,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 040**. Se amplió la cobertura de pruebas de `CategoriaService` y la batería general quedó en **236/236 tests en verde**.
+El último bloque confirmado es el **Build 041**. Se reforzaron validaciones de servicios y dominio y la batería general quedó en **239/239 tests en verde**.
 
-El último commit de código confirmado es `9be5972` — `test: ampliar cobertura de CategoriaService`.
+El último commit de código confirmado es `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -100,6 +115,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
 - Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
 - Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
+- Build 041 — Reforzamiento de validaciones de servicios y dominio.
 
 ## Regla histórica
 
