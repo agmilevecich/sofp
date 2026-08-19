@@ -4,6 +4,18 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-18
 
+### Build 039 — Ampliación de cobertura de UsuarioService
+
+- Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**.
+- Se incorporaron **10 tests nuevos**, cubriendo búsquedas inexistentes, listado vacío, parámetros nulos y operaciones de activación/desactivación sobre usuarios inexistentes.
+- Se incorporó validación explícita de IDs nulos en `UsuarioService.activar(...)` y `UsuarioService.desactivar(...)`.
+- La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- La ejecución general finalizó a las 22:34:24 -03:00.
+- `git diff --check` sin errores de whitespace.
+- Commit: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ### Build 038 — Ampliación de cobertura de PerfilFinancieroService
 
 - Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
@@ -61,9 +73,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 038**. Se amplió la cobertura de pruebas de `PerfilFinancieroService` y la batería general quedó en **217/217 tests en verde**.
+El último bloque confirmado es el **Build 039**. Se amplió la cobertura de pruebas de `UsuarioService` y la batería general quedó en **227/227 tests en verde**.
 
-El último commit de código confirmado es `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
+El último commit de código confirmado es `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -78,6 +90,8 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
 - Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
 - Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
+- Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
+- Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
 
 ## Regla histórica
 
