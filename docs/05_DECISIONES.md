@@ -33,3 +33,26 @@ Una funcionalidad no se considera cerrada hasta verificar sus tests correspondie
 ## D-008 — Sistema de continuidad documental
 
 Se mantienen documentos específicos para estado actual, contexto de ChatGPT, decisiones, Builds, tests y pendientes. Esto permite continuar el proyecto en nuevas conversaciones o con otras herramientas sin perder contexto.
+
+## D-009 — Las transferencias no son un TipoMovimiento
+
+Una transferencia entre cuentas se considera una operación financiera que produce dos movimientos relacionados:
+
+- un movimiento de tipo `EGRESO` en la cuenta origen;
+- un movimiento de tipo `INGRESO` en la cuenta destino.
+
+Por lo tanto, `TRANSFERENCIA` **no debe incorporarse al enum `TipoMovimiento`**. El enum representa el efecto individual de un movimiento sobre una cuenta y mantiene inicialmente los valores `INGRESO` y `EGRESO`.
+
+La transferencia deberá modelarse posteriormente mediante `OperacionFinanciera`, que permitirá agrupar y relacionar los movimientos que representan sus efectos. Esto evita perder la trazabilidad de que el egreso y el ingreso pertenecen al mismo hecho de negocio.
+
+Ejemplo conceptual:
+
+```text
+OperacionFinanciera: TRANSFERENCIA $100.000
+        |
+        +-- Movimiento EGRESO  -> Cuenta origen     -$100.000
+        |
+        +-- Movimiento INGRESO -> Cuenta destino    +$100.000
+```
+
+Esta decisión queda establecida como criterio arquitectónico para las futuras implementaciones de transferencias, `OperacionFinanciera`, `MovimientoCuenta` y movimientos relacionados con otros hechos financieros.
