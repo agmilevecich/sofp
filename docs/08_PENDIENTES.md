@@ -22,25 +22,26 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 038: ampliación de cobertura de `PerfilFinancieroServiceTest`.
 - Build 039: ampliación de cobertura de `UsuarioServiceTest` y endurecimiento del contrato de `UsuarioService`.
 - Build 040: ampliación de cobertura de `CategoriaServiceTest`.
+- Build 041: reforzamiento de validaciones de servicios y dominio y ampliación de cobertura de `InstitucionFinancieraServiceTest`.
 
-## Build 040
+## Build 041
 
-Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**, con 9 tests nuevos para cubrir validaciones de parámetros nulos.
+Se reforzaron validaciones de parámetros nulos en `InstitucionFinanciera`, `MonedaService` y `PerfilFinancieroService`.
 
-No se modificó código de producción.
+`InstitucionFinancieraServiceTest` pasó de **23 a 26 tests en verde**, con 3 tests nuevos para cubrir nombre nulo, sitio web nulo y descripción nula en las operaciones correspondientes.
 
-La batería general quedó en **236/236 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 11:28:34 -03:00.
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 15:09:48 -03:00.
 
-Commit de código: `9be5972` — `test: ampliar cobertura de CategoriaService`.
+Commit de código: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
 ## Estado de Git de referencia
 
-- Último commit de código confirmado: `9be5972` — `test: ampliar cobertura de CategoriaService`.
-- La documentación específica de Build 040 quedó registrada en `docs/01-builds/Build-040.md`.
+- Último commit de código confirmado: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
+- La documentación específica de Build 041 quedó registrada en `docs/01-builds/Build-041.md`.
 - La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
 
 ## Pendientes de arquitectura / evolución
