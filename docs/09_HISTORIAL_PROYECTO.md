@@ -4,6 +4,18 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-19
 
+### Build 043 — Ampliación de cobertura de MovimientoService
+
+- Se amplió `MovimientoServiceTest` sin modificar código de producción.
+- `MovimientoServiceTest` pasó de **37 a 50 tests en verde**.
+- Se incorporó cobertura adicional para operaciones y validaciones existentes.
+- La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- La ejecución general finalizó a las 19:51:15 -03:00.
+- `git diff --check` sin errores de whitespace.
+- Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ### Build 042 — Ampliación de cobertura de CuentaService
 
 - Se amplió `CuentaServiceTest` sin modificar código de producción.
@@ -77,9 +89,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 042**. Se amplió la cobertura de `CuentaServiceTest` y la batería general quedó en **246/246 tests en verde**.
+El último bloque confirmado es el **Build 043**. Se amplió la cobertura de `MovimientoServiceTest` y la batería general quedó en **259/259 tests en verde**.
 
-El último commit de código confirmado es `526b378` — `test: ampliar cobertura de CuentaService`.
+El último commit de código confirmado es `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -99,6 +111,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
 - Build 041 — Reforzamiento de validaciones de servicios y dominio.
 - Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
+- Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
 
 ## Regla histórica
 
