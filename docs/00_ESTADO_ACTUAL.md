@@ -26,17 +26,17 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 042 — Ampliación de cobertura de CuentaService**.
+El último bloque trabajado es **Build 043 — Ampliación de cobertura de MovimientoService**.
 
-Se amplió `CuentaServiceTest` sin modificar código de producción. La clase pasó de **40 a 47 tests** mediante la incorporación de los casos definidos durante la revisión de `CuentaService`.
+Se amplió `MovimientoServiceTest` sin modificar código de producción. La clase pasó de **37 a 50 tests** mediante la incorporación de cobertura adicional sobre las operaciones y validaciones existentes de `MovimientoService`.
 
-La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 16:46:27 -03:00.
+La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 19:51:15 -03:00.
 
 ## Último commit de código
 
-El commit de código de Build 042 ya fue registrado y publicado:
+El commit de código de Build 043 ya fue registrado y publicado:
 
-- `526b378` — `test: ampliar cobertura de CuentaService`
+- `b6384f0` — `test: ampliar cobertura de MovimientoService`
 
 Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
@@ -89,7 +89,7 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **246/246 tests en verde**.
+La batería general confirmada actualmente es de **259/259 tests en verde**.
 
 Clases de servicio y cantidad actual de tests:
 
@@ -97,17 +97,17 @@ Clases de servicio y cantidad actual de tests:
 - `CuentaServiceTest`: **47**
 - `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **37**
+- `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total de tests de services: **176**.
+Total de tests de services: **189**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Git
 
-El último commit de código confirmado en `main` es `526b378` — `test: ampliar cobertura de CuentaService`.
+El último commit de código confirmado en `main` es `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
 El commit fue publicado tanto en GitHub como en Bitbucket y el working tree quedó limpio después de `git pushall`.
 
@@ -117,7 +117,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-No hay cambios de código pendientes de publicar en Build 042.
+No hay cambios de código pendientes de publicar en Build 043.
 
 ## Regla de continuidad
 
