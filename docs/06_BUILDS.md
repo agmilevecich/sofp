@@ -299,6 +299,36 @@ El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git
 
 La documentación específica quedó registrada en `docs/01-builds/Build-040.md`.
 
+## Build 041 — Reforzamiento de validaciones de servicios y dominio
+
+Se reforzaron validaciones de parámetros nulos y se amplió la cobertura asociada.
+
+En `InstitucionFinanciera` se validan explícitamente como obligatorios el nombre y el tipo en el constructor, y los nuevos valores de nombre, sitio web y descripción en las operaciones de modificación.
+
+En `MonedaService` se incorporó validación explícita de `monedaId` en `cambiarNombre(...)` y `cambiarCantidadDecimales(...)`.
+
+En `PerfilFinancieroService` se incorporaron validaciones explícitas de IDs y descripción y se centralizó la obtención de un perfil existente mediante `obtenerPorId(...)`.
+
+`InstitucionFinancieraServiceTest` pasó de **23 a 26 tests**, incorporando cobertura para nombre nulo, sitio web nulo y descripción nula en las operaciones correspondientes.
+
+La batería general pasó de **236 a 239 tests en verde**.
+
+Resultado final:
+
+- Tests run: **239**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+
+La ejecución general terminó el **19/08/2026 a las 15:09:48 -03:00**.
+
+`git diff --check` no reportó errores de whitespace antes del commit.
+
+Commit: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
