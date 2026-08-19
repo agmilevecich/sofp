@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CategoriaServiceTest {
@@ -32,7 +33,8 @@ class CategoriaServiceTest {
                 new CategoriaRepository(entityManager);
 
         categoriaService =
-                new CategoriaService(entityManager,
+                new CategoriaService(
+                        entityManager,
                         categoriaRepository
                 );
     }
@@ -504,7 +506,7 @@ class CategoriaServiceTest {
 
         Long categoriaIdInexistente = 999999L;
 
-        org.junit.jupiter.api.Assertions.assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> categoriaService.modificarNombre(
                         categoriaIdInexistente,
@@ -518,7 +520,7 @@ class CategoriaServiceTest {
 
         Long categoriaIdInexistente = 999999L;
 
-        org.junit.jupiter.api.Assertions.assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> categoriaService.desactivar(
                         categoriaIdInexistente
@@ -581,11 +583,132 @@ class CategoriaServiceTest {
 
         Long categoriaIdInexistente = 999999L;
 
-        org.junit.jupiter.api.Assertions.assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> categoriaService.eliminar(
                         categoriaIdInexistente
                 )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraCategoriaNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.registrar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeBuscaCategoriaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.buscarPorId(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeListaPorPerfilFinancieroConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.listarPorPerfilFinanciero(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaNombreConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.modificarNombre(
+                        null,
+                        "Nueva categoría"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaNombreConNombreNulo() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.modificar.nombre.nulo." + System.nanoTime() + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+
+        categoriaService.registrar(
+                categoria
+        );
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.modificarNombre(
+                        categoria.getId(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaDescripcionConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.modificarDescripcion(
+                        null,
+                        "Nueva descripción"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeActivaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.activar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeDesactivaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.desactivar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeEliminaConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> categoriaService.eliminar(null)
         );
     }
 }
