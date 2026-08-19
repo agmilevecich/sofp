@@ -4,6 +4,22 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 042 — Ampliación de cobertura de CuentaService
+
+Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**.
+
+Se incorporó cobertura adicional para los casos definidos durante la revisión de `CuentaService`, sin modificar código de producción.
+
+La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 16:46:27 -03:00.
+
+`git diff --check` no reportó errores de whitespace.
+
+Commit asociado:
+
+- `526b378` — `test: ampliar cobertura de CuentaService`
+
 ### Build 041 — Reforzamiento de validaciones de servicios y dominio
 
 Se amplió `InstitucionFinancieraServiceTest`, pasando de **23 a 26 tests en verde**.
@@ -16,8 +32,6 @@ La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Er
 
 La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 15:09:48 -03:00.
 
-`git diff --check` no reportó errores de whitespace.
-
 Commit asociado:
 
 - `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
@@ -26,17 +40,9 @@ Commit asociado:
 
 Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**.
 
-Se incorporaron **9 tests nuevos**, cubriendo registro de categoría nula, búsqueda por ID nulo, listado por perfil financiero con ID nulo, modificación de nombre con ID nulo y nombre nulo, modificación de descripción con ID nulo, activación con ID nulo, desactivación con ID nulo y eliminación con ID nulo.
+Se incorporaron **9 tests nuevos**, cubriendo validaciones de parámetros nulos en registro, búsqueda, listado por perfil, modificación de nombre y descripción, activación, desactivación y eliminación.
 
-El test de nombre nulo utiliza una categoría existente para respetar el orden real de validación de `CategoriaService.modificarNombre(...)`.
-
-No se modificó código de producción.
-
-La batería general quedó en **236/236 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 11:28:34 -03:00.
-
-`git diff --check` no reportó errores de whitespace.
+La batería general quedó en **236/236 tests en verde**.
 
 Commit asociado:
 
@@ -46,15 +52,9 @@ Commit asociado:
 
 Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**.
 
-Se incorporaron **10 tests nuevos**, cubriendo búsquedas inexistentes, listado vacío, parámetros nulos y operaciones de activación/desactivación sobre usuarios inexistentes.
+Se incorporaron **10 tests nuevos** y se reforzaron validaciones de IDs nulos en `UsuarioService`.
 
-Se modificó `UsuarioService` para validar explícitamente IDs nulos en `activar(...)` y `desactivar(...)`.
-
-La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
-
-`git diff --check` no reportó errores de whitespace.
+La batería general quedó en **227/227 tests en verde**.
 
 Commit asociado:
 
@@ -64,27 +64,23 @@ Commit asociado:
 
 Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
 
-Se revisaron `PerfilFinancieroService`, `PerfilFinanciero` y `PerfilFinancieroRepository` para mantener la cobertura alineada con el comportamiento real del servicio.
-
-La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
+La batería general quedó en **217/217 tests en verde**.
 
 Commit asociado:
 
 - `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`
 
+### Build 037 — Ampliación de cobertura de MonedaService
+
+Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
+
+La batería general quedó en **210/210 tests en verde**.
+
 ### Build 036 — Ampliación de cobertura de InstitucionFinancieraService
 
-Se ampliaron los tests de `InstitucionFinancieraServiceTest` sin modificar código de producción.
+Se amplió `InstitucionFinancieraServiceTest` con **15 tests nuevos**.
 
-Se agregaron **15 tests**, cubriendo validaciones de parámetros nulos, búsquedas inexistentes y operaciones de modificación, activación y desactivación sobre instituciones inexistentes.
-
-`InstitucionFinancieraServiceTest` quedó con **23/23 tests en verde**.
-
-La batería general quedó en **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` y `git diff --check` no reportó errores de whitespace.
+`InstitucionFinancieraServiceTest` quedó con **23/23 tests en verde** y la batería general en **201/201 tests en verde**.
 
 Commit asociado:
 
@@ -92,13 +88,9 @@ Commit asociado:
 
 ### Build 035 — Ampliación de cobertura de CuentaService
 
-Se ampliaron los tests de `CuentaServiceTest` sin modificar código de producción.
+Se ampliaron los tests de `CuentaServiceTest` con **20 tests nuevos**.
 
-Se agregaron **20 tests**, cubriendo validaciones de parámetros nulos, cuentas inexistentes y operaciones de modificación, activación, desactivación y eliminación.
-
-`CuentaServiceTest` quedó con **40/40 tests en verde**.
-
-La batería general quedó en **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+`CuentaServiceTest` quedó con **40/40 tests en verde** y la batería general en **186/186 tests en verde**.
 
 Commit asociado:
 
@@ -106,13 +98,9 @@ Commit asociado:
 
 ### Build 034 — Ampliación de cobertura de MovimientoService
 
-Se ampliaron los tests de `MovimientoServiceTest` sin modificar código de producción.
+Se ampliaron los tests de `MovimientoServiceTest` con **17 tests nuevos**.
 
-Se agregaron **17 tests**, cubriendo validaciones de parámetros nulos, búsquedas inexistentes y operaciones de modificación/eliminación sobre movimientos inexistentes.
-
-`MovimientoServiceTest` quedó con **32/32 tests en verde**.
-
-La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+`MovimientoServiceTest` quedó con **32/32 tests en verde** y la batería general en **163/163 tests en verde**.
 
 Commit asociado:
 
@@ -121,20 +109,20 @@ Commit asociado:
 ## Conteo actual por test de service
 
 - `CategoriaServiceTest`: **21**
-- `CuentaServiceTest`: **40**
+- `CuentaServiceTest`: **47**
 - `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total de tests de services: **169**.
+Total de tests de services: **176**.
 
-La batería general del proyecto es de **239/239 tests en verde**.
+La batería general del proyecto es de **246/246 tests en verde**.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 041 con **239 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 042 con **246 tests en verde**.
 
 ## Regla de cierre
 
