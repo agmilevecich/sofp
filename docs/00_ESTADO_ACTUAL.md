@@ -26,17 +26,17 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 038 — Ampliación de cobertura de PerfilFinancieroService**.
+El último bloque trabajado es **Build 039 — Ampliación de cobertura de UsuarioService**.
 
-Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
+Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, y se endureció el contrato de `UsuarioService` para validar explícitamente IDs nulos en `activar(...)` y `desactivar(...)`.
 
-La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
+La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
 
 ## Commit actual de código
 
-El commit de código de Build 038 ya fue registrado y publicado:
+El commit de código de Build 039 ya fue registrado y publicado:
 
-- `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`
+- `0e27dfe` — `test: ampliar cobertura de UsuarioService`
 
 Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
@@ -89,7 +89,7 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **217/217 tests en verde**.
+La batería general confirmada actualmente es de **227/227 tests en verde**.
 
 Clases de servicio y cantidad actual de tests:
 
@@ -99,15 +99,15 @@ Clases de servicio y cantidad actual de tests:
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **5**
+- `UsuarioServiceTest`: **15**
 
-Total de tests de services: **147**.
+Total de tests de services: **157**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Git
 
-El último commit de código confirmado en `main` es `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
+El último commit de código confirmado en `main` es `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
 
 El commit fue publicado tanto en GitHub como en Bitbucket y el working tree quedó limpio después de `git pushall`.
 
@@ -117,7 +117,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-No hay cambios de código pendientes de publicar en Build 037.
+No hay cambios de código pendientes de publicar en Build 039.
 
 ## Regla de continuidad
 
