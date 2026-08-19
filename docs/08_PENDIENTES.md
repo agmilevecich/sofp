@@ -20,23 +20,24 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 036: ampliación de cobertura de `InstitucionFinancieraServiceTest`.
 - Build 037: ampliación de cobertura de `MonedaServiceTest`.
 - Build 038: ampliación de cobertura de `PerfilFinancieroServiceTest`.
+- Build 039: ampliación de cobertura de `UsuarioServiceTest` y endurecimiento del contrato de `UsuarioService`.
 
-## Build 038
+## Build 039
 
-Se ampliaron los tests de `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
+Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, y se incorporó validación explícita de IDs nulos en `UsuarioService.activar(...)` y `UsuarioService.desactivar(...)`.
 
-La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
+La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
 
-Commit de código: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
+Commit de código: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
 ## Estado de Git de referencia
 
-- Último commit de código confirmado: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
-- La documentación de Build 038 quedó registrada en `docs/01-builds/Build-038.md`.
+- Último commit de código confirmado: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
+- La documentación de Build 039 quedó registrada en `docs/01-builds/Build-039.md`.
 - La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
 
 ## Pendientes de arquitectura / evolución
