@@ -1261,4 +1261,228 @@ class MovimientoServiceTest {
                 )
         );
     }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConCuentaNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.registrar(
+                        null,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                19,
+                                10,
+                                0
+                        ),
+                        "Movimiento"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConCategoriaNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        null,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                19,
+                                10,
+                                0
+                        ),
+                        "Movimiento"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConTipoMovimientoNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        null,
+                        new BigDecimal("3000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                19,
+                                10,
+                                0
+                        ),
+                        "Movimiento"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConImporteNulo() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        null,
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                19,
+                                10,
+                                0
+                        ),
+                        "Movimiento con importe nulo"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConImporteCero() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        BigDecimal.ZERO,
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                19,
+                                10,
+                                0
+                        ),
+                        "Movimiento"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConImporteNegativo() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("-100.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                19,
+                                10,
+                                0
+                        ),
+                        "Movimiento"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConFechaHoraNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("3000.00"),
+                        null,
+                        "Movimiento"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraConDescripcionNula() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.INGRESO,
+                        new BigDecimal("5000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                19,
+                                11,
+                                0
+                        ),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaObservacionesConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimientoService.modificarObservaciones(
+                        null,
+                        "Nueva observación"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaObservacionesDeMovimientoInexistente() {
+
+        Long movimientoIdInexistente = 999999L;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.modificarObservaciones(
+                        movimientoIdInexistente,
+                        "Nueva observación"
+                )
+        );
+    }
+
+    @Test
+    void deberiaDevolverListaVaciaCuandoNoHayMovimientos() {
+
+        assertTrue(
+                movimientoService.listarTodos().isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaDevolverListaVaciaCuandoNoHayMovimientosParaLaCuenta() {
+
+        assertTrue(
+                movimientoService.listarPorCuenta(
+                        cuenta.getId()
+                ).isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaDevolverListaVaciaCuandoNoHayMovimientosParaLaCategoria() {
+
+        assertTrue(
+                movimientoService.listarPorCategoria(
+                        categoria.getId()
+                ).isEmpty()
+        );
+    }
 }
