@@ -1520,4 +1520,377 @@ class CuentaServiceTest {
                 () -> cuentaService.eliminar(999999L)
         );
     }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeRegistraUnaCuentaNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> cuentaService.registrar(null)
+        );
+    }
+
+    @Test
+    void deberiaDevolverListaVaciaCuandoNoExistenCuentas() {
+
+        List<Cuenta> cuentas =
+                cuentaService.listarTodas();
+
+        assertNotNull(cuentas);
+        assertTrue(
+                cuentas.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaDevolverListaVaciaCuandoElPerfilNoTieneCuentas() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.perfil.sin.cuentas."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil sin cuentas",
+                        usuario
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+
+        entityManager.getTransaction().commit();
+
+        List<Cuenta> cuentas =
+                cuentaService.listarPorPerfilFinanciero(
+                        perfil.getId()
+                );
+
+        assertNotNull(cuentas);
+        assertTrue(
+                cuentas.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaPersistirLaModificacionDelNombreDeCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.persistencia.nombre."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Nombre original",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Long cuentaId = cuenta.getId();
+
+        cuentaService.modificarNombre(
+                cuentaId,
+                "Nombre persistido"
+        );
+
+        entityManager.clear();
+
+        Optional<Cuenta> resultado =
+                cuentaService.buscarPorId(
+                        cuentaId
+                );
+
+        assertTrue(
+                resultado.isPresent()
+        );
+
+        assertEquals(
+                "Nombre persistido",
+                resultado.get().getNombre()
+        );
+    }
+
+    @Test
+    void deberiaPersistirLaModificacionDelIdentificadorExterno() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.persistencia.identificador."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Long cuentaId = cuenta.getId();
+
+        cuentaService.modificarIdentificadorExterno(
+                cuentaId,
+                "CBU-987654321"
+        );
+
+        entityManager.clear();
+
+        Optional<Cuenta> resultado =
+                cuentaService.buscarPorId(
+                        cuentaId
+                );
+
+        assertTrue(
+                resultado.isPresent()
+        );
+
+        assertEquals(
+                "CBU-987654321",
+                resultado.get()
+                        .getIdentificadorExterno()
+        );
+    }
+
+    @Test
+    void deberiaPermitirIdentificadorExternoNulo() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.identificador.nulo."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        cuenta.cambiarIdentificadorExterno(
+                "CBU-123456789"
+        );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Long cuentaId = cuenta.getId();
+
+        cuentaService.modificarIdentificadorExterno(
+                cuentaId,
+                null
+        );
+
+        entityManager.clear();
+
+        Optional<Cuenta> resultado =
+                cuentaService.buscarPorId(
+                        cuentaId
+                );
+
+        assertTrue(
+                resultado.isPresent()
+        );
+
+        assertNull(
+                resultado.get()
+                        .getIdentificadorExterno()
+        );
+    }
+
+    @Test
+    void deberiaPersistirLaActivacionDeUnaCuenta() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Test",
+                        "ariel.persistencia.activacion."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Test",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta de prueba",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        institucion,
+                        moneda
+                );
+
+        cuenta.desactivar();
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+
+        cuentaService.registrar(cuenta);
+
+        entityManager.getTransaction().commit();
+
+        Long cuentaId = cuenta.getId();
+
+        cuentaService.activar(
+                cuentaId
+        );
+
+        entityManager.clear();
+
+        Optional<Cuenta> resultado =
+                cuentaService.buscarPorId(
+                        cuentaId
+                );
+
+        assertTrue(
+                resultado.isPresent()
+        );
+
+        assertTrue(
+                resultado.get().isActiva()
+        );
+    }
+
+
 }
