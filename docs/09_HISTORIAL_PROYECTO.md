@@ -2,6 +2,21 @@
 
 Este documento conserva una línea temporal resumida de decisiones, avances y puntos de continuidad.
 
+## 2026-08-19
+
+### Build 040 — Ampliación de cobertura de CategoriaService
+
+- Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**.
+- Se incorporaron **9 tests nuevos** para cubrir validaciones de parámetros nulos en registro, búsqueda, listado por perfil, modificación de nombre y descripción, activación, desactivación y eliminación.
+- El test de nombre nulo utiliza una categoría existente para respetar el orden real de validación de `CategoriaService.modificarNombre(...)`.
+- No se modificó código de producción.
+- La batería general quedó en **236/236 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- La ejecución general finalizó a las 11:28:34 -03:00.
+- `git diff --check` sin errores de whitespace.
+- Commit: `9be5972` — `test: ampliar cobertura de CategoriaService`.
+- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ## 2026-08-18
 
 ### Build 039 — Ampliación de cobertura de UsuarioService
@@ -33,7 +48,6 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - La batería general quedó en **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 - `BUILD SUCCESS`.
 - La ejecución general finalizó a las 18:52:19 -03:00.
-- El commit específico de código todavía no está registrado; queda pendiente verificar el estado de Git y asociar el SHA cuando exista.
 
 ### Build 036 — Ampliación de cobertura de InstitucionFinancieraService
 
@@ -43,39 +57,32 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - La batería general quedó en **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 - `BUILD SUCCESS`.
 - `git diff --check` sin errores de whitespace.
-- Las líneas en blanco accidentales de `InstitucionFinancieraService.java` fueron descartadas antes del commit.
 - Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
-- El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
 ### Build 035 — Ampliación de cobertura de CuentaService
 
 - Se amplió `CuentaServiceTest` con **20 tests nuevos**.
 - Se cubrieron IDs nulos en cálculo de saldo, búsqueda, listado por perfil y operaciones de modificación/activación/desactivación/eliminación.
-- Se cubrieron parámetros nulos y cuentas inexistentes en las operaciones de modificación.
 - `CuentaServiceTest` quedó en **40/40 tests en verde**.
 - La batería general quedó en **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 - `BUILD SUCCESS`.
-- `git diff --check` sin errores de whitespace.
 - Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
-- El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
 ### Build 034 — Ampliación de cobertura de MovimientoService
 
 - Se amplió `MovimientoServiceTest` con **17 tests nuevos**.
 - Se cubrieron IDs nulos en búsqueda, listados, modificaciones y eliminación.
 - Se cubrieron parámetros nulos de descripción, categoría, tipo, importe y fecha/hora.
-- Se cubrieron búsquedas de movimientos inexistentes y operaciones sobre movimientos inexistentes.
+- Se cubrieron búsquedas y operaciones sobre movimientos inexistentes.
 - `MovimientoServiceTest` quedó en **32/32 tests en verde**.
-- La batería general quedó en **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-- `BUILD SUCCESS`.
-- `git diff --check` sin errores.
+- La batería general quedó en **163/163 tests en verde**.
 - Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 039**. Se amplió la cobertura de pruebas de `UsuarioService` y la batería general quedó en **227/227 tests en verde**.
+El último bloque confirmado es el **Build 040**. Se amplió la cobertura de pruebas de `CategoriaService` y la batería general quedó en **236/236 tests en verde**.
 
-El último commit de código confirmado es `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
+El último commit de código confirmado es `9be5972` — `test: ampliar cobertura de CategoriaService`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -92,6 +99,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
 - Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
 - Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
+- Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
 
 ## Regla histórica
 
