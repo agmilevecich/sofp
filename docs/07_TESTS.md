@@ -4,6 +4,24 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 041 — Reforzamiento de validaciones de servicios y dominio
+
+Se amplió `InstitucionFinancieraServiceTest`, pasando de **23 a 26 tests en verde**.
+
+Se incorporaron **3 tests nuevos**, cubriendo nombre nulo al renombrar, sitio web nulo y descripción nula en las operaciones de modificación de `InstitucionFinanciera`.
+
+Se reforzó `InstitucionFinanciera` para rechazar valores nulos en constructor y operaciones de modificación, se agregaron validaciones explícitas de IDs en `MonedaService` y se reforzaron las validaciones de `PerfilFinancieroService`.
+
+La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 15:09:48 -03:00.
+
+`git diff --check` no reportó errores de whitespace.
+
+Commit asociado:
+
+- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
+
 ### Build 040 — Ampliación de cobertura de CategoriaService
 
 Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**.
@@ -104,19 +122,19 @@ Commit asociado:
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **40**
-- `InstitucionFinancieraServiceTest`: **23**
+- `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total de tests de services: **166**.
+Total de tests de services: **169**.
 
-La batería general del proyecto es de **236/236 tests en verde**.
+La batería general del proyecto es de **239/239 tests en verde**.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 040 con **236 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 041 con **239 tests en verde**.
 
 ## Regla de cierre
 
