@@ -21,23 +21,26 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 037: ampliación de cobertura de `MonedaServiceTest`.
 - Build 038: ampliación de cobertura de `PerfilFinancieroServiceTest`.
 - Build 039: ampliación de cobertura de `UsuarioServiceTest` y endurecimiento del contrato de `UsuarioService`.
+- Build 040: ampliación de cobertura de `CategoriaServiceTest`.
 
-## Build 039
+## Build 040
 
-Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, y se incorporó validación explícita de IDs nulos en `UsuarioService.activar(...)` y `UsuarioService.desactivar(...)`.
+Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**, con 9 tests nuevos para cubrir validaciones de parámetros nulos.
 
-La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+No se modificó código de producción.
 
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
+La batería general quedó en **236/236 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
 
-Commit de código: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 11:28:34 -03:00.
+
+Commit de código: `9be5972` — `test: ampliar cobertura de CategoriaService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
 ## Estado de Git de referencia
 
-- Último commit de código confirmado: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
-- La documentación de Build 039 quedó registrada en `docs/01-builds/Build-039.md`.
+- Último commit de código confirmado: `9be5972` — `test: ampliar cobertura de CategoriaService`.
+- La documentación específica de Build 040 quedó registrada en `docs/01-builds/Build-040.md`.
 - La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
 
 ## Pendientes de arquitectura / evolución
