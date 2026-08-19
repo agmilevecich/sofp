@@ -183,11 +183,7 @@ Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
 
 ## Build 033 — Reglas de negocio de Movimiento
 
-Se incorporaron en `MovimientoService` tres reglas:
-
-1. Cuenta y Categoría deben pertenecer al mismo Perfil Financiero.
-2. No se pueden registrar movimientos en una cuenta desactivada.
-3. No se puede cambiar un movimiento a una categoría de otro perfil financiero.
+Se incorporaron en `MovimientoService` reglas de coherencia entre cuenta, categoría y perfil financiero y se rechazaron movimientos sobre cuentas desactivadas.
 
 Resultado: **144/144 tests en verde**.
 
@@ -195,137 +191,99 @@ Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
 ## Build 034 — Ampliación de cobertura de MovimientoService
 
-Se ampliaron los tests de `MovimientoServiceTest` sin modificar código de producción.
-
-Se agregaron **17 tests nuevos**.
+Se ampliaron los tests de `MovimientoServiceTest` y se agregaron **17 tests nuevos**.
 
 `MovimientoServiceTest`: **32/32 tests en verde**.
 
-Batería general: **163/163 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Batería general: **163/163 tests en verde**.
 
 Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
 
 ## Build 035 — Ampliación de cobertura de CuentaService
 
-Se ampliaron los tests de `CuentaServiceTest` sin modificar código de producción.
-
-Se agregaron **20 tests nuevos**.
+Se ampliaron los tests de `CuentaServiceTest` y se agregaron **20 tests nuevos**.
 
 `CuentaServiceTest`: **40/40 tests en verde**.
 
-Batería general: **186/186 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Batería general: **186/186 tests en verde**.
 
 Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
 
-El commit de código fue publicado en `main` de GitHub y Bitbucket.
-
 ## Build 036 — Ampliación de cobertura de InstitucionFinancieraService
 
-Se ampliaron los tests de `InstitucionFinancieraServiceTest` sin modificar código de producción.
-
-Se agregaron **15 tests nuevos**.
+Se ampliaron los tests de `InstitucionFinancieraServiceTest` con **15 tests nuevos**.
 
 `InstitucionFinancieraServiceTest`: **23/23 tests en verde**.
 
-Batería general: **201/201 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-`BUILD SUCCESS` y `git diff --check` sin errores.
-
-Las líneas en blanco accidentales que aparecieron en `InstitucionFinancieraService.java` fueron descartadas antes del commit; el Build 036 no modifica código de producción.
+Batería general: **201/201 tests en verde**.
 
 Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
-
-El commit de código fue publicado en `main` de GitHub y Bitbucket.
 
 ## Build 037 — Ampliación de cobertura de MonedaService
 
 Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
 
-La revisión se realizó sobre `MonedaService`, `Moneda` y `MonedaRepository` para asegurar que la cobertura reflejara el comportamiento real del servicio.
-
-Batería general: **210/210 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 18:52:19 -03:00.
-
-La documentación específica quedó registrada en `docs/01-builds/Build-037.md`.
+Batería general: **210/210 tests en verde**.
 
 ## Build 038 — Ampliación de cobertura de PerfilFinancieroService
 
 Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
 
-Se incorporaron **7 tests nuevos**, cubriendo validaciones de parámetros nulos, búsquedas inexistentes y operaciones de modificación, activación y desactivación sobre perfiles inexistentes.
-
-La batería general quedó en **217/217 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 19:27:39 -03:00.
+Batería general: **217/217 tests en verde**.
 
 Commit: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
 
-El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
-
 ## Build 039 — Ampliación de cobertura de UsuarioService
 
-Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**.
+Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, con 10 tests nuevos y validaciones explícitas de IDs nulos en `UsuarioService.activar(...)` y `desactivar(...)`.
 
-Se incorporaron **10 tests nuevos**, cubriendo búsquedas inexistentes, listado vacío, parámetros nulos y operaciones de activación/desactivación sobre usuarios inexistentes.
-
-En `UsuarioService` se incorporó validación explícita de IDs nulos en `activar(...)` y `desactivar(...)`, manteniendo un contrato consistente con el resto de la capa `service`.
-
-La batería general quedó en **227/227 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 18/08/2026 a las 22:34:24 -03:00.
+Batería general: **227/227 tests en verde**.
 
 Commit: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
 
-El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
-
 ## Build 040 — Ampliación de cobertura de CategoriaService
 
-Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**.
-
-Se incorporaron **9 tests nuevos** para cubrir validaciones de parámetros nulos en registro, búsqueda, listado por perfil, modificación de nombre y descripción, activación, desactivación y eliminación.
-
-El test de nombre nulo se ajustó para utilizar una categoría existente, respetando el orden real de validación de `CategoriaService.modificarNombre(...)`.
+Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde** con 9 tests nuevos.
 
 No se modificó código de producción.
 
-La batería general quedó en **236/236 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 11:28:34 -03:00.
+Batería general: **236/236 tests en verde**.
 
 Commit: `9be5972` — `test: ampliar cobertura de CategoriaService`.
 
-El commit de código fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
-
-La documentación específica quedó registrada en `docs/01-builds/Build-040.md`.
-
 ## Build 041 — Reforzamiento de validaciones de servicios y dominio
 
-Se reforzaron validaciones de parámetros nulos y se amplió la cobertura asociada.
+Se reforzaron validaciones de parámetros nulos en `InstitucionFinanciera`, `MonedaService` y `PerfilFinancieroService`.
 
-En `InstitucionFinanciera` se validan explícitamente como obligatorios el nombre y el tipo en el constructor, y los nuevos valores de nombre, sitio web y descripción en las operaciones de modificación.
+`InstitucionFinancieraServiceTest` pasó de **23 a 26 tests**, con 3 tests nuevos.
 
-En `MonedaService` se incorporó validación explícita de `monedaId` en `cambiarNombre(...)` y `cambiarCantidadDecimales(...)`.
+Batería general: **239/239 tests en verde**.
 
-En `PerfilFinancieroService` se incorporaron validaciones explícitas de IDs y descripción y se centralizó la obtención de un perfil existente mediante `obtenerPorId(...)`.
+Resultado: `BUILD SUCCESS`, `Failures: 0`, `Errors: 0`, `Skipped: 0`.
 
-`InstitucionFinancieraServiceTest` pasó de **23 a 26 tests**, incorporando cobertura para nombre nulo, sitio web nulo y descripción nula en las operaciones correspondientes.
+Commit: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
 
-La batería general pasó de **236 a 239 tests en verde**.
+## Build 042 — Ampliación de cobertura de CuentaService
+
+Se amplió `CuentaServiceTest` sin modificar código de producción.
+
+`CuentaServiceTest` pasó de **40 a 47 tests en verde**.
+
+La batería general pasó de **239 a 246 tests en verde**.
 
 Resultado final:
 
-- Tests run: **239**
+- Tests run: **246**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
 
-La ejecución general terminó el **19/08/2026 a las 15:09:48 -03:00**.
+La ejecución general terminó el **19/08/2026 a las 16:46:27 -03:00**.
 
 `git diff --check` no reportó errores de whitespace antes del commit.
 
-Commit: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
+Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
