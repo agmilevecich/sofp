@@ -26,23 +26,17 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 041 — Reforzamiento de validaciones de servicios y dominio**.
+El último bloque trabajado es **Build 042 — Ampliación de cobertura de CuentaService**.
 
-Se reforzaron validaciones de parámetros nulos en `InstitucionFinanciera`, `MonedaService` y `PerfilFinancieroService`, y se amplió `InstitucionFinancieraServiceTest` de **23 a 26 tests**.
+Se amplió `CuentaServiceTest` sin modificar código de producción. La clase pasó de **40 a 47 tests** mediante la incorporación de los casos definidos durante la revisión de `CuentaService`.
 
-En `InstitucionFinanciera` se estableció que el constructor, `renombrar(...)`, `actualizarSitioWeb(...)` y `actualizarDescripcion(...)` rechacen valores nulos mediante `NullPointerException`.
+La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 16:46:27 -03:00.
 
-En `MonedaService` se incorporó validación explícita del ID en las operaciones de modificación.
+## Último commit de código
 
-En `PerfilFinancieroService` se incorporaron validaciones explícitas de IDs y descripción y se centralizó la obtención de perfiles existentes mediante `obtenerPorId(...)`.
+El commit de código de Build 042 ya fue registrado y publicado:
 
-La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 15:09:48 -03:00.
-
-## Commit actual de código
-
-El commit de código de Build 041 ya fue registrado y publicado:
-
-- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
+- `526b378` — `test: ampliar cobertura de CuentaService`
 
 Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
@@ -95,25 +89,25 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **239/239 tests en verde**.
+La batería general confirmada actualmente es de **246/246 tests en verde**.
 
 Clases de servicio y cantidad actual de tests:
 
 - `CategoriaServiceTest`: **21**
-- `CuentaServiceTest`: **40**
+- `CuentaServiceTest`: **47**
 - `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total de tests de services: **169**.
+Total de tests de services: **176**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Git
 
-El último commit de código confirmado en `main` es `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
+El último commit de código confirmado en `main` es `526b378` — `test: ampliar cobertura de CuentaService`.
 
 El commit fue publicado tanto en GitHub como en Bitbucket y el working tree quedó limpio después de `git pushall`.
 
@@ -123,7 +117,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-No hay cambios de código pendientes de publicar en Build 041.
+No hay cambios de código pendientes de publicar en Build 042.
 
 ## Regla de continuidad
 
