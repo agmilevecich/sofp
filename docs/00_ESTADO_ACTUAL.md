@@ -42,7 +42,7 @@ La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Er
 
 El commit de código de Build 041 ya fue registrado y publicado:
 
-- `a9de29c` — `feat: reforzar validaciones de servicios y dominios`
+- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
 
 Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
@@ -113,7 +113,7 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 ## Git
 
-El último commit de código confirmado en `main` es `a9de29c` — `feat: reforzar validaciones de servicios y dominios`.
+El último commit de código confirmado en `main` es `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
 
 El commit fue publicado tanto en GitHub como en Bitbucket y el working tree quedó limpio después de `git pushall`.
 
