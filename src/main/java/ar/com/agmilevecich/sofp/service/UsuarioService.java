@@ -58,6 +58,11 @@ public class UsuarioService {
 
     public Usuario activar(Long usuarioId) {
 
+        Objects.requireNonNull(
+                usuarioId,
+                "El id del usuario es obligatorio"
+        );
+
         Usuario usuario =
                 usuarioRepository.buscarPorId(usuarioId)
                         .orElseThrow(
@@ -73,6 +78,11 @@ public class UsuarioService {
     }
 
     public Usuario desactivar(Long usuarioId) {
+
+        Objects.requireNonNull(
+                usuarioId,
+                "El id del usuario es obligatorio"
+        );
 
         Usuario usuario =
                 usuarioRepository.buscarPorId(usuarioId)

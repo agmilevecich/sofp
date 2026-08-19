@@ -284,4 +284,102 @@ class UsuarioServiceTest {
                 resultado.get().isActivo()
         );
     }
+
+    @Test
+    void deberiaDevolverOptionalVacioCuandoNoExisteUsuarioPorId() {
+
+        Optional<Usuario> resultado =
+                usuarioService.buscarPorId(999999L);
+
+        assertTrue(
+                resultado.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaDevolverOptionalVacioCuandoNoExisteUsuarioPorEmail() {
+
+        Optional<Usuario> resultado =
+                usuarioService.buscarPorEmail(
+                        "usuario.inexistente@test.com"
+                );
+
+        assertTrue(
+                resultado.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaDevolverListaVaciaCuandoNoHayUsuarios() {
+
+        List<Usuario> usuarios =
+                usuarioService.listarTodos();
+
+        assertTrue(
+                usuarios.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeGuardaUsuarioNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> usuarioService.guardar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeBuscaUsuarioPorIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> usuarioService.buscarPorId(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeBuscaUsuarioPorEmailNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> usuarioService.buscarPorEmail(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeActivaUsuarioConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> usuarioService.activar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeDesactivaUsuarioConIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> usuarioService.desactivar(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeActivaUsuarioInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarioService.activar(999999L)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeDesactivaUsuarioInexistente() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarioService.desactivar(999999L)
+        );
+    }
 }
