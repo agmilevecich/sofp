@@ -28,13 +28,13 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 18/08/2026
 
-Último Build: **Build 038 — Ampliación de cobertura de PerfilFinancieroService**.
+Último Build: **Build 039 — Ampliación de cobertura de UsuarioService**.
 
 Último commit de código confirmado:
 
-- `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`
+- `0e27dfe` — `test: ampliar cobertura de UsuarioService`
 
-Build 038 amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
+Build 039 amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, y agregó validación explícita de IDs nulos en `UsuarioService.activar(...)` y `UsuarioService.desactivar(...)`.
 
 Resultado:
 
@@ -44,17 +44,33 @@ Resultado:
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **5**
-- Total de tests de services: **147**.
-- Batería general: **217/217 tests en verde**.
+- `UsuarioServiceTest`: **15**
+- Total de tests de services: **157**.
+- Batería general: **227/227 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - BUILD SUCCESS.
 
-La ejecución general de Build 038 finalizó el 18/08/2026 a las 19:27:39 -03:00.
+La ejecución general de Build 039 finalizó el 18/08/2026 a las 22:34:24 -03:00.
 
-El commit de código de Build 038 ya está registrado y publicado: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
+El commit de código de Build 039 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
+## Build 039
+
+Se amplió `UsuarioServiceTest` con 10 tests nuevos, cubriendo búsquedas inexistentes, listado vacío, parámetros nulos y operaciones de activación/desactivación sobre usuarios inexistentes.
+
+Se modificó `UsuarioService` para validar explícitamente IDs nulos en `activar(...)` y `desactivar(...)`, manteniendo un contrato consistente con el resto de la capa `service`.
+
+La documentación específica quedó registrada en `docs/01-builds/Build-039.md`.
+
+## Build 038
+
+Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
+
+La batería general quedó en **217/217 tests en verde**.
+
+Commit: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
 
 ## Build 037
 
@@ -145,7 +161,7 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La batería general actual está en **210/210 tests en verde**.
+La batería general actual está en **227/227 tests en verde**.
 
 Conteo actual de tests de services:
 
@@ -154,18 +170,18 @@ Conteo actual de tests de services:
 - `InstitucionFinancieraServiceTest`: **23**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
-- `PerfilFinancieroServiceTest`: **6**
-- `UsuarioServiceTest`: **5**
+- `PerfilFinancieroServiceTest`: **13**
+- `UsuarioServiceTest`: **15**
 
-Total: **140 tests de services**.
+Total: **157 tests de services**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Próximo paso
 
-Verificar el estado local de Git de los cambios de `MonedaServiceTest`, ejecutar `git diff --check` y `git status`, y registrar el commit de código de Build 037 si corresponde.
+Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-Después, definir claramente el siguiente bloque funcional antes de implementar código nuevo.
+No hay cambios de código pendientes de publicar en Build 039.
 
 ## Forma de trabajo acordada
 
