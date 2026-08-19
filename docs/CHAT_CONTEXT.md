@@ -26,43 +26,53 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 - Rama principal de trabajo: `main`
 - Rama de documentación/continuidad: `docs/continuidad-sofp`
 
-## Estado actual — 18/08/2026
+## Estado actual — 19/08/2026
 
-Último Build: **Build 039 — Ampliación de cobertura de UsuarioService**.
+Último Build: **Build 040 — Ampliación de cobertura de CategoriaService**.
 
 Último commit de código confirmado:
 
-- `0e27dfe` — `test: ampliar cobertura de UsuarioService`
+- `9be5972` — `test: ampliar cobertura de CategoriaService`
 
-Build 039 amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, y agregó validación explícita de IDs nulos en `UsuarioService.activar(...)` y `UsuarioService.desactivar(...)`.
+Build 040 amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**, con 9 tests nuevos para cubrir validaciones de parámetros nulos. No se modificó código de producción.
 
 Resultado:
 
-- `CategoriaServiceTest`: **12**
+- `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **40**
 - `InstitucionFinancieraServiceTest`: **23**
 - `MonedaServiceTest`: **17**
 - `MovimientoServiceTest`: **37**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
-- Total de tests de services: **157**.
-- Batería general: **227/227 tests en verde**.
+- Total de tests de services: **166**.
+- Batería general: **236/236 tests en verde**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - BUILD SUCCESS.
 
-La ejecución general de Build 039 finalizó el 18/08/2026 a las 22:34:24 -03:00.
+La ejecución general de Build 040 finalizó el 19/08/2026 a las 11:28:34 -03:00.
 
-El commit de código de Build 039 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+El commit de código de Build 040 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
+## Build 040
+
+Se amplió `CategoriaServiceTest` con 9 tests nuevos, cubriendo registro de categoría nula, búsqueda por ID nulo, listado por perfil financiero con ID nulo, modificación de nombre con ID nulo y nombre nulo, modificación de descripción con ID nulo, activación con ID nulo, desactivación con ID nulo y eliminación con ID nulo.
+
+El test de nombre nulo utiliza una categoría existente porque `CategoriaService.modificarNombre(...)` primero obtiene la categoría y luego valida el nuevo nombre.
+
+No se modificó `CategoriaService.java` ni ningún otro código de producción.
+
+La documentación específica quedó registrada en `docs/01-builds/Build-040.md`.
 
 ## Build 039
 
-Se amplió `UsuarioServiceTest` con 10 tests nuevos, cubriendo búsquedas inexistentes, listado vacío, parámetros nulos y operaciones de activación/desactivación sobre usuarios inexistentes.
+Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, y se agregó validación explícita de IDs nulos en `UsuarioService.activar(...)` y `UsuarioService.desactivar(...)`.
 
-Se modificó `UsuarioService` para validar explícitamente IDs nulos en `activar(...)` y `desactivar(...)`, manteniendo un contrato consistente con el resto de la capa `service`.
+La batería general quedó en **227/227 tests en verde**.
 
-La documentación específica quedó registrada en `docs/01-builds/Build-039.md`.
+Commit: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
 
 ## Build 038
 
@@ -74,43 +84,29 @@ Commit: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
 
 ## Build 037
 
-Se revisaron `MonedaService`, `Moneda` y `MonedaRepository` y se amplió `MonedaServiceTest` para aumentar la cobertura del servicio.
+Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
 
-La clase pasó de **8 a 17 tests en verde** y la batería general pasó de **201 a 210 tests en verde**.
+La batería general quedó en **210/210 tests en verde**.
 
 La documentación específica quedó registrada en `docs/01-builds/Build-037.md`.
 
 ## Build 036
 
-El Build 036 agregó **15 tests** a `InstitucionFinancieraServiceTest`, alcanzando **23/23 tests en verde** y una batería general de **201/201 tests en verde**.
+Se ampliaron los tests de `InstitucionFinancieraServiceTest`, alcanzando **23/23 tests en verde** y una batería general de **201/201 tests en verde**.
 
 Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
 
 ## Build 035
 
-El Build 035 agregó 20 tests a `CuentaServiceTest`, alcanzando **40/40 tests en verde** y una batería general de **186/186 tests en verde**.
+Se ampliaron los tests de `CuentaServiceTest`, alcanzando **40/40 tests en verde** y una batería general de **186/186 tests en verde**.
 
 Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
 
 ## Build 034
 
-El Build 034 incorporó 17 tests en `MovimientoServiceTest` para ampliar la cobertura sin modificar código de producción.
-
-Resultado al cerrar ese Build: **163/163 tests en verde**.
+Se ampliaron los tests de `MovimientoServiceTest`, alcanzando **32/32 tests en verde** y una batería general de **163/163 tests en verde**.
 
 Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
-
-## Build 033
-
-El Build 033 incorporó tres reglas de negocio en `MovimientoService`:
-
-1. Cuenta y Categoría deben pertenecer al mismo Perfil Financiero.
-2. No se puede registrar un movimiento sobre una Cuenta desactivada.
-3. No se puede cambiar la Categoría de un Movimiento por una categoría de otro Perfil Financiero.
-
-Resultado al cerrar ese Build: **144/144 tests en verde**.
-
-Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
 
 ## Dominio actual
 
@@ -161,11 +157,11 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La batería general actual está en **227/227 tests en verde**.
+La batería general actual está en **236/236 tests en verde**.
 
 Conteo actual de tests de services:
 
-- `CategoriaServiceTest`: **12**
+- `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **40**
 - `InstitucionFinancieraServiceTest`: **23**
 - `MonedaServiceTest`: **17**
@@ -173,7 +169,7 @@ Conteo actual de tests de services:
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total: **157 tests de services**.
+Total: **166 tests de services**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
@@ -181,7 +177,7 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
 
-No hay cambios de código pendientes de publicar en Build 039.
+No hay cambios de código pendientes de publicar en Build 040.
 
 ## Forma de trabajo acordada
 
