@@ -4,6 +4,24 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 043 — Ampliación de cobertura de MovimientoService
+
+Se amplió `MovimientoServiceTest`, pasando de **37 a 50 tests en verde**.
+
+Se incorporó cobertura adicional para registro, modificaciones, eliminación, búsquedas/listados y validaciones de parámetros nulos y entidades inexistentes.
+
+Durante la ejecución inicial se detectaron dos expectativas incorrectas para valores nulos de `importe` y `descripcion`. El dominio `Movimiento` los valida mediante `Validaciones` y devuelve `IllegalArgumentException`, por lo que los tests fueron corregidos para reflejar el contrato existente.
+
+La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+
+La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 19:51:15 -03:00.
+
+`git diff --check` no reportó errores de whitespace.
+
+Commit asociado:
+
+- `b6384f0` — `test: ampliar cobertura de MovimientoService`
+
 ### Build 042 — Ampliación de cobertura de CuentaService
 
 Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**.
@@ -112,17 +130,17 @@ Commit asociado:
 - `CuentaServiceTest`: **47**
 - `InstitucionFinancieraServiceTest`: **26**
 - `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **37**
+- `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total de tests de services: **176**.
+Total de tests de services: **189**.
 
-La batería general del proyecto es de **246/246 tests en verde**.
+La batería general del proyecto es de **259/259 tests en verde**.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 042 con **246 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El punto de control vigente es Build 043 con **259 tests en verde**.
 
 ## Regla de cierre
 
