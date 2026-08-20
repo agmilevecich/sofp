@@ -166,4 +166,372 @@ class MovimientoTest {
                 "Compra Carrefour"
         );
     }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaCuentaEsNula() {
+
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.cuenta.nula@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Personal",
+                        usuario
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Supermercado",
+                        perfil
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> new Movimiento(
+                        null,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("15000.00"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaCategoriaEsNula() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        null,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("15000.00"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoElTipoMovimientoEsNulo() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        null,
+                        new BigDecimal("15000.00"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoElImporteEsNulo() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        TipoMovimiento.EGRESO,
+                        null,
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoElImporteEsCero() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        TipoMovimiento.EGRESO,
+                        BigDecimal.ZERO,
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoElImporteEsNegativo() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("-100.00"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaFechaHoraEsNula() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("15000.00"),
+                        null,
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaDescripcionEsNula() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("15000.00"),
+                        LocalDateTime.now(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaDescripcionEsVacia() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("15000.00"),
+                        LocalDateTime.now(),
+                        ""
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaDescripcionContieneSoloEspacios() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Movimiento(
+                        movimiento.getCuenta(),
+                        movimiento.getCategoria(),
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("15000.00"),
+                        LocalDateTime.now(),
+                        "   "
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeModificaTipoMovimientoConValorNulo() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimiento.modificarTipoMovimiento(null)
+        );
+    }
+
+    @Test
+    void deberiaModificarCorrectamenteElTipoMovimiento() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        movimiento.modificarTipoMovimiento(
+                TipoMovimiento.INGRESO
+        );
+
+        assertEquals(
+                TipoMovimiento.INGRESO,
+                movimiento.getTipoMovimiento()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaElImportePorNull() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimiento.cambiarImporte(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaElImportePorCero() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimiento.cambiarImporte(
+                        BigDecimal.ZERO
+                )
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaElImportePorUnValorNegativo() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimiento.cambiarImporte(
+                        new BigDecimal("-500.00")
+                )
+        );
+    }
+
+    @Test
+    void deberiaCambiarCorrectamenteElImporte() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        movimiento.cambiarImporte(
+                new BigDecimal("25000.00")
+        );
+
+        assertEquals(
+                new BigDecimal("25000.00"),
+                movimiento.getImporte()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaLaFechaHoraPorNull() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimiento.cambiarFechaHora(null)
+        );
+    }
+
+    @Test
+    void deberiaCambiarCorrectamenteLaFechaHora() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        LocalDateTime nuevaFecha =
+                LocalDateTime.of(
+                        2026,
+                        8,
+                        20,
+                        18,
+                        30
+                );
+
+        movimiento.cambiarFechaHora(nuevaFecha);
+
+        assertEquals(
+                nuevaFecha,
+                movimiento.getFechaHora()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaLaDescripcionPorNull() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimiento.cambiarDescripcion(null)
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaLaDescripcionPorVacia() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimiento.cambiarDescripcion("")
+        );
+    }
+
+    @Test
+    void deberiaCambiarCorrectamenteLaDescripcion() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        movimiento.cambiarDescripcion(
+                "Compra supermercado"
+        );
+
+        assertEquals(
+                "Compra supermercado",
+                movimiento.getDescripcion()
+        );
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoSeCambiaLaCategoriaPorNull() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> movimiento.cambiarCategoria(null)
+        );
+    }
+
+    @Test
+    void deberiaPermitirEstablecerObservacionesComoNull() {
+
+        Movimiento movimiento = crearMovimiento();
+
+        movimiento.cambiarObservaciones(null);
+
+        assertNull(
+                movimiento.getObservaciones()
+        );
+    }
 }
