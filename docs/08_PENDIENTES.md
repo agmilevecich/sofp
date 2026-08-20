@@ -4,10 +4,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Ejecutar la suite general después de la ampliación de `MovimientoTest`.
-- Si la suite general queda en verde, cerrar Build 044 y registrar su resultado definitivo.
+- Revisar el estado actual del dominio, servicios, repositorios y tests para definir el siguiente bloque de trabajo.
+- Definir la próxima funcionalidad antes de implementar código nuevo.
 - Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
-- No implementar código nuevo hasta cerrar la verificación de Build 044 y definir el siguiente bloque.
 
 ## Trabajo recientemente completado
 
@@ -26,9 +25,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 041: reforzamiento de validaciones de servicios y dominio y ampliación de cobertura de `InstitucionFinancieraServiceTest`.
 - Build 042: ampliación de cobertura de `CuentaServiceTest`.
 - Build 043: ampliación de cobertura de `MovimientoServiceTest`.
-- Bloque Build 044: ampliación de `MovimientoTest`, con 23 tests nuevos y 27/27 tests específicos en verde.
+- Build 044: ampliación de `MovimientoTest`, con 23 tests nuevos, 27/27 tests específicos en verde y suite general 282/282 en verde.
 
-## Build 044 — En curso
+## Build 044 — Cerrado
 
 Se amplió `MovimientoTest`, pasando de **4 a 27 tests en verde**.
 
@@ -40,7 +39,17 @@ Commit de código: `6f53f79` — `test: ampliar cobertura de Movimiento`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
-La suite general todavía debe ejecutarse para comprobar la integración de este cambio y cerrar el Build.
+La suite general posterior al cambio confirmó:
+
+- Tests run: **282**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+
+La ejecución finalizó el **20/08/2026 a las 13:19:27 -03:00** y duró **07:21 min**.
+
+**Build 044 queda cerrado y validado.**
 
 ## Estado de Git de referencia
 
@@ -54,6 +63,7 @@ La suite general todavía debe ejecutarse para comprobar la integración de este
 - Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
 - Definir reportes y cálculos derivados de movimientos.
 - Ampliar las reglas de saldos y consistencia financiera.
+- Diseñar e implementar `OperacionFinanciera` cuando corresponda al siguiente bloque de dominio.
 
 ## Regla
 
