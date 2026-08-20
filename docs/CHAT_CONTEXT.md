@@ -28,9 +28,7 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 ## Estado actual — 20/08/2026
 
-Último Build cerrado: **Build 043 — Ampliación de cobertura de MovimientoService**.
-
-Está en curso **Build 044 — Ampliación de cobertura de Movimiento**.
+Último Build cerrado: **Build 044 — Ampliación de cobertura de Movimiento**.
 
 Último commit de código confirmado:
 
@@ -38,68 +36,31 @@ Está en curso **Build 044 — Ampliación de cobertura de Movimiento**.
 
 Build 044 amplió `MovimientoTest` sin modificar código de producción, pasando de **4 a 27 tests en verde** mediante **23 tests nuevos**.
 
-Resultado específico confirmado:
+Resultado específico:
 
 - `MovimientoTest`: **27/27 tests en verde**.
-- Failures: 0 en la ejecución específica.
 
-La suite general posterior a Build 044 todavía debe ejecutarse. La última suite general confirmada corresponde a Build 043: **259/259 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
+Resultado de la suite general posterior al cambio:
 
-El commit de código de Build 044 ya está registrado y publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+- Tests run: **282**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **20/08/2026 13:19:27 -03:00**
+- Duración: **07:21 min**
 
-## Build 044 — En curso
+**Build 044 queda cerrado y validado.**
 
-Se amplió `MovimientoTest` con 23 tests nuevos.
+El commit de código ya está publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
-La cobertura agregada incluye validaciones del constructor y de las operaciones de modificación de `Movimiento`, incluyendo cuenta, categoría, tipo, importe, fecha/hora, descripción y observaciones.
+## Decisión de dominio: transferencias
 
-No se modificó código de producción.
+Las transferencias no se modelarán como un tercer `TipoMovimiento`.
 
-La documentación de continuidad registra Build 044 como bloque abierto hasta ejecutar la suite general y confirmar su resultado.
+Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**. Ambos efectos deberán quedar vinculados posteriormente mediante una `OperacionFinanciera` que represente la operación de transferencia.
 
-## Build 043
-
-Se amplió `MovimientoServiceTest` con la cobertura acordada durante la revisión de `MovimientoService`.
-
-No se modificó código de producción.
-
-La batería general quedó en **259/259 tests en verde**.
-
-Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
-
-## Build 042
-
-Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**, sin modificar código de producción.
-
-La batería general quedó en **246/246 tests en verde**.
-
-Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
-
-## Build 041
-
-Se reforzó `InstitucionFinanciera` para rechazar valores nulos en constructor y operaciones de modificación.
-
-En `MonedaService` se incorporó validación explícita de IDs nulos en las operaciones de modificación.
-
-En `PerfilFinancieroService` se incorporaron validaciones explícitas de IDs y descripción y se centralizó la obtención de perfiles existentes mediante `obtenerPorId(...)`.
-
-`InstitucionFinancieraServiceTest` incorporó 3 tests nuevos.
-
-La batería general quedó en **239/239 tests en verde**.
-
-Commit: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
-
-## Build 040
-
-Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde**, con 9 tests nuevos para cubrir validaciones de parámetros nulos.
-
-La batería general quedó en **236/236 tests en verde**.
-
-Commit: `9be5972` — `test: ampliar cobertura de CategoriaService`.
-
-## Builds 039–034
-
-Los Builds 039 a 034 ampliaron progresivamente la cobertura de `UsuarioService`, `PerfilFinancieroService`, `MonedaService`, `InstitucionFinancieraService`, `CuentaService` y `MovimientoService`, manteniendo la batería general en verde. El detalle completo permanece en `docs/06_BUILDS.md`, `docs/07_TESTS.md` y `docs/09_HISTORIAL_PROYECTO.md`.
+La implementación de esta decisión queda pendiente hasta el bloque de dominio correspondiente.
 
 ## Dominio actual
 
@@ -150,9 +111,9 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La última batería general confirmada es de **259/259 tests en verde**.
+La última batería general confirmada es de **282/282 tests en verde**.
 
-Conteo confirmado de tests de services al cierre de Build 043:
+Conteo confirmado de tests de services:
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **47**
@@ -164,15 +125,15 @@ Conteo confirmado de tests de services al cierre de Build 043:
 
 Total confirmado: **189 tests de services**.
 
-`MovimientoTest` cuenta ahora con **27/27 tests en verde** dentro del Build 044 en curso.
+`MovimientoTest`: **27/27 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Próximo paso
 
-Ejecutar la suite general después de la ampliación de `MovimientoTest`. Si todos los tests quedan verdes, cerrar Build 044, registrar el resultado definitivo y definir el siguiente bloque.
+Revisar el estado actual del código, tests y documentación para definir el siguiente bloque de trabajo después del cierre de Build 044.
 
-No implementar código nuevo hasta cerrar esta verificación.
+Antes de implementar una nueva funcionalidad se deben revisar las clases relacionadas, sus tests y las reglas de negocio documentadas. No asumir estructuras ni comportamientos no presentes en el repositorio.
 
 ## Forma de trabajo acordada
 
