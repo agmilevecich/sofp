@@ -26,19 +26,19 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque trabajado es **Build 043 — Ampliación de cobertura de MovimientoService**.
+El último bloque confirmado es **Build 043 — Ampliación de cobertura de MovimientoService**.
 
-Se amplió `MovimientoServiceTest` sin modificar código de producción. La clase pasó de **37 a 50 tests** mediante la incorporación de cobertura adicional sobre las operaciones y validaciones existentes de `MovimientoService`.
+Se inició el siguiente bloque de pruebas, **Build 044 — Ampliación de cobertura de Movimiento**, sobre `MovimientoTest`. Se agregaron **23 tests**, pasando la clase de **4 a 27 tests en verde**. No se modificó código de producción.
 
-La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`. La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 19:51:15 -03:00.
+La suite general de Build 043 permanece confirmada en **259/259 tests en verde**. La suite general posterior a los nuevos 23 tests todavía debe ejecutarse para cerrar Build 044.
 
 ## Último commit de código
 
-El commit de código de Build 043 ya fue registrado y publicado:
+El último commit de código publicado es:
 
-- `b6384f0` — `test: ampliar cobertura de MovimientoService`
+- `6f53f79` — `test: ampliar cobertura de Movimiento`
 
-Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
 ## Dominio construido
 
@@ -89,9 +89,11 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general confirmada actualmente es de **259/259 tests en verde**.
+La última batería general confirmada es de **259/259 tests en verde**, correspondiente a Build 043.
 
-Clases de servicio y cantidad actual de tests:
+Después de la ampliación de `MovimientoTest`, la clase quedó en **27/27 tests en verde**. La ejecución de la suite general posterior a este cambio queda como siguiente verificación.
+
+Conteo confirmado de tests de services al cierre de Build 043:
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **47**
@@ -101,13 +103,15 @@ Clases de servicio y cantidad actual de tests:
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
 
-Total de tests de services: **189**.
+Total confirmado de tests de services: **189**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Git
 
-El último commit de código confirmado en `main` es `b6384f0` — `test: ampliar cobertura de MovimientoService`.
+Último commit de código confirmado en `main`:
+
+- `6f53f79` — `test: ampliar cobertura de Movimiento`
 
 El commit fue publicado tanto en GitHub como en Bitbucket y el working tree quedó limpio después de `git pushall`.
 
@@ -115,9 +119,9 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Definir claramente el siguiente bloque funcional y sus tests antes de implementar código nuevo.
+Ejecutar la suite general después de la ampliación de `MovimientoTest`. Si todos los tests quedan verdes, cerrar Build 044, registrar el resultado y actualizar nuevamente la continuidad.
 
-No hay cambios de código pendientes de publicar en Build 043.
+No implementar código de producción nuevo hasta definir el siguiente bloque después de cerrar esta verificación.
 
 ## Regla de continuidad
 
