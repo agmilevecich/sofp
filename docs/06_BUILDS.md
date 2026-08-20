@@ -271,21 +271,11 @@ Se amplió `CuentaServiceTest` sin modificar código de producción.
 
 La batería general pasó de **239 a 246 tests en verde**.
 
-Resultado final:
-
-- Tests run: **246**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
+Resultado final: **246/246 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 
 La ejecución general terminó el **19/08/2026 a las 16:46:27 -03:00**.
 
-`git diff --check` no reportó errores de whitespace antes del commit.
-
 Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
 ## Build 043 — Ampliación de cobertura de MovimientoService
 
@@ -295,43 +285,64 @@ Se amplió `MovimientoServiceTest` sin modificar código de producción.
 
 La batería general pasó de **246 a 259 tests en verde**.
 
-Durante la ejecución inicial se detectaron dos expectativas incorrectas en tests de registro: `Movimiento` valida `importe` y `descripcion` mediante `Validaciones`, devolviendo `IllegalArgumentException` para valores nulos. Los tests fueron ajustados al contrato real del dominio.
-
-Resultado final:
-
-- Tests run: **259**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
+Resultado final: **259/259 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 
 La ejecución general terminó el **19/08/2026 a las 19:51:15 -03:00**.
 
-`git diff --check` no reportó errores de whitespace antes del commit.
-
 Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
-El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
-
-## Build 044 — Ampliación de cobertura de Movimiento — En curso
+## Build 044 — Ampliación de cobertura de Movimiento
 
 Se amplió `MovimientoTest` sin modificar código de producción.
 
 Se incorporaron **23 tests nuevos**, pasando de **4 a 27 tests en verde** en la clase.
 
-La cobertura agregada incluye validaciones del constructor y de las operaciones de modificación de `Movimiento`, incluyendo cuenta, categoría, tipo, importe, fecha/hora, descripción y observaciones.
+La cobertura agregada incluye validaciones del constructor y operaciones de modificación de `Movimiento`, incluyendo cuenta, categoría, tipo, importe, fecha/hora, descripción y observaciones.
 
-Resultado específico confirmado:
+Resultado específico: **27/27 tests en verde**.
 
-- `MovimientoTest`: **27/27 tests en verde**
-- Tests nuevos: **23**
-- Failures: **0** en la ejecución específica
+Resultado de la suite general posterior al cambio:
 
-La suite general todavía no fue ejecutada después de este cambio, por lo que el Build 044 queda abierto hasta verificar la batería completa.
+- Tests run: **282**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
 
-Commit de código: `6f53f79` — `test: ampliar cobertura de Movimiento`.
+La ejecución general terminó el **20/08/2026 a las 13:19:27 -03:00** y tuvo una duración total de **07:21 min**.
+
+Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
+**Build 044 queda cerrado y validado.**
+
+## Estado actual
+
+El último bloque cerrado es el **Build 044**. La batería general actual es de **282/282 tests en verde**.
+
+El último commit de código es `6f53f79` — `test: ampliar cobertura de Movimiento`.
+
+La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
+
+## Builds recientes
+
+- Build 029 — Eliminación en `CategoriaRepository`.
+- Build 030 — Eliminación en `CategoriaService`.
+- Build 031 — Eliminación en `CuentaRepository`.
+- Build 032 — Eliminación en `CuentaService`.
+- Build 033 — Reglas de negocio de `Movimiento`.
+- Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
+- Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
+- Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
+- Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
+- Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
+- Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
+- Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
+- Build 041 — Reforzamiento de validaciones de servicios y dominio.
+- Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
+- Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
+- Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
 
 ## Regla de cierre
 
