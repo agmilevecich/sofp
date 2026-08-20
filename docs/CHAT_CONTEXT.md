@@ -32,7 +32,9 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 Último commit de código confirmado:
 
-- `6f53f79` — `test: ampliar cobertura de Movimiento`
+- `dca3b80` — `test: corregir datos compartidos de Movimiento`
+
+Este commit modifica únicamente `TestDataFactory`. `crearMovimiento()` ahora construye la cuenta y la categoría utilizando el mismo `PerfilFinanciero`, evitando relaciones incoherentes entre datos de prueba.
 
 Build 044 amplió `MovimientoTest` sin modificar código de producción, pasando de **4 a 27 tests en verde** mediante **23 tests nuevos**.
 
@@ -40,19 +42,21 @@ Resultado específico:
 
 - `MovimientoTest`: **27/27 tests en verde**.
 
-Resultado de la suite general posterior al cambio:
+Última suite general registrada:
 
 - Tests run: **282**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **20/08/2026 13:19:27 -03:00**
-- Duración: **07:21 min**
+- Finalizada: **20/08/2026 14:17:58 -03:00**
+- Duración: **06:34 min**
+
+Esta suite fue ejecutada antes del commit `dca3b80`; la corrección posterior afecta únicamente datos compartidos de tests y no código de producción.
 
 **Build 044 queda cerrado y validado.**
 
-El commit de código ya está publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+El commit `dca3b80` ya está publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
 ## Decisión de dominio: transferencias
 
@@ -111,7 +115,7 @@ La capa `service` contiene actualmente:
 
 ## Tests
 
-La última batería general confirmada es de **282/282 tests en verde**.
+La última batería general registrada es de **282/282 tests en verde**.
 
 Conteo confirmado de tests de services:
 
@@ -131,7 +135,7 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 ## Próximo paso
 
-Revisar el estado actual del código, tests y documentación para definir el siguiente bloque de trabajo después del cierre de Build 044.
+Revisar el estado actual del código, tests y documentación para definir el siguiente bloque de trabajo después del cierre de Build 044 y de la corrección de `TestDataFactory`.
 
 Antes de implementar una nueva funcionalidad se deben revisar las clases relacionadas, sus tests y las reglas de negocio documentadas. No asumir estructuras ni comportamientos no presentes en el repositorio.
 
