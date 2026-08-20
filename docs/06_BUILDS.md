@@ -313,6 +313,26 @@ Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
 El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
+## Build 044 — Ampliación de cobertura de Movimiento — En curso
+
+Se amplió `MovimientoTest` sin modificar código de producción.
+
+Se incorporaron **23 tests nuevos**, pasando de **4 a 27 tests en verde** en la clase.
+
+La cobertura agregada incluye validaciones del constructor y de las operaciones de modificación de `Movimiento`, incluyendo cuenta, categoría, tipo, importe, fecha/hora, descripción y observaciones.
+
+Resultado específico confirmado:
+
+- `MovimientoTest`: **27/27 tests en verde**
+- Tests nuevos: **23**
+- Failures: **0** en la ejecución específica
+
+La suite general todavía no fue ejecutada después de este cambio, por lo que el Build 044 queda abierto hasta verificar la batería completa.
+
+Commit de código: `6f53f79` — `test: ampliar cobertura de Movimiento`.
+
+El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+
 ## Regla de cierre
 
 Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
