@@ -2,7 +2,18 @@
 
 Este documento conserva una línea temporal resumida de decisiones, avances y puntos de continuidad.
 
-## 2026-08-19
+## 2026-08-20
+
+### Build 044 — Ampliación de cobertura de Movimiento — En curso
+
+- Se amplió `MovimientoTest` sin modificar código de producción.
+- Se incorporaron **23 tests nuevos**.
+- `MovimientoTest` pasó de **4 a 27 tests en verde**.
+- Se cubrieron validaciones del constructor y operaciones de modificación de `Movimiento`.
+- La ejecución específica quedó en **27/27 tests en verde**.
+- Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
+- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+- La suite general posterior al cambio todavía está pendiente, por lo que Build 044 aún no se considera cerrado.
 
 ### Build 043 — Ampliación de cobertura de MovimientoService
 
@@ -89,9 +100,9 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque confirmado es el **Build 043**. Se amplió la cobertura de `MovimientoServiceTest` y la batería general quedó en **259/259 tests en verde**.
+El último bloque cerrado es el **Build 043**. El bloque siguiente, **Build 044**, está en curso y corresponde a la ampliación de cobertura de `MovimientoTest`.
 
-El último commit de código confirmado es `b6384f0` — `test: ampliar cobertura de MovimientoService`.
+El último commit de código es `6f53f79` — `test: ampliar cobertura de Movimiento`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
@@ -112,6 +123,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 041 — Reforzamiento de validaciones de servicios y dominio.
 - Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
 - Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
+- Build 044 — Ampliación de cobertura de `MovimientoTest` — en curso.
 
 ## Regla histórica
 
