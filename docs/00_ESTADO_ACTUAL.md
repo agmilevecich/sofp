@@ -34,23 +34,31 @@ La suite general posterior a la ampliación confirmó **282/282 tests en verde**
 
 Build 044 queda cerrado y validado.
 
+Posteriormente se realizó una corrección de datos de prueba en `TestDataFactory`: `crearMovimiento()` ahora construye la `Cuenta` y la `Categoria` a partir del mismo `PerfilFinanciero`, evitando relaciones de prueba incoherentes.
+
 ## Último commit de código
 
 El último commit de código publicado es:
 
+- `dca3b80` — `test: corregir datos compartidos de Movimiento`
+
+Este commit modifica únicamente `src/test/java/ar/com/agmilevecich/sofp/support/TestDataFactory.java`. Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+
+El commit anterior fue:
+
 - `6f53f79` — `test: ampliar cobertura de Movimiento`
 
-Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
-
-## Última suite general
+## Última suite general registrada
 
 - Tests run: **282**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **20/08/2026 13:19:27 -03:00**
-- Tiempo total: **07:21 min**
+- Última ejecución registrada: **20/08/2026 14:17:58 -03:00**
+- Tiempo total: **06:34 min**
+
+Esta suite corresponde a la validación realizada antes de registrar el commit `dca3b80`; la corrección posterior es exclusivamente de datos compartidos de tests.
 
 ## Dominio construido
 
@@ -101,7 +109,7 @@ La capa `service` contiene:
 
 ## Tests
 
-La batería general actual es de **282/282 tests en verde**.
+La última batería general registrada es de **282/282 tests en verde**.
 
 Conteo confirmado de tests de services:
 
@@ -127,13 +135,13 @@ Las transferencias no se modelarán como un tercer `TipoMovimiento`. Conceptualm
 
 Último commit de código confirmado en `main`:
 
-- `6f53f79` — `test: ampliar cobertura de Movimiento`
+- `dca3b80` — `test: corregir datos compartidos de Movimiento`
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Con Build 044 cerrado, revisar la documentación y el código actual para definir el siguiente bloque de trabajo. No implementar código nuevo hasta revisar las clases, tests y reglas de negocio relacionadas con la próxima funcionalidad.
+Con Build 044 cerrado y la fábrica de datos de Movimiento corregida, revisar nuevamente las clases, repositorios, servicios y tests relacionados para definir el siguiente bloque de trabajo. No implementar código nuevo hasta confirmar las reglas de negocio y el diseño de la próxima funcionalidad.
 
 ## Regla de continuidad
 
