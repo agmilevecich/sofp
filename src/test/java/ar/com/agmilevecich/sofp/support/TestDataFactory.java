@@ -96,8 +96,23 @@ public final class TestDataFactory {
 
     public static Movimiento crearMovimiento() {
 
-        Cuenta cuenta = crearCuenta();
-        Categoria categoria = crearCategoria();
+        PerfilFinanciero perfil = crearPerfil();
+
+        InstitucionFinanciera banco = crearBanco();
+        Moneda moneda = crearMoneda();
+
+        Cuenta cuenta = new Cuenta(
+                NOMBRE_CUENTA,
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                banco,
+                moneda
+        );
+
+        Categoria categoria = new Categoria(
+                NOMBRE_CATEGORIA,
+                perfil
+        );
 
         return new Movimiento(
                 cuenta,
