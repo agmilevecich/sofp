@@ -4,6 +4,22 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
+
+Se incorporó `OperacionFinancieraTest` con **7 tests en verde**.
+
+La cobertura incluye creación válida, cuenta origen obligatoria, cuenta destino obligatoria, importe nulo, importe cero, importe negativo y rechazo de la misma cuenta como origen y destino.
+
+La suite general posterior al cambio quedó en **289/289 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+La ejecución terminó el **20/08/2026 a las 21:46:51 -03:00**, con una duración total de **08:47 min**.
+
+Commit asociado:
+
+- `1f650dc` — `feat: implementar dominio de operacion financiera`
+
+El commit está en la rama `feature/operacion-financiera`.
+
 ### Build 044 — Ampliación de cobertura de Movimiento — Cerrado
 
 Se amplió `MovimientoTest`, pasando de **4 a 27 tests en verde**.
@@ -56,7 +72,7 @@ Commit asociado:
 
 - `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
 
-### Conteo actual por test de service
+## Conteo actual por test de service
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **47**
@@ -68,13 +84,16 @@ Commit asociado:
 
 Total confirmado de tests de services: **189**.
 
-`MovimientoTest`: **27**.
+Tests de dominio destacados:
 
-**Total general confirmado: 282/282 tests en verde.**
+- `MovimientoTest`: **27**
+- `OperacionFinancieraTest`: **7**
+
+**Total general confirmado: 289/289 tests en verde.**
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El último Build cerrado es Build 044 con **282 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El último Build cerrado es Build 045 con **289 tests en verde**.
 
 ## Regla de cierre
 
