@@ -479,4 +479,301 @@ public class OperacionFinancieraServiceTest {
                 )
         );
     }
+
+    @Test
+    void deberiaRechazarCuentaOrigenInactiva() {
+
+        cuentaOrigen.desactivar();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCuentaDestinoInactiva() {
+
+        cuentaDestino.desactivar();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCategoriaOrigenDeOtroPerfil() {
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Otro",
+                        "Usuario",
+                        "otro.operacion.service."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero otroPerfil =
+                new PerfilFinanciero(
+                        "Otro perfil",
+                        otroUsuario
+                );
+
+        Categoria otraCategoria =
+                new Categoria(
+                        "Otra categoría",
+                        otroPerfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(otroUsuario);
+        entityManager.persist(otroPerfil);
+        entityManager.persist(otraCategoria);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        otraCategoria,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCategoriaDestinoDeOtroPerfil() {
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Otro",
+                        "Usuario",
+                        "otro.destino.service."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero otroPerfil =
+                new PerfilFinanciero(
+                        "Otro perfil",
+                        otroUsuario
+                );
+
+        Categoria otraCategoria =
+                new Categoria(
+                        "Otra categoría",
+                        otroPerfil
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(otroUsuario);
+        entityManager.persist(otroPerfil);
+        entityManager.persist(otraCategoria);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        otraCategoria,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCuentasConMonedasDiferentes() {
+
+        Moneda otraMoneda =
+                new Moneda(
+                        "USD",
+                        "Dólar estadounidense",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(otraMoneda);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta cuentaDestinoDiferente =
+                new Cuenta(
+                        "Cuenta destino USD",
+                        TipoCuenta.CUENTA_CORRIENTE,
+                        perfilFinanciero,
+                        institucionFinanciera,
+                        otraMoneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(cuentaDestinoDiferente);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestinoDiferente,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarFechaHoraNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        null,
+                        "Transferencia"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarDescripcionNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        null
+                )
+        );
+    }
+
+    @Test
+    void deberiaNoPersistirMovimientosCuandoLaCuentaOrigenEstaInactiva() {
+
+        cuentaOrigen.desactivar();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+
+        assertEquals(
+                0,
+                entityManager.createQuery(
+                                "SELECT m FROM Movimiento m",
+                                Movimiento.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
+
+    @Test
+    void deberiaNoPersistirMovimientosCuandoLasMonedasSonDiferentes() {
+
+        Moneda otraMoneda =
+                new Moneda(
+                        "USD",
+                        "Dólar estadounidense",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(otraMoneda);
+
+        entityManager.getTransaction().commit();
+
+        Cuenta cuentaDestinoDiferente =
+                new Cuenta(
+                        "Cuenta destino USD",
+                        TipoCuenta.CUENTA_CORRIENTE,
+                        perfilFinanciero,
+                        institucionFinanciera,
+                        otraMoneda
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(cuentaDestinoDiferente);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestinoDiferente,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+
+        assertEquals(
+                0,
+                entityManager.createQuery(
+                                "SELECT m FROM Movimiento m",
+                                Movimiento.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
 }
