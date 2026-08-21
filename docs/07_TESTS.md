@@ -4,7 +4,7 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
-### Build 046 — Implementación de OperacionFinancieraService — Validado a nivel específico
+### Build 046 — Implementación de OperacionFinancieraService — Cerrado
 
 Se amplió `OperacionFinancieraServiceTest` hasta **20 tests en verde**.
 
@@ -15,13 +15,14 @@ La cobertura incluye:
 - creación de `INGRESO` en la cuenta destino;
 - misma fecha/hora para ambos movimientos;
 - parámetros obligatorios nulos;
-- importes nulo, cero y negativo;
+- importe nulo, cero y negativo;
 - cuentas desactivadas;
 - categorías pertenecientes a otro perfil;
 - cuentas con monedas diferentes;
-- ausencia de persistencia de movimientos cuando la operación es rechazada.
+- ausencia de persistencia de movimientos cuando la operación es rechazada;
+- descripción nula.
 
-Resultado específico verificado localmente:
+Resultado específico:
 
 - Tests run: **20**
 - Failures: **0**
@@ -29,13 +30,28 @@ Resultado específico verificado localmente:
 - Skipped: **0**
 - **20/20 tests en verde**
 
-Durante la validación inicial se detectó que la descripción es obligatoria en `OperacionFinancieraService`. El test de descripción nula fue corregido para esperar `NullPointerException`, reflejando el contrato real del servicio.
+Durante la validación se detectó que la descripción no debe ser obligatoria para una transferencia. Se eliminó la validación correspondiente de `OperacionFinancieraService` y se verificó el caso con descripción nula.
 
-Commit de producción asociado:
+Commits asociados:
 
 - `a995937` — `feat: implementar servicio de operacion financiera`
+- `2e4b94f` — `fix: permitir descripcion nula en transferencia`
 
-Los tests ampliados se encuentran en el trabajo local y deben quedar incorporados al siguiente commit de la rama `feature/operacion-financiera`.
+### Suite general de Build 046 — Cerrada
+
+Se ejecutó la suite completa del proyecto mediante Maven después de incorporar la corrección definitiva del servicio.
+
+Resultado:
+
+- Tests run: **300**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- **BUILD SUCCESS**
+
+La ejecución finalizó el **21/08/2026 a las 18:01:52 -03:00**, con una duración total de **09:44 min**.
+
+**Build 046 queda cerrado con 300/300 tests en verde.**
 
 ### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
 
@@ -123,13 +139,11 @@ Tests de dominio destacados:
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **7**
 
-La suite general de Build 045 fue de **289 tests**. Al incorporar los **9 tests nuevos** de `OperacionFinancieraServiceTest` respecto de la versión de 11 tests que estaba registrada en la rama, la suite esperada queda en **298 tests**.
-
-La suite completa de 298 tests todavía debe ejecutarse después de incorporar los tests ampliados al commit de `feature/operacion-financiera`.
+Suite general de Build 046: **300/300 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. Build 046 agrega la cobertura específica de `OperacionFinancieraServiceTest`, actualmente verificada con **20/20 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. Build 046 agrega la cobertura específica de `OperacionFinancieraServiceTest` y cierra con la suite completa en **300/300 tests en verde**.
 
 ## Regla de cierre
 
