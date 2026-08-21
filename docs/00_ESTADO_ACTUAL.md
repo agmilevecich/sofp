@@ -7,7 +7,8 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Rama de trabajo actual para esta documentación:** `docs/continuidad-sofp`
+**Rama de trabajo de la funcionalidad actual:** `feature/operacion-financiera`  
+**Rama de documentación:** `docs/continuidad-sofp`
 
 ## Objetivo
 
@@ -26,39 +27,36 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-El último bloque confirmado es **Build 044 — Ampliación de cobertura de Movimiento**.
+Se cerró **Build 045 — Implementación del dominio de OperacionFinanciera** en la rama `feature/operacion-financiera`.
 
-Se amplió `MovimientoTest` sin modificar código de producción, incorporando **23 tests nuevos** y pasando de **4 a 27 tests en verde** en la clase.
+Se incorporó la entidad `OperacionFinanciera` con:
 
-La suite general posterior a la ampliación confirmó **282/282 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+- cuenta de origen obligatoria;
+- cuenta de destino obligatoria;
+- importe positivo obligatorio;
+- prohibición de utilizar la misma cuenta como origen y destino;
+- persistencia JPA mediante la tabla `operaciones_financieras`.
 
-Build 044 queda cerrado y validado.
+Se incorporó `OperacionFinancieraTest` con **7 tests en verde**, cubriendo creación válida y las validaciones anteriores.
 
-Posteriormente se realizó una corrección de datos de prueba en `TestDataFactory`: `crearMovimiento()` ahora construye la `Cuenta` y la `Categoria` a partir del mismo `PerfilFinanciero`, evitando relaciones de prueba incoherentes.
+La suite general posterior al cambio confirmó **289/289 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+La ejecución terminó el **20/08/2026 a las 21:46:51 -03:00**, con una duración total de **08:47 min**.
 
 ## Último commit de código
 
-El último commit de código publicado es:
+En la rama `feature/operacion-financiera`:
 
-- `dca3b80` — `test: corregir datos compartidos de Movimiento`
+- `1f650dc` — `feat: implementar dominio de operacion financiera`
 
-Este commit modifica únicamente `src/test/java/ar/com/agmilevecich/sofp/support/TestDataFactory.java`. Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+El commit contiene únicamente:
 
-El commit anterior fue:
+- `src/main/java/ar/com/agmilevecich/sofp/domain/OperacionFinanciera.java`
+- `src/test/java/ar/com/agmilevecich/sofp/domain/OperacionFinancieraTest.java`
 
-- `6f53f79` — `test: ampliar cobertura de Movimiento`
+La rama quedó con `working tree clean` después del commit.
 
-## Última suite general registrada
-
-- Tests run: **282**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Última ejecución registrada: **20/08/2026 14:17:58 -03:00**
-- Tiempo total: **06:34 min**
-
-Esta suite corresponde a la validación realizada antes de registrar el commit `dca3b80`; la corrección posterior es exclusivamente de datos compartidos de tests.
+**Importante:** este commit pertenece a `feature/operacion-financiera`; todavía no se registró como commit de `main`.
 
 ## Dominio construido
 
@@ -71,6 +69,7 @@ Entidades principales:
 - `Cuenta`
 - `Categoria`
 - `Movimiento`
+- `OperacionFinanciera`
 
 Enumeraciones principales:
 
@@ -93,6 +92,8 @@ Repositorios JPA incorporados:
 
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
+Todavía no existe `OperacionFinancieraRepository`.
+
 ## Services
 
 La capa `service` contiene:
@@ -105,11 +106,13 @@ La capa `service` contiene:
 - `InstitucionFinancieraService`
 - `MonedaService`
 
+Todavía no existe `OperacionFinancieraService`.
+
 `MovimientoService` gestiona registro, búsqueda, listados, modificaciones y eliminación mediante transacciones explícitas. Desde Build 033 valida coherencia entre cuenta, categoría y perfil financiero y rechaza movimientos sobre cuentas desactivadas.
 
 ## Tests
 
-La última batería general registrada es de **282/282 tests en verde**.
+La última batería general confirmada es de **289/289 tests en verde**.
 
 Conteo confirmado de tests de services:
 
@@ -123,25 +126,36 @@ Conteo confirmado de tests de services:
 
 Total confirmado de tests de services: **189**.
 
-`MovimientoTest`: **27/27 tests en verde**.
+`MovimientoTest`: **27**.
+
+`OperacionFinancieraTest`: **7**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Decisiones de dominio relevantes
 
-Las transferencias no se modelarán como un tercer `TipoMovimiento`. Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**, vinculados posteriormente por una `OperacionFinanciera`.
+Las transferencias no se modelarán como un tercer `TipoMovimiento`. Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**, vinculados mediante una `OperacionFinanciera`.
+
+La entidad `OperacionFinanciera` ya está implementada y validada. Todavía falta definir y construir el mecanismo que materialice la operación como movimientos y determine su persistencia y coordinación transaccional.
 
 ## Git
 
-Último commit de código confirmado en `main`:
+Último commit de código de la funcionalidad actual:
+
+- rama `feature/operacion-financiera`
+- `1f650dc` — `feat: implementar dominio de operacion financiera`
+
+Último commit de código confirmado anteriormente en `main`:
 
 - `dca3b80` — `test: corregir datos compartidos de Movimiento`
 
-La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
+La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Con Build 044 cerrado y la fábrica de datos de Movimiento corregida, revisar nuevamente las clases, repositorios, servicios y tests relacionados para definir el siguiente bloque de trabajo. No implementar código nuevo hasta confirmar las reglas de negocio y el diseño de la próxima funcionalidad.
+Antes de implementar nuevas clases, revisar el estado actual de `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests para determinar cómo debe materializarse una transferencia: un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados a `OperacionFinanciera`.
+
+No implementar todavía `OperacionFinancieraRepository` ni `OperacionFinancieraService` hasta confirmar las reglas de negocio y el diseño con las clases existentes.
 
 ## Regla de continuidad
 
