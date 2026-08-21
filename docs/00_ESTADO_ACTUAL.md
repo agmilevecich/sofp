@@ -27,36 +27,37 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-Se cerró **Build 045 — Implementación del dominio de OperacionFinanciera** en la rama `feature/operacion-financiera`.
+Se implementó **Build 046 — `OperacionFinancieraService`** en la rama `feature/operacion-financiera`.
 
-Se incorporó la entidad `OperacionFinanciera` con:
+El servicio permite materializar una transferencia como:
 
-- cuenta de origen obligatoria;
-- cuenta de destino obligatoria;
-- importe positivo obligatorio;
-- prohibición de utilizar la misma cuenta como origen y destino;
-- persistencia JPA mediante la tabla `operaciones_financieras`.
+- una `OperacionFinanciera`;
+- un `EGRESO` en la cuenta origen;
+- un `INGRESO` en la cuenta destino.
 
-Se incorporó `OperacionFinancieraTest` con **7 tests en verde**, cubriendo creación válida y las validaciones anteriores.
+La operación y los dos movimientos se persisten dentro de una única transacción, con rollback ante excepciones.
 
-La suite general posterior al cambio confirmó **289/289 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+El servicio valida además cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios.
 
-La ejecución terminó el **20/08/2026 a las 21:46:51 -03:00**, con una duración total de **08:47 min**.
+## Tests
+
+`OperacionFinancieraServiceTest` quedó en **20/20 tests en verde** en la validación local.
+
+La cobertura incluye operación exitosa, generación de ambos movimientos, parámetros nulos, importes inválidos, cuentas inactivas, perfiles incompatibles, monedas diferentes y ausencia de persistencia ante operaciones rechazadas.
+
+La suite general de referencia anterior era **289/289 tests en verde**. Al pasar el test del servicio de 11 a 20 casos, se esperan **298 tests** en la suite completa una vez incorporada la ampliación al commit de la rama feature.
 
 ## Último commit de código
 
 En la rama `feature/operacion-financiera`:
 
-- `1f650dc` — `feat: implementar dominio de operacion financiera`
+- `a995937` — `feat: implementar servicio de operacion financiera`
 
-El commit contiene únicamente:
+Este commit contiene la implementación de `OperacionFinancieraService`.
 
-- `src/main/java/ar/com/agmilevecich/sofp/domain/OperacionFinanciera.java`
-- `src/test/java/ar/com/agmilevecich/sofp/domain/OperacionFinancieraTest.java`
+Los tests ampliados hasta 20 casos todavía están en el trabajo local y deben incorporarse al siguiente commit de `feature/operacion-financiera`.
 
-La rama quedó con `working tree clean` después del commit.
-
-**Importante:** este commit pertenece a `feature/operacion-financiera`; todavía no se registró como commit de `main`.
+**Importante:** la funcionalidad continúa aislada de `main`. No se incorporó ningún cambio de Build 046 a `main`.
 
 ## Dominio construido
 
@@ -105,14 +106,13 @@ La capa `service` contiene:
 - `UsuarioService`
 - `InstitucionFinancieraService`
 - `MonedaService`
-
-Todavía no existe `OperacionFinancieraService`.
+- `OperacionFinancieraService`
 
 `MovimientoService` gestiona registro, búsqueda, listados, modificaciones y eliminación mediante transacciones explícitas. Desde Build 033 valida coherencia entre cuenta, categoría y perfil financiero y rechaza movimientos sobre cuentas desactivadas.
 
-## Tests
+`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción.
 
-La última batería general confirmada es de **289/289 tests en verde**.
+## Tests confirmados
 
 Conteo confirmado de tests de services:
 
@@ -123,39 +123,41 @@ Conteo confirmado de tests de services:
 - `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
+- `OperacionFinancieraServiceTest`: **20** localmente
 
-Total confirmado de tests de services: **189**.
+Total de tests de services registrados: **209**.
 
-`MovimientoTest`: **27**.
+Tests de dominio destacados:
 
-`OperacionFinancieraTest`: **7**.
+- `MovimientoTest`: **27**
+- `OperacionFinancieraTest`: **7**
+
+La suite completa de **298 tests** queda pendiente de ejecución después de incorporar los 9 tests nuevos del servicio al commit de la rama feature.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
 ## Decisiones de dominio relevantes
 
-Las transferencias no se modelarán como un tercer `TipoMovimiento`. Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**, vinculados mediante una `OperacionFinanciera`.
+Las transferencias no se modelan como un tercer `TipoMovimiento`. Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**, vinculados mediante una `OperacionFinanciera`.
 
-La entidad `OperacionFinanciera` ya está implementada y validada. Todavía falta definir y construir el mecanismo que materialice la operación como movimientos y determine su persistencia y coordinación transaccional.
+`OperacionFinancieraService` ya materializa esta operación y coordina su persistencia transaccional.
 
 ## Git
 
-Último commit de código de la funcionalidad actual:
+Estado de referencia:
 
-- rama `feature/operacion-financiera`
-- `1f650dc` — `feat: implementar dominio de operacion financiera`
+- rama de funcionalidad: `feature/operacion-financiera`;
+- commit de producción de Build 046: `a995937` — `feat: implementar servicio de operacion financiera`;
+- rama de documentación: `docs/continuidad-sofp`;
+- `main`: permanece en `028aaee` y no fue modificado por Build 046.
 
-Último commit de código confirmado anteriormente en `main`:
-
-- `dca3b80` — `test: corregir datos compartidos de Movimiento`
-
-La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
+La documentación de continuidad se mantiene separada de la rama feature, siguiendo el flujo acordado para el proyecto.
 
 ## Próximo paso
 
-Antes de implementar nuevas clases, revisar el estado actual de `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests para determinar cómo debe materializarse una transferencia: un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados a `OperacionFinanciera`.
+Incorporar los tests ampliados de `OperacionFinancieraServiceTest` a `feature/operacion-financiera`, ejecutar la suite completa de **298 tests**, verificar `git diff`, `git diff --check` y `git status`, y recién entonces cerrar definitivamente Build 046.
 
-No implementar todavía `OperacionFinancieraRepository` ni `OperacionFinancieraService` hasta confirmar las reglas de negocio y el diseño con las clases existentes.
+No implementar todavía `OperacionFinancieraRepository` hasta confirmar si la persistencia de la operación requiere un repositorio independiente.
 
 ## Regla de continuidad
 
