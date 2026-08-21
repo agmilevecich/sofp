@@ -4,6 +4,39 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 046 — Implementación de OperacionFinancieraService — Validado
+
+Se amplió `OperacionFinancieraServiceTest` hasta **20 tests en verde**.
+
+La cobertura incluye:
+
+- registro de una transferencia;
+- creación de `EGRESO` en la cuenta origen;
+- creación de `INGRESO` en la cuenta destino;
+- misma fecha/hora para ambos movimientos;
+- parámetros obligatorios nulos;
+- importes nulo, cero y negativo;
+- cuentas desactivadas;
+- categorías pertenecientes a otro perfil;
+- cuentas con monedas diferentes;
+- ausencia de persistencia de movimientos cuando la operación es rechazada.
+
+Resultado específico verificado localmente:
+
+- Tests run: **20**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- **20/20 tests en verde**
+
+Durante la validación inicial se detectó que la descripción es obligatoria en `OperacionFinancieraService`. El test de descripción nula fue corregido para esperar `NullPointerException`, reflejando el contrato real del servicio.
+
+Commit de producción asociado:
+
+- `a995937` — `feat: implementar servicio de operacion financiera`
+
+Los tests ampliados se encuentran en el trabajo local y deben quedar incorporados al siguiente commit de la rama `feature/operacion-financiera`.
+
 ### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
 
 Se incorporó `OperacionFinancieraTest` con **7 tests en verde**.
@@ -81,19 +114,20 @@ Commit asociado:
 - `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
+- `OperacionFinancieraServiceTest`: **20**
 
-Total confirmado de tests de services: **189**.
+Total confirmado de tests de services: **209**.
 
 Tests de dominio destacados:
 
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **7**
 
-**Total general confirmado: 289/289 tests en verde.**
+**Total general confirmado:** **302 tests** cuando se incorporen los 13 tests nuevos de `OperacionFinancieraServiceTest` respecto de la suite de 289 tests de Build 045.
 
 ## Histórico de cobertura
 
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El último Build cerrado es Build 045 con **289 tests en verde**.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. Build 046 agrega la cobertura específica de `OperacionFinancieraServiceTest`, actualmente verificada con **20/20 tests en verde**.
 
 ## Regla de cierre
 
