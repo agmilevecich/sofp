@@ -16,6 +16,7 @@
         <class>ar.com.agmilevecich.sofp.domain.Cuenta</class>
         <class>ar.com.agmilevecich.sofp.domain.Categoria</class>
         <class>ar.com.agmilevecich.sofp.domain.Movimiento</class>
+        <class>ar.com.agmilevecich.sofp.domain.OperacionFinanciera</class>
 
         <properties>
 
