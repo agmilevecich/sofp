@@ -4,10 +4,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Incorporar al commit de `feature/operacion-financiera` la ampliación de `OperacionFinancieraServiceTest` hasta 20 tests.
-- Ejecutar la suite completa del proyecto después de incorporar los nuevos tests y registrar el resultado.
-- Verificar `git diff`, `git diff --check` y `git status` antes de cerrar definitivamente Build 046.
 - Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
+- Definir el siguiente bloque funcional de `feature/operacion-financiera`.
+- Verificar si la persistencia de `OperacionFinanciera` requiere un `OperacionFinancieraRepository` independiente antes de implementarlo.
 
 ## Trabajo recientemente completado
 
@@ -28,9 +27,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 043: ampliación de cobertura de `MovimientoServiceTest`.
 - Build 044: ampliación de `MovimientoTest`, con 23 tests nuevos, 27/27 tests específicos en verde y suite general 282/282 en verde.
 - Build 045: implementación del dominio `OperacionFinanciera`, con 7 tests específicos en verde y suite general 289/289 en verde.
-- Build 046: implementación de `OperacionFinancieraService` y ampliación local de `OperacionFinancieraServiceTest` hasta 20/20 tests en verde.
+- Build 046: implementación de `OperacionFinancieraService`, ampliación de `OperacionFinancieraServiceTest` hasta 20/20 y cierre de la suite general con 300/300 tests en verde.
 
-## Build 046 — Validado a nivel específico
+## Build 046 — Cerrado
 
 Se incorporó `OperacionFinancieraService` en `feature/operacion-financiera`.
 
@@ -41,20 +40,25 @@ El servicio materializa una transferencia mediante:
 - un `INGRESO` en la cuenta destino;
 - persistencia coordinada dentro de una única transacción.
 
-También valida cuentas activas, coherencia de perfiles financieros, moneda común y parámetros obligatorios.
+También valida cuentas activas, coherencia de perfiles financieros, moneda común y parámetros obligatorios. La descripción puede ser nula, según el contrato validado por los tests.
 
-Commit de producción: `a995937` — `feat: implementar servicio de operacion financiera`.
+Commits asociados:
 
-`OperacionFinancieraServiceTest` quedó en **20/20 tests en verde** en la validación local.
+- `a995937` — `feat: implementar servicio de operacion financiera`.
+- `2e4b94f` — `fix: permitir descripcion nula en transferencia`.
 
-Build 046 queda validado a nivel de la batería específica del servicio, pero falta incorporar los tests ampliados al commit de la rama feature y ejecutar la suite completa para cerrar definitivamente el Build.
+`OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
+
+La suite completa del proyecto quedó en **300/300 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+**Build 046 queda cerrado.**
 
 ## Estado de Git de referencia
 
 - Rama de funcionalidad: `feature/operacion-financiera`.
-- Commit de producción de Build 046: `a995937` — `feat: implementar servicio de operacion financiera`.
+- Último commit de código de Build 046: `2e4b94f` — `fix: permitir descripcion nula en transferencia`.
 - Rama de documentación: `docs/continuidad-sofp`.
-- `main` permanece sin modificaciones por este Build.
+- `main` permanece en `028aaee` y no fue modificado por Build 046.
 
 ## Pendientes de arquitectura / evolución
 
