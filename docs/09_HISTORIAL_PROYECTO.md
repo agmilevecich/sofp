@@ -4,18 +4,20 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-21
 
-### Build 046 — Implementación de OperacionFinancieraService — Validado a nivel específico
+### Build 046 — Implementación de OperacionFinancieraService — Cerrado
 
 - Se incorporó `OperacionFinancieraService` en la rama `feature/operacion-financiera`.
 - El servicio materializa una transferencia mediante una `OperacionFinanciera`, un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino.
 - La persistencia de la operación y ambos movimientos se coordina dentro de una única transacción con rollback ante excepciones.
 - Se incorporaron validaciones de cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios.
-- `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde** en la validación local.
-- Durante la validación inicial se corrigió la expectativa del test de descripción nula para respetar el contrato real del servicio, que exige descripción obligatoria.
-- Commit de producción: `a995937` — `feat: implementar servicio de operacion financiera`.
-- La ampliación de tests hasta 20 casos todavía debe incorporarse al commit de la rama feature.
+- La descripción puede ser nula; esta regla quedó validada por `OperacionFinancieraServiceTest`.
+- `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
+- La suite completa del proyecto quedó en **300/300 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+- La ejecución general finalizó a las **18:01:52 -03:00** y tuvo una duración de **09:44 min**.
+- Commit de implementación: `a995937` — `feat: implementar servicio de operacion financiera`.
+- Commit de corrección: `2e4b94f` — `fix: permitir descripcion nula en transferencia`.
 - `main` no fue modificado por este Build.
-- **Build 046 queda validado a nivel de la batería específica del servicio; queda pendiente la suite completa para su cierre definitivo.**
+- **Build 046 queda cerrado y validado.**
 
 ## 2026-08-20
 
@@ -44,21 +46,18 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - `BUILD SUCCESS`.
 - La ejecución general finalizó a las **13:19:27 -03:00** y tuvo una duración de **07:21 min**.
 - Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
-- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 - **Build 044 queda cerrado y validado.**
 
 ### Build 043 — Ampliación de cobertura de MovimientoService
 
-- Se amplió `MovimientoServiceTest` sin modificar código de producción.
-- `MovimientoServiceTest` pasó de **37 a 50 tests en verde**.
+- Se amplió `MovimientoServiceTest`, pasando de **37 a 50 tests en verde**.
 - La batería general quedó en **259/259 tests en verde**.
 - `BUILD SUCCESS`.
 - Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
 ### Build 042 — Ampliación de cobertura de CuentaService
 
-- Se amplió `CuentaServiceTest` sin modificar código de producción.
-- `CuentaServiceTest` pasó de **40 a 47 tests en verde**.
+- Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**.
 - La batería general quedó en **246/246 tests en verde**.
 - `BUILD SUCCESS`.
 - Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
@@ -69,19 +68,21 @@ Los Builds 041 a 034 ampliaron progresivamente las validaciones y la cobertura d
 
 ## Estado actual
 
-El último bloque trabajado es **Build 046 — Implementación de OperacionFinancieraService**.
+El último bloque trabajado es **Build 046 — Implementación de OperacionFinancieraService — cerrado**.
 
 La batería específica de `OperacionFinancieraServiceTest` está en **20/20 tests en verde**.
 
-El commit de producción de la funcionalidad es `a995937` — `feat: implementar servicio de operacion financiera`, en `feature/operacion-financiera`.
+La suite completa está en **300/300 tests en verde**, con `BUILD SUCCESS`.
 
-La ampliación de tests hasta 20 casos aún debe incorporarse a la rama feature y luego debe ejecutarse la suite completa antes del cierre definitivo del Build.
+El último commit de código es `2e4b94f` — `fix: permitir descripcion nula en transferencia`, en `feature/operacion-financiera`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
+`main` permanece en `028aaee` y no recibió los cambios de Build 046.
+
 ## Próximo punto de trabajo
 
-Incorporar los tests ampliados de `OperacionFinancieraServiceTest` a `feature/operacion-financiera`, ejecutar la suite completa y verificar el estado Git antes de cerrar definitivamente Build 046.
+Definir el siguiente bloque funcional y continuar el desarrollo en `feature/operacion-financiera`, manteniendo la documentación separada en `docs/continuidad-sofp`.
 
 ## Builds recientes
 
@@ -93,7 +94,7 @@ Incorporar los tests ampliados de `OperacionFinancieraServiceTest` a `feature/op
 - Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
 - Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
 - Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
+- Build 037 — Ampliación de cobertura de `MonedaServiceServiceTest`.
 - Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
 - Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
 - Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
@@ -102,7 +103,7 @@ Incorporar los tests ampliados de `OperacionFinancieraServiceTest` a `feature/op
 - Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
 - Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
 - Build 045 — Implementación del dominio de `OperacionFinanciera` — cerrado con 289/289 tests en verde.
-- Build 046 — Implementación de `OperacionFinancieraService` — 20/20 tests específicos en verde; suite completa pendiente.
+- Build 046 — Implementación de `OperacionFinancieraService` — cerrado con 20/20 tests específicos y 300/300 tests en la suite general.
 
 ## Regla histórica
 
