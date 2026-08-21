@@ -4,7 +4,7 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
-### Build 046 — Implementación de OperacionFinancieraService — Validado
+### Build 046 — Implementación de OperacionFinancieraService — Validado a nivel específico
 
 Se amplió `OperacionFinancieraServiceTest` hasta **20 tests en verde**.
 
@@ -69,7 +69,7 @@ La ejecución terminó el **20/08/2026 a las 13:19:27 -03:00**, con una duració
 
 Commit asociado:
 
-- `6f53f79` — `test: ampliar cobertura de Movimiento`
+- `6f53f79` — `test: ampliar cobertura de Movimiento`.
 
 ### Build 043 — Ampliación de cobertura de MovimientoService
 
@@ -81,7 +81,7 @@ La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 19:51:15 -03:00.
 
 Commit asociado:
 
-- `b6384f0` — `test: ampliar cobertura de MovimientoService`
+- `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
 ### Build 042 — Ampliación de cobertura de CuentaService
 
@@ -93,7 +93,7 @@ La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 16:46:27 -03:00.
 
 Commit asociado:
 
-- `526b378` — `test: ampliar cobertura de CuentaService`
+- `526b378` — `test: ampliar cobertura de CuentaService`.
 
 ### Build 041 — Reforzamiento de validaciones de servicios y dominio
 
@@ -103,7 +103,7 @@ La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Er
 
 Commit asociado:
 
-- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
+- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
 
 ## Conteo actual por test de service
 
@@ -123,7 +123,9 @@ Tests de dominio destacados:
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **7**
 
-**Total general confirmado:** **302 tests** cuando se incorporen los 13 tests nuevos de `OperacionFinancieraServiceTest` respecto de la suite de 289 tests de Build 045.
+La suite general de Build 045 fue de **289 tests**. Al incorporar los **9 tests nuevos** de `OperacionFinancieraServiceTest` respecto de la versión de 11 tests que estaba registrada en la rama, la suite esperada queda en **298 tests**.
+
+La suite completa de 298 tests todavía debe ejecutarse después de incorporar los tests ampliados al commit de `feature/operacion-financiera`.
 
 ## Histórico de cobertura
 
