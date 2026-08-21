@@ -4,8 +4,10 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Revisar el estado actual del dominio, servicios, repositorios y tests para definir el siguiente bloque de trabajo.
-- Definir la próxima funcionalidad antes de implementar código nuevo.
+- Revisar `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests antes de implementar la materialización de transferencias.
+- Definir dónde debe residir la coordinación transaccional de una transferencia.
+- Definir cómo se vincularán los dos `Movimiento` resultantes con `OperacionFinanciera`.
+- Determinar si corresponde incorporar `OperacionFinancieraRepository` y `OperacionFinancieraService` después de confirmar las reglas anteriores.
 - Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
 
 ## Trabajo recientemente completado
@@ -26,44 +28,55 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 042: ampliación de cobertura de `CuentaServiceTest`.
 - Build 043: ampliación de cobertura de `MovimientoServiceTest`.
 - Build 044: ampliación de `MovimientoTest`, con 23 tests nuevos, 27/27 tests específicos en verde y suite general 282/282 en verde.
+- Build 045: implementación del dominio `OperacionFinanciera`, con 7 tests específicos en verde y suite general 289/289 en verde.
 
-## Build 044 — Cerrado
+## Build 045 — Cerrado
 
-Se amplió `MovimientoTest`, pasando de **4 a 27 tests en verde**.
+Se incorporó `OperacionFinanciera` como entidad de dominio para representar una transferencia entre una cuenta origen y una cuenta destino.
 
-Se agregaron **23 tests** para validar constructor y comportamiento de modificación de `Movimiento`, incluyendo valores nulos, importes inválidos, descripción, fecha/hora, categoría, tipo y observaciones.
+Reglas implementadas:
 
-No se modificó código de producción.
+- cuenta origen obligatoria;
+- cuenta destino obligatoria;
+- importe obligatorio y positivo;
+- cuenta origen y destino no pueden ser la misma.
 
-Commit de código: `6f53f79` — `test: ampliar cobertura de Movimiento`.
+Se incorporó `OperacionFinancieraTest` con **7/7 tests en verde**.
 
-El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+Commit de código: `1f650dc` — `feat: implementar dominio de operacion financiera`.
 
-La suite general posterior al cambio confirmó:
+El commit está en la rama `feature/operacion-financiera` y la rama quedó con `working tree clean`.
 
-- Tests run: **282**
+Suite general:
+
+- Tests run: **289**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
 
-La ejecución finalizó el **20/08/2026 a las 13:19:27 -03:00** y duró **07:21 min**.
+La ejecución finalizó el **20/08/2026 a las 21:46:51 -03:00** y duró **08:47 min**.
 
-**Build 044 queda cerrado y validado.**
+**Build 045 queda cerrado y validado.**
 
 ## Estado de Git de referencia
 
-- Último commit de código confirmado: `6f53f79` — `test: ampliar cobertura de Movimiento`.
+- Rama de funcionalidad: `feature/operacion-financiera`.
+- Último commit de código de esa rama: `1f650dc` — `feat: implementar dominio de operacion financiera`.
+- Último commit de código previamente confirmado en `main`: `dca3b80` — `test: corregir datos compartidos de Movimiento`.
 - La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
 
 ## Pendientes de arquitectura / evolución
 
+- Materializar transferencias como un `EGRESO` en origen y un `INGRESO` en destino.
+- Vincular ambos movimientos con `OperacionFinanciera`.
+- Definir y probar la coordinación transaccional de la operación.
+- Incorporar repositorio y servicio de `OperacionFinanciera` solamente cuando las reglas y responsabilidades estén confirmadas.
 - Completar progresivamente la capa `service` según las necesidades reales del dominio.
 - Incorporar DTOs cuando los casos de uso y las fronteras de la aplicación lo requieran.
 - Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
 - Definir reportes y cálculos derivados de movimientos.
 - Ampliar las reglas de saldos y consistencia financiera.
-- Diseñar e implementar `OperacionFinanciera` cuando corresponda al siguiente bloque de dominio.
 
 ## Regla
 
