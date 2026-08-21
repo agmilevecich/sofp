@@ -2,6 +2,21 @@
 
 Este documento conserva una línea temporal resumida de decisiones, avances y puntos de continuidad.
 
+## 2026-08-21
+
+### Build 046 — Implementación de OperacionFinancieraService — Validado a nivel específico
+
+- Se incorporó `OperacionFinancieraService` en la rama `feature/operacion-financiera`.
+- El servicio materializa una transferencia mediante una `OperacionFinanciera`, un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino.
+- La persistencia de la operación y ambos movimientos se coordina dentro de una única transacción con rollback ante excepciones.
+- Se incorporaron validaciones de cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios.
+- `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde** en la validación local.
+- Durante la validación inicial se corrigió la expectativa del test de descripción nula para respetar el contrato real del servicio, que exige descripción obligatoria.
+- Commit de producción: `a995937` — `feat: implementar servicio de operacion financiera`.
+- La ampliación de tests hasta 20 casos todavía debe incorporarse al commit de la rama feature.
+- `main` no fue modificado por este Build.
+- **Build 046 queda validado a nivel de la batería específica del servicio; queda pendiente la suite completa para su cierre definitivo.**
+
 ## 2026-08-20
 
 ### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
@@ -54,17 +69,19 @@ Los Builds 041 a 034 ampliaron progresivamente las validaciones y la cobertura d
 
 ## Estado actual
 
-El último bloque cerrado es el **Build 045**.
+El último bloque trabajado es **Build 046 — Implementación de OperacionFinancieraService**.
 
-La batería general actual confirmada en la rama de funcionalidad es de **289/289 tests en verde**.
+La batería específica de `OperacionFinancieraServiceTest` está en **20/20 tests en verde**.
 
-El último commit de código de la funcionalidad actual es `1f650dc` — `feat: implementar dominio de operacion financiera`, en `feature/operacion-financiera`.
+El commit de producción de la funcionalidad es `a995937` — `feat: implementar servicio de operacion financiera`, en `feature/operacion-financiera`.
+
+La ampliación de tests hasta 20 casos aún debe incorporarse a la rama feature y luego debe ejecutarse la suite completa antes del cierre definitivo del Build.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 ## Próximo punto de trabajo
 
-Revisar `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests para definir cómo `OperacionFinanciera` debe materializar una transferencia como un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, y determinar dónde debe residir la coordinación transaccional.
+Incorporar los tests ampliados de `OperacionFinancieraServiceTest` a `feature/operacion-financiera`, ejecutar la suite completa y verificar el estado Git antes de cerrar definitivamente Build 046.
 
 ## Builds recientes
 
@@ -85,6 +102,7 @@ Revisar `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests pa
 - Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
 - Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
 - Build 045 — Implementación del dominio de `OperacionFinanciera` — cerrado con 289/289 tests en verde.
+- Build 046 — Implementación de `OperacionFinancieraService` — 20/20 tests específicos en verde; suite completa pendiente.
 
 ## Regla histórica
 
