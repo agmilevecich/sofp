@@ -4,10 +4,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Revisar `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests antes de implementar la materialización de transferencias.
-- Definir dónde debe residir la coordinación transaccional de una transferencia.
-- Definir cómo se vincularán los dos `Movimiento` resultantes con `OperacionFinanciera`.
-- Determinar si corresponde incorporar `OperacionFinancieraRepository` y `OperacionFinancieraService` después de confirmar las reglas anteriores.
+- Incorporar al commit de `feature/operacion-financiera` la ampliación de `OperacionFinancieraServiceTest` hasta 20 tests.
+- Ejecutar la suite completa del proyecto después de incorporar los nuevos tests y registrar el resultado.
+- Verificar `git diff`, `git diff --check` y `git status` antes de cerrar definitivamente Build 046.
 - Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
 
 ## Trabajo recientemente completado
@@ -29,49 +28,39 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 043: ampliación de cobertura de `MovimientoServiceTest`.
 - Build 044: ampliación de `MovimientoTest`, con 23 tests nuevos, 27/27 tests específicos en verde y suite general 282/282 en verde.
 - Build 045: implementación del dominio `OperacionFinanciera`, con 7 tests específicos en verde y suite general 289/289 en verde.
+- Build 046: implementación de `OperacionFinancieraService` y ampliación local de `OperacionFinancieraServiceTest` hasta 20/20 tests en verde.
 
-## Build 045 — Cerrado
+## Build 046 — Validado a nivel específico
 
-Se incorporó `OperacionFinanciera` como entidad de dominio para representar una transferencia entre una cuenta origen y una cuenta destino.
+Se incorporó `OperacionFinancieraService` en `feature/operacion-financiera`.
 
-Reglas implementadas:
+El servicio materializa una transferencia mediante:
 
-- cuenta origen obligatoria;
-- cuenta destino obligatoria;
-- importe obligatorio y positivo;
-- cuenta origen y destino no pueden ser la misma.
+- una `OperacionFinanciera`;
+- un `EGRESO` en la cuenta origen;
+- un `INGRESO` en la cuenta destino;
+- persistencia coordinada dentro de una única transacción.
 
-Se incorporó `OperacionFinancieraTest` con **7/7 tests en verde**.
+También valida cuentas activas, coherencia de perfiles financieros, moneda común y parámetros obligatorios.
 
-Commit de código: `1f650dc` — `feat: implementar dominio de operacion financiera`.
+Commit de producción: `a995937` — `feat: implementar servicio de operacion financiera`.
 
-El commit está en la rama `feature/operacion-financiera` y la rama quedó con `working tree clean`.
+`OperacionFinancieraServiceTest` quedó en **20/20 tests en verde** en la validación local.
 
-Suite general:
-
-- Tests run: **289**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-
-La ejecución finalizó el **20/08/2026 a las 21:46:51 -03:00** y duró **08:47 min**.
-
-**Build 045 queda cerrado y validado.**
+Build 046 queda validado a nivel de la batería específica del servicio, pero falta incorporar los tests ampliados al commit de la rama feature y ejecutar la suite completa para cerrar definitivamente el Build.
 
 ## Estado de Git de referencia
 
 - Rama de funcionalidad: `feature/operacion-financiera`.
-- Último commit de código de esa rama: `1f650dc` — `feat: implementar dominio de operacion financiera`.
-- Último commit de código previamente confirmado en `main`: `dca3b80` — `test: corregir datos compartidos de Movimiento`.
-- La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
+- Commit de producción de Build 046: `a995937` — `feat: implementar servicio de operacion financiera`.
+- Rama de documentación: `docs/continuidad-sofp`.
+- `main` permanece sin modificaciones por este Build.
 
 ## Pendientes de arquitectura / evolución
 
-- Materializar transferencias como un `EGRESO` en origen y un `INGRESO` en destino.
-- Vincular ambos movimientos con `OperacionFinanciera`.
-- Definir y probar la coordinación transaccional de la operación.
-- Incorporar repositorio y servicio de `OperacionFinanciera` solamente cuando las reglas y responsabilidades estén confirmadas.
+- Vincular formalmente ambos movimientos con `OperacionFinanciera` si el modelo de dominio lo requiere mediante una relación persistente.
+- Confirmar la estrategia definitiva de coordinación transaccional de la operación.
+- Evaluar si corresponde incorporar `OperacionFinancieraRepository`.
 - Completar progresivamente la capa `service` según las necesidades reales del dominio.
 - Incorporar DTOs cuando los casos de uso y las fronteras de la aplicación lo requieran.
 - Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
