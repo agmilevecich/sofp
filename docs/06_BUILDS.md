@@ -317,32 +317,49 @@ El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
 
 **Build 044 queda cerrado y validado.**
 
+## Build 045 — Implementación del dominio de OperacionFinanciera
+
+Se incorporó la entidad de dominio `OperacionFinanciera` como representación de una transferencia entre dos cuentas.
+
+La entidad contiene:
+
+- `cuentaOrigen` obligatoria;
+- `cuentaDestino` obligatoria;
+- `importe` positivo obligatorio;
+- regla de negocio que impide utilizar la misma cuenta como origen y destino;
+- mapeo JPA mediante `operaciones_financieras`.
+
+Se incorporó `OperacionFinancieraTest` con **7 tests en verde** para creación válida y todas las validaciones implementadas.
+
+Suite general:
+
+- Tests run: **289**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+
+La ejecución terminó el **20/08/2026 a las 21:46:51 -03:00** y tuvo una duración total de **08:47 min**.
+
+Commit: `1f650dc` — `feat: implementar dominio de operacion financiera`.
+
+El commit está actualmente en la rama `feature/operacion-financiera`. Todavía no se incorporó a `main`.
+
+**Build 045 queda cerrado y validado.**
+
 ## Estado actual
 
-El último bloque cerrado es el **Build 044**. La batería general actual es de **282/282 tests en verde**.
+El último bloque cerrado es **Build 045 — Implementación del dominio de OperacionFinanciera**.
 
-El último commit de código es `6f53f79` — `test: ampliar cobertura de Movimiento`.
+La batería general actual confirmada en la rama de trabajo es **289/289 tests en verde**.
+
+El último commit de la funcionalidad actual es `1f650dc`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
-## Builds recientes
+## Próximo paso
 
-- Build 029 — Eliminación en `CategoriaRepository`.
-- Build 030 — Eliminación en `CategoriaService`.
-- Build 031 — Eliminación en `CuentaRepository`.
-- Build 032 — Eliminación en `CuentaService`.
-- Build 033 — Reglas de negocio de `Movimiento`.
-- Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
-- Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
-- Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
-- Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
-- Build 041 — Reforzamiento de validaciones de servicios y dominio.
-- Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
+Revisar `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests para definir cómo una `OperacionFinanciera` debe materializar una transferencia como un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, y determinar dónde debe residir la coordinación transaccional.
 
 ## Regla de cierre
 
