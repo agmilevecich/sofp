@@ -4,6 +4,20 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-20
 
+### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
+
+- Se incorporó `OperacionFinanciera` como entidad de dominio para representar una transferencia entre cuenta origen y cuenta destino.
+- Se incorporaron validaciones de cuenta origen y destino obligatorias.
+- Se incorporó validación de importe obligatorio y positivo.
+- Se incorporó la regla de negocio que impide utilizar la misma cuenta como origen y destino.
+- Se incorporó `OperacionFinancieraTest` con **7 tests en verde**.
+- La suite general quedó en **289/289 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- `BUILD SUCCESS`.
+- La ejecución general finalizó a las **21:46:51 -03:00** y tuvo una duración de **08:47 min**.
+- Commit: `1f650dc` — `feat: implementar dominio de operacion financiera`.
+- El commit está en la rama `feature/operacion-financiera`; todavía no se incorporó a `main`.
+- **Build 045 queda cerrado y validado.**
+
 ### Build 044 — Ampliación de cobertura de Movimiento — Cerrado
 
 - Se amplió `MovimientoTest` sin modificar código de producción.
@@ -22,18 +36,16 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 - Se amplió `MovimientoServiceTest` sin modificar código de producción.
 - `MovimientoServiceTest` pasó de **37 a 50 tests en verde**.
-- La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- La batería general quedó en **259/259 tests en verde**.
 - `BUILD SUCCESS`.
-- La ejecución general finalizó a las 19:51:15 -03:00.
 - Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
 
 ### Build 042 — Ampliación de cobertura de CuentaService
 
 - Se amplió `CuentaServiceTest` sin modificar código de producción.
 - `CuentaServiceTest` pasó de **40 a 47 tests en verde**.
-- La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+- La batería general quedó en **246/246 tests en verde**.
 - `BUILD SUCCESS`.
-- La ejecución general finalizó a las 16:46:27 -03:00.
 - Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
 
 ### Builds 041–034
@@ -42,13 +54,17 @@ Los Builds 041 a 034 ampliaron progresivamente las validaciones y la cobertura d
 
 ## Estado actual
 
-El último bloque cerrado es el **Build 044**.
+El último bloque cerrado es el **Build 045**.
 
-La batería general actual es de **282/282 tests en verde**.
+La batería general actual confirmada en la rama de funcionalidad es de **289/289 tests en verde**.
 
-El último commit de código es `6f53f79` — `test: ampliar cobertura de Movimiento`.
+El último commit de código de la funcionalidad actual es `1f650dc` — `feat: implementar dominio de operacion financiera`, en `feature/operacion-financiera`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
+
+## Próximo punto de trabajo
+
+Revisar `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests para definir cómo `OperacionFinanciera` debe materializar una transferencia como un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, y determinar dónde debe residir la coordinación transaccional.
 
 ## Builds recientes
 
@@ -68,6 +84,7 @@ La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 - Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
 - Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
 - Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
+- Build 045 — Implementación del dominio de `OperacionFinanciera` — cerrado con 289/289 tests en verde.
 
 ## Regla histórica
 
