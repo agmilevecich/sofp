@@ -67,11 +67,6 @@ public class OperacionFinancieraService {
                 "La fecha y hora son obligatorias"
         );
 
-        Objects.requireNonNull(
-                descripcion,
-                "La descripción es obligatoria"
-        );
-
         if (!cuentaOrigen.isActiva()) {
             throw new IllegalArgumentException(
                     "No se puede realizar una transferencia desde una cuenta desactivada"
