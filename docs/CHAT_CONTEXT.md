@@ -27,41 +27,41 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 - Rama de funcionalidad actual: `feature/operacion-financiera`
 - Rama de documentación/continuidad: `docs/continuidad-sofp`
 
-## Estado actual — 20/08/2026
+## Estado actual — 21/08/2026
 
-Último Build cerrado: **Build 045 — Implementación del dominio de OperacionFinanciera**.
+Último Build cerrado: **Build 047 — Completar cobertura de OperacionFinancieraService**.
 
 Último commit de la funcionalidad actual:
 
-- `1f650dc` — `feat: implementar dominio de operacion financiera`
+- `615161c` — `test: completar cobertura de OperacionFinancieraService`
 
-El commit está en `feature/operacion-financiera` y el working tree quedó limpio. Todavía no se incorporó a `main`.
+La rama `feature/operacion-financiera` está limpia y sincronizada con GitHub y Bitbucket. Todavía no se incorporó a `main`.
 
-Build 045 incorporó la entidad `OperacionFinanciera` con cuenta origen, cuenta destino e importe, más las reglas de cuenta/importe obligatorios y la prohibición de utilizar la misma cuenta como origen y destino.
+Build 047 completó la cobertura de `OperacionFinancieraServiceTest` para las reglas de negocio actualmente implementadas.
 
 Tests específicos:
 
-- `OperacionFinancieraTest`: **7/7 tests en verde**.
+- `OperacionFinancieraServiceTest`: **20/20 tests en verde**.
 
 Última suite general registrada sobre la rama de funcionalidad:
 
-- Tests run: **289**
+- Tests run: **309**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **20/08/2026 21:46:51 -03:00**
-- Duración: **08:47 min**
+- Finalizada: **21/08/2026 20:36:10 -03:00**
+- Duración: **08:14 min**
 
-**Build 045 queda cerrado y validado.**
+**Build 047 queda cerrado y validado.**
 
 ## Decisión de dominio: transferencias
 
-Las transferencias no se modelarán como un tercer `TipoMovimiento`.
+Las transferencias no se modelan como un tercer `TipoMovimiento`.
 
-Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**. Ambos efectos deben quedar vinculados mediante una `OperacionFinanciera` que representa la operación de transferencia.
+Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**. Ambos efectos quedan vinculados mediante una `OperacionFinanciera` que representa la operación de transferencia.
 
-La entidad `OperacionFinanciera` ya fue implementada y validada. Todavía falta definir y construir el mecanismo que materialice la operación como movimientos y determine su persistencia y coordinación transaccional.
+`OperacionFinancieraService` ya materializa la operación y coordina su persistencia dentro de una única transacción.
 
 ## Dominio actual
 
@@ -110,14 +110,15 @@ La capa `service` contiene actualmente:
 - UsuarioService
 - InstitucionFinancieraService
 - MonedaService
-
-Todavía no existe `OperacionFinancieraService`.
+- OperacionFinancieraService
 
 `MovimientoService` utiliza `EntityManager` y `MovimientoRepository`, mantiene transacciones explícitas y centraliza las reglas contextuales de cuenta, categoría y perfil financiero.
 
+`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción.
+
 ## Tests
 
-La última batería general confirmada es de **289/289 tests en verde**.
+La última batería general confirmada es de **309/309 tests en verde**.
 
 Conteo confirmado de tests de services:
 
@@ -128,8 +129,9 @@ Conteo confirmado de tests de services:
 - `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
+- `OperacionFinancieraServiceTest`: **20**
 
-Total confirmado: **189 tests de services**.
+Total confirmado: **209 tests de services**.
 
 Tests de dominio destacados:
 
@@ -138,11 +140,11 @@ Tests de dominio destacados:
 
 ## Próximo paso
 
-Revisar el estado actual de `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests antes de implementar nuevas clases.
+Definir el siguiente bloque funcional de `feature/operacion-financiera`.
 
-El objetivo del siguiente bloque es definir cómo `OperacionFinanciera` materializa una transferencia como un **EGRESO** en origen y un **INGRESO** en destino, cómo se vinculan ambos movimientos con la operación y dónde debe residir la coordinación transaccional.
+Antes de implementar nuevas piezas, revisar el código actual, tests y reglas de negocio relacionados. No asumir estructuras ni comportamientos no presentes en el repositorio.
 
-No asumir estructuras ni comportamientos no presentes en el repositorio.
+Sigue pendiente confirmar si corresponde incorporar `OperacionFinancieraRepository` y si el modelo debe vincular formalmente los movimientos con `OperacionFinanciera`.
 
 ## Forma de trabajo acordada
 
