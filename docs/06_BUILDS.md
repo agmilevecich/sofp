@@ -347,19 +347,87 @@ El commit está actualmente en la rama `feature/operacion-financiera`. Todavía 
 
 **Build 045 queda cerrado y validado.**
 
+## Build 046 — Implementación de OperacionFinancieraService
+
+Se incorporó `OperacionFinancieraService` en `feature/operacion-financiera`.
+
+El servicio materializa una transferencia mediante:
+
+- una `OperacionFinanciera`;
+- un `EGRESO` en la cuenta origen;
+- un `INGRESO` en la cuenta destino;
+- persistencia coordinada dentro de una única transacción.
+
+También valida cuentas activas, coherencia de perfiles financieros, moneda común y parámetros obligatorios. La descripción puede ser nula.
+
+`OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
+
+Suite general de Build 046:
+
+- **300 tests**
+- **0 failures**
+- **0 errors**
+- **0 skipped**
+- **BUILD SUCCESS**
+
+Commits principales:
+
+- `a995937` — `feat: implementar servicio de operacion financiera`.
+- `2e4b94f` — `fix: permitir descripcion nula en transferencia`.
+- `62f2da3` — `fix: validar descripcion en transferencia`.
+
+**Build 046 queda cerrado y validado.**
+
+## Build 047 — Completar cobertura de OperacionFinancieraService
+
+**Estado:** COMPLETADO
+
+Se completó la cobertura de `OperacionFinancieraServiceTest`, incorporando las validaciones pendientes de la operación de transferencia.
+
+Se verificaron:
+
+- cuentas origen y destino inactivas;
+- categorías pertenecientes a otro perfil;
+- cuentas con monedas diferentes;
+- fecha/hora nula;
+- descripción nula;
+- ausencia de persistencia de movimientos ante operaciones rechazadas.
+
+`OperacionFinancieraServiceTest` quedó con **20 tests en verde**.
+
+Suite completa:
+
+- **309 tests**
+- **0 failures**
+- **0 errors**
+- **0 skipped**
+- **BUILD SUCCESS**
+
+Tiempo total: **08:14 min**.
+
+Finalización: **21/08/2026 20:36:10 -03:00**.
+
+Commit: `615161c` — `test: completar cobertura de OperacionFinancieraService`.
+
+El Build 047 queda cerrado y validado.
+
 ## Estado actual
 
-El último bloque cerrado es **Build 045 — Implementación del dominio de OperacionFinanciera**.
+El último bloque cerrado es **Build 047 — Completar cobertura de OperacionFinancieraService**.
 
-La batería general actual confirmada en la rama de trabajo es **289/289 tests en verde**.
+La batería general actual confirmada en la rama de trabajo es **309/309 tests en verde**.
 
-El último commit de la funcionalidad actual es `1f650dc`.
+El último commit de código de la funcionalidad actual es `615161c`.
 
 La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
 
 ## Próximo paso
 
-Revisar `Movimiento`, `MovimientoService`, `MovimientoRepository` y sus tests para definir cómo una `OperacionFinanciera` debe materializar una transferencia como un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, y determinar dónde debe residir la coordinación transaccional.
+Definir el siguiente bloque funcional de `feature/operacion-financiera`.
+
+Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
+
+No implementar todavía `OperacionFinancieraRepository` hasta confirmar si la persistencia de la operación requiere un repositorio independiente.
 
 ## Regla de cierre
 
