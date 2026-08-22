@@ -4,122 +4,64 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 047 — Completar cobertura de OperacionFinancieraService — Cerrado
+
+Se completó la cobertura de `OperacionFinancieraServiceTest`.
+
+Se incorporaron pruebas para:
+
+- rechazo de cuenta origen inactiva;
+- rechazo de cuenta destino inactiva;
+- rechazo de categoría origen perteneciente a otro perfil;
+- rechazo de categoría destino perteneciente a otro perfil;
+- rechazo de cuentas con monedas diferentes;
+- rechazo de fecha/hora nula;
+- rechazo de descripción nula;
+- verificación de que no se persisten movimientos cuando la cuenta origen está inactiva;
+- verificación de que no se persisten movimientos cuando las monedas de las cuentas son diferentes.
+
+`OperacionFinancieraServiceTest` quedó con **20 tests en verde**.
+
+Suite completa del proyecto:
+
+- Tests run: **309**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- Resultado: **BUILD SUCCESS**
+- Duración: **08:14 min**
+- Finalización: **2026-08-21 20:36:10 -03:00**
+
+**Build 047 queda cerrado con 309/309 tests en verde.**
+
 ### Build 046 — Implementación de OperacionFinancieraService — Cerrado
 
 Se amplió `OperacionFinancieraServiceTest` hasta **20 tests en verde**.
 
-La cobertura incluye:
+La cobertura incluye registro de una transferencia, creación de `EGRESO` en la cuenta origen, creación de `INGRESO` en la cuenta destino, misma fecha/hora para ambos movimientos, parámetros obligatorios nulos, importes inválidos, cuentas desactivadas, categorías pertenecientes a otro perfil, cuentas con monedas diferentes, ausencia de persistencia ante operaciones rechazadas y descripción nula.
 
-- registro de una transferencia;
-- creación de `EGRESO` en la cuenta origen;
-- creación de `INGRESO` en la cuenta destino;
-- misma fecha/hora para ambos movimientos;
-- parámetros obligatorios nulos;
-- importe nulo, cero y negativo;
-- cuentas desactivadas;
-- categorías pertenecientes a otro perfil;
-- cuentas con monedas diferentes;
-- ausencia de persistencia de movimientos cuando la operación es rechazada;
-- descripción nula.
-
-Resultado específico:
-
-- Tests run: **20**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- **20/20 tests en verde**
-
-Durante la validación se detectó que la descripción no debe ser obligatoria para una transferencia. Se eliminó la validación correspondiente de `OperacionFinancieraService` y se verificó el caso con descripción nula.
+Durante la validación se detectó que la descripción no debe ser obligatoria para una transferencia. Se eliminó la validación correspondiente y se verificó el caso con descripción nula.
 
 Commits asociados:
 
 - `a995937` — `feat: implementar servicio de operacion financiera`
 - `2e4b94f` — `fix: permitir descripcion nula en transferencia`
+- `62f2da3` — `fix: validar descripcion en transferencia`
+- `615161c` — `test: completar cobertura de OperacionFinancieraService`
 
-### Suite general de Build 046 — Cerrada
-
-Se ejecutó la suite completa del proyecto mediante Maven después de incorporar la corrección definitiva del servicio.
-
-Resultado:
-
-- Tests run: **300**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- **BUILD SUCCESS**
-
-La ejecución finalizó el **21/08/2026 a las 18:01:52 -03:00**, con una duración total de **09:44 min**.
-
-**Build 046 queda cerrado con 300/300 tests en verde.**
+Suite general de Build 046: **300/300 tests en verde**.
 
 ### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
 
 Se incorporó `OperacionFinancieraTest` con **7 tests en verde**.
 
-La cobertura incluye creación válida, cuenta origen obligatoria, cuenta destino obligatoria, importe nulo, importe cero, importe negativo y rechazo de la misma cuenta como origen y destino.
-
 La suite general posterior al cambio quedó en **289/289 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La ejecución terminó el **20/08/2026 a las 21:46:51 -03:00**, con una duración total de **08:47 min**.
+Commit asociado: `1f650dc` — `feat: implementar dominio de operacion financiera`.
 
-Commit asociado:
+### Builds anteriores
 
-- `1f650dc` — `feat: implementar dominio de operacion financiera`
-
-El commit está en la rama `feature/operacion-financiera`.
-
-### Build 044 — Ampliación de cobertura de Movimiento — Cerrado
-
-Se amplió `MovimientoTest`, pasando de **4 a 27 tests en verde**.
-
-Se incorporaron **23 tests nuevos** para cubrir validaciones del constructor y operaciones de modificación de `Movimiento`, incluyendo cuenta, categoría, tipo, importe, fecha/hora, descripción, observaciones y valores inválidos.
-
-No se modificó código de producción.
-
-La clase `MovimientoTest` quedó en **27/27 tests en verde**.
-
-La suite general posterior a esta ampliación quedó en **282/282 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-
-La ejecución terminó el **20/08/2026 a las 13:19:27 -03:00**, con una duración total de **07:21 min**.
-
-Commit asociado:
-
-- `6f53f79` — `test: ampliar cobertura de Movimiento`.
-
-### Build 043 — Ampliación de cobertura de MovimientoService
-
-Se amplió `MovimientoServiceTest`, pasando de **37 a 50 tests en verde**.
-
-La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 19:51:15 -03:00.
-
-Commit asociado:
-
-- `b6384f0` — `test: ampliar cobertura de MovimientoService`.
-
-### Build 042 — Ampliación de cobertura de CuentaService
-
-Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**.
-
-La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 16:46:27 -03:00.
-
-Commit asociado:
-
-- `526b378` — `test: ampliar cobertura de CuentaService`.
-
-### Build 041 — Reforzamiento de validaciones de servicios y dominio
-
-Se amplió `InstitucionFinancieraServiceTest`, pasando de **23 a 26 tests en verde**.
-
-La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-Commit asociado:
-
-- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
+Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto.
 
 ## Conteo actual por test de service
 
@@ -139,11 +81,7 @@ Tests de dominio destacados:
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **7**
 
-Suite general de Build 046: **300/300 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-
-## Histórico de cobertura
-
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. Build 046 agrega la cobertura específica de `OperacionFinancieraServiceTest` y cierra con la suite completa en **300/300 tests en verde**.
+Suite general actual: **309/309 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
 ## Regla de cierre
 
