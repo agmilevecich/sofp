@@ -37,13 +37,13 @@ El servicio permite materializar una transferencia como:
 
 La operación y los dos movimientos se persisten dentro de una única transacción, con rollback ante excepciones.
 
-El servicio valida además cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios. La descripción puede ser nula.
+El servicio valida además cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios. La descripción es obligatoria y su ausencia es rechazada con `NullPointerException`.
 
 ## Tests
 
 `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
 
-La cobertura incluye operación exitosa, generación de ambos movimientos, parámetros nulos, importes inválidos, cuentas inactivas, perfiles incompatibles, monedas diferentes, fecha/hora nula, ausencia de persistencia ante operaciones rechazadas y descripción nula.
+La cobertura incluye operación exitosa, generación de ambos movimientos, parámetros nulos, importes inválidos, cuentas inactivas, perfiles incompatibles, monedas diferentes, fecha/hora nula, ausencia de persistencia ante operaciones rechazadas y rechazo de descripción nula mediante `deberiaRechazarDescripcionNula()`.
 
 La suite general del proyecto fue ejecutada mediante Maven y quedó en **309/309 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
@@ -175,7 +175,7 @@ No implementar todavía `OperacionFinancieraRepository` hasta confirmar si la pe
 
 Se completó la cobertura de `OperacionFinancieraServiceTest`.
 
-Se incorporaron pruebas para las validaciones de cuentas inactivas, categorías de otros perfiles, monedas diferentes, fecha/hora nula, descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
+Se incorporaron pruebas para las validaciones de cuentas inactivas, categorías de otros perfiles, monedas diferentes, fecha/hora nula, rechazo de descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
 
 Resultado:
 

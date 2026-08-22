@@ -15,7 +15,7 @@ El servicio:
 - valida que las cuentas de origen y destino sean obligatorias;
 - valida que las categorías de origen y destino sean obligatorias;
 - valida fecha/hora obligatoria;
-- permite descripción nula, de acuerdo con el contrato validado por los tests;
+- inicialmente se permitió descripción nula mediante `2e4b94f`, pero esta decisión fue posteriormente revertida por `62f2da3` para restablecer la obligatoriedad de la descripción;
 - rechaza cuentas desactivadas;
 - valida que cada categoría pertenezca al mismo perfil financiero que su cuenta;
 - valida que las cuentas de origen y destino utilicen la misma moneda;

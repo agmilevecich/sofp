@@ -7,7 +7,7 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 ### Build 047 — Completar cobertura de OperacionFinancieraService — Cerrado
 
 - Se completó la cobertura de `OperacionFinancieraServiceTest`.
-- Se incorporaron pruebas para cuentas inactivas, categorías pertenecientes a otros perfiles, monedas diferentes, fecha/hora nula, descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
+- Se incorporaron pruebas para cuentas inactivas, categorías pertenecientes a otros perfiles, monedas diferentes, fecha/hora nula, rechazo de descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
 - `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
 - La suite completa del proyecto quedó en **309/309 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 - La ejecución general finalizó a las **20:36:10 -03:00** y tuvo una duración de **08:14 min**.
@@ -21,7 +21,7 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - El servicio materializa una transferencia mediante una `OperacionFinanciera`, un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino.
 - La persistencia de la operación y ambos movimientos se coordina dentro de una única transacción con rollback ante excepciones.
 - Se incorporaron validaciones de cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios.
-- La descripción puede ser nula; esta regla quedó validada por `OperacionFinancieraServiceTest`.
+- La descripción es obligatoria y su ausencia es rechazada con `NullPointerException`. El comportamiento definitivo quedó validado por `OperacionFinancieraServiceTest`, mediante `deberiaRechazarDescripcionNula()`.
 - `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
 - La suite completa del proyecto quedó en **300/300 tests en verde**.
 - Commits: `a995937`, `2e4b94f` y `62f2da3`.

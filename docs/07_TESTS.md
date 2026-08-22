@@ -38,9 +38,9 @@ Suite completa del proyecto:
 
 Se amplió `OperacionFinancieraServiceTest` hasta **20 tests en verde**.
 
-La cobertura incluye registro de una transferencia, creación de `EGRESO` en la cuenta origen, creación de `INGRESO` en la cuenta destino, misma fecha/hora para ambos movimientos, parámetros obligatorios nulos, importes inválidos, cuentas desactivadas, categorías pertenecientes a otro perfil, cuentas con monedas diferentes, ausencia de persistencia ante operaciones rechazadas y descripción nula.
+La cobertura incluye registro de una transferencia, creación de `EGRESO` en la cuenta origen, creación de `INGRESO` en la cuenta destino, misma fecha/hora para ambos movimientos, parámetros obligatorios nulos, importes inválidos, cuentas desactivadas, categorías pertenecientes a otro perfil, cuentas con monedas diferentes, ausencia de persistencia ante operaciones rechazadas y rechazo de descripción nula mediante `deberiaRechazarDescripcionNula()`.
 
-Durante la validación se detectó que la descripción no debe ser obligatoria para una transferencia. Se eliminó la validación correspondiente y se verificó el caso con descripción nula.
+Durante la validación se confirmó que la descripción debe ser obligatoria para una transferencia. La corrección intermedia `2e4b94f`, que permitía descripción nula, fue posteriormente revertida mediante `62f2da3` para restablecer la validación. El comportamiento definitivo quedó cubierto por `deberiaRechazarDescripcionNula()`.
 
 Commits asociados:
 

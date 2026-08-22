@@ -358,7 +358,7 @@ El servicio materializa una transferencia mediante:
 - un `INGRESO` en la cuenta destino;
 - persistencia coordinada dentro de una única transacción.
 
-También valida cuentas activas, coherencia de perfiles financieros, moneda común y parámetros obligatorios. La descripción puede ser nula.
+También valida cuentas activas, coherencia de perfiles financieros, moneda común y parámetros obligatorios. La descripción es obligatoria y su ausencia es rechazada con `NullPointerException`.
 
 `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
 
