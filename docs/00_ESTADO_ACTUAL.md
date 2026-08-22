@@ -27,7 +27,7 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 ## Estado funcional actual
 
-**Build 046 — `OperacionFinancieraService` está cerrado y validado.**
+**Build 047 — Completar cobertura de `OperacionFinancieraService` está cerrado y validado.**
 
 El servicio permite materializar una transferencia como:
 
@@ -43,23 +43,28 @@ El servicio valida además cuentas activas, coherencia entre cuenta y categoría
 
 `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
 
-La cobertura incluye operación exitosa, generación de ambos movimientos, parámetros nulos, importes inválidos, cuentas inactivas, perfiles incompatibles, monedas diferentes, ausencia de persistencia ante operaciones rechazadas y descripción nula.
+La cobertura incluye operación exitosa, generación de ambos movimientos, parámetros nulos, importes inválidos, cuentas inactivas, perfiles incompatibles, monedas diferentes, fecha/hora nula, ausencia de persistencia ante operaciones rechazadas y descripción nula.
 
-La suite general del proyecto fue ejecutada mediante Maven y quedó en **300/300 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+La suite general del proyecto fue ejecutada mediante Maven y quedó en **309/309 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La ejecución finalizó el **21/08/2026 a las 18:01:52 -03:00**, con una duración total de **09:44 min**.
+La ejecución finalizó el **21/08/2026 a las 20:36:10 -03:00**, con una duración total de **08:14 min**.
 
 ## Último commit de código
 
 En la rama `feature/operacion-financiera`:
 
-- `2e4b94f` — `fix: permitir descripcion nula en transferencia`
+- `615161c` — `test: completar cobertura de OperacionFinancieraService`
 
-Este commit corrige el contrato de `OperacionFinancieraService` para permitir una descripción nula.
+La rama `feature/operacion-financiera` está limpia y sincronizada con GitHub y Bitbucket.
 
-El Build 046 completo está publicado en GitHub y Bitbucket en la rama `feature/operacion-financiera`.
+Los commits de código del bloque actual son:
 
-**Importante:** la funcionalidad continúa aislada de `main`. Build 046 no fue incorporado a `main`.
+- `a995937` — `feat: implementar servicio de operacion financiera`.
+- `2e4b94f` — `fix: permitir descripcion nula en transferencia`.
+- `62f2da3` — `fix: validar descripcion en transferencia`.
+- `615161c` — `test: completar cobertura de OperacionFinancieraService`.
+
+**Importante:** la funcionalidad continúa aislada de `main`. Build 047 no fue incorporado a `main`.
 
 ## Dominio construido
 
@@ -134,7 +139,7 @@ Tests de dominio destacados:
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **7**
 
-Suite completa validada: **300/300 tests en verde**.
+Suite completa validada: **309/309 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
@@ -149,9 +154,9 @@ Las transferencias no se modelan como un tercer `TipoMovimiento`. Conceptualment
 Estado de referencia:
 
 - rama de funcionalidad: `feature/operacion-financiera`;
-- último commit de código de Build 046: `2e4b94f` — `fix: permitir descripcion nula en transferencia`;
+- último commit de código: `615161c` — `test: completar cobertura de OperacionFinancieraService`;
 - rama de documentación: `docs/continuidad-sofp`;
-- `main`: permanece en `028aaee` y no fue modificado por Build 046.
+- `main`: permanece en `028aaee` y no fue modificado por Build 047.
 
 La documentación de continuidad se mantiene separada de la rama feature, siguiendo el flujo acordado para el proyecto.
 
@@ -162,6 +167,28 @@ Definir y comenzar el siguiente bloque funcional en `feature/operacion-financier
 Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
 
 No implementar todavía `OperacionFinancieraRepository` hasta confirmar si la persistencia de la operación requiere un repositorio independiente.
+
+## Build 047 — Completar cobertura de OperacionFinancieraService
+
+**Fecha:** 21/08/2026  
+**Estado:** COMPLETADO
+
+Se completó la cobertura de `OperacionFinancieraServiceTest`.
+
+Se incorporaron pruebas para las validaciones de cuentas inactivas, categorías de otros perfiles, monedas diferentes, fecha/hora nula, descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
+
+Resultado:
+
+- 20 tests de `OperacionFinancieraServiceTest` en verde.
+- Suite completa: **309 tests**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- **BUILD SUCCESS**.
+- Tiempo: **08:14 min**.
+- Finalización: **21/08/2026 20:36:10 -03:00**.
+
+El Build 047 queda cerrado y validado.
 
 ## Regla de continuidad
 
