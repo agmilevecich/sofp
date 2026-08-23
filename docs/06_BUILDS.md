@@ -127,13 +127,43 @@ Duración: **09:07 min**. Finalización: **23/08/2026 12:57:51 -03:00**.
 
 Commit: `3d0543c` — `feat: implementar repositorio de operacion financiera`.
 
-La implementación continúa aislada de `main`.
+## Build 049 — Asociación de Movimiento con OperacionFinanciera
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera`:
+
+- `Movimiento` incorpora `@ManyToOne` con `operacion_financiera_id`;
+- `OperacionFinanciera` incorpora `@OneToMany(mappedBy = "operacionFinanciera")`;
+- la colección de movimientos se expone como lista no modificable;
+- una operación admite como máximo dos movimientos;
+- un movimiento no puede quedar asociado a dos operaciones financieras diferentes;
+- no se permite agregar movimientos nulos ni repetir el mismo movimiento;
+- `OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
+
+La cobertura de `OperacionFinancieraTest` pasó de **7 a 14 tests en verde**, con 7 tests nuevos para asociación, límite de movimientos y consistencia de la relación.
+
+Resultado de la suite general:
+
+- Tests run: **326**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+
+Finalización: **23/08/2026 16:59:40 -03:00**. Duración: **17:23 min**.
+
+La ejecución emitió una advertencia de Surefire relacionada con el cierre de la JVM del fork, pero no produjo fallos ni errores y el build finalizó correctamente.
+
+Commit: `11dc0ae` — `feat: asociar movimientos a operacion financiera`.
+
+El commit fue publicado en GitHub y Bitbucket sobre `feature/operacion-financiera` mediante `git pushall`. La rama quedó sincronizada y el working tree quedó limpio.
 
 ## Estado actual
 
-El último Build cerrado es **Build 048**. La suite general confirmada es **319/319 tests en verde**. El último commit de código es `3d0543c`.
+El último Build cerrado es **Build 049**. La suite general confirmada es **326/326 tests en verde**. El último commit de código es `11dc0ae`.
 
-`OperacionFinancieraRepository` está implementado y no debe volver a figurar como pendiente.
+La asociación entre `Movimiento` y `OperacionFinanciera` está implementada y no debe volver a figurar como pendiente.
 
 ## Próximo paso
 
