@@ -9,26 +9,11 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Trabajo recientemente completado
 
-- Build 029: eliminación en `CategoriaRepository`.
-- Build 030: eliminación en `CategoriaService`.
-- Build 031: eliminación en `CuentaRepository`.
-- Build 032: eliminación en `CuentaService`.
-- Build 033: reglas de negocio de `Movimiento`.
-- Build 034: ampliación de cobertura de `MovimientoServiceTest`.
-- Build 035: ampliación de cobertura de `CuentaServiceTest`.
-- Build 036: ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 037: ampliación de cobertura de `MonedaServiceTest`.
-- Build 038: ampliación de cobertura de `PerfilFinancieroServiceTest`.
-- Build 039: ampliación de cobertura de `UsuarioServiceTest` y endurecimiento del contrato de `UsuarioService`.
-- Build 040: ampliación de cobertura de `CategoriaServiceTest`.
-- Build 041: reforzamiento de validaciones de servicios y dominio y ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 042: ampliación de cobertura de `CuentaServiceTest`.
-- Build 043: ampliación de cobertura de `MovimientoServiceTest`.
-- Build 044: ampliación de `MovimientoTest`, con 23 tests nuevos, 27/27 tests específicos en verde y suite general 282/282 en verde.
-- Build 045: implementación del dominio `OperacionFinanciera`, con 7 tests específicos en verde y suite general 289/289 en verde.
-- Build 046: implementación de `OperacionFinancieraService`, ampliación de `OperacionFinancieraServiceTest` hasta 20/20 y cierre de la suite general con 300/300 tests en verde.
-- Build 047: finalización de la cobertura de `OperacionFinancieraServiceTest` y cierre de la suite general con 309/309 tests en verde.
-- Build posterior: implementación de `OperacionFinancieraRepository`, integración con `OperacionFinancieraService` y ampliación de la suite general hasta 319/319 tests en verde.
+- Build 044: ampliación de `MovimientoTest`, con 27/27 tests específicos y suite general 282/282 en verde.
+- Build 045: implementación del dominio `OperacionFinanciera`, con 7 tests específicos y suite general 289/289 en verde.
+- Build 046: implementación de `OperacionFinancieraService`, con 20 tests específicos y suite general 300/300 en verde.
+- Build 047: finalización de cobertura de `OperacionFinancieraServiceTest` y suite general 309/309 en verde.
+- Build 048: implementación de `OperacionFinancieraRepository`, integración con `OperacionFinancieraService`, 10 tests de repositorio y suite general 319/319 en verde.
 
 ## Estado actual — OperacionFinancieraRepository
 
@@ -52,12 +37,12 @@ Suite completa: **319/319 tests en verde**, con `Failures: 0`, `Errors: 0`, `Ski
 
 Por lo tanto, `OperacionFinancieraRepository` ya no es un pendiente y no debe volver a aparecer como trabajo por implementar.
 
-## Estado de Git de referencia
+## Estado Git de referencia
 
 - Rama de funcionalidad: `feature/operacion-financiera`.
 - Rama de documentación: `docs/continuidad-sofp`.
-- Las ramas `feature/operacion-financiera` y `docs/continuidad-sofp` están sincronizadas apuntando al commit `6f39c58`.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
+- Último commit de código: `3d0543c` — `feat: implementar repositorio de operacion financiera`.
 
 ## Pendientes de arquitectura / evolución
 
