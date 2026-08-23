@@ -29,13 +29,15 @@ Construir una aplicación Java de finanzas personales, preparada para múltiples
 
 **Build 047 — Completar cobertura de `OperacionFinancieraService` está cerrado y validado.**
 
-El servicio permite materializar una transferencia como:
+Posteriormente se completó el siguiente bloque funcional sobre `OperacionFinanciera`, incorporando su repositorio JPA e integrándolo en el servicio.
+
+Actualmente `OperacionFinancieraService` permite materializar una transferencia como:
 
 - una `OperacionFinanciera`;
 - un `EGRESO` en la cuenta origen;
 - un `INGRESO` en la cuenta destino.
 
-La operación y los dos movimientos se persisten dentro de una única transacción, con rollback ante excepciones.
+La operación y los dos movimientos se persisten dentro de una única transacción, con rollback ante excepciones. La entidad `OperacionFinanciera` se persiste ahora mediante `OperacionFinancieraRepository`.
 
 El servicio valida además cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios. La descripción es obligatoria y su ausencia es rechazada con `NullPointerException`.
 
@@ -43,28 +45,33 @@ El servicio valida además cuentas activas, coherencia entre cuenta y categoría
 
 `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
 
-La cobertura incluye operación exitosa, generación de ambos movimientos, parámetros nulos, importes inválidos, cuentas inactivas, perfiles incompatibles, monedas diferentes, fecha/hora nula, ausencia de persistencia ante operaciones rechazadas y rechazo de descripción nula mediante `deberiaRechazarDescripcionNula()`.
+`OperacionFinancieraRepositoryTest` quedó en **10/10 tests en verde**.
 
-La suite general del proyecto fue ejecutada mediante Maven y quedó en **309/309 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+`OperacionFinancieraTest` mantiene **7/7 tests en verde**.
 
-La ejecución finalizó el **21/08/2026 a las 20:36:10 -03:00**, con una duración total de **08:14 min**.
+La suite general del proyecto fue ejecutada mediante Maven y quedó en **319/319 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+La ejecución finalizó el **23/08/2026 a las 12:57:51 -03:00**, con una duración total de **09:07 min**.
 
 ## Último commit de código
 
 En la rama `feature/operacion-financiera`:
 
-- `615161c` — `test: completar cobertura de OperacionFinancieraService`
+- `3d0543c` — `feat: implementar repositorio de operacion financiera`
 
-La rama `feature/operacion-financiera` está limpia y sincronizada con GitHub y Bitbucket.
+Posteriormente se sincronizó la rama con GitHub y Bitbucket mediante el commit de documentación `d8afb4d`.
 
-Los commits de código del bloque actual son:
+La rama `feature/operacion-financiera` quedó limpia y sincronizada con ambos remotos.
+
+Los commits relevantes del bloque actual son:
 
 - `a995937` — `feat: implementar servicio de operacion financiera`.
 - `2e4b94f` — `fix: permitir descripcion nula en transferencia`.
 - `62f2da3` — `fix: validar descripcion en transferencia`.
 - `615161c` — `test: completar cobertura de OperacionFinancieraService`.
+- `3d0543c` — `feat: implementar repositorio de operacion financiera`.
 
-**Importante:** la funcionalidad continúa aislada de `main`. Build 047 no fue incorporado a `main`.
+**Importante:** la funcionalidad continúa aislada de `main`. No fue incorporada a `main`.
 
 ## Dominio construido
 
@@ -97,10 +104,18 @@ Repositorios JPA incorporados:
 - `CuentaRepository`
 - `MovimientoRepository`
 - `CategoriaRepository`
+- `OperacionFinancieraRepository`
 
 `MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
-Todavía no existe `OperacionFinancieraRepository`.
+`OperacionFinancieraRepository` proporciona:
+
+- `guardar(...)` para altas y actualizaciones;
+- `buscarPorId(...)` con `Optional`;
+- `listarTodas()`;
+- `listarPorCuentaOrigen(...)`;
+- `listarPorCuentaDestino(...)`;
+- validación de parámetros obligatorios mediante `NullPointerException`.
 
 ## Services
 
@@ -117,7 +132,7 @@ La capa `service` contiene:
 
 `MovimientoService` gestiona registro, búsqueda, listados, modificaciones y eliminación mediante transacciones explícitas. Desde Build 033 valida coherencia entre cuenta, categoría y perfil financiero y rechaza movimientos sobre cuentas desactivadas.
 
-`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción.
+`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción y utiliza `OperacionFinancieraRepository` para persistir la operación.
 
 ## Tests confirmados
 
@@ -139,7 +154,11 @@ Tests de dominio destacados:
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **7**
 
-Suite completa validada: **309/309 tests en verde**.
+Tests de persistencia destacados:
+
+- `OperacionFinancieraRepositoryTest`: **10**
+
+Suite completa validada: **319/319 tests en verde**.
 
 La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
 
@@ -147,16 +166,17 @@ La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamie
 
 Las transferencias no se modelan como un tercer `TipoMovimiento`. Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**, vinculados mediante una `OperacionFinanciera`.
 
-`OperacionFinancieraService` ya materializa esta operación y coordina su persistencia transaccional.
+`OperacionFinancieraService` materializa esta operación y coordina su persistencia transaccional. La persistencia de `OperacionFinanciera` se encapsula ahora en `OperacionFinancieraRepository`, siguiendo el patrón de repositorios JPA existente.
 
 ## Git
 
 Estado de referencia:
 
 - rama de funcionalidad: `feature/operacion-financiera`;
-- último commit de código: `615161c` — `test: completar cobertura de OperacionFinancieraService`;
+- último commit de código: `3d0543c` — `feat: implementar repositorio de operacion financiera`;
+- último commit de sincronización de la rama: `d8afb4d`;
 - rama de documentación: `docs/continuidad-sofp`;
-- `main`: permanece en `028aaee` y no fue modificado por Build 047.
+- `main`: permanece sin incorporar el trabajo de `feature/operacion-financiera`.
 
 La documentación de continuidad se mantiene separada de la rama feature, siguiendo el flujo acordado para el proyecto.
 
@@ -166,29 +186,32 @@ Definir y comenzar el siguiente bloque funcional en `feature/operacion-financier
 
 Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
 
-No implementar todavía `OperacionFinancieraRepository` hasta confirmar si la persistencia de la operación requiere un repositorio independiente.
+## Bloque posterior a Build 047 — Repositorio de OperacionFinanciera
 
-## Build 047 — Completar cobertura de OperacionFinancieraService
+**Fecha de cierre:** 23/08/2026  
+**Estado:** COMPLETADO Y VALIDADO
 
-**Fecha:** 21/08/2026  
-**Estado:** COMPLETADO
+Se incorporó `OperacionFinancieraRepository` y se agregó cobertura específica mediante `OperacionFinancieraRepositoryTest`.
 
-Se completó la cobertura de `OperacionFinancieraServiceTest`.
-
-Se incorporaron pruebas para las validaciones de cuentas inactivas, categorías de otros perfiles, monedas diferentes, fecha/hora nula, rechazo de descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
+También se modificó `OperacionFinancieraService` para recibir el repositorio por constructor y utilizarlo para persistir la `OperacionFinanciera` dentro de la transacción existente. Se actualizaron los tests del servicio para utilizar la nueva dependencia.
 
 Resultado:
 
-- 20 tests de `OperacionFinancieraServiceTest` en verde.
-- Suite completa: **309 tests**.
+- `OperacionFinancieraRepositoryTest`: **10 tests en verde**.
+- `OperacionFinancieraServiceTest`: **20 tests en verde**.
+- Suite completa: **319 tests**.
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - **BUILD SUCCESS**.
-- Tiempo: **08:14 min**.
-- Finalización: **21/08/2026 20:36:10 -03:00**.
+- Tiempo: **09:07 min**.
+- Finalización: **23/08/2026 12:57:51 -03:00**.
 
-El Build 047 queda cerrado y validado.
+Commit principal del bloque:
+
+- `3d0543c` — `feat: implementar repositorio de operacion financiera`.
+
+La documentación de continuidad de este bloque debe quedar en `docs/continuidad-sofp`.
 
 ## Regla de continuidad
 
