@@ -43,7 +43,7 @@ Por lo tanto, la asociación entre `Movimiento` y `OperacionFinanciera` ya no es
 - Rama de funcionalidad: `feature/operacion-financiera`.
 - Rama de documentación: `docs/continuidad-sofp`.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
-- Último commit de código: `11dc0ae` — `feat: asociar movimientos a operacion financiera`.
+- Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
 
 ## Pendientes de arquitectura / evolución
 
