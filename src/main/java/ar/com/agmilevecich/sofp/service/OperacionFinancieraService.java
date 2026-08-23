@@ -6,6 +6,7 @@ import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
@@ -17,10 +18,12 @@ public class OperacionFinancieraService {
 
     private final EntityManager entityManager;
     private final MovimientoRepository movimientoRepository;
+    private final OperacionFinancieraRepository operacionFinancieraRepository;
 
     public OperacionFinancieraService(
             EntityManager entityManager,
-            MovimientoRepository movimientoRepository) {
+            MovimientoRepository movimientoRepository,
+            OperacionFinancieraRepository operacionFinancieraRepository) {
 
         this.entityManager = Objects.requireNonNull(
                 entityManager,
@@ -31,6 +34,12 @@ public class OperacionFinancieraService {
                 movimientoRepository,
                 "El repositorio de movimientos es obligatorio"
         );
+
+        this.operacionFinancieraRepository =
+                Objects.requireNonNull(
+                        operacionFinancieraRepository,
+                        "El repositorio de operaciones financieras es obligatorio"
+                );
     }
 
     public OperacionFinanciera transferir(
@@ -132,7 +141,9 @@ public class OperacionFinancieraService {
         try {
             transaction.begin();
 
-            entityManager.persist(operacion);
+            operacionFinancieraRepository.guardar(
+                    operacion
+            );
 
             movimientoRepository.guardar(egreso);
             movimientoRepository.guardar(ingreso);

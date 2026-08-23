@@ -14,6 +14,7 @@ import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,10 +55,16 @@ public class OperacionFinancieraServiceTest {
                         entityManager
                 );
 
+        OperacionFinancieraRepository operacionFinancieraRepository =
+                new OperacionFinancieraRepository(
+                        entityManager
+                );
+
         operacionFinancieraService =
                 new OperacionFinancieraService(
                         entityManager,
-                        movimientoRepository
+                        movimientoRepository,
+                        operacionFinancieraRepository
                 );
 
         usuario =
