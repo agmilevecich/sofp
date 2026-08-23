@@ -4,6 +4,32 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 049 — Asociación de Movimiento con OperacionFinanciera — Cerrado
+
+Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera` y se completaron las pruebas de asociación y consistencia de la relación.
+
+`OperacionFinancieraTest` pasó de **7 a 14 tests en verde**, incorporando pruebas para:
+
+- creación de la operación sin movimientos iniciales;
+- asociación de un movimiento;
+- asociación de dos movimientos;
+- rechazo de movimiento nulo;
+- rechazo de un tercer movimiento;
+- rechazo de un movimiento repetido;
+- rechazo de un movimiento ya asociado a otra operación.
+
+Resultado específico: **14/14 tests en verde**.
+
+La suite completa quedó en **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+Finalización: **2026-08-23 16:59:40 -03:00**. Duración: **17:23 min**.
+
+La ejecución emitió una advertencia de Surefire relacionada con el cierre de la JVM del fork, pero el resultado final fue exitoso.
+
+Commit asociado:
+
+- `11dc0ae` — `feat: asociar movimientos a operacion financiera`
+
 ### Build 048 — Implementación de OperacionFinancieraRepository — Cerrado
 
 Se incorporó `OperacionFinancieraRepository` y se integró en `OperacionFinancieraService`.
@@ -64,13 +90,13 @@ Total confirmado de tests de services: **209**.
 Tests de dominio destacados:
 
 - `MovimientoTest`: **27**
-- `OperacionFinancieraTest`: **7**
+- `OperacionFinancieraTest`: **14**
 
 Tests de persistencia destacados:
 
 - `OperacionFinancieraRepositoryTest`: **10**
 
-Suite general actual: **319/319 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+Suite general actual: **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
 ## Regla de cierre
 
