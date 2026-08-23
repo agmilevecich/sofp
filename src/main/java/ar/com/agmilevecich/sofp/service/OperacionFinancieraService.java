@@ -135,6 +135,14 @@ public class OperacionFinancieraService {
                         descripcion
                 );
 
+        operacion.agregarMovimiento(
+                egreso
+        );
+
+        operacion.agregarMovimiento(
+                ingreso
+        );
+
         EntityTransaction transaction =
                 entityManager.getTransaction();
 
@@ -145,8 +153,13 @@ public class OperacionFinancieraService {
                     operacion
             );
 
-            movimientoRepository.guardar(egreso);
-            movimientoRepository.guardar(ingreso);
+            movimientoRepository.guardar(
+                    egreso
+            );
+
+            movimientoRepository.guardar(
+                    ingreso
+            );
 
             entityManager.flush();
 

@@ -4,6 +4,9 @@ import ar.com.agmilevecich.sofp.util.Validaciones;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -20,6 +23,12 @@ public class OperacionFinanciera extends EntidadAuditable {
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal importe;
+
+    @OneToMany(
+            mappedBy = "operacionFinanciera",
+            fetch = FetchType.LAZY
+    )
+    private List<Movimiento> movimientos = new ArrayList<>();
 
     /**
      * Constructor requerido por JPA.
@@ -68,4 +77,38 @@ public class OperacionFinanciera extends EntidadAuditable {
     public BigDecimal getImporte() {
         return importe;
     }
+
+    public List<Movimiento> getMovimientos() {
+        return Collections.unmodifiableList(
+                movimientos
+        );
+    }
+
+    public void agregarMovimiento(
+            Movimiento movimiento) {
+
+        Objects.requireNonNull(
+                movimiento,
+                "El movimiento es obligatorio"
+        );
+
+        if (movimientos.size() >= 2) {
+            throw new IllegalStateException(
+                    "Una operación financiera no puede tener más de dos movimientos"
+            );
+        }
+
+        if (movimientos.contains(movimiento)) {
+            throw new IllegalArgumentException(
+                    "El movimiento ya pertenece a la operación financiera"
+            );
+        }
+
+        movimiento.asociarOperacionFinanciera(
+                this
+        );
+
+        movimientos.add(movimiento);
+    }
+
 }
