@@ -43,7 +43,14 @@ Una transferencia entre cuentas se considera una operación financiera que produ
 
 Por lo tanto, `TRANSFERENCIA` **no debe incorporarse al enum `TipoMovimiento`**. El enum representa el efecto individual de un movimiento sobre una cuenta y mantiene inicialmente los valores `INGRESO` y `EGRESO`.
 
-La transferencia deberá modelarse posteriormente mediante `OperacionFinanciera`, que permitirá agrupar y relacionar los movimientos que representan sus efectos. Esto evita perder la trazabilidad de que el egreso y el ingreso pertenecen al mismo hecho de negocio.
+La transferencia se modela mediante `OperacionFinanciera`, que agrupa y relaciona los movimientos que representan sus efectos. Esto permite conservar la trazabilidad de que el egreso y el ingreso pertenecen al mismo hecho de negocio.
+
+La relación persistente se implementa mediante:
+
+- `Movimiento.operacionFinanciera` con `@ManyToOne` y columna `operacion_financiera_id`;
+- `OperacionFinanciera.movimientos` con `@OneToMany(mappedBy = "operacionFinanciera")`.
+
+Una `OperacionFinanciera` admite como máximo dos movimientos y un `Movimiento` no puede quedar asociado a dos operaciones financieras diferentes. La asociación se realiza desde `OperacionFinanciera.agregarMovimiento(...)`, que mantiene ambos lados de la relación y rechaza movimientos nulos, repetidos o ya asociados a otra operación.
 
 Ejemplo conceptual:
 
