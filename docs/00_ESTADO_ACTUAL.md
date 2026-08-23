@@ -12,28 +12,37 @@
 
 ## Estado funcional actual
 
-**Build 048 — Implementación de `OperacionFinancieraRepository` está cerrado y validado.**
+**Build 049 — Asociación de `Movimiento` con `OperacionFinanciera` está cerrado y validado.**
 
-`OperacionFinancieraService` materializa una transferencia como una `OperacionFinanciera`, un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino, persistidos dentro de una única transacción.
+Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera` mediante `ManyToOne` en `Movimiento` y `OneToMany` en `OperacionFinanciera`.
 
-El servicio valida cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios. La descripción es obligatoria y su ausencia se rechaza con `NullPointerException`.
+`OperacionFinanciera` mantiene una colección de movimientos protegida mediante una vista no modificable y permite asociar como máximo dos movimientos. La asociación es bidireccional: al agregar un movimiento a una operación, el movimiento queda vinculado a esa operación.
+
+El dominio rechaza movimientos nulos, movimientos repetidos, un tercer movimiento y movimientos que ya pertenecen a otra operación financiera. La regla de asociación impide reasignar un movimiento a una operación diferente.
+
+`OperacionFinancieraService` fue actualizado para asociar el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
 
 ## Tests
 
 - `OperacionFinancieraServiceTest`: **20/20**.
 - `OperacionFinancieraRepositoryTest`: **10/10**.
-- `OperacionFinancieraTest`: **7/7**.
-- Suite general: **319/319 tests en verde**.
+- `OperacionFinancieraTest`: **14/14**.
+- `MovimientoTest`: **27/27**.
+- Suite general: **326/326 tests en verde**.
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - **BUILD SUCCESS**.
-- Finalización: **23/08/2026 12:57:51 -03:00**.
-- Duración: **09:07 min**.
+- Finalización: **23/08/2026 16:59:40 -03:00**.
+- Duración: **17:23 min**.
+
+La ejecución emitió una advertencia de Surefire relacionada con el cierre de la JVM del fork, pero el resultado final fue `BUILD SUCCESS` con 0 failures y 0 errors.
 
 ## Último commit de código
 
-- `3d0543c` — `feat: implementar repositorio de operacion financiera`.
+- `11dc0ae` — `feat: asociar movimientos a operacion financiera`.
+
+El commit fue publicado en GitHub y Bitbucket sobre `feature/operacion-financiera` mediante `git pushall`. La rama de funcionalidad quedó sincronizada con ambos remotos y el working tree quedó limpio.
 
 La funcionalidad continúa aislada de `main`.
 
@@ -47,20 +56,26 @@ Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuent
 
 Repositorios JPA: `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository`, `CuentaRepository`, `MovimientoRepository`, `CategoriaRepository` y `OperacionFinancieraRepository`.
 
-`OperacionFinancieraRepository` proporciona `guardar(...)`, `buscarPorId(...)`, `listarTodas()`, `listarPorCuentaOrigen(...)` y `listarPorCuentaDestino(...)`, con validación de parámetros obligatorios mediante `NullPointerException`.
+`OperacionFinancieraRepository` proporciona `guardar(...)`, `buscarPorId(...)`, `listarTodas()`, `listarPorCuentaOrigen(...)` y `listarPorCuentaDestino(...)`.
+
+La relación entre `OperacionFinanciera` y `Movimiento` queda persistida mediante la columna `operacion_financiera_id` en `Movimiento`.
 
 ## Services
 
 La capa `service` contiene `CuentaService`, `MovimientoService`, `CategoriaService`, `PerfilFinancieroService`, `UsuarioService`, `InstitucionFinancieraService`, `MonedaService` y `OperacionFinancieraService`.
 
+`OperacionFinancieraService` materializa una transferencia como una operación financiera con un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino, coordinando su persistencia dentro de una única transacción.
+
 ## Decisiones de dominio relevantes
 
-Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferencia genera un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados conceptualmente mediante una `OperacionFinanciera`.
+Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferencia genera un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados mediante una `OperacionFinanciera`.
+
+Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Movimiento` puede estar asociado a una única `OperacionFinanciera`.
 
 ## Git
 
 - Rama de funcionalidad: `feature/operacion-financiera`.
-- Último commit de código: `3d0543c`.
+- Último commit de código: `11dc0ae` — `feat: asociar movimientos a operacion financiera`.
 - Rama de documentación: `docs/continuidad-sofp`.
 - `main`: permanece sin incorporar el trabajo de `feature/operacion-financiera`.
 
