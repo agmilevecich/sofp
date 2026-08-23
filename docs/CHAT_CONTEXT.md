@@ -27,33 +27,43 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 - Rama de funcionalidad actual: `feature/operacion-financiera`
 - Rama de documentación/continuidad: `docs/continuidad-sofp`
 
-## Estado actual — 21/08/2026
+## Estado actual — 23/08/2026
 
-Último Build cerrado: **Build 047 — Completar cobertura de OperacionFinancieraService**.
+Último Build cerrado: **Build 049 — Asociación de Movimiento con OperacionFinanciera**.
 
 Último commit de la funcionalidad actual:
 
-- `615161c` — `test: completar cobertura de OperacionFinancieraService`
+- `11dc0ae` — `feat: asociar movimientos a operacion financiera`
 
 La rama `feature/operacion-financiera` está limpia y sincronizada con GitHub y Bitbucket. Todavía no se incorporó a `main`.
 
-Build 047 completó la cobertura de `OperacionFinancieraServiceTest` para las reglas de negocio actualmente implementadas.
+Build 049 incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera` y completó las reglas de asociación en el dominio.
+
+La relación se implementa mediante `@ManyToOne` en `Movimiento` y `@OneToMany(mappedBy = "operacionFinanciera")` en `OperacionFinanciera`, con la columna `operacion_financiera_id` en `Movimiento`.
+
+Una `OperacionFinanciera` admite como máximo dos movimientos. Un movimiento no puede pertenecer a dos operaciones diferentes. La asociación se realiza mediante `OperacionFinanciera.agregarMovimiento(...)`, que mantiene ambos lados de la relación y rechaza movimientos nulos, repetidos o ya asociados a otra operación.
+
+`OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
 
 Tests específicos:
 
-- `OperacionFinancieraServiceTest`: **20/20 tests en verde**.
+- `OperacionFinancieraTest`: **14/14 tests en verde**.
 
 Última suite general registrada sobre la rama de funcionalidad:
 
-- Tests run: **309**
+- Tests run: **326**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **21/08/2026 20:36:10 -03:00**
-- Duración: **08:14 min**
+- Finalizada: **23/08/2026 16:59:40 -03:00**
+- Duración: **17:23 min**
 
-**Build 047 queda cerrado y validado.**
+La ejecución emitió una advertencia de Surefire relacionada con el cierre de la JVM del fork, pero el resultado final fue exitoso.
+
+**Build 049 queda cerrado y validado.**
+
+El commit `11dc0ae` ya está publicado en GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
 
 ## Decisión de dominio: transferencias
 
@@ -61,7 +71,7 @@ Las transferencias no se modelan como un tercer `TipoMovimiento`.
 
 Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**. Ambos efectos quedan vinculados mediante una `OperacionFinanciera` que representa la operación de transferencia.
 
-`OperacionFinancieraService` ya materializa la operación y coordina su persistencia dentro de una única transacción.
+La relación entre la operación y sus movimientos ya está implementada y persistida. Una operación admite como máximo dos movimientos y cada movimiento puede estar asociado a una única operación financiera.
 
 ## Dominio actual
 
@@ -94,10 +104,11 @@ Repositorios JPA conocidos:
 - CuentaRepository
 - MovimientoRepository
 - CategoriaRepository
+- OperacionFinancieraRepository
 
 `MovimientoRepository` permite guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
-Todavía no existe `OperacionFinancieraRepository`.
+`OperacionFinancieraRepository` permite guardar, actualizar, buscar por ID, listar todas, listar por cuenta de origen y listar por cuenta de destino.
 
 ## Services
 
@@ -114,11 +125,11 @@ La capa `service` contiene actualmente:
 
 `MovimientoService` utiliza `EntityManager` y `MovimientoRepository`, mantiene transacciones explícitas y centraliza las reglas contextuales de cuenta, categoría y perfil financiero.
 
-`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción.
+`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción y ahora asocia ambos movimientos a la operación antes de persistirlos.
 
 ## Tests
 
-La última batería general confirmada es de **309/309 tests en verde**.
+La última batería general confirmada es de **326/326 tests en verde**.
 
 Conteo confirmado de tests de services:
 
@@ -136,7 +147,11 @@ Total confirmado: **209 tests de services**.
 Tests de dominio destacados:
 
 - `MovimientoTest`: **27**
-- `OperacionFinancieraTest`: **7**
+- `OperacionFinancieraTest`: **14**
+
+Tests de persistencia destacados:
+
+- `OperacionFinancieraRepositoryTest`: **10**
 
 ## Próximo paso
 
@@ -144,7 +159,7 @@ Definir el siguiente bloque funcional de `feature/operacion-financiera`.
 
 Antes de implementar nuevas piezas, revisar el código actual, tests y reglas de negocio relacionados. No asumir estructuras ni comportamientos no presentes en el repositorio.
 
-Sigue pendiente confirmar si corresponde incorporar `OperacionFinancieraRepository` y si el modelo debe vincular formalmente los movimientos con `OperacionFinanciera`.
+La asociación entre `Movimiento` y `OperacionFinanciera` ya está implementada y no debe figurar como pendiente. `OperacionFinancieraRepository` también está implementado y no debe figurar como pendiente.
 
 ## Forma de trabajo acordada
 
