@@ -143,7 +143,7 @@ Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera
 
 La cobertura de `OperacionFinancieraTest` pasó de **7 a 14 tests en verde**, con 7 tests nuevos para asociación, límite de movimientos y consistencia de la relación.
 
-Resultado de la suite general inicialmente documentada:
+Resultado de la suite general:
 
 - Tests run: **326**
 - Failures: **0**
@@ -151,29 +151,15 @@ Resultado de la suite general inicialmente documentada:
 - Skipped: **0**
 - `BUILD SUCCESS`
 
-Finalización de esa ejecución: **23/08/2026 16:59:40 -03:00**. Duración: **17:23 min**.
-
-Posteriormente se volvió a ejecutar la suite desde IntelliJ y se confirmó nuevamente:
-
-- Tests run: **326**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalización: **23/08/2026 19:07:25 -03:00**
-- Duración: **12:30 min**
+La suite fue confirmada nuevamente desde IntelliJ el **23/08/2026 19:07:25 -03:00**, con una duración de **12:30 min**.
 
 Commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
 
-La continuidad documental quedó actualizada posteriormente mediante `529ca85` — `docs: corregir referencia del commit actual`.
-
 ## Estado actual
 
-El último Build cerrado es **Build 049**. La última suite confirmada es **326/326 tests en verde**. El último commit de código es `0f64fa9` y el último commit de continuidad es `529ca85`.
+El último Build cerrado es **Build 049**. La última suite confirmada es **326/326 tests en verde**.
 
-La asociación entre `Movimiento` y `OperacionFinanciera` está implementada y no debe volver a figurar como pendiente.
-
-Código, tests y documentación de continuidad se mantienen desde ahora exclusivamente en `feature/operacion-financiera`.
+El último commit funcional es `0f64fa9`. La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
