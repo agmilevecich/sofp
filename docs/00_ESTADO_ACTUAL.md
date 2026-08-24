@@ -9,7 +9,7 @@
 **Rama principal:** `main`  
 **Rama única de trabajo y continuidad:** `feature/operacion-financiera`  
 
-La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. La rama `docs/continuidad-sofp` deja de formar parte del flujo de continuidad del proyecto.
+La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. La rama `docs/continuidad-sofp` ya fue eliminada y no forma parte del flujo de continuidad del proyecto.
 
 ## Estado funcional actual
 
@@ -37,19 +37,19 @@ El dominio rechaza movimientos nulos, movimientos repetidos, un tercer movimient
 - Última ejecución confirmada: **23/08/2026 19:07:25 -03:00**.
 - Duración: **12:30 min**.
 
-La ejecución finalizó correctamente con 326 tests en verde.
+Posteriormente, esta documentación fue sincronizada con la decisión de mantener toda la continuidad en `feature/operacion-financiera`.
 
-## Último commit de continuidad
+## Último commit de continuidad documental
 
-- `529ca85` — `docs: corregir referencia del commit actual`.
+- `378f3c8` — `docs: unificar pendientes en rama de funcionalidad`.
 
-Este commit corrige la referencia documental al commit de código después del rebase utilizado para unificar la línea de historia.
+Este commit representa el último estado de sincronización documental conocido antes de esta corrección.
 
 ## Último commit de código
 
 - `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
 
-El commit de código y la documentación de continuidad están ahora en la misma línea histórica de `feature/operacion-financiera`.
+El commit funcional y la documentación de continuidad permanecen en la misma línea histórica de `feature/operacion-financiera`.
 
 La funcionalidad continúa aislada de `main`.
 
@@ -83,9 +83,9 @@ Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Mo
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Último commit de continuidad: `529ca85` — `docs: corregir referencia del commit actual`.
+- Último bloque de continuidad: `378f3c8` — `docs: unificar pendientes en rama de funcionalidad`.
 - `main`: permanece sin incorporar el trabajo de `feature/operacion-financiera`.
-- `docs/continuidad-sofp`: deja de utilizarse como rama de documentación y será eliminada cuando se complete la verificación de sincronización.
+- `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
 
 ## Próximo paso
 
@@ -95,4 +95,4 @@ Antes de implementar un nuevo componente, revisar el dominio, repositorios, serv
 
 ## Regla de continuidad
 
-Cada bloque importante debe terminar con código funcionando, tests en verde, commit identificable cuando corresponda, actualización de documentación y registro del próximo paso. Código, tests y documentación de continuidad deben permanecer en la misma rama `feature/operacion-financiera` para evitar discrepancias antes de la futura integración con `main`.
+Cada bloque importante debe terminar con código funcionando, tests en verde, commit identificable cuando corresponda, actualización de documentación y registro del próximo paso. Código, tests y documentación de continuidad deben permanecer en la misma rama `feature/operacion-financiera`.
