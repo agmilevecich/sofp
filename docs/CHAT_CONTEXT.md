@@ -23,19 +23,23 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 - GitHub: `agmilevecich/sofp`
 - Bitbucket: `agmilevecich/sofp`
-- Rama principal de trabajo: `main`
-- Rama de funcionalidad actual: `feature/operacion-financiera`
-- Rama de documentación/continuidad: `docs/continuidad-sofp`
+- Rama principal de trabajo del repositorio: `main`
+- Rama única de funcionalidad y continuidad actual: `feature/operacion-financiera`
+- Rama `docs/continuidad-sofp`: **eliminada**.
+
+Todo el código, tests y documentación de continuidad actual se mantiene dentro de `feature/operacion-financiera`.
 
 ## Estado actual — 23/08/2026
 
 Último Build cerrado: **Build 049 — Asociación de Movimiento con OperacionFinanciera**.
 
-Último commit de la funcionalidad actual:
+Último commit funcional:
 
-- `11dc0ae` — `feat: asociar movimientos a operacion financiera`
+- `0f64fa9` — `feat: asociar movimientos a operacion financiera`
 
-La rama `feature/operacion-financiera` está limpia y sincronizada con GitHub y Bitbucket. Todavía no se incorporó a `main`.
+Los commits posteriores al funcional corresponden exclusivamente a sincronización y corrección de documentación.
+
+La rama `feature/operacion-financiera` está separada de `main` y sincronizada entre GitHub y Bitbucket.
 
 Build 049 incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera` y completó las reglas de asociación en el dominio.
 
@@ -45,25 +49,41 @@ Una `OperacionFinanciera` admite como máximo dos movimientos. Un movimiento no 
 
 `OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
 
-Tests específicos:
+## Tests
 
-- `OperacionFinancieraTest`: **14/14 tests en verde**.
+La última batería general confirmada es de **326/326 tests en verde**.
 
-Última suite general registrada sobre la rama de funcionalidad:
+Conteo confirmado de tests de services:
+
+- `CategoriaServiceTest`: **21**
+- `CuentaServiceTest`: **47**
+- `InstitucionFinancieraServiceTest`: **26**
+- `MonedaServiceTest`: **17**
+- `MovimientoServiceTest`: **50**
+- `PerfilFinancieroServiceTest`: **13**
+- `UsuarioServiceTest`: **15**
+- `OperacionFinancieraServiceTest`: **20**
+
+Total confirmado: **209 tests de services**.
+
+Tests de dominio destacados:
+
+- `MovimientoTest`: **27**
+- `OperacionFinancieraTest`: **14**
+
+Tests de persistencia destacados:
+
+- `OperacionFinancieraRepositoryTest`: **10**
+
+Última suite general confirmada desde IntelliJ:
 
 - Tests run: **326**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **23/08/2026 16:59:40 -03:00**
-- Duración: **17:23 min**
-
-La ejecución emitió una advertencia de Surefire relacionada con el cierre de la JVM del fork, pero el resultado final fue exitoso.
-
-**Build 049 queda cerrado y validado.**
-
-El commit `11dc0ae` ya está publicado en GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+- Finalizada: **23/08/2026 19:07:25 -03:00**
+- Duración: **12:30 min**
 
 ## Decisión de dominio: transferencias
 
@@ -125,33 +145,7 @@ La capa `service` contiene actualmente:
 
 `MovimientoService` utiliza `EntityManager` y `MovimientoRepository`, mantiene transacciones explícitas y centraliza las reglas contextuales de cuenta, categoría y perfil financiero.
 
-`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción y ahora asocia ambos movimientos a la operación antes de persistirlos.
-
-## Tests
-
-La última batería general confirmada es de **326/326 tests en verde**.
-
-Conteo confirmado de tests de services:
-
-- `CategoriaServiceTest`: **21**
-- `CuentaServiceTest`: **47**
-- `InstitucionFinancieraServiceTest`: **26**
-- `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **50**
-- `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **15**
-- `OperacionFinancieraServiceTest`: **20**
-
-Total confirmado: **209 tests de services**.
-
-Tests de dominio destacados:
-
-- `MovimientoTest`: **27**
-- `OperacionFinancieraTest`: **14**
-
-Tests de persistencia destacados:
-
-- `OperacionFinancieraRepositoryTest`: **10**
+`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción y asocia ambos movimientos a la operación antes de persistirlos.
 
 ## Próximo paso
 
