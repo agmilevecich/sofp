@@ -39,11 +39,11 @@ El dominio rechaza movimientos nulos, movimientos repetidos, un tercer movimient
 
 Posteriormente, esta documentación fue sincronizada con la decisión de mantener toda la continuidad en `feature/operacion-financiera`.
 
-## Último commit de continuidad documental
+## Último estado documental sincronizado
 
-- `378f3c8` — `docs: unificar pendientes en rama de funcionalidad`.
+- `616ddbb` — `docs: corregir pendientes de continuidad`.
 
-Este commit representa el último estado de sincronización documental conocido antes de esta corrección.
+Este commit representa el último bloque de sincronización documental verificado antes de esta actualización.
 
 ## Último commit de código
 
@@ -83,7 +83,7 @@ Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Mo
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Último bloque de continuidad: `378f3c8` — `docs: unificar pendientes en rama de funcionalidad`.
+- Último bloque documental verificado: `616ddbb` — `docs: corregir pendientes de continuidad`.
 - `main`: permanece sin incorporar el trabajo de `feature/operacion-financiera`.
 - `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
 
