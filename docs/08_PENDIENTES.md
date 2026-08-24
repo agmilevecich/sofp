@@ -6,7 +6,6 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 - Definir el siguiente bloque funcional de `feature/operacion-financiera`.
 - Mantener código, tests y documentación de continuidad dentro de `feature/operacion-financiera`.
-- Eliminar la rama `docs/continuidad-sofp` una vez verificada la sincronización final de sus referencias.
 
 ## Trabajo recientemente completado
 
@@ -45,9 +44,9 @@ Por lo tanto, la asociación entre `Movimiento` y `OperacionFinanciera` ya no es
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Último commit de continuidad: `529ca85` — `docs: corregir referencia del commit actual`.
+- La documentación de continuidad se mantiene en la misma rama.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
-- `docs/continuidad-sofp` deja de utilizarse como rama de documentación y será eliminada tras la verificación final.
+- `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
 
 ## Pendientes de arquitectura / evolución
 
