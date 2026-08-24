@@ -22,13 +22,23 @@ Resultado específico: **14/14 tests en verde**.
 
 La suite completa quedó en **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-Finalización: **2026-08-23 16:59:40 -03:00**. Duración: **17:23 min**.
+Ejecución posteriormente confirmada desde IntelliJ:
 
-La ejecución emitió una advertencia de Surefire relacionada con el cierre de la JVM del fork, pero el resultado final fue exitoso.
+- Tests run: **326**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **2026-08-23 19:07:25 -03:00**
+- Duración: **12:30 min**
 
-Commit asociado:
+Commit de código:
 
-- `11dc0ae` — `feat: asociar movimientos a operacion financiera`
+- `0f64fa9` — `feat: asociar movimientos a operacion financiera`
+
+Commit de continuidad posterior:
+
+- `529ca85` — `docs: corregir referencia del commit actual`
 
 ### Build 048 — Implementación de OperacionFinancieraRepository — Cerrado
 
@@ -98,6 +108,8 @@ Tests de persistencia destacados:
 
 Suite general actual: **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
+La última ejecución confirmada se realizó desde IntelliJ el **23/08/2026 a las 19:07:25 -03:00** y finalizó correctamente.
+
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. La documentación debe reflejar el estado real de la rama antes de iniciar un nuevo bloque.
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. La documentación debe reflejar el estado real de `feature/operacion-financiera` antes de iniciar un nuevo bloque.
