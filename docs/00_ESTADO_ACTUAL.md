@@ -1,6 +1,6 @@
 # SOFP — Estado actual
 
-> Documento de continuidad del proyecto. Debe actualizarse al cerrar cada bloque importante de trabajo.
+> Documento de continuidad del proyecto. Debe actualizarse al cerrar cada bloque importante.
 
 ## Identidad del proyecto
 
@@ -9,7 +9,7 @@
 **Rama principal:** `main`  
 **Rama única de trabajo y continuidad:** `feature/operacion-financiera`  
 
-La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. La rama `docs/continuidad-sofp` ya fue eliminada y no forma parte del flujo de continuidad del proyecto.
+La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. La rama `docs/continuidad-sofp` fue eliminada y no forma parte del flujo de continuidad del proyecto.
 
 ## Estado funcional actual
 
@@ -34,7 +34,7 @@ El dominio rechaza movimientos nulos, movimientos repetidos, un tercer movimient
 - Errors: **0**.
 - Skipped: **0**.
 - **BUILD SUCCESS**.
-- Última ejecución confirmada: **23/08/2026 19:07:25 -03:00**.
+- Última ejecución confirmada desde IntelliJ: **23/08/2026 19:07:25 -03:00**.
 - Duración: **12:30 min**.
 
 La documentación fue posteriormente sincronizada para mantener toda la continuidad dentro de `feature/operacion-financiera`, sin depender de la antigua rama `docs/continuidad-sofp`.
@@ -43,7 +43,7 @@ La documentación fue posteriormente sincronizada para mantener toda la continui
 
 - `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
 
-El commit funcional y la documentación de continuidad permanecen en la misma línea histórica de `feature/operacion-financiera`.
+Los commits posteriores corresponden a sincronización y corrección de documentación. El commit funcional y la documentación de continuidad permanecen en la misma línea histórica de `feature/operacion-financiera`.
 
 La funcionalidad continúa aislada de `main`.
 
@@ -77,6 +77,7 @@ Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Mo
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- Los últimos commits posteriores al funcional son exclusivamente de documentación y sincronización.
 - `main`: permanece sin incorporar el trabajo de `feature/operacion-financiera`.
 - `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
 
