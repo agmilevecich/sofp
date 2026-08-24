@@ -44,6 +44,7 @@ Por lo tanto, la asociación entre `Movimiento` y `OperacionFinanciera` ya no es
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- Los commits posteriores al funcional corresponden a documentación y sincronización.
 - La documentación de continuidad se mantiene en la misma rama.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
 - `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
