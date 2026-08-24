@@ -22,23 +22,11 @@ Resultado específico: **14/14 tests en verde**.
 
 La suite completa quedó en **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-Ejecución posteriormente confirmada desde IntelliJ:
-
-- Tests run: **326**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalización: **2026-08-23 19:07:25 -03:00**
-- Duración: **12:30 min**
+La suite fue confirmada nuevamente desde IntelliJ el **23/08/2026 19:07:25 -03:00**, con una duración de **12:30 min**.
 
 Commit de código:
 
 - `0f64fa9` — `feat: asociar movimientos a operacion financiera`
-
-Commit de continuidad posterior:
-
-- `529ca85` — `docs: corregir referencia del commit actual`
 
 ### Build 048 — Implementación de OperacionFinancieraRepository — Cerrado
 
