@@ -15,6 +15,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 047: finalización de cobertura de `OperacionFinancieraServiceTest` y suite general 309/309 en verde.
 - Build 048: implementación de `OperacionFinancieraRepository`, integración con `OperacionFinancieraService`, 10 tests de repositorio y suite general 319/319 en verde.
 - Build 049: asociación persistente de `Movimiento` con `OperacionFinanciera`, 7 tests nuevos, `OperacionFinancieraTest` en 14/14 y suite general 326/326 en verde.
+- Cálculo de saldo de `Cuenta`: ya implementado en `CuentaService.calcularSaldo(...)` y cubierto por los tests existentes. No constituye un bloque pendiente de implementación.
 
 ## Estado actual — Asociación Movimiento / OperacionFinanciera
 
@@ -56,7 +57,8 @@ Por lo tanto, la asociación entre `Movimiento` y `OperacionFinanciera` ya no es
 - Incorporar DTOs cuando los casos de uso y las fronteras de la aplicación lo requieran.
 - Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
 - Definir reportes y cálculos derivados de movimientos.
-- Ampliar las reglas de saldos y consistencia financiera.
+- Ampliar las reglas de saldos y consistencia financiera cuando aparezcan nuevos casos de uso que lo requieran.
+- Evaluar posteriormente el modelado específico de posiciones de activos y sus movimientos cuando comience el bloque de inversiones.
 - Confirmar la estrategia definitiva de coordinación transaccional de la operación si aparecen nuevos casos de uso que la requieran.
 
 ## Regla
