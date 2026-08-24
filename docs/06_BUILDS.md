@@ -143,7 +143,7 @@ Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera
 
 La cobertura de `OperacionFinancieraTest` pasó de **7 a 14 tests en verde**, con 7 tests nuevos para asociación, límite de movimientos y consistencia de la relación.
 
-Resultado de la suite general:
+Resultado de la suite general inicialmente documentada:
 
 - Tests run: **326**
 - Failures: **0**
@@ -151,19 +151,29 @@ Resultado de la suite general:
 - Skipped: **0**
 - `BUILD SUCCESS`
 
-Finalización: **23/08/2026 16:59:40 -03:00**. Duración: **17:23 min**.
+Finalización de esa ejecución: **23/08/2026 16:59:40 -03:00**. Duración: **17:23 min**.
 
-La ejecución emitió una advertencia de Surefire relacionada con el cierre de la JVM del fork, pero no produjo fallos ni errores y el build finalizó correctamente.
+Posteriormente se volvió a ejecutar la suite desde IntelliJ y se confirmó nuevamente:
 
-Commit: `11dc0ae` — `feat: asociar movimientos a operacion financiera`.
+- Tests run: **326**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **23/08/2026 19:07:25 -03:00**
+- Duración: **12:30 min**
 
-El commit fue publicado en GitHub y Bitbucket sobre `feature/operacion-financiera` mediante `git pushall`. La rama quedó sincronizada y el working tree quedó limpio.
+Commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+
+La continuidad documental quedó actualizada posteriormente mediante `529ca85` — `docs: corregir referencia del commit actual`.
 
 ## Estado actual
 
-El último Build cerrado es **Build 049**. La suite general confirmada es **326/326 tests en verde**. El último commit de código es `11dc0ae`.
+El último Build cerrado es **Build 049**. La última suite confirmada es **326/326 tests en verde**. El último commit de código es `0f64fa9` y el último commit de continuidad es `529ca85`.
 
 La asociación entre `Movimiento` y `OperacionFinanciera` está implementada y no debe volver a figurar como pendiente.
+
+Código, tests y documentación de continuidad se mantienen desde ahora exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
@@ -171,4 +181,4 @@ Definir el siguiente bloque funcional de `feature/operacion-financiera` a partir
 
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. La documentación debe mantenerse sincronizada con el código real.
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. La documentación debe mantenerse sincronizada con el código real y permanecer en la misma rama de trabajo.
