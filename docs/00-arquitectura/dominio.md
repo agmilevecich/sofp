@@ -37,11 +37,12 @@ Estos campos permitirán conocer cuándo se creó o modificó un registro y qué
 
 ## Operaciones y movimientos
 
-`OperacionFinanciera` representará el hecho de negocio que el usuario registra, por ejemplo una compra, venta, depósito, retiro, cobro o conversión. Describe la intención y el contexto de la operación, sin ser por sí misma la fuente de los saldos.
+`OperacionFinanciera` representa el hecho de negocio que el usuario registra, por ejemplo una compra, venta, depósito, retiro, cobro, transferencia o conversión. Describe la intención y el contexto de la operación y puede agrupar sus movimientos resultantes.
 
-Una operación podrá producir uno o más movimientos resultantes:
+En el estado actual del proyecto, los efectos monetarios se registran mediante la entidad `Movimiento`. Un `Movimiento` pertenece a una `Cuenta`, tiene un tipo (`EGRESO` o `INGRESO`), importe, fecha, categoría y descripción, y puede estar asociado a una `OperacionFinanciera`.
 
-- `MovimientoCuenta` registrará la variación de fondos de una cuenta, expresada en su moneda. Ejemplos: un débito por una compra, un crédito por una venta o un depósito.
-- `MovimientoActivo` registrará la variación de la posición de un activo, como el aumento o la disminución de una cantidad de títulos, cuotas o unidades.
+Una `OperacionFinanciera` puede tener como máximo dos `Movimiento` asociados. La asociación se mantiene de forma bidireccional y las reglas que protegen esa relación están encapsuladas en el dominio.
 
-La separación permite representar una misma operación con sus efectos monetarios y patrimoniales. Los saldos de cuentas y las posiciones de activos se calcularán a partir de sus movimientos correspondientes, no como valores independientes.
+El saldo de una cuenta debe obtenerse a partir de sus movimientos. Por lo tanto, el saldo no debe considerarse un valor independiente mantenido manualmente como fuente de verdad.
+
+La futura evolución hacia activos financieros podrá incorporar movimientos específicos de posición, pero esa separación todavía no forma parte del modelo implementado y no debe tratarse como una entidad existente en la versión actual.
