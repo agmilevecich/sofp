@@ -1,5 +1,7 @@
 # Diagrama de dominio
 
+El siguiente diagrama representa el modelo implementado actualmente. Las entidades futuras de movimientos específicos de activos no se muestran como parte del modelo actual.
+
 ```mermaid
 classDiagram
     class EntidadAuditable {
@@ -14,9 +16,9 @@ classDiagram
     class PerfilFinanciero
     class Cuenta
     class Moneda
+    class Categoria
+    class Movimiento
     class OperacionFinanciera
-    class MovimientoCuenta
-    class MovimientoActivo
 
     class Activo {
         <<abstract>>
@@ -30,8 +32,13 @@ classDiagram
 
     Usuario "1" --> "0..*" PerfilFinanciero : posee
     PerfilFinanciero "1" *-- "0..*" Cuenta : administra
+    PerfilFinanciero "1" *-- "0..*" Categoria : define
     PerfilFinanciero "1" *-- "0..*" Activo : registra
     PerfilFinanciero "1" *-- "0..*" OperacionFinanciera : registra
+
+    Cuenta "1" --> "0..*" Movimiento : registra
+    Categoria "1" --> "0..*" Movimiento : clasifica
+    OperacionFinanciera "1" --> "0..2" Movimiento : agrupa
 
     Activo <|-- FondoComun
     Activo <|-- Bono
@@ -40,20 +47,20 @@ classDiagram
     Activo <|-- PlazoFijo
     Activo <|-- Divisa
 
-    OperacionFinanciera "1" --> "0..*" MovimientoCuenta : genera
-    OperacionFinanciera "1" --> "0..*" MovimientoActivo : genera
-
     Cuenta --> Moneda : opera en
-    Activo --> Moneda : se denomina en
-    MovimientoCuenta --> Moneda : expresa importe en
-    MovimientoActivo --> Moneda : expresa valor en
+
+    Movimiento --> OperacionFinanciera : puede pertenecer a
 
     EntidadAuditable <|-- Usuario
     EntidadAuditable <|-- PerfilFinanciero
     EntidadAuditable <|-- Cuenta
+    EntidadAuditable <|-- Categoria
     EntidadAuditable <|-- Moneda
+    EntidadAuditable <|-- Movimiento
     EntidadAuditable <|-- Activo
     EntidadAuditable <|-- OperacionFinanciera
-    EntidadAuditable <|-- MovimientoCuenta
-    EntidadAuditable <|-- MovimientoActivo
 ```
+
+## Evolución futura
+
+Cuando se incorporen posiciones de activos, podrá definirse un modelo específico para los movimientos que afecten dichas posiciones. Esa evolución deberá documentarse y validarse antes de considerarla parte del dominio implementado.
