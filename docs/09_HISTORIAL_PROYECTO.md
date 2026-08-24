@@ -15,12 +15,13 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - `OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
 - `OperacionFinancieraTest` pasó de **7 a 14 tests en verde**.
 - La suite general quedó en **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-- La ejecución general finalizó a las **16:59:40 -03:00** y tuvo una duración de **17:23 min**.
-- Se observó una advertencia de Surefire durante el cierre de la JVM del fork, sin impacto sobre el resultado final del build.
-- Commit: `11dc0ae` — `feat: asociar movimientos a operacion financiera`.
-- El commit fue publicado en GitHub y Bitbucket sobre `feature/operacion-financiera` mediante `git pushall`.
-- La rama de funcionalidad quedó sincronizada y el working tree quedó limpio.
+- La última ejecución confirmada desde IntelliJ finalizó a las **19:07:25 -03:00** y tuvo una duración de **12:30 min**.
+- Commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- Los commits posteriores corresponden a sincronización y corrección de documentación.
+- El bloque fue publicado y sincronizado en GitHub y Bitbucket sobre `feature/operacion-financiera`.
+- La rama de funcionalidad quedó con working tree limpio.
 - `main` no fue modificado.
+- La antigua rama `docs/continuidad-sofp` fue eliminada y dejó de formar parte del flujo del proyecto.
 - **Build 049 queda cerrado y validado.**
 
 ### Build 048 — Implementación de OperacionFinancieraRepository — Cerrado
@@ -94,15 +95,17 @@ La batería específica de `OperacionFinancieraTest` está en **14/14 tests en v
 
 La suite completa está en **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-El último commit de código es `11dc0ae` — `feat: asociar movimientos a operacion financiera`, en `feature/operacion-financiera`.
+El último commit funcional es `0f64fa9` — `feat: asociar movimientos a operacion financiera`, en `feature/operacion-financiera`.
 
-La rama de funcionalidad está sincronizada con GitHub y Bitbucket y `main` permanece separado de estos cambios.
+Los commits posteriores al funcional corresponden exclusivamente a documentación y sincronización. La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket.
 
-La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
+La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`. La rama `docs/continuidad-sofp` fue eliminada.
+
+`main` permanece separado de estos cambios.
 
 ## Próximo punto de trabajo
 
-Definir el siguiente bloque funcional y continuar el desarrollo en `feature/operacion-financiera`, manteniendo la documentación separada en `docs/continuidad-sofp`.
+Definir el siguiente bloque funcional y continuar el desarrollo en `feature/operacion-financiera`, manteniendo código, tests y documentación de continuidad en la misma rama.
 
 ## Builds recientes
 
