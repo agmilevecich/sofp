@@ -4,8 +4,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
 - Definir el siguiente bloque funcional de `feature/operacion-financiera`.
+- Mantener código, tests y documentación de continuidad dentro de `feature/operacion-financiera`.
+- Eliminar la rama `docs/continuidad-sofp` una vez verificada la sincronización final de sus referencias.
 
 ## Trabajo recientemente completado
 
@@ -36,14 +37,17 @@ Cobertura específica de `OperacionFinancieraTest`: **14 tests en verde**.
 
 Suite completa: **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
+La última ejecución confirmada desde IntelliJ finalizó el **23/08/2026 19:07:25 -03:00**, con una duración de **12:30 min**.
+
 Por lo tanto, la asociación entre `Movimiento` y `OperacionFinanciera` ya no es un pendiente y no debe volver a aparecer como trabajo por implementar.
 
 ## Estado Git de referencia
 
-- Rama de funcionalidad: `feature/operacion-financiera`.
-- Rama de documentación: `docs/continuidad-sofp`.
-- `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
+- Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- Último commit de continuidad: `529ca85` — `docs: corregir referencia del commit actual`.
+- `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
+- `docs/continuidad-sofp` deja de utilizarse como rama de documentación y será eliminada tras la verificación final.
 
 ## Pendientes de arquitectura / evolución
 
