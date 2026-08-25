@@ -21,6 +21,14 @@ Commit:
 
 - `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`
 
+### Validación individual posterior al Build 050
+
+Se ejecutó individualmente `OperacionFinancieraRepositoryTest` desde IntelliJ.
+
+- `OperacionFinancieraRepositoryTest`: **10/10 tests en verde**.
+- No se modificó código de producción.
+- La prueba confirma la cobertura existente de persistencia del repositorio.
+
 ### Build 049 — Asociación de Movimiento con OperacionFinanciera — Cerrado
 
 Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera` y se completaron las pruebas de asociación y consistencia de la relación.
@@ -85,7 +93,9 @@ Tests de persistencia destacados:
 
 Suite general actual: **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución confirmada se realizó desde IntelliJ el **25/08/2026 a las 10:47:02 -03:00** y finalizó correctamente.
+La última ejecución general confirmada se realizó desde IntelliJ el **25/08/2026 a las 10:47:02 -03:00** y finalizó correctamente.
+
+La validación individual posterior de `OperacionFinancieraRepositoryTest` confirmó **10/10 tests en verde**.
 
 ## Regla de cierre
 
