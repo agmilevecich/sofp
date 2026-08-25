@@ -104,22 +104,9 @@ Commit: `615161c` — `test: completar cobertura de OperacionFinancieraService`.
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se incorporó `OperacionFinancieraRepository` con:
-
-- `guardar(...)` para altas y actualizaciones;
-- `buscarPorId(...)` con `Optional`;
-- `listarTodas()`;
-- `listarPorCuentaOrigen(...)`;
-- `listarPorCuentaDestino(...)`;
-- validación de parámetros obligatorios mediante `NullPointerException`.
+Se incorporó `OperacionFinancieraRepository` con `guardar(...)`, `buscarPorId(...)`, `listarTodas()`, `listarPorCuentaOrigen(...)` y `listarPorCuentaDestino(...)`, además de las validaciones de parámetros obligatorios.
 
 `OperacionFinancieraService` fue actualizado para recibir el repositorio por constructor y utilizarlo dentro de la transacción existente.
-
-Tests específicos:
-
-- `OperacionFinancieraRepositoryTest`: **10/10**.
-- `OperacionFinancieraServiceTest`: **20/20**.
-- `OperacionFinancieraTest`: **7/7**.
 
 Suite general: **319/319 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
@@ -131,35 +118,48 @@ Commit: `3d0543c` — `feat: implementar repositorio de operacion financiera`.
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera`:
+Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera`, con asociación bidireccional y límite de dos movimientos por operación.
 
-- `Movimiento` incorpora `@ManyToOne` con `operacion_financiera_id`;
-- `OperacionFinanciera` incorpora `@OneToMany(mappedBy = "operacionFinanciera")`;
-- la colección de movimientos se expone como lista no modificable;
-- una operación admite como máximo dos movimientos;
-- un movimiento no puede quedar asociado a dos operaciones financieras diferentes;
-- no se permite agregar movimientos nulos ni repetir el mismo movimiento;
-- `OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
+`OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
 
-La cobertura de `OperacionFinancieraTest` pasó de **7 a 14 tests en verde**, con 7 tests nuevos para asociación, límite de movimientos y consistencia de la relación.
+`OperacionFinancieraTest`: **14/14 tests en verde**.
 
-Resultado de la suite general:
+Suite general: **326/326 tests en verde**.
 
-- Tests run: **326**
+Finalización: **23/08/2026 19:07:25 -03:00**. Duración: **12:30 min**.
+
+Commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+
+## Build 050 — Ampliación de cobertura de OperacionFinancieraService
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se agregaron dos pruebas específicas al servicio:
+
+- `deberiaAsociarAmbosMovimientosALaMismaOperacionFinanciera`: verifica que los dos movimientos generados por una transferencia quedan asociados a la misma operación financiera persistida.
+- `deberiaRechazarMismaCuentaComoOrigenYDestino`: verifica la regla de dominio y que una transferencia rechazada no persiste movimientos.
+
+`OperacionFinancieraServiceTest` pasó de **20/20 a 22/22 tests en verde**.
+
+Suite general:
+
+- Tests run: **328**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
 
-La suite fue confirmada nuevamente desde IntelliJ el **23/08/2026 19:07:25 -03:00**, con una duración de **12:30 min**.
+Última ejecución confirmada desde IntelliJ: **25/08/2026 10:47:02 -03:00**. Duración: **12:04 min**.
 
-Commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+Commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
 
 ## Estado actual
 
-El último Build cerrado es **Build 049**. La última suite confirmada es **326/326 tests en verde**.
+El último Build cerrado es **Build 050**. La última suite confirmada es **328/328 tests en verde**.
 
-El último commit funcional es `0f64fa9`. La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
+El último commit funcional es `0f64fa9`. El último commit de trabajo es `1f306e4`, correspondiente a tests.
+
+La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
