@@ -15,37 +15,44 @@ La documentación de continuidad se mantiene en `docs/` dentro de la misma rama 
 
 **Build 049 — Asociación de `Movimiento` con `OperacionFinanciera` está cerrado y validado.**
 
-Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera` mediante `ManyToOne` en `Movimiento` y `OneToMany` en `OperacionFinanciera`.
+La relación persistente entre `Movimiento` y `OperacionFinanciera` está implementada mediante `ManyToOne` en `Movimiento` y `OneToMany` en `OperacionFinanciera`.
 
-`OperacionFinanciera` mantiene una colección de movimientos protegida mediante una vista no modificable y permite asociar como máximo dos movimientos. La asociación es bidireccional: al agregar un movimiento a una operación, el movimiento queda vinculado a esa operación.
+`OperacionFinanciera` mantiene una colección de movimientos protegida mediante una vista no modificable y permite asociar como máximo dos movimientos. La asociación es bidireccional.
 
-El dominio rechaza movimientos nulos, movimientos repetidos, un tercer movimiento y movimientos que ya pertenecen a otra operación financiera. La regla de asociación impide reasignar un movimiento a una operación diferente.
+`OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
 
-`OperacionFinancieraService` fue actualizado para asociar el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
+El dominio rechaza movimientos nulos, movimientos repetidos, un tercer movimiento y movimientos que ya pertenecen a otra operación financiera. También impide utilizar la misma cuenta como origen y destino.
 
-## Tests
+## Última validación
 
-- `OperacionFinancieraServiceTest`: **20/20**.
-- `OperacionFinancieraRepositoryTest`: **10/10**.
-- `OperacionFinancieraTest`: **14/14**.
-- `MovimientoTest`: **27/27**.
-- Suite general: **326/326 tests en verde**.
+**Build 050 — Ampliación de cobertura de `OperacionFinancieraService` — cerrado y validado.**
+
+Se agregaron dos pruebas al servicio:
+
+- asociación de ambos movimientos a la misma `OperacionFinanciera`;
+- rechazo de la misma cuenta como origen y destino, verificando además que no se persistan movimientos.
+
+`OperacionFinancieraServiceTest`: **22/22 tests en verde**.
+
+Suite general: **328/328 tests en verde**.
+
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - **BUILD SUCCESS**.
-- Última ejecución confirmada desde IntelliJ: **23/08/2026 19:07:25 -03:00**.
-- Duración: **12:30 min**.
+- Última ejecución confirmada desde IntelliJ: **25/08/2026 10:47:02 -03:00**.
+- Duración: **12:04 min**.
 
-La documentación fue posteriormente sincronizada para mantener toda la continuidad dentro de `feature/operacion-financiera`, sin depender de la antigua rama `docs/continuidad-sofp`.
+## Git
 
-## Último commit de código
-
-- `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-
-Los commits posteriores corresponden a sincronización y corrección de documentación. El commit funcional y la documentación de continuidad permanecen en la misma línea histórica de `feature/operacion-financiera`.
-
-La funcionalidad continúa aislada de `main`.
+- Rama única de trabajo y continuidad: `feature/operacion-financiera`.
+- Último commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
+- Último commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- GitHub y Bitbucket están sincronizados en `feature/operacion-financiera`.
+- Working tree confirmado limpio.
+- `git diff --check` confirmado limpio.
+- `main` permanece separado y no fue modificado.
+- `docs/continuidad-sofp`: **eliminada**.
 
 ## Dominio construido
 
@@ -72,14 +79,6 @@ La capa `service` contiene `CuentaService`, `MovimientoService`, `CategoriaServi
 Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferencia genera un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados mediante una `OperacionFinanciera`.
 
 Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Movimiento` puede estar asociado a una única `OperacionFinanciera`.
-
-## Git
-
-- Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Los últimos commits posteriores al funcional son exclusivamente de documentación y sincronización.
-- `main`: permanece sin incorporar el trabajo de `feature/operacion-financiera`.
-- `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
 
 ## Próximo paso
 
