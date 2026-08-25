@@ -34,21 +34,24 @@ Se agregaron dos pruebas al servicio:
 
 `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
 
+`OperacionFinancieraRepositoryTest`: **10/10 tests en verde** en ejecución individual desde IntelliJ.
+
 Suite general: **328/328 tests en verde**.
 
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - **BUILD SUCCESS**.
-- Última ejecución confirmada desde IntelliJ: **25/08/2026 10:47:02 -03:00**.
+- Última ejecución general confirmada desde IntelliJ: **25/08/2026 10:47:02 -03:00**.
 - Duración: **12:04 min**.
+
+La prueba individual de `OperacionFinancieraRepositoryTest` fue confirmada posteriormente con sus **10/10 tests en verde**.
 
 ## Git
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- Último commit: `d51f25e` — actualización de continuidad posterior al commit de tests.
+- Último commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
 - Último commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Commit de tests: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
 - GitHub y Bitbucket están sincronizados en `feature/operacion-financiera`.
 - Working tree confirmado limpio en la última validación local.
 - `git diff --check` confirmado limpio.
