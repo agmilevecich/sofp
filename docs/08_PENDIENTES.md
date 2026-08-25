@@ -4,7 +4,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Definir la primera especialización de `Activo` para el bloque de inversiones.
+- Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas.
+- Definir los atributos y comportamientos financieros específicos de `Bono` antes de incorporarlos al dominio.
 - Mantener código, tests y documentación de continuidad dentro de `feature/operacion-financiera`.
 
 ## Trabajo recientemente completado
@@ -19,6 +20,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Validación individual posterior al Build 050: `OperacionFinancieraRepositoryTest` con 10/10 tests en verde desde IntelliJ, sin cambios de producción.
 - Build 051: incorporación de `Activo`, `ActivoRepository`, `ActivoTest` con 8/8 y `ActivoRepositoryTest` con 6/6 tests en verde.
 - Build 051: suite general confirmada en **342/342 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
+- Build 052: incorporación de `Bono` como especialización mínima de `Activo`, `BonoTest` con 5/5 y `BonoRepositoryTest` con 6/6 tests en verde.
+- Build 052: suite general confirmada en **353/353 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 - Cálculo de saldo de `Cuenta`: ya implementado en `CuentaService.calcularSaldo(...)` y cubierto por los tests existentes. No constituye un bloque pendiente de implementación.
 
 ## Estado actual — OperacionFinanciera
@@ -61,13 +64,30 @@ Cobertura:
 - `ActivoTest`: **8/8 tests en verde**.
 - `ActivoRepositoryTest`: **6/6 tests en verde**.
 
-Durante la primera ejecución de `ActivoRepositoryTest` se detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests. Corregida esa configuración, los 6 tests quedaron en verde.
-
-Suite completa: **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-
-La última ejecución general confirmada desde IntelliJ finalizó el **25/08/2026 16:30:22 -03:00**, con una duración de **16:51 min**.
-
 `Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición no forman parte todavía de esta entidad.
+
+## Estado actual — Bono
+
+`Bono` ya está implementado como primera especialización de `Activo`.
+
+Incluye actualmente:
+
+- herencia de `Activo`;
+- identidad de tipo `Bono`;
+- herencia de `nombre` y `Moneda`;
+- persistencia JPA mediante `BonoRepository`;
+- sin atributos financieros específicos adicionales.
+
+Cobertura:
+
+- `BonoTest`: **5/5 tests en verde**.
+- `BonoRepositoryTest`: **6/6 tests en verde**.
+
+La entidad se mantiene deliberadamente mínima. No se incorporarán valor nominal, tasa, vencimiento, cupón, amortización, emisor u otros atributos financieros hasta definir explícitamente las reglas de dominio.
+
+Suite completa: **353/353 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+La última ejecución general confirmada finalizó el **25/08/2026 20:14:39 -03:00**, con una duración de **16:07 min**.
 
 ## Estado Git de referencia
 
@@ -76,16 +96,21 @@ La última ejecución general confirmada desde IntelliJ finalizó el **25/08/202
 - `5270e31`: `test: agregar cobertura de Activo`.
 - `1624f8c`: `feat: incorporar repositorio de Activo`.
 - `70bdbf7`: `test: agregar cobertura de ActivoRepository`.
-- Los commits posteriores corresponden a documentación del Build 051.
+- `589acf1`: `feat: incorporar entidad Bono`.
+- `c11f1f4`: `test: agregar cobertura de Bono`.
+- `6925447`: `feat: incorporar repositorio de Bono`.
+- `74b8fff`: `test: agregar cobertura de BonoRepository`.
+- `678c6ea`: `test: registrar Bono en persistencia JPA`.
 - GitHub y Bitbucket están sincronizados.
 - La documentación de continuidad se mantiene en la misma rama.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
+- Las ramas auxiliares creadas accidentalmente durante la implementación de `Bono` fueron eliminadas de los remotos.
 - `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
 
 ## Pendientes de arquitectura / evolución
 
-- Definir la primera especialización de `Activo` para el bloque de inversiones.
-- Definir las reglas específicas de cada instrumento financiero antes de crear sus entidades.
+- Definir las reglas específicas de cada instrumento financiero antes de agregar atributos a sus entidades.
+- Definir la evolución específica de `Bono` a partir de reglas financieras explícitas.
 - Completar progresivamente la capa `service` según las necesidades reales del dominio.
 - Incorporar DTOs cuando los casos de uso y las fronteras de la aplicación lo requieran.
 - Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
