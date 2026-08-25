@@ -4,6 +4,31 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
+
+Se incorporaron las pruebas de la nueva entidad `Activo` y de su repositorio JPA.
+
+- `ActivoTest`: **8/8 tests en verde**.
+- `ActivoRepositoryTest`: **6/6 tests en verde**.
+- La primera ejecución del repositorio detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests; corregida esa configuración, los 6 tests quedaron en verde.
+
+Suite general:
+
+- Tests run: **342**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **25/08/2026 16:30:22 -03:00**
+- Duración: **16:51 min**
+
+Commits del bloque:
+
+- `0793126` — `feat: incorporar entidad Activo`
+- `5270e31` — `test: agregar cobertura de Activo`
+- `1624f8c` — `feat: incorporar repositorio de Activo`
+- `70bdbf7` — `test: agregar cobertura de ActivoRepository`
+
 ### Build 050 — Ampliación de cobertura de OperacionFinancieraService — Cerrado
 
 Se agregaron dos pruebas específicas a `OperacionFinancieraServiceTest`:
@@ -86,16 +111,16 @@ Tests de dominio destacados:
 
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **14**
+- `ActivoTest`: **8**
 
 Tests de persistencia destacados:
 
 - `OperacionFinancieraRepositoryTest`: **10**
+- `ActivoRepositoryTest`: **6**
 
-Suite general actual: **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+Suite general actual: **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución general confirmada se realizó desde IntelliJ el **25/08/2026 a las 10:47:02 -03:00** y finalizó correctamente.
-
-La validación individual posterior de `OperacionFinancieraRepositoryTest` confirmó **10/10 tests en verde**.
+La última ejecución general confirmada se realizó desde IntelliJ el **25/08/2026 a las 16:30:22 -03:00** y finalizó correctamente.
 
 ## Regla de cierre
 
