@@ -18,6 +18,7 @@
         <class>ar.com.agmilevecich.sofp.domain.Movimiento</class>
         <class>ar.com.agmilevecich.sofp.domain.OperacionFinanciera</class>
         <class>ar.com.agmilevecich.sofp.domain.Activo</class>
+        <class>ar.com.agmilevecich.sofp.domain.Bono</class>
 
         <properties>
 
