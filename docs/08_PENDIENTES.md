@@ -4,7 +4,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Definir el siguiente bloque funcional de `feature/operacion-financiera`.
+- Definir la primera especialización de `Activo` para el bloque de inversiones.
 - Mantener código, tests y documentación de continuidad dentro de `feature/operacion-financiera`.
 
 ## Trabajo recientemente completado
@@ -17,6 +17,8 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 049: asociación persistente de `Movimiento` con `OperacionFinanciera`, 7 tests nuevos, `OperacionFinancieraTest` en 14/14 y suite general 326/326 en verde.
 - Build 050: ampliación de `OperacionFinancieraServiceTest` con 2 tests nuevos, pasando a 22/22 y suite general 328/328 en verde.
 - Validación individual posterior al Build 050: `OperacionFinancieraRepositoryTest` con 10/10 tests en verde desde IntelliJ, sin cambios de producción.
+- Build 051: incorporación de `Activo`, `ActivoRepository`, `ActivoTest` con 8/8 y `ActivoRepositoryTest` con 6/6 tests en verde.
+- Build 051: suite general confirmada en **342/342 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 - Cálculo de saldo de `Cuenta`: ya implementado en `CuentaService.calcularSaldo(...)` y cubierto por los tests existentes. No constituye un bloque pendiente de implementación.
 
 ## Estado actual — OperacionFinanciera
@@ -42,20 +44,39 @@ Cobertura específica:
 - `OperacionFinancieraTest`: **14/14 tests en verde**.
 - `OperacionFinancieraRepositoryTest`: **10/10 tests en verde**.
 
-Suite completa: **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+## Estado actual — Activo
 
-La última ejecución general confirmada desde IntelliJ finalizó el **25/08/2026 10:47:02 -03:00**, con una duración de **12:04 min**.
+`Activo` ya está implementado como entidad base para el futuro bloque de inversiones.
 
-La validación individual posterior de `OperacionFinancieraRepositoryTest` confirmó sus **10/10 tests en verde**.
+Incluye actualmente:
 
-Por lo tanto, la funcionalidad de `OperacionFinanciera`, su repositorio, servicio y asociación con `Movimiento` ya no son pendientes de implementación.
+- herencia de `EntidadAuditable`;
+- `nombre` obligatorio;
+- `Moneda` obligatoria;
+- métodos de dominio para cambiar nombre y moneda;
+- persistencia JPA mediante `ActivoRepository`.
+
+Cobertura:
+
+- `ActivoTest`: **8/8 tests en verde**.
+- `ActivoRepositoryTest`: **6/6 tests en verde**.
+
+Durante la primera ejecución de `ActivoRepositoryTest` se detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests. Corregida esa configuración, los 6 tests quedaron en verde.
+
+Suite completa: **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+La última ejecución general confirmada desde IntelliJ finalizó el **25/08/2026 16:30:22 -03:00**, con una duración de **16:51 min**.
+
+`Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición no forman parte todavía de esta entidad.
 
 ## Estado Git de referencia
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- Commit funcional de referencia del Build 049: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Commit de ampliación de tests del Build 050: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
-- Los commits posteriores son actualizaciones de documentación y validaciones; no deben interpretarse como nuevos cambios funcionales.
+- `0793126`: `feat: incorporar entidad Activo`.
+- `5270e31`: `test: agregar cobertura de Activo`.
+- `1624f8c`: `feat: incorporar repositorio de Activo`.
+- `70bdbf7`: `test: agregar cobertura de ActivoRepository`.
+- Los commits posteriores corresponden a documentación del Build 051.
 - GitHub y Bitbucket están sincronizados.
 - La documentación de continuidad se mantiene en la misma rama.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
@@ -63,7 +84,8 @@ Por lo tanto, la funcionalidad de `OperacionFinanciera`, su repositorio, servici
 
 ## Pendientes de arquitectura / evolución
 
-- Definir el siguiente bloque funcional de `feature/operacion-financiera`.
+- Definir la primera especialización de `Activo` para el bloque de inversiones.
+- Definir las reglas específicas de cada instrumento financiero antes de crear sus entidades.
 - Completar progresivamente la capa `service` según las necesidades reales del dominio.
 - Incorporar DTOs cuando los casos de uso y las fronteras de la aplicación lo requieran.
 - Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
