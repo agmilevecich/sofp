@@ -29,28 +29,33 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 
 Todo el código, tests y documentación de continuidad actual se mantiene dentro de `feature/operacion-financiera`.
 
+Las ramas auxiliares creadas accidentalmente durante la implementación de `Bono` fueron eliminadas de los remotos. No forman parte del flujo del proyecto.
+
 ## Estado actual — 25/08/2026
 
-Último Build cerrado: **Build 051 — Incorporación de Activo y persistencia JPA**.
+Último Build cerrado: **Build 052 — Incorporación de Bono como especialización de Activo**.
 
-`Activo` fue incorporado como entidad base para el futuro bloque de inversiones, con `nombre` y `Moneda` obligatorios, heredando de `EntidadAuditable`.
+`Bono` fue incorporado como primera especialización de `Activo`, deliberadamente mínima y sin atributos financieros específicos adicionales.
 
-Se incorporó `ActivoRepository` y su cobertura JPA.
+`Bono` hereda `nombre` y `Moneda` desde `Activo`.
+
+Se incorporó `BonoRepository` y su cobertura JPA.
 
 Commits del bloque:
 
-- `0793126` — `feat: incorporar entidad Activo`
-- `5270e31` — `test: agregar cobertura de Activo`
-- `1624f8c` — `feat: incorporar repositorio de Activo`
-- `70bdbf7` — `test: agregar cobertura de ActivoRepository`
+- `589acf1` — `feat: incorporar entidad Bono`
+- `c11f1f4` — `test: agregar cobertura de Bono`
+- `6925447` — `feat: incorporar repositorio de Bono`
+- `74b8fff` — `test: agregar cobertura de BonoRepository`
+- `678c6ea` — `test: registrar Bono en persistencia JPA`
 
-Durante la primera ejecución de `ActivoRepositoryTest` se detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests. Corregida esa configuración, los 6 tests quedaron en verde.
+La persistencia de `Bono` quedó validada mediante el registro explícito de la entidad en la configuración utilizada por los tests.
 
-La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket. `main` permanece separado.
+La rama `feature/operacion-financiera` está destinada a contener todo el código, tests y documentación de continuidad. `main` permanece separado.
 
 ## Tests
 
-La última batería general confirmada es de **342/342 tests en verde**.
+La última batería general confirmada es de **353/353 tests en verde**.
 
 Conteo confirmado de tests de services:
 
@@ -70,21 +75,23 @@ Tests de dominio destacados:
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **14**
 - `ActivoTest`: **8**
+- `BonoTest`: **5**
 
 Tests de persistencia destacados:
 
 - `OperacionFinancieraRepositoryTest`: **10**
 - `ActivoRepositoryTest`: **6**
+- `BonoRepositoryTest`: **6**
 
-Última suite general confirmada desde IntelliJ:
+Última suite general confirmada:
 
-- Tests run: **342**
+- Tests run: **353**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **25/08/2026 16:30:22 -03:00**
-- Duración: **16:51 min**
+- Finalizada: **25/08/2026 20:14:39 -03:00**
+- Duración: **16:07 min**
 
 ## Decisión de dominio: transferencias
 
@@ -95,6 +102,12 @@ Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un 
 La relación entre la operación y sus movimientos ya está implementada y persistida. Una operación admite como máximo dos movimientos y cada movimiento puede estar asociado a una única operación financiera.
 
 La misma cuenta no puede utilizarse como origen y destino; esta regla pertenece al dominio y está cubierta por los tests del servicio.
+
+## Decisión de dominio: Bono
+
+`Bono` es la primera especialización de `Activo` y se mantiene deliberadamente mínima.
+
+Actualmente no define atributos financieros propios. No se incorporan valor nominal, tasa, vencimiento, cupón, amortización, emisor u otros datos específicos hasta que esas reglas sean definidas explícitamente en el dominio.
 
 ## Dominio actual
 
@@ -109,8 +122,11 @@ Entidades principales:
 - Movimiento
 - OperacionFinanciera
 - Activo
+- Bono
 
 `Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservarán para los bloques posteriores de inversiones.
+
+`Bono` hereda de `Activo` y actualmente no agrega atributos financieros propios.
 
 Enumeraciones:
 
@@ -132,12 +148,15 @@ Repositorios JPA conocidos:
 - CategoriaRepository
 - OperacionFinancieraRepository
 - ActivoRepository
+- BonoRepository
 
 `MovimientoRepository` permite guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
 `OperacionFinancieraRepository` permite guardar, actualizar, buscar por ID, listar todas, listar por cuenta de origen y listar por cuenta de destino.
 
 `ActivoRepository` permite guardar, actualizar, buscar por ID y listar activos. Su persistencia y asociación obligatoria con `Moneda` están validadas por **6/6 tests**.
+
+`BonoRepository` permite guardar, actualizar, buscar por ID y listar bonos. Su persistencia y herencia desde `Activo` están validadas por **6/6 tests**.
 
 ## Services
 
@@ -156,11 +175,13 @@ La capa `service` contiene actualmente:
 
 ## Próximo paso
 
-Definir la primera especialización de `Activo` para el bloque de inversiones.
+Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas.
 
-Antes de implementar nuevas piezas, revisar el código actual, tests y reglas de negocio relacionados. No asumir estructuras ni comportamientos no presentes no repositório.
+En particular, antes de agregar atributos financieros a `Bono`, definir qué información y comportamientos necesita representar SOFP para los bonos.
 
-La funcionalidad de `OperacionFinanciera`, su repositorio, su servicio y su asociación con `Movimiento` ya están implementados y validados. `Activo` y `ActivoRepository` también están implementados y validados en el Build 051.
+Antes de implementar nuevas piezas, revisar el código actual, tests y reglas de negocio relacionados. No asumir estructuras ni comportamientos no presentes en el repositorio.
+
+La funcionalidad de `OperacionFinanciera`, su repositorio, su servicio y su asociación con `Movimiento` ya están implementados y validados. `Activo`, `ActivoRepository`, `Bono` y `BonoRepository` también están implementados y validados.
 
 ## Forma de trabajo acordada
 
