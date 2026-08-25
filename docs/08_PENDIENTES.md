@@ -15,11 +15,12 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 047: finalización de cobertura de `OperacionFinancieraServiceTest` y suite general 309/309 en verde.
 - Build 048: implementación de `OperacionFinancieraRepository`, integración con `OperacionFinancieraService`, 10 tests de repositorio y suite general 319/319 en verde.
 - Build 049: asociación persistente de `Movimiento` con `OperacionFinanciera`, 7 tests nuevos, `OperacionFinancieraTest` en 14/14 y suite general 326/326 en verde.
+- Build 050: ampliación de `OperacionFinancieraServiceTest` con 2 tests nuevos, pasando a 22/22 y suite general 328/328 en verde.
 - Cálculo de saldo de `Cuenta`: ya implementado en `CuentaService.calcularSaldo(...)` y cubierto por los tests existentes. No constituye un bloque pendiente de implementación.
 
-## Estado actual — Asociación Movimiento / OperacionFinanciera
+## Estado actual — OperacionFinanciera
 
-La relación entre `Movimiento` y `OperacionFinanciera` está implementada y validada.
+La funcionalidad de transferencia mediante `OperacionFinanciera` está implementada y validada.
 
 Incluye:
 
@@ -32,20 +33,26 @@ Incluye:
 - Rechazo de movimientos ya asociados a otra operación financiera.
 - Asociación automática del movimiento al agregarlo a la operación.
 - `OperacionFinancieraService` asociando el `EGRESO` y el `INGRESO` antes de persistirlos.
+- Rechazo de la misma cuenta como origen y destino mediante la regla de dominio.
 
-Cobertura específica de `OperacionFinancieraTest`: **14 tests en verde**.
+Cobertura específica:
 
-Suite completa: **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+- `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
+- `OperacionFinancieraTest`: **14/14 tests en verde**.
+- `OperacionFinancieraRepositoryTest`: **10/10 tests en verde**.
 
-La última ejecución confirmada desde IntelliJ finalizó el **23/08/2026 19:07:25 -03:00**, con una duración de **12:30 min**.
+Suite completa: **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-Por lo tanto, la asociación entre `Movimiento` y `OperacionFinanciera` ya no es un pendiente y no debe volver a aparecer como trabajo por implementar.
+La última ejecución confirmada desde IntelliJ finalizó el **25/08/2026 10:47:02 -03:00**, con una duración de **12:04 min**.
+
+Por lo tanto, la funcionalidad de `OperacionFinanciera`, su repositorio, servicio y asociación con `Movimiento` ya no son pendientes de implementación.
 
 ## Estado Git de referencia
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Los commits posteriores al funcional corresponden a documentación y sincronización.
+- Último commit de trabajo: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
+- GitHub y Bitbucket están sincronizados.
 - La documentación de continuidad se mantiene en la misma rama.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
 - `docs/continuidad-sofp`: **eliminada**. No debe volver a utilizarse para documentación de continuidad.
