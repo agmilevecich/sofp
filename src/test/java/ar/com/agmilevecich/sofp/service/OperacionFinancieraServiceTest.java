@@ -783,4 +783,90 @@ public class OperacionFinancieraServiceTest {
                         .size()
         );
     }
+
+    @Test
+    void deberiaAsociarAmbosMovimientosALaMismaOperacionFinanciera() {
+
+        OperacionFinanciera operacion =
+                operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("75000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                23,
+                                10,
+                                0
+                        ),
+                        "Transferencia"
+                );
+
+        List<Movimiento> movimientos =
+                entityManager.createQuery(
+                                """
+                                SELECT m
+                                FROM Movimiento m
+                                ORDER BY m.id
+                                """,
+                                Movimiento.class
+                        )
+                        .getResultList();
+
+        assertEquals(
+                2,
+                movimientos.size()
+        );
+
+        assertNotNull(
+                movimientos.get(0).getOperacionFinanciera()
+        );
+
+        assertNotNull(
+                movimientos.get(1).getOperacionFinanciera()
+        );
+
+        assertEquals(
+                operacion.getId(),
+                movimientos.get(0)
+                        .getOperacionFinanciera()
+                        .getId()
+        );
+
+        assertEquals(
+                operacion.getId(),
+                movimientos.get(1)
+                        .getOperacionFinanciera()
+                        .getId()
+        );
+    }
+
+    @Test
+    void deberiaRechazarMismaCuentaComoOrigenYDestino() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.transferir(
+                        cuentaOrigen,
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+
+        assertEquals(
+                0,
+                entityManager.createQuery(
+                                "SELECT m FROM Movimiento m",
+                                Movimiento.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
 }
