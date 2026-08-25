@@ -193,15 +193,56 @@ Commits:
 - `1624f8c` — `feat: incorporar repositorio de Activo`
 - `70bdbf7` — `test: agregar cobertura de ActivoRepository`
 
+## Build 052 — Incorporación de Bono como especialización de Activo
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó `Bono` como primera especialización de `Activo`, manteniendo deliberadamente una definición mínima y sin atributos financieros adicionales.
+
+Características actuales de `Bono`:
+
+- entidad JPA que hereda de `Activo`;
+- hereda `nombre` y `Moneda`;
+- constructor protegido para JPA;
+- constructor público con `nombre` y `Moneda`;
+- no incorpora todavía valor nominal, tasa, vencimiento, cupón, amortización, emisor u otros datos específicos de bonos.
+
+Se incorporó `BonoRepository` con persistencia JPA para guardar, actualizar, buscar por ID y listar bonos.
+
+Se registró `Bono` explícitamente en la unidad de persistencia utilizada por los tests.
+
+Pruebas específicas:
+
+- `BonoTest`: **5/5 tests en verde**.
+- `BonoRepositoryTest`: **6/6 tests en verde**.
+
+Suite general:
+
+- Tests run: **353**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+
+Ejecución general: **25/08/2026 20:14:39 -03:00**. Duración: **16:07 min**.
+
+Commits del bloque:
+
+- `589acf1` — `feat: incorporar entidad Bono`
+- `c11f1f4` — `test: agregar cobertura de Bono`
+- `6925447` — `feat: incorporar repositorio de Bono`
+- `74b8fff` — `test: agregar cobertura de BonoRepository`
+- `678c6ea` — `test: registrar Bono en persistencia JPA`
+
 ## Estado actual
 
-El último Build cerrado es **Build 051**. La última suite confirmada es **342/342 tests en verde**.
+El último Build cerrado es **Build 052**. La última suite confirmada es **353/353 tests en verde**.
 
 La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
-Definir la primera especialización de `Activo` para el bloque de inversiones, revisando previamente las reglas de negocio y el modelo arquitectónico actual.
+Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas, manteniendo `Bono` como especialización mínima hasta que se definan sus atributos y comportamientos financieros.
 
 ## Regla de cierre
 
