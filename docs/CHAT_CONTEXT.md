@@ -31,23 +31,26 @@ Todo el código, tests y documentación de continuidad actual se mantiene dentro
 
 ## Estado actual — 25/08/2026
 
-Último Build cerrado: **Build 050 — Ampliación de cobertura de OperacionFinancieraService**.
+Último Build cerrado: **Build 051 — Incorporación de Activo y persistencia JPA**.
 
-Último commit funcional:
+`Activo` fue incorporado como entidad base para el futuro bloque de inversiones, con `nombre` y `Moneda` obligatorios, heredando de `EntidadAuditable`.
 
-- `0f64fa9` — `feat: asociar movimientos a operacion financiera`
+Se incorporó `ActivoRepository` y su cobertura JPA.
 
-Último commit de trabajo:
+Commits del bloque:
 
-- `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`
+- `0793126` — `feat: incorporar entidad Activo`
+- `5270e31` — `test: agregar cobertura de Activo`
+- `1624f8c` — `feat: incorporar repositorio de Activo`
+- `70bdbf7` — `test: agregar cobertura de ActivoRepository`
 
-Build 050 agregó dos pruebas específicas al servicio: asociación de ambos movimientos a la misma operación financiera y rechazo de la misma cuenta como origen y destino con ausencia de persistencia de movimientos.
+Durante la primera ejecución de `ActivoRepositoryTest` se detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests. Corregida esa configuración, los 6 tests quedaron en verde.
 
 La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket. `main` permanece separado.
 
 ## Tests
 
-La última batería general confirmada es de **328/328 tests en verde**.
+La última batería general confirmada es de **342/342 tests en verde**.
 
 Conteo confirmado de tests de services:
 
@@ -66,20 +69,22 @@ Tests de dominio destacados:
 
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **14**
+- `ActivoTest`: **8**
 
 Tests de persistencia destacados:
 
 - `OperacionFinancieraRepositoryTest`: **10**
+- `ActivoRepositoryTest`: **6**
 
 Última suite general confirmada desde IntelliJ:
 
-- Tests run: **328**
+- Tests run: **342**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **25/08/2026 10:47:02 -03:00**
-- Duración: **12:04 min**
+- Finalizada: **25/08/2026 16:30:22 -03:00**
+- Duración: **16:51 min**
 
 ## Decisión de dominio: transferencias
 
@@ -103,6 +108,9 @@ Entidades principales:
 - Categoria
 - Movimiento
 - OperacionFinanciera
+- Activo
+
+`Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservarán para los bloques posteriores de inversiones.
 
 Enumeraciones:
 
@@ -123,10 +131,13 @@ Repositorios JPA conocidos:
 - MovimientoRepository
 - CategoriaRepository
 - OperacionFinancieraRepository
+- ActivoRepository
 
 `MovimientoRepository` permite guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
 
 `OperacionFinancieraRepository` permite guardar, actualizar, buscar por ID, listar todas, listar por cuenta de origen y listar por cuenta de destino.
+
+`ActivoRepository` permite guardar, actualizar, buscar por ID y listar activos. Su persistencia y asociación obligatoria con `Moneda` están validadas por **6/6 tests**.
 
 ## Services
 
@@ -145,11 +156,11 @@ La capa `service` contiene actualmente:
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional de `feature/operacion-financiera`.
+Definir la primera especialización de `Activo` para el bloque de inversiones.
 
-Antes de implementar nuevas piezas, revisar el código actual, tests y reglas de negocio relacionados. No asumir estructuras ni comportamientos no presentes en el repositorio.
+Antes de implementar nuevas piezas, revisar el código actual, tests y reglas de negocio relacionados. No asumir estructuras ni comportamientos no presentes no repositório.
 
-La funcionalidad de `OperacionFinanciera`, su repositorio, su servicio y su asociación con `Movimiento` ya están implementados y validados. No deben figurar como pendientes de implementación.
+La funcionalidad de `OperacionFinanciera`, su repositorio, su servicio y su asociación con `Movimiento` ya están implementados y validados. `Activo` y `ActivoRepository` también están implementados y validados en el Build 051.
 
 ## Forma de trabajo acordada
 
