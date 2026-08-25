@@ -4,6 +4,32 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 052 — Incorporación de Bono como especialización de Activo — Cerrado
+
+Se incorporaron las pruebas de la nueva especialización `Bono` y de su repositorio JPA.
+
+- `BonoTest`: **5/5 tests en verde**.
+- `BonoRepositoryTest`: **6/6 tests en verde**.
+- La persistencia JPA de `Bono` quedó validada después de registrarlo explícitamente en la configuración de persistencia utilizada por los tests.
+
+Suite general:
+
+- Tests run: **353**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **25/08/2026 20:14:39 -03:00**
+- Duración: **16:07 min**
+
+Commits del bloque:
+
+- `589acf1` — `feat: incorporar entidad Bono`
+- `c11f1f4` — `test: agregar cobertura de Bono`
+- `6925447` — `feat: incorporar repositorio de Bono`
+- `74b8fff` — `test: agregar cobertura de BonoRepository`
+- `678c6ea` — `test: registrar Bono en persistencia JPA`
+
 ### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
 
 Se incorporaron las pruebas de la nueva entidad `Activo` y de su repositorio JPA.
@@ -112,15 +138,17 @@ Tests de dominio destacados:
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **14**
 - `ActivoTest`: **8**
+- `BonoTest`: **5**
 
 Tests de persistencia destacados:
 
 - `OperacionFinancieraRepositoryTest`: **10**
 - `ActivoRepositoryTest`: **6**
+- `BonoRepositoryTest`: **6**
 
-Suite general actual: **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+Suite general actual: **353/353 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución general confirmada se realizó desde IntelliJ el **25/08/2026 a las 16:30:22 -03:00** y finalizó correctamente.
+La última ejecución general confirmada se realizó el **25/08/2026 a las 20:14:39 -03:00** y finalizó correctamente, con una duración de **16:07 min**.
 
 ## Regla de cierre
 
