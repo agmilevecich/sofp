@@ -13,71 +13,63 @@ La documentación de continuidad se mantiene en `docs/` dentro de la misma rama 
 
 ## Estado funcional actual
 
-**Build 049 — Asociación de `Movimiento` con `OperacionFinanciera` está cerrado y validado.**
+**Build 051 — Incorporación de `Activo` y su persistencia JPA — cerrado y validado.**
 
-La relación persistente entre `Movimiento` y `OperacionFinanciera` está implementada mediante `ManyToOne` en `Movimiento` y `OneToMany` en `OperacionFinanciera`.
+Se incorporó la entidad `Activo` como base para el futuro bloque de inversiones, con `nombre` y `Moneda` obligatorios, heredando de `EntidadAuditable`.
 
-`OperacionFinanciera` mantiene una colección de movimientos protegida mediante una vista no modificable y permite asociar como máximo dos movimientos. La asociación es bidireccional.
+Se incorporó `ActivoRepository` con operaciones de guardar, buscar por ID, listar y actualizar.
 
-`OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
-
-El dominio rechaza movimientos nulos, movimientos repetidos, un tercer movimiento y movimientos que ya pertenecen a otra operación financiera. También impide utilizar la misma cuenta como origen y destino.
+Se incorporó `ActivoRepositoryTest` para validar la persistencia JPA y la relación con `Moneda`.
 
 ## Última validación
 
-**Build 050 — Ampliación de cobertura de `OperacionFinancieraService` — cerrado y validado.**
+**Build 051 — cerrado y validado.**
 
-Se agregaron dos pruebas al servicio:
+`ActivoTest`: **8/8 tests en verde**.
 
-- asociación de ambos movimientos a la misma `OperacionFinanciera`;
-- rechazo de la misma cuenta como origen y destino, verificando además que no se persistan movimientos.
+`ActivoRepositoryTest`: **6/6 tests en verde** en ejecución individual desde IntelliJ. Durante la primera ejecución se detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests; una vez corregida esa configuración, los 6 tests quedaron en verde.
 
-`OperacionFinancieraServiceTest`: **22/22 tests en verde**.
-
-`OperacionFinancieraRepositoryTest`: **10/10 tests en verde** en ejecución individual desde IntelliJ.
-
-Suite general: **328/328 tests en verde**.
+Suite general: **342/342 tests en verde**.
 
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - **BUILD SUCCESS**.
-- Última ejecución general confirmada desde IntelliJ: **25/08/2026 10:47:02 -03:00**.
-- Duración: **12:04 min**.
-
-La prueba individual de `OperacionFinancieraRepositoryTest` fue confirmada posteriormente con sus **10/10 tests en verde**.
+- Última ejecución general confirmada desde IntelliJ: **25/08/2026 16:30:22 -03:00**.
+- Duración: **16:51 min**.
 
 ## Git
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- Último commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Commit de ampliación de tests: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
+- Commit de incorporación de `Activo`: `0793126` — `feat: incorporar entidad Activo`.
+- Commit de tests de `Activo`: `5270e31` — `test: agregar cobertura de Activo`.
+- Commit de repositorio de `Activo`: `1624f8c` — `feat: incorporar repositorio de Activo`.
+- Commit de tests de repositorio: `70bdbf7` — `test: agregar cobertura de ActivoRepository`.
 - GitHub y Bitbucket están sincronizados en `feature/operacion-financiera`.
 - Working tree confirmado limpio en la última validación local.
 - `git diff --check` confirmado limpio.
 - `main` permanece separado y no fue modificado.
 - `docs/continuidad-sofp`: **eliminada**.
-- Los commits posteriores corresponden a actualizaciones de documentación y no deben utilizarse como referencia funcional del estado del código.
 
 ## Dominio construido
 
-Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `Moneda`, `Cuenta`, `Categoria`, `Movimiento` y `OperacionFinanciera`.
+Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `Moneda`, `Cuenta`, `Categoria`, `Movimiento`, `OperacionFinanciera` y `Activo`.
+
+`Activo` representa la base común para futuros instrumentos financieros y actualmente contiene `nombre` y `moneda` como datos propios del activo.
 
 Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuenta` y `TipoMovimiento`.
 
 ## Persistencia
 
-Repositorios JPA: `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository`, `CuentaRepository`, `MovimientoRepository`, `CategoriaRepository` y `OperacionFinancieraRepository`.
+Repositorios JPA: `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository`, `CuentaRepository`, `MovimientoRepository`, `CategoriaRepository`, `OperacionFinancieraRepository` y `ActivoRepository`.
 
-`OperacionFinancieraRepository` proporciona `guardar(...)`, `buscarPorId(...)`, `listarTodas()`, `listarPorCuentaOrigen(...)` y `listarPorCuentaDestino(...)`.
+`ActivoRepositoryTest`: **6/6 tests en verde**.
 
-La relación entre `OperacionFinanciera` y `Movimiento` queda persistida mediante la columna `operacion_financiera_id` en `Movimiento`.
+La persistencia de `Activo` quedó validada junto con su asociación obligatoria a `Moneda`.
 
 ## Services
 
 La capa `service` contiene `CuentaService`, `MovimientoService`, `CategoriaService`, `PerfilFinancieroService`, `UsuarioService`, `InstitucionFinancieraService`, `MonedaService` y `OperacionFinancieraService`.
-
-`OperacionFinancieraService` materializa una transferencia como una operación financiera con un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino, coordinando su persistencia dentro de una única transacción.
 
 ## Decisiones de dominio relevantes
 
@@ -85,9 +77,11 @@ Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferen
 
 Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Movimiento` puede estar asociado a una única `OperacionFinanciera`.
 
+`Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservarán para los bloques de operaciones y posiciones de inversión.
+
 ## Próximo paso
 
-Definir el siguiente bloque funcional de `feature/operacion-financiera` a partir de las reglas de negocio y pendientes arquitectónicos documentados.
+Definir el siguiente bloque de inversiones a partir de las reglas de negocio y documentación arquitectónica, comenzando por la primera especialización de `Activo` únicamente después de revisar nuevamente el modelo actual y sus tests.
 
 Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
 
