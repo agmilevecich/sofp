@@ -2,6 +2,22 @@
 
 Este documento conserva una línea temporal resumida de decisiones, avances y puntos de continuidad.
 
+## 2026-08-25
+
+### Build 050 — Ampliación de cobertura de OperacionFinancieraService — Cerrado
+
+- Se agregaron dos pruebas específicas a `OperacionFinancieraServiceTest`.
+- Se verificó que los dos movimientos generados por una transferencia quedan asociados a la misma `OperacionFinanciera`.
+- Se verificó el rechazo de la misma cuenta como origen y destino y la ausencia de movimientos persistidos ante el rechazo.
+- `OperacionFinancieraServiceTest` pasó de **20/20 a 22/22 tests en verde**.
+- La suite general quedó en **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+- La ejecución general finalizó a las **10:47:02 -03:00** y tuvo una duración de **12:04 min**.
+- Commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
+- El commit fue publicado y sincronizado en GitHub y Bitbucket.
+- Working tree quedó limpio.
+- `main` no fue modificado.
+- **Build 050 queda cerrado y validado.**
+
 ## 2026-08-23
 
 ### Build 049 — Asociación de Movimiento con OperacionFinanciera — Cerrado
@@ -14,14 +30,8 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Se rechazan movimientos nulos, repetidos y movimientos que ya pertenecen a otra operación financiera.
 - `OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
 - `OperacionFinancieraTest` pasó de **7 a 14 tests en verde**.
-- La suite general quedó en **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-- La última ejecución confirmada desde IntelliJ finalizó a las **19:07:25 -03:00** y tuvo una duración de **12:30 min**.
+- La suite general quedó en **326/326 tests en verde**.
 - Commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Los commits posteriores corresponden a sincronización y corrección de documentación.
-- El bloque fue publicado y sincronizado en GitHub y Bitbucket sobre `feature/operacion-financiera`.
-- La rama de funcionalidad quedó con working tree limpio.
-- `main` no fue modificado.
-- La antigua rama `docs/continuidad-sofp` fue eliminada y dejó de formar parte del flujo del proyecto.
 - **Build 049 queda cerrado y validado.**
 
 ### Build 048 — Implementación de OperacionFinancieraRepository — Cerrado
@@ -32,9 +42,6 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - `OperacionFinancieraServiceTest`: **20/20 tests en verde**.
 - `OperacionFinancieraTest`: **7/7 tests en verde**.
 - La suite general quedó en **319/319 tests en verde**.
-- `BUILD SUCCESS`.
-- Finalización: **23/08/2026 12:57:51 -03:00**.
-- Commit: `3d0543c` — `feat: implementar repositorio de operacion financiera`.
 - **Build 048 queda cerrado y validado.**
 
 ## 2026-08-21
@@ -44,21 +51,17 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Se completó la cobertura de `OperacionFinancieraServiceTest`.
 - Se incorporaron pruebas para cuentas inactivas, categorías pertenecientes a otros perfiles, monedas diferentes, fecha/hora nula, rechazo de descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
 - `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
-- La suite completa del proyecto quedó en **309/309 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-- La ejecución general finalizó a las **20:36:10 -03:00** y tuvo una duración de **08:14 min**.
+- La suite completa quedó en **309/309 tests en verde**.
 - Commit: `615161c` — `test: completar cobertura de OperacionFinancieraService`.
-- `main` no fue modificado por este Build.
 - **Build 047 queda cerrado y validado.**
 
 ### Build 046 — Implementación de OperacionFinancieraService — Cerrado
 
-- Se incorporó `OperacionFinancieraService` en la rama `feature/operacion-financiera`.
+- Se incorporó `OperacionFinancieraService`.
 - El servicio materializa una transferencia mediante una `OperacionFinanciera`, un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino.
-- La persistencia de la operación y ambos movimientos se coordina dentro de una única transacción con rollback ante excepciones.
-- Se incorporaron validaciones de cuentas activas, coherencia entre cuenta y categoría, moneda común y parámetros obligatorios.
-- `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
-- La suite completa del proyecto quedó en **300/300 tests en verde**.
-- Commits: `a995937`, `2e4b94f` y `62f2da3`.
+- La persistencia se coordina dentro de una única transacción.
+- `OperacionFinancieraServiceTest`: **20/20 tests en verde**.
+- La suite completa quedó en **300/300 tests en verde**.
 - **Build 046 queda cerrado y validado.**
 
 ## 2026-08-20
@@ -66,19 +69,15 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 ### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
 
 - Se incorporó `OperacionFinanciera` como entidad de dominio para representar una transferencia entre cuenta origen y cuenta destino.
-- Se incorporaron validaciones de cuenta origen y destino obligatorias.
-- Se incorporó validación de importe obligatorio y positivo.
 - Se incorporó la regla de negocio que impide utilizar la misma cuenta como origen y destino.
-- Se incorporó `OperacionFinancieraTest` con **7 tests en verde**.
+- `OperacionFinancieraTest`: **7/7 tests en verde**.
 - La suite general quedó en **289/289 tests en verde**.
 - Commit: `1f650dc` — `feat: implementar dominio de operacion financiera`.
 - **Build 045 queda cerrado y validado.**
 
 ### Build 044 — Ampliación de cobertura de Movimiento — Cerrado
 
-- Se amplió `MovimientoTest` sin modificar código de producción.
-- Se incorporaron **23 tests nuevos**.
-- `MovimientoTest` pasó de **4 a 27 tests en verde**.
+- Se amplió `MovimientoTest` hasta **27/27 tests en verde**.
 - La suite general quedó en **282/282 tests en verde**.
 - Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
 - **Build 044 queda cerrado y validado.**
@@ -89,15 +88,15 @@ Los Builds 043 a 034 ampliaron progresivamente la cobertura y las validaciones d
 
 ## Estado actual
 
-El último bloque trabajado es **Build 049 — Asociación de Movimiento con OperacionFinanciera — cerrado**.
+El último bloque trabajado es **Build 050 — Ampliación de cobertura de OperacionFinancieraService — cerrado**.
 
-La batería específica de `OperacionFinancieraTest` está en **14/14 tests en verde**.
+La batería específica de `OperacionFinancieraServiceTest` está en **22/22 tests en verde**.
 
-La suite completa está en **326/326 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+La suite completa está en **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-El último commit funcional es `0f64fa9` — `feat: asociar movimientos a operacion financiera`, en `feature/operacion-financiera`.
+El último commit funcional es `0f64fa9`. El último commit de trabajo es `1f306e4`, correspondiente a tests.
 
-Los commits posteriores al funcional corresponden exclusivamente a documentación y sincronización. La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket.
+La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket.
 
 La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`. La rama `docs/continuidad-sofp` fue eliminada.
 
@@ -106,30 +105,6 @@ La documentación de continuidad se mantiene exclusivamente en `feature/operacio
 ## Próximo punto de trabajo
 
 Definir el siguiente bloque funcional y continuar el desarrollo en `feature/operacion-financiera`, manteniendo código, tests y documentación de continuidad en la misma rama.
-
-## Builds recientes
-
-- Build 029 — Eliminación en `CategoriaRepository`.
-- Build 030 — Eliminación en `CategoriaService`.
-- Build 031 — Eliminación en `CuentaRepository`.
-- Build 032 — Eliminación en `CuentaService`.
-- Build 033 — Reglas de negocio de `Movimiento`.
-- Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
-- Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
-- Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
-- Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
-- Build 041 — Reforzamiento de validaciones de servicios y dominio.
-- Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
-- Build 045 — Implementación del dominio de `OperacionFinanciera` — cerrado con 289/289 tests en verde.
-- Build 046 — Implementación de `OperacionFinancieraService` — cerrado con 20/20 tests específicos y 300/300 tests en la suite general.
-- Build 047 — Completar cobertura de `OperacionFinancieraService` — cerrado con 20/20 tests específicos y 309/309 tests en la suite general.
-- Build 048 — Implementación de `OperacionFinancieraRepository` — cerrado con 10/10 tests específicos y 319/319 tests en la suite general.
-- Build 049 — Asociación de `Movimiento` con `OperacionFinanciera` — cerrado con 14/14 tests específicos y 326/326 tests en la suite general.
 
 ## Regla histórica
 
