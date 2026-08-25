@@ -46,10 +46,11 @@ Suite general: **328/328 tests en verde**.
 ## Git
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- Último commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
+- Último commit: `d51f25e` — actualización de continuidad posterior al commit de tests.
 - Último commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- Commit de tests: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
 - GitHub y Bitbucket están sincronizados en `feature/operacion-financiera`.
-- Working tree confirmado limpio.
+- Working tree confirmado limpio en la última validación local.
 - `git diff --check` confirmado limpio.
 - `main` permanece separado y no fue modificado.
 - `docs/continuidad-sofp`: **eliminada**.
