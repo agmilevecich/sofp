@@ -16,6 +16,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 - Build 048: implementación de `OperacionFinancieraRepository`, integración con `OperacionFinancieraService`, 10 tests de repositorio y suite general 319/319 en verde.
 - Build 049: asociación persistente de `Movimiento` con `OperacionFinanciera`, 7 tests nuevos, `OperacionFinancieraTest` en 14/14 y suite general 326/326 en verde.
 - Build 050: ampliación de `OperacionFinancieraServiceTest` con 2 tests nuevos, pasando a 22/22 y suite general 328/328 en verde.
+- Validación individual posterior al Build 050: `OperacionFinancieraRepositoryTest` con 10/10 tests en verde desde IntelliJ, sin cambios de producción.
 - Cálculo de saldo de `Cuenta`: ya implementado en `CuentaService.calcularSaldo(...)` y cubierto por los tests existentes. No constituye un bloque pendiente de implementación.
 
 ## Estado actual — OperacionFinanciera
@@ -43,15 +44,18 @@ Cobertura específica:
 
 Suite completa: **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución confirmada desde IntelliJ finalizó el **25/08/2026 10:47:02 -03:00**, con una duración de **12:04 min**.
+La última ejecución general confirmada desde IntelliJ finalizó el **25/08/2026 10:47:02 -03:00**, con una duración de **12:04 min**.
+
+La validación individual posterior de `OperacionFinancieraRepositoryTest` confirmó sus **10/10 tests en verde**.
 
 Por lo tanto, la funcionalidad de `OperacionFinanciera`, su repositorio, servicio y asociación con `Movimiento` ya no son pendientes de implementación.
 
 ## Estado Git de referencia
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- Último commit de código: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- Último commit de trabajo: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
+- Commit funcional de referencia del Build 049: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- Commit de ampliación de tests del Build 050: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
+- Los commits posteriores son actualizaciones de documentación y validaciones; no deben interpretarse como nuevos cambios funcionales.
 - GitHub y Bitbucket están sincronizados.
 - La documentación de continuidad se mantiene en la misma rama.
 - `main` permanece separado y no debe modificarse hasta que el bloque funcional esté considerado estable.
