@@ -153,17 +153,55 @@ Suite general:
 
 Commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
 
+## Build 051 — Incorporación de Activo y persistencia JPA
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó `Activo` como entidad base para el futuro bloque de inversiones.
+
+Características actuales de `Activo`:
+
+- hereda de `EntidadAuditable`;
+- `nombre` obligatorio;
+- `Moneda` obligatoria;
+- constructor protegido para JPA;
+- métodos de dominio para cambiar nombre y moneda;
+- sin cantidad, precio, cotización ni posición, que se reservarán para etapas posteriores.
+
+Se incorporó `ActivoRepository` para persistencia JPA.
+
+Se incorporó `ActivoRepositoryTest` con **6/6 tests en verde**. La primera ejecución evidenció la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests; corregida esa configuración, los seis tests quedaron en verde.
+
+`ActivoTest`: **8/8 tests en verde**.
+
+`ActivoRepositoryTest`: **6/6 tests en verde**.
+
+Suite general:
+
+- Tests run: **342**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+
+Última ejecución general confirmada desde IntelliJ: **25/08/2026 16:30:22 -03:00**. Duración: **16:51 min**.
+
+Commits:
+
+- `0793126` — `feat: incorporar entidad Activo`
+- `5270e31` — `test: agregar cobertura de Activo`
+- `1624f8c` — `feat: incorporar repositorio de Activo`
+- `70bdbf7` — `test: agregar cobertura de ActivoRepository`
+
 ## Estado actual
 
-El último Build cerrado es **Build 050**. La última suite confirmada es **328/328 tests en verde**.
-
-El último commit funcional es `0f64fa9`. El último commit de trabajo es `1f306e4`, correspondiente a tests.
+El último Build cerrado es **Build 051**. La última suite confirmada es **342/342 tests en verde**.
 
 La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
-Definir el siguiente bloque funcional de `feature/operacion-financiera` a partir de las reglas de negocio y pendientes arquitectónicos documentados.
+Definir la primera especialización de `Activo` para el bloque de inversiones, revisando previamente las reglas de negocio y el modelo arquitectónico actual.
 
 ## Regla de cierre
 
