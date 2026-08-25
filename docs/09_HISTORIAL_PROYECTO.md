@@ -4,6 +4,22 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-25
 
+### Build 052 — Incorporación de Bono como especialización de Activo — Cerrado
+
+- Se incorporó `Bono` como primera especialización de `Activo`.
+- `Bono` hereda de `Activo` y actualmente no agrega atributos financieros específicos.
+- Se mantuvieron `nombre` y `Moneda` como datos heredados de `Activo`.
+- Se incorporó `BonoRepository` para persistencia JPA.
+- Se registró `Bono` explícitamente en la configuración de persistencia utilizada por los tests.
+- `BonoTest`: **5/5 tests en verde**.
+- `BonoRepositoryTest`: **6/6 tests en verde**.
+- La suite general quedó en **353/353 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+- La ejecución general finalizó a las **20:14:39 -03:00** y tuvo una duración de **16:07 min**.
+- Commits del bloque: `589acf1`, `c11f1f4`, `6925447`, `74b8fff` y `678c6ea`.
+- Se eliminaron las ramas auxiliares creadas accidentalmente durante la implementación y se mantuvo como única rama de trabajo `feature/operacion-financiera`.
+- `main` no fue modificado.
+- **Build 052 queda cerrado y validado.**
+
 ### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
 
 - Se incorporó `Activo` como entidad base para el futuro bloque de inversiones.
@@ -98,23 +114,25 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque trabajado es **Build 051 — Incorporación de Activo y persistencia JPA — cerrado**.
+El último bloque trabajado es **Build 052 — Incorporación de Bono como especialización de Activo — cerrado**.
 
-`ActivoTest`: **8/8 tests en verde**.
+`BonoTest`: **5/5 tests en verde**.
 
-`ActivoRepositoryTest`: **6/6 tests en verde**.
+`BonoRepositoryTest`: **6/6 tests en verde**.
 
-La suite completa está en **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+La suite completa está en **353/353 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket.
+La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket antes de la actualización de esta documentación.
 
 La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`. La rama `docs/continuidad-sofp` fue eliminada.
+
+Las ramas auxiliares creadas accidentalmente durante la implementación de `Bono` fueron eliminadas de los remotos.
 
 `main` permanece separado de estos cambios.
 
 ## Próximo punto de trabajo
 
-Definir la primera especialización de `Activo` para el bloque de inversiones, revisando previamente las reglas de negocio y el modelo arquitectónico actual.
+Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas. En particular, decidir qué atributos y comportamientos financieros debe tener `Bono` antes de incorporarlos al dominio.
 
 ## Regla histórica
 
