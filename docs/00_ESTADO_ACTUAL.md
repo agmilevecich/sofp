@@ -50,13 +50,14 @@ La prueba individual de `OperacionFinancieraRepositoryTest` fue confirmada poste
 ## Git
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- Último commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
 - Último commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
+- Commit de ampliación de tests: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
 - GitHub y Bitbucket están sincronizados en `feature/operacion-financiera`.
 - Working tree confirmado limpio en la última validación local.
 - `git diff --check` confirmado limpio.
 - `main` permanece separado y no fue modificado.
 - `docs/continuidad-sofp`: **eliminada**.
+- Los commits posteriores corresponden a actualizaciones de documentación y no deben utilizarse como referencia funcional del estado del código.
 
 ## Dominio construido
 
