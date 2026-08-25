@@ -4,6 +4,23 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## 2026-08-25
 
+### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
+
+- Se incorporó `Activo` como entidad base para el futuro bloque de inversiones.
+- `Activo` hereda de `EntidadAuditable` y contiene actualmente `nombre` y `Moneda` obligatorios.
+- Se incorporaron métodos de dominio para cambiar nombre y moneda.
+- Se incorporó `ActivoRepository` para persistencia JPA.
+- `ActivoTest`: **8/8 tests en verde**.
+- `ActivoRepositoryTest`: **6/6 tests en verde**.
+- La primera ejecución de `ActivoRepositoryTest` detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests; corregida esa configuración, los 6 tests quedaron en verde.
+- La suite general quedó en **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+- La ejecución general finalizó a las **16:30:22 -03:00** y tuvo una duración de **16:51 min**.
+- Commits del bloque: `0793126`, `5270e31`, `1624f8c` y `70bdbf7`.
+- El bloque quedó publicado y sincronizado en GitHub y Bitbucket.
+- Working tree quedó limpio.
+- `main` no fue modificado.
+- **Build 051 queda cerrado y validado.**
+
 ### Build 050 — Ampliación de cobertura de OperacionFinancieraService — Cerrado
 
 - Se agregaron dos pruebas específicas a `OperacionFinancieraServiceTest`.
@@ -13,9 +30,6 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - La suite general quedó en **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 - La ejecución general finalizó a las **10:47:02 -03:00** y tuvo una duración de **12:04 min**.
 - Commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
-- El commit fue publicado y sincronizado en GitHub y Bitbucket.
-- Working tree quedó limpio.
-- `main` no fue modificado.
 - **Build 050 queda cerrado y validado.**
 
 ## 2026-08-23
@@ -82,19 +96,15 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
 - **Build 044 queda cerrado y validado.**
 
-### Builds 043–034
-
-Los Builds 043 a 034 ampliaron progresivamente la cobertura y las validaciones de los servicios y del dominio. Los resultados completos permanecen registrados en `docs/06_BUILDS.md` y `docs/07_TESTS.md`.
-
 ## Estado actual
 
-El último bloque trabajado es **Build 050 — Ampliación de cobertura de OperacionFinancieraService — cerrado**.
+El último bloque trabajado es **Build 051 — Incorporación de Activo y persistencia JPA — cerrado**.
 
-La batería específica de `OperacionFinancieraServiceTest` está en **22/22 tests en verde**.
+`ActivoTest`: **8/8 tests en verde**.
 
-La suite completa está en **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+`ActivoRepositoryTest`: **6/6 tests en verde**.
 
-El último commit funcional es `0f64fa9`. El último commit de trabajo es `1f306e4`, correspondiente a tests.
+La suite completa está en **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
 La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket.
 
@@ -104,7 +114,7 @@ La documentación de continuidad se mantiene exclusivamente en `feature/operacio
 
 ## Próximo punto de trabajo
 
-Definir el siguiente bloque funcional y continuar el desarrollo en `feature/operacion-financiera`, manteniendo código, tests y documentación de continuidad en la misma rama.
+Definir la primera especialización de `Activo` para el bloque de inversiones, revisando previamente las reglas de negocio y el modelo arquitectónico actual.
 
 ## Regla histórica
 
