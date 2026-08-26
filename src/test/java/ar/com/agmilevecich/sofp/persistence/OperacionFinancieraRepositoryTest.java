@@ -1,19 +1,20 @@
 package ar.com.agmilevecich.sofp.persistence;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
-import ar.com.agmilevecich.sofp.domain.Usuario;
-import ar.com.agmilevecich.sofp.domain.Bono;
-import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
+import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
+import ar.com.agmilevecich.sofp.domain.Usuario;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 
@@ -435,6 +436,14 @@ class OperacionFinancieraRepositoryTest {
                             "operacion.activo@test.com"
                     );
 
+            OperacionFinanciera operacionCompra =
+                    new OperacionFinanciera(
+                            datos.cuentaOrigen(),
+                            null,
+                            new BigDecimal("12500.00"),
+                            TipoOperacionFinanciera.COMPRA
+                    );
+
             Bono bono =
                     new Bono(
                             "Bono GD30",
@@ -449,7 +458,7 @@ class OperacionFinancieraRepositoryTest {
                             new BigDecimal("125")
                     );
 
-            datos.operacion().agregarMovimientoActivo(
+            operacionCompra.agregarMovimientoActivo(
                     movimientoActivo
             );
 
@@ -461,7 +470,7 @@ class OperacionFinancieraRepositoryTest {
             persistirDatosBase(em, datos);
             em.persist(bono);
             em.persist(movimientoActivo);
-            repository.guardar(datos.operacion());
+            repository.guardar(operacionCompra);
 
             em.getTransaction().commit();
 
@@ -469,8 +478,18 @@ class OperacionFinancieraRepositoryTest {
 
             OperacionFinanciera resultado =
                     repository.buscarPorId(
-                            datos.operacion().getId()
+                            operacionCompra.getId()
                     ).orElseThrow();
+
+            assertEquals(
+                    TipoOperacionFinanciera.COMPRA,
+                    resultado.getTipoOperacion()
+            );
+
+            assertEquals(
+                    new BigDecimal("12500.00"),
+                    resultado.getImporte()
+            );
 
             assertEquals(
                     1,
