@@ -486,13 +486,15 @@ class OperacionFinancieraRepositoryTest {
             );
 
             assertEquals(
-                    new BigDecimal("100"),
-                    recuperado.getCantidad()
+                    0,
+                    new BigDecimal("100")
+                            .compareTo(recuperado.getCantidad())
             );
 
             assertEquals(
-                    new BigDecimal("125"),
-                    recuperado.getPrecioUnitario()
+                    0,
+                    new BigDecimal("125")
+                            .compareTo(recuperado.getPrecioUnitario())
             );
 
             assertEquals(
