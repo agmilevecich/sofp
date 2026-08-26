@@ -9,15 +9,13 @@
 **Rama principal:** `main`  
 **Rama única de trabajo y continuidad:** `feature/operacion-financiera`  
 
-La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. Las ramas auxiliares creadas durante la implementación de `Bono` fueron eliminadas de los remotos.
+La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. `main` permanece separada hasta disponer de un estado funcional estable y validado para realizar el merge.
 
 ## Estado funcional actual
 
-**Bloque actual — Posición de activo — concepto de dominio y cálculo implementados y validados.**
+**Bloque actual — OperacionFinanciera — integridad de movimientos reforzada y validada.**
 
-Se incorporó `PosicionActivo` como concepto de dominio no persistente para representar la tenencia acumulada de un activo a partir de sus `MovimientoActivo`.
-
-Se incorporó `CalculadorPosicionActivo` como componente de dominio responsable de construir una posición a partir de una colección ordenada de `MovimientoActivo`.
+`OperacionFinanciera` agrupa los movimientos monetarios que representan una transferencia entre una cuenta origen y una cuenta destino. El dominio ahora refuerza además la coherencia entre cada movimiento y la cuenta correspondiente.
 
 La arquitectura actual contempla:
 
@@ -35,55 +33,56 @@ MovimientoActivo
 CalculadorPosicionActivo
       ↓
 PosicionActivo
+
+PosicionActivoService
+      ↓
+MovimientoActivoRepository
+      ↓
+CalculadorPosicionActivo
 ```
 
-`PosicionActivo` no duplica información persistente: calcula y mantiene únicamente la cantidad acumulada durante el uso del objeto. La posición se obtiene sumando las compras y restando las ventas.
+## Última validación — Build 055
 
-`CalculadorPosicionActivo` valida el activo y la colección de movimientos, respeta el orden recibido y delega en `PosicionActivo` la aplicación de cada movimiento. Rechaza movimientos de otro activo y secuencias que produzcan una posición negativa.
+El bloque de integridad de `OperacionFinanciera` quedó validado mediante tests específicos y suite general.
 
-## Última validación — Build 054
+Tests específicos:
 
-Los tests específicos del bloque se encuentran en verde:
+- `OperacionFinancieraTest`: **14/14**.
+- `OperacionFinancieraIntegridadTest`: **4/4**.
+- Total específico del bloque: **18/18**.
 
-- `ActivoTest`: verde.
-- `ActivoRepositoryTest`: **6/6**.
-- `BonoTest`: **5/5**.
-- `BonoRepositoryTest`: **6/6**.
-- `MovimientoActivoTest`: **11/11**.
-- `MovimientoActivoRepositoryTest`: **6/6**.
-- `OperacionFinancieraTest`: **20/20**.
-- `OperacionFinancieraRepositoryTest`: **12/12**.
-- `PosicionActivoTest`: **8/8**.
-- `CalculadorPosicionActivoTest`: **7/7**.
-
-Suite general más reciente:
+Suite general:
 
 ```text
-Tests run: 393
+Tests run: 397
 Failures: 0
 Errors: 0
 Skipped: 0
 BUILD SUCCESS
 ```
 
-- Ejecución: **26/08/2026 13:39:19 -03:00**.
-- Duración: **24:00 min**.
+- Ejecución: **26/08/2026 16:48:26 -03:00**.
+- Duración: **20:54 min**.
 
-Durante la validación de persistencia se detectó una diferencia de escala en `BigDecimal` al recuperar valores mediante JPA/H2. Se corrigieron las comparaciones de los tests para utilizar comparación numérica (`compareTo`), sin modificar código de producción.
+Validación Git posterior al Build:
 
-La suite general mostró además el mensaje de Surefire sobre la finalización de la JVM fork después de `System.exit(0)`, pero la ejecución terminó correctamente con `BUILD SUCCESS`. No se modifica la configuración de Surefire en esta etapa.
+- `git status`: working tree limpio.
+- `git diff --check`: sin errores.
+- Rama `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
 
 ## Git
 
-- Rama única de trabajo y continuidad: `feature/operacion-financiera`.
-- `main` permanece separado y no fue modificado.
-- `a08972f` — `fix: corregir cierre de assertThrows en test de posicion`.
-- `ae5c997` — `fix: corregir nombre de test de posicion de activo`.
-- `c491ed6` — `test: agregar cobertura de CalculadorPosicionActivo`.
-- `9985b55` — `feat: incorporar calculador de posicion de activo`.
-- `169b2be` — `docs: registrar PosicionActivo en continuidad`.
-- `796b256` — `test: agregar cobertura de PosicionActivo`.
-- `c8b0057` — `feat: incorporar concepto de PosicionActivo`.
+Los últimos commits funcionales de la rama son:
+
+- `e7c567b` — `test: adaptar OperacionFinancieraTest a reglas de integridad`.
+- `31277fe` — `test: reforzar integridad de movimientos de operacion financiera`.
+- `3dcadc7` — `fix: reforzar integridad de movimientos de operacion financiera`.
+- `f484241` — `feat: incorporar servicio de posicion de activo`.
+- `6967bce` — `test: ampliar cobertura de busqueda de movimientos por activo`.
+- `4ead5a5` — `feat: agregar busqueda de movimientos de activo por activo`.
+- `72f2b84` — `docs: registrar Build 054 y calculador de posicion`.
+
+El último commit de documentación generado al cerrar este Build es `03ef85a7c69dd36deba6aeabfbe251fac6833071`.
 
 ## Dominio construido
 
@@ -95,7 +94,7 @@ Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `
 
 `MovimientoActivo` representa el efecto de una operación sobre la tenencia de un `Activo`, con tipo `COMPRA` o `VENTA`, cantidad y precio unitario. La cantidad se almacena como valor positivo; el tipo determina el efecto sobre la tenencia.
 
-`OperacionFinanciera` permite agrupar el movimiento monetario y el movimiento específico del activo que forman parte de una misma operación.
+`OperacionFinanciera` permite agrupar el movimiento monetario y el movimiento específico del activo que forman parte de una misma operación. Para sus movimientos monetarios se valida la correspondencia entre cuenta y rol: origen/egreso y destino/ingreso.
 
 `PosicionActivo` representa la cantidad acumulada de un activo a partir de sus movimientos. Una compra incrementa la posición y una venta la disminuye. Actualmente es un concepto de dominio no persistente.
 
@@ -113,15 +112,17 @@ Las entidades nuevas están registradas explícitamente en la unidad de persiste
 
 ## Services
 
-La capa `service` contiene `CuentaService`, `MovimientoService`, `CategoriaService`, `PerfilFinancieroService`, `UsuarioService`, `InstitucionFinancieraService`, `MonedaService` y `OperacionFinancieraService`.
+La capa `service` contiene `CuentaService`, `MovimientoService`, `CategoriaService`, `PerfilFinancieroService`, `UsuarioService`, `InstitucionFinancieraService`, `MonedaService`, `OperacionFinancieraService` y `PosicionActivoService`.
 
-Los `ServiceTest` se incorporarán o ampliarán cuando exista lógica de aplicación que deba probarse; no se crean servicios vacíos únicamente para replicar los repositorios.
+Los services coordinan repositorios y reglas de dominio cuando existe un caso de uso que lo requiere; no se crean servicios vacíos únicamente para replicar los repositorios.
 
 ## Decisiones de dominio relevantes
 
 Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferencia genera un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados mediante una `OperacionFinanciera`.
 
 Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Movimiento` puede estar asociado a una única `OperacionFinanciera`.
+
+Además, el dominio exige que el primer movimiento corresponda a la cuenta origen y sea un `EGRESO`, y que el segundo corresponda a la cuenta destino y sea un `INGRESO`.
 
 `Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservan para los bloques de operaciones y posiciones de inversión.
 
@@ -131,13 +132,13 @@ Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Mo
 
 `PosicionActivo` no permite que la cantidad acumulada resulte negativa. Una venta superior a la tenencia se rechaza en el dominio, dejando abierta para una futura decisión explícita la incorporación de posiciones short.
 
-`CalculadorPosicionActivo` es deliberadamente un componente de dominio, no una entidad persistente ni un servicio vacío. La obtención de movimientos desde persistencia podrá coordinarse mediante un servicio de aplicación cuando exista un caso de uso que lo requiera.
+`CalculadorPosicionActivo` es deliberadamente un componente de dominio, no una entidad persistente ni un servicio vacío. `PosicionActivoService` coordina la obtención de movimientos desde persistencia y delega el cálculo al dominio.
 
 ## Próximo paso
 
-Revisar el modelo actual de inversiones y definir el siguiente caso de uso que necesite la posición de un activo. Antes de incorporar precio promedio, valuación, cotización, comisiones, resultado de la inversión u otras reglas financieras, definirlas explícitamente en el dominio.
+Revisar el modelo actual de `OperacionFinanciera` y del bloque de inversiones para identificar el siguiente caso de uso necesario. Antes de incorporar precio promedio, valuación, cotización, comisiones, resultado de la inversión u otras reglas financieras, definirlas explícitamente en el dominio.
 
-Evaluar la necesidad de un servicio de aplicación únicamente cuando exista un flujo que deba coordinar repositorios y dominio.
+No realizar todavía merge a `main`. La rama `feature/operacion-financiera` continúa siendo la fuente de continuidad hasta alcanzar un estado funcional estable y validado.
 
 Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
 
