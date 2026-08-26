@@ -4,92 +4,59 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
-### Build 053 — Incorporación de MovimientoActivo — Cerrado
+### Build 055 — Refuerzo de integridad de OperacionFinanciera — Cerrado
 
-Se incorporó el modelo de movimientos específicos de activos para representar el efecto de una operación sobre la tenencia de un activo, separado del efecto monetario representado por `Movimiento`.
+Se reforzó la integridad del dominio de `OperacionFinanciera` para impedir asociaciones incoherentes de movimientos monetarios.
 
-- `MovimientoActivoTest`: **11/11 tests en verde**.
-- `MovimientoActivoRepositoryTest`: **6/6 tests en verde**.
-- Total de tests nuevos del bloque: **17**.
-- La persistencia JPA de `MovimientoActivo` quedó validada después de registrarlo explícitamente en la configuración de persistencia utilizada por los tests.
-- Se corrigieron las comparaciones de valores `BigDecimal` en los tests de persistencia para no depender de la escala decimal devuelta por JPA/H2.
+Pruebas específicas del bloque:
+
+- `OperacionFinancieraTest`: **14/14 tests en verde**.
+- `OperacionFinancieraIntegridadTest`: **4/4 tests en verde**.
+- Total específico del bloque: **18/18 tests en verde**.
 
 Suite general:
 
-- Tests run: **370**
+- Tests run: **397**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **26/08/2026 10:57:39 -03:00**
-- Duración: **24:34 min**
+- Finalizada: **26/08/2026 16:48:26 -03:00**
+- Duración: **20:54 min**
 
 Commits principales del bloque:
 
-- `4be2264` — `feat: agregar tipo de movimiento de activo`
-- `51d3860` — `feat: incorporar movimiento de activo`
-- `381f3a6` — `feat: incorporar repositorio de movimiento de activo`
-- `7a54b20` — `test: agregar cobertura de MovimientoActivo`
-- `eb57063` — `test: agregar cobertura de MovimientoActivoRepository`
-- `d14d114` — `test: registrar MovimientoActivo en persistencia JPA`
-- `a579d4e8` — `test: corregir comparacion decimal en MovimientoActivoRepositoryTest`
+- `3dcadc7` — `fix: reforzar integridad de movimientos de operacion financiera`
+- `31277fe` — `test: reforzar integridad de movimientos de operacion financiera`
+- `e7c567b` — `test: adaptar OperacionFinancieraTest a reglas de integridad`
 
-### Build 052 — Incorporación de Bono como especialización de Activo — Cerrado
+Validación Git posterior al Build:
 
-Se incorporaron las pruebas de la nueva especialización `Bono` y de su repositorio JPA.
+- `git status`: working tree limpio.
+- `git diff --check`: sin errores.
+- Rama `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
 
-- `BonoTest`: **5/5 tests en verde**.
-- `BonoRepositoryTest`: **6/6 tests en verde**.
-- La persistencia JPA de `Bono` quedó validada después de registrarlo explícitamente en la configuración de persistencia utilizada por los tests.
+### Build 054 — Incorporación del servicio de posición de activo — Cerrado
 
-Suite general:
+Se incorporó `PosicionActivoService` como coordinación entre `Activo`, `MovimientoActivoRepository` y `CalculadorPosicionActivo`.
 
-- Tests run: **353**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalizada: **25/08/2026 20:14:39 -03:00**
-- Duración: **16:07 min**
+También se incorporaron la búsqueda de movimientos de un activo y el calculador de posición.
 
-Commits del bloque:
+### Build 053 — Incorporación de MovimientoActivo — Cerrado
 
-- `589acf1` — `feat: incorporar entidad Bono`
-- `c11f1f4` — `test: agregar cobertura de Bono`
-- `6925447` — `feat: incorporar repositorio de Bono`
-- `74b8fff` — `test: agregar cobertura de BonoRepository`
-- `678c6ea` — `test: registrar Bono en persistencia JPA`
+Se incorporó el modelo de movimientos específicos de activos para representar el efecto sobre la tenencia de un activo separado del efecto monetario de `Movimiento`.
 
-### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
+- `MovimientoActivoTest`: **11/11**.
+- `MovimientoActivoRepositoryTest`: **6/6**.
+- Total del bloque: **17 tests nuevos**.
 
-Se incorporaron las pruebas de la nueva entidad `Activo` y de su repositorio JPA.
+Suite general: **370/370**, `BUILD SUCCESS`, finalizada el **26/08/2026 10:57:39 -03:00**, duración **24:34 min**.
 
-- `ActivoTest`: **8/8 tests en verde**.
-- `ActivoRepositoryTest`: **6/6 tests en verde**.
-- La primera ejecución del repositorio detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests; corregida esa configuración, los 6 tests quedaron en verde.
+## Builds anteriores
 
-Suite general:
+Los Builds 001–052 y sus resultados permanecen registrados en el historial del proyecto.
 
-- Tests run: **342**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalizada: **25/08/2026 16:30:22 -03:00**
-- Duración: **16:51 min**
-
-Commits del bloque:
-
-- `0793126` — `feat: incorporar entidad Activo`
-- `5270e31` — `test: agregar cobertura de Activo`
-- `1624f8c` — `feat: incorporar repositorio de Activo`
-- `70bdbf7` — `test: agregar cobertura de ActivoRepository`
-
-### Builds anteriores
-
-Los Builds 001–050 y sus resultados permanecen registrados en el historial del proyecto.
-
-## Conteo actual por test de service
+## Conteo de tests de services registrado
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **47**
@@ -100,26 +67,29 @@ Los Builds 001–050 y sus resultados permanecen registrados en el historial del
 - `UsuarioServiceTest`: **15**
 - `OperacionFinancieraServiceTest`: **22**
 
-Total confirmado de tests de services: **211**.
+Total registrado de tests de services: **211**.
 
-Tests de dominio destacados:
+## Tests de dominio destacados
 
 - `MovimientoTest`: **27**
 - `OperacionFinancieraTest`: **14**
+- `OperacionFinancieraIntegridadTest`: **4**
 - `ActivoTest`: **8**
 - `BonoTest`: **5**
 - `MovimientoActivoTest`: **11**
 
-Tests de persistencia destacados:
+## Tests de persistencia destacados
 
 - `OperacionFinancieraRepositoryTest`: **10**
 - `ActivoRepositoryTest`: **6**
 - `BonoRepositoryTest`: **6**
 - `MovimientoActivoRepositoryTest`: **6**
 
-Suite general actual: **370/370 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+## Última suite general confirmada
 
-La última ejecución general confirmada se realizó el **26/08/2026 a las 10:57:39 -03:00** y finalizó correctamente, con una duración de **24:34 min**.
+**397/397 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+La última ejecución general confirmada se realizó el **26/08/2026 a las 16:48:26 -03:00** y finalizó correctamente, con una duración de **20:54 min**.
 
 ## Regla de cierre
 
