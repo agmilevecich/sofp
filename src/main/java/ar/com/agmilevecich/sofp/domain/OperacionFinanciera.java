@@ -1,6 +1,5 @@
 package ar.com.agmilevecich.sofp.domain;
 
-import ar.com.agmilevecich.sofp.util.Validaciones;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -54,7 +53,7 @@ public class OperacionFinanciera extends EntidadAuditable {
 
         validarCuentas(cuentaOrigen, cuentaDestino);
 
-        this.importe = Validaciones.importePositivo(
+        this.importe = ar.com.agmilevecich.sofp.util.Validaciones.importePositivo(
                 importe,
                 "El importe es obligatorio"
         );
@@ -146,8 +145,28 @@ public class OperacionFinanciera extends EntidadAuditable {
             );
         }
 
+        validarMovimientoActivo(movimientoActivo);
+
         movimientoActivo.asociarOperacionFinanciera(this);
         movimientosActivos.add(movimientoActivo);
+    }
+
+    private void validarMovimientoActivo(MovimientoActivo movimientoActivo) {
+        if (tipoOperacion == TipoOperacionFinanciera.TRANSFERENCIA) {
+            throw new IllegalArgumentException(
+                    "Una transferencia no puede contener movimientos de activo"
+            );
+        }
+
+        TipoMovimientoActivo tipoEsperado = tipoOperacion == TipoOperacionFinanciera.COMPRA
+                ? TipoMovimientoActivo.COMPRA
+                : TipoMovimientoActivo.VENTA;
+
+        if (movimientoActivo.getTipoMovimiento() != tipoEsperado) {
+            throw new IllegalArgumentException(
+                    "El tipo de movimiento de activo no es compatible con la operación financiera"
+            );
+        }
     }
 
     private void validarMovimiento(Movimiento movimiento) {
