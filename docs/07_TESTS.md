@@ -4,6 +4,36 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 056 — Incorporación del tipo de operación financiera — Cerrado
+
+Se incorporó `TipoOperacionFinanciera` con `TRANSFERENCIA`, `COMPRA` y `VENTA`, y se integró el tipo en `OperacionFinanciera` manteniendo la compatibilidad de las transferencias existentes.
+
+Pruebas específicas del bloque:
+
+- `OperacionFinancieraTest`: **17/17 tests en verde**.
+
+Suite general:
+
+- Tests run: **400**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **26/08/2026 18:42:57 -03:00**
+- Duración: **16:05 min**
+
+Commits principales del bloque:
+
+- `21d8ed9` — `feat: agregar tipo de operacion financiera`
+- `3025848` — `feat: incorporar tipo a operacion financiera`
+- `70e4584` — `test: cubrir tipo de operacion financiera`
+
+Validación Git posterior al Build:
+
+- `git status`: working tree limpio.
+- `git diff --check`: sin errores.
+- Rama `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+
 ### Build 055 — Refuerzo de integridad de OperacionFinanciera — Cerrado
 
 Se reforzó la integridad del dominio de `OperacionFinanciera` para impedir asociaciones incoherentes de movimientos monetarios.
@@ -23,18 +53,6 @@ Suite general:
 - `BUILD SUCCESS`
 - Finalizada: **26/08/2026 16:48:26 -03:00**
 - Duración: **20:54 min**
-
-Commits principales del bloque:
-
-- `3dcadc7` — `fix: reforzar integridad de movimientos de operacion financiera`
-- `31277fe` — `test: reforzar integridad de movimientos de operacion financiera`
-- `e7c567b` — `test: adaptar OperacionFinancieraTest a reglas de integridad`
-
-Validación Git posterior al Build:
-
-- `git status`: working tree limpio.
-- `git diff --check`: sin errores.
-- Rama `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
 
 ### Build 054 — Incorporación del servicio de posición de activo — Cerrado
 
@@ -72,7 +90,7 @@ Total registrado de tests de services: **211**.
 ## Tests de dominio destacados
 
 - `MovimientoTest`: **27**
-- `OperacionFinancieraTest`: **14**
+- `OperacionFinancieraTest`: **17**
 - `OperacionFinancieraIntegridadTest`: **4**
 - `ActivoTest`: **8**
 - `BonoTest`: **5**
@@ -87,9 +105,9 @@ Total registrado de tests de services: **211**.
 
 ## Última suite general confirmada
 
-**397/397 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+**400/400 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución general confirmada se realizó el **26/08/2026 a las 16:48:26 -03:00** y finalizó correctamente, con una duración de **20:54 min**.
+La última ejecución general confirmada se realizó el **26/08/2026 a las 18:42:57 -03:00** y finalizó correctamente, con una duración de **16:05 min**.
 
 ## Regla de cierre
 
