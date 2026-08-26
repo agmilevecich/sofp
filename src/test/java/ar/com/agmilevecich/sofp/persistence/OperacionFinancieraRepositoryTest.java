@@ -11,6 +11,9 @@ import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.domain.Bono;
+import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
+import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 
@@ -411,6 +414,130 @@ class OperacionFinancieraRepositoryTest {
             assertThrows(
                     NullPointerException.class,
                     () -> repository.listarPorCuentaDestino(null)
+            );
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaPersistirMovimientoActivoDentroDeOperacionFinanciera() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            DatosOperacion datos =
+                    crearDatosOperacion(
+                            "operacion.activo@test.com"
+                    );
+
+            Bono bono =
+                    new Bono(
+                            "Bono GD30",
+                            datos.moneda()
+                    );
+
+            MovimientoActivo movimientoActivo =
+                    new MovimientoActivo(
+                            bono,
+                            TipoMovimientoActivo.COMPRA,
+                            new BigDecimal("100"),
+                            new BigDecimal("125")
+                    );
+
+            datos.operacion().agregarMovimientoActivo(
+                    movimientoActivo
+            );
+
+            OperacionFinancieraRepository repository =
+                    new OperacionFinancieraRepository(em);
+
+            em.getTransaction().begin();
+
+            persistirDatosBase(em, datos);
+            em.persist(bono);
+            em.persist(movimientoActivo);
+            repository.guardar(datos.operacion());
+
+            em.getTransaction().commit();
+
+            em.clear();
+
+            OperacionFinanciera resultado =
+                    repository.buscarPorId(
+                            datos.operacion().getId()
+                    ).orElseThrow();
+
+            assertEquals(
+                    1,
+                    resultado.getMovimientosActivos().size()
+            );
+
+            MovimientoActivo recuperado =
+                    resultado.getMovimientosActivos().get(0);
+
+            assertEquals(
+                    bono.getId(),
+                    recuperado.getActivo().getId()
+            );
+
+            assertEquals(
+                    new BigDecimal("100"),
+                    recuperado.getCantidad()
+            );
+
+            assertEquals(
+                    new BigDecimal("125"),
+                    recuperado.getPrecioUnitario()
+            );
+
+            assertEquals(
+                    resultado.getId(),
+                    recuperado.getOperacionFinanciera().getId()
+            );
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaPersistirOperacionSinMovimientosActivos() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            DatosOperacion datos =
+                    crearDatosOperacion(
+                            "operacion.sin.activo@test.com"
+                    );
+
+            OperacionFinancieraRepository repository =
+                    new OperacionFinancieraRepository(em);
+
+            em.getTransaction().begin();
+
+            persistirDatosBase(em, datos);
+            repository.guardar(datos.operacion());
+
+            em.getTransaction().commit();
+
+            em.clear();
+
+            OperacionFinanciera resultado =
+                    repository.buscarPorId(
+                            datos.operacion().getId()
+                    ).orElseThrow();
+
+            assertTrue(
+                    resultado.getMovimientosActivos().isEmpty()
             );
 
         } finally {
