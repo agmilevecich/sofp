@@ -30,6 +30,12 @@ public class OperacionFinanciera extends EntidadAuditable {
     )
     private List<Movimiento> movimientos = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "operacionFinanciera",
+            fetch = FetchType.LAZY
+    )
+    private List<MovimientoActivo> movimientosActivos = new ArrayList<>();
+
     /**
      * Constructor requerido por JPA.
      */
@@ -84,6 +90,12 @@ public class OperacionFinanciera extends EntidadAuditable {
         );
     }
 
+    public List<MovimientoActivo> getMovimientosActivos() {
+        return Collections.unmodifiableList(
+                movimientosActivos
+        );
+    }
+
     public void agregarMovimiento(
             Movimiento movimiento) {
 
@@ -109,6 +121,27 @@ public class OperacionFinanciera extends EntidadAuditable {
         );
 
         movimientos.add(movimiento);
+    }
+
+    public void agregarMovimientoActivo(
+            MovimientoActivo movimientoActivo) {
+
+        Objects.requireNonNull(
+                movimientoActivo,
+                "El movimiento de activo es obligatorio"
+        );
+
+        if (movimientosActivos.contains(movimientoActivo)) {
+            throw new IllegalArgumentException(
+                    "El movimiento de activo ya pertenece a la operación financiera"
+            );
+        }
+
+        movimientoActivo.asociarOperacionFinanciera(
+                this
+        );
+
+        movimientosActivos.add(movimientoActivo);
     }
 
 }
