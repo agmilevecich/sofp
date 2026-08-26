@@ -1,5 +1,46 @@
 # SOFP — Historial de Builds
 
+## Build 056 — Incorporación del tipo de operación financiera
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó `TipoOperacionFinanciera` para distinguir explícitamente `TRANSFERENCIA`, `COMPRA` y `VENTA`, y se integró el tipo en `OperacionFinanciera` manteniendo compatibilidad con el comportamiento existente de transferencias.
+
+Se incorporó:
+
+- `TipoOperacionFinanciera` con `TRANSFERENCIA`, `COMPRA` y `VENTA`.
+- `OperacionFinanciera` con tipo de operación.
+- Compatibilidad del constructor existente, que crea una operación de tipo `TRANSFERENCIA`.
+- Constructor explícito para indicar el tipo.
+- Rechazo de tipo `null`.
+- Tests específicos para transferencia por defecto, compra, venta y tipo nulo.
+
+Pruebas específicas:
+
+- `OperacionFinancieraTest`: **17/17 tests en verde**.
+
+Suite general:
+
+- Tests run: **400**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **26/08/2026 18:42:57 -03:00**
+- Duración: **16:05 min**
+
+Commits principales:
+
+- `21d8ed9` — `feat: agregar tipo de operacion financiera`
+- `3025848` — `feat: incorporar tipo a operacion financiera`
+- `70e4584` — `test: cubrir tipo de operacion financiera`
+
+Validación Git posterior al Build:
+
+- `git status`: working tree limpio.
+- `git diff --check`: sin errores.
+- Rama: `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+
 ## Build 055 — Refuerzo de integridad de OperacionFinanciera
 
 **Estado: COMPLETADO Y VALIDADO.**
@@ -97,13 +138,13 @@ Los Builds 001–051 permanecen registrados en el historial previo de este docum
 
 ## Estado actual
 
-El último Build cerrado es **Build 055**. La última suite confirmada es **397/397 tests en verde**.
+El último Build cerrado es **Build 056**. La última suite confirmada es **400/400 tests en verde**.
 
 La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
-Revisar el siguiente bloque funcional de `OperacionFinanciera` e inversiones a partir de reglas de negocio explícitas, manteniendo el dominio actual estable antes de incorporar nueva funcionalidad.
+Implementar progresivamente el caso de uso de compra de activo, comenzando por sus reglas de dominio y tests, manteniendo las transferencias existentes estables. La validación de importe como `cantidad × precioUnitario` y la venta de activos quedarán para los pasos correspondientes.
 
 ## Regla de cierre
 
