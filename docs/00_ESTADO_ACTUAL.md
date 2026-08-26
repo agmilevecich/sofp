@@ -9,52 +9,72 @@
 **Rama principal:** `main`  
 **Rama única de trabajo y continuidad:** `feature/operacion-financiera`  
 
-La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. La rama `docs/continuidad-sofp` fue eliminada y no forma parte del flujo de continuidad del proyecto.
+La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. Las ramas auxiliares creadas durante la implementación de `Bono` fueron eliminadas de los remotos.
 
 ## Estado funcional actual
 
-**Build 053 — Incorporación de `MovimientoActivo` — cerrado y validado.**
+**Bloque actual — Operaciones financieras con movimientos de activos — implementado y validado.**
 
 Se incorporó `MovimientoActivo` para representar el efecto de una operación sobre la tenencia de un activo, separado del efecto monetario representado por `Movimiento`.
 
-Se incorporó `TipoMovimientoActivo` con `COMPRA` y `VENTA`, y `MovimientoActivoRepository` con persistencia JPA.
+`OperacionFinanciera` puede asociar movimientos monetarios y movimientos de activos. De esta forma, una operación de inversión puede conservar en una misma operación el efecto sobre el dinero y el efecto sobre la tenencia del activo.
 
-La cantidad se almacena como valor positivo; el tipo determina su efecto sobre la tenencia: compra positiva y venta negativa.
+La arquitectura actual contempla:
+
+```text
+Activo
+ └── Bono
+
+OperacionFinanciera
+ ├── Movimiento
+ └── MovimientoActivo
+        └── Activo
+```
 
 ## Última validación
 
-**Build 053 — cerrado y validado.**
+Los tests específicos del bloque se encuentran en verde:
 
-`MovimientoActivoTest`: **11/11 tests en verde**.
+- `ActivoTest`: verde.
+- `ActivoRepositoryTest`: **6/6**.
+- `BonoTest`: **5/5**.
+- `BonoRepositoryTest`: **6/6**.
+- `MovimientoActivoTest`: **11/11**.
+- `MovimientoActivoRepositoryTest`: **6/6**.
+- `OperacionFinancieraTest`: **20/20**.
+- `OperacionFinancieraRepositoryTest`: **12/12**.
 
-`MovimientoActivoRepositoryTest`: **6/6 tests en verde**.
+Suite general más reciente:
 
-Suite general: **370/370 tests en verde**.
+```text
+Tests run: 370
+Failures: 0
+Errors: 0
+Skipped: 0
+BUILD SUCCESS
+```
 
-- Failures: **0**.
-- Errors: **0**.
-- Skipped: **0**.
-- **BUILD SUCCESS**.
-- Ejecución general: **26/08/2026 10:57:39 -03:00**.
+- Ejecución: **26/08/2026 10:57:39 -03:00**.
 - Duración: **24:34 min**.
 
-Durante la validación del repositorio se corrigieron comparaciones `BigDecimal` en los tests para no depender de la escala decimal devuelta por JPA/H2. No se modificó código de producción por esta corrección.
+Durante la validación de persistencia se detectó una diferencia de escala en `BigDecimal` al recuperar valores mediante JPA/H2. Se corrigieron las comparaciones de los tests para utilizar comparación numérica (`compareTo`), sin modificar código de producción.
 
 ## Git
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - `main` permanece separado y no fue modificado.
-- Build 052: `678c6ea` — `test: registrar Bono en persistencia JPA`.
-- Build 053: `4be2264` — `feat: agregar tipo de movimiento de activo`.
-- Build 053: `51d3860` — `feat: incorporar movimiento de activo`.
-- Build 053: `381f3a6` — `feat: incorporar repositorio de movimiento de activo`.
-- Build 053: `7a54b20` — `test: agregar cobertura de MovimientoActivo`.
-- Build 053: `eb57063` — `test: agregar cobertura de MovimientoActivoRepository`.
-- Build 053: `d14d114` — `test: registrar MovimientoActivo en persistencia JPA`.
-- Corrección de tests: `a579d4e8` — `test: corregir comparacion decimal en MovimientoActivoRepositoryTest`.
-- La documentación de continuidad se actualizó al cerrar el Build 053.
-- GitHub y Bitbucket deberán quedar sincronizados después de traer estos cambios al entorno local.
-- Las ramas auxiliares creadas durante la implementación de `Bono` fueron eliminadas de los remotos; permanece la rama de trabajo `feature/operacion-financiera` junto con `main`.
+- `589acf1` — `feat: incorporar entidad Bono`.
+- `6925447` — `feat: incorporar repositorio de Bono`.
+- `678c6ea` — `test: registrar Bono en persistencia JPA`.
+- `4be2264` — `feat: agregar tipo de movimiento de activo`.
+- `51d3860` — `feat: incorporar movimiento de activo`.
+- `381f3a6` — `feat: incorporar repositorio de movimiento de activo`.
+- `d14d114` — `test: registrar MovimientoActivo en persistencia JPA`.
+- `a579d4e` — `test: corregir comparacion decimal en MovimientoActivoRepositoryTest`.
+- `8a441ab` — `feat: asociar MovimientoActivo a OperacionFinanciera`.
+- `ab51734` — `test: ampliar OperacionFinanciera con movimientos de activo`.
+- `bbd3bbe` — `test: ampliar persistencia de OperacionFinanciera con MovimientoActivo`.
+- `dcd6f19` — `test: corregir comparacion decimal en OperacionFinancieraRepositoryTest`.
 
 ## Dominio construido
 
@@ -64,7 +84,9 @@ Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `
 
 `Bono` es la primera especialización de `Activo` y actualmente no incorpora atributos financieros adicionales.
 
-`MovimientoActivo` representa el efecto de una operación sobre la tenencia de un `Activo`, con tipo `COMPRA` o `VENTA`, cantidad y precio unitario.
+`MovimientoActivo` representa el efecto de una operación sobre la tenencia de un `Activo`, con tipo `COMPRA` o `VENTA`, cantidad y precio unitario. La cantidad se almacena como valor positivo; el tipo determina el efecto sobre la tenencia.
+
+`OperacionFinanciera` permite agrupar el movimiento monetario y el movimiento específico del activo que forman parte de una misma operación.
 
 Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuenta`, `TipoMovimiento` y `TipoMovimientoActivo`.
 
@@ -72,11 +94,13 @@ Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuent
 
 Repositorios JPA: `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository`, `CuentaRepository`, `MovimientoRepository`, `CategoriaRepository`, `OperacionFinancieraRepository`, `ActivoRepository`, `BonoRepository` y `MovimientoActivoRepository`.
 
-La persistencia de `Activo`, `Bono` y `MovimientoActivo` quedó validada mediante sus tests de repositorio.
+Las entidades nuevas están registradas explícitamente en la unidad de persistencia JPA utilizada por los tests.
 
 ## Services
 
 La capa `service` contiene `CuentaService`, `MovimientoService`, `CategoriaService`, `PerfilFinancieroService`, `UsuarioService`, `InstitucionFinancieraService`, `MonedaService` y `OperacionFinancieraService`.
+
+Los `ServiceTest` se incorporarán o ampliarán cuando exista lógica de aplicación que deba probarse; no se crean servicios vacíos únicamente para replicar los repositorios.
 
 ## Decisiones de dominio relevantes
 
@@ -84,7 +108,7 @@ Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferen
 
 Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Movimiento` puede estar asociado a una única `OperacionFinanciera`.
 
-`Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservaron para los bloques de operaciones y posiciones de inversión.
+`Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservan para los bloques de operaciones y posiciones de inversión.
 
 `Bono` se mantiene deliberadamente como una especialización mínima de `Activo`. No se incorporan todavía valor nominal, tasa, vencimiento, cupón, amortización, emisor u otros atributos financieros porque esas reglas de dominio aún no fueron definidas explícitamente.
 
@@ -92,7 +116,7 @@ Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Mo
 
 ## Próximo paso
 
-Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas, especialmente la relación entre `OperacionFinanciera`, `Movimiento`, `MovimientoActivo` y la futura posición acumulada.
+Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas, especialmente el concepto de **posición de activo** y cómo se obtiene a partir de `MovimientoActivo` sin duplicar información ni generar inconsistencias.
 
 Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
 
