@@ -13,9 +13,11 @@ La documentación de continuidad se mantiene en `docs/` dentro de la misma rama 
 
 ## Estado funcional actual
 
-**Bloque actual — Posición de activo — concepto de dominio implementado y validado.**
+**Bloque actual — Posición de activo — concepto de dominio y cálculo implementados y validados.**
 
 Se incorporó `PosicionActivo` como concepto de dominio no persistente para representar la tenencia acumulada de un activo a partir de sus `MovimientoActivo`.
+
+Se incorporó `CalculadorPosicionActivo` como componente de dominio responsable de construir una posición a partir de una colección ordenada de `MovimientoActivo`.
 
 La arquitectura actual contempla:
 
@@ -28,13 +30,18 @@ OperacionFinanciera
  └── MovimientoActivo
         └── Activo
 
+MovimientoActivo
+      ↓
+CalculadorPosicionActivo
+      ↓
 PosicionActivo
- └── acumula MovimientoActivo
 ```
 
 `PosicionActivo` no duplica información persistente: calcula y mantiene únicamente la cantidad acumulada durante el uso del objeto. La posición se obtiene sumando las compras y restando las ventas.
 
-## Última validación
+`CalculadorPosicionActivo` valida el activo y la colección de movimientos, respeta el orden recibido y delega en `PosicionActivo` la aplicación de cada movimiento. Rechaza movimientos de otro activo y secuencias que produzcan una posición negativa.
+
+## Última validación — Build 054
 
 Los tests específicos del bloque se encuentran en verde:
 
@@ -47,33 +54,36 @@ Los tests específicos del bloque se encuentran en verde:
 - `OperacionFinancieraTest`: **20/20**.
 - `OperacionFinancieraRepositoryTest`: **12/12**.
 - `PosicionActivoTest`: **8/8**.
+- `CalculadorPosicionActivoTest`: **7/7**.
 
-Suite general más reciente conocida:
+Suite general más reciente:
 
 ```text
-Tests run: 370
+Tests run: 393
 Failures: 0
 Errors: 0
 Skipped: 0
 BUILD SUCCESS
 ```
 
-- Ejecución: **26/08/2026 10:57:39 -03:00**.
-- Duración: **24:34 min**.
+- Ejecución: **26/08/2026 13:39:19 -03:00**.
+- Duración: **24:00 min**.
 
 Durante la validación de persistencia se detectó una diferencia de escala en `BigDecimal` al recuperar valores mediante JPA/H2. Se corrigieron las comparaciones de los tests para utilizar comparación numérica (`compareTo`), sin modificar código de producción.
+
+La suite general mostró además el mensaje de Surefire sobre la finalización de la JVM fork después de `System.exit(0)`, pero la ejecución terminó correctamente con `BUILD SUCCESS`. No se modifica la configuración de Surefire en esta etapa.
 
 ## Git
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - `main` permanece separado y no fue modificado.
-- `c8b0057` — `feat: incorporar concepto de PosicionActivo`.
+- `a08972f` — `fix: corregir cierre de assertThrows en test de posicion`.
+- `ae5c997` — `fix: corregir nombre de test de posicion de activo`.
+- `c491ed6` — `test: agregar cobertura de CalculadorPosicionActivo`.
+- `9985b55` — `feat: incorporar calculador de posicion de activo`.
+- `169b2be` — `docs: registrar PosicionActivo en continuidad`.
 - `796b256` — `test: agregar cobertura de PosicionActivo`.
-- `d2e2c2a` — `docs: actualizar continuidad al cierre de operaciones con activos`.
-- `dcd6f19` — `test: corregir comparacion decimal en OperacionFinancieraRepositoryTest`.
-- `bbd3bbe` — `test: ampliar persistencia de OperacionFinanciera con MovimientoActivo`.
-- `ab51734` — `test: ampliar OperacionFinanciera con movimientos de activo`.
-- `8a441ab` — `feat: asociar MovimientoActivo a OperacionFinanciera`.
+- `c8b0057` — `feat: incorporar concepto de PosicionActivo`.
 
 ## Dominio construido
 
@@ -89,13 +99,15 @@ Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `
 
 `PosicionActivo` representa la cantidad acumulada de un activo a partir de sus movimientos. Una compra incrementa la posición y una venta la disminuye. Actualmente es un concepto de dominio no persistente.
 
+`CalculadorPosicionActivo` construye una `PosicionActivo` desde una colección ordenada de `MovimientoActivo`, sin introducir persistencia ni una nueva entidad.
+
 Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuenta`, `TipoMovimiento` y `TipoMovimientoActivo`.
 
 ## Persistencia
 
 Repositorios JPA: `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository`, `CuentaRepository`, `MovimientoRepository`, `CategoriaRepository`, `OperacionFinancieraRepository`, `ActivoRepository`, `BonoRepository` y `MovimientoActivoRepository`.
 
-`PosicionActivo` no posee repositorio ni tabla propia en esta etapa, deliberadamente.
+`PosicionActivo` y `CalculadorPosicionActivo` no poseen repositorio ni tabla propia en esta etapa, deliberadamente.
 
 Las entidades nuevas están registradas explícitamente en la unidad de persistencia JPA utilizada por los tests.
 
@@ -119,11 +131,13 @@ Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Mo
 
 `PosicionActivo` no permite que la cantidad acumulada resulte negativa. Una venta superior a la tenencia se rechaza en el dominio, dejando abierta para una futura decisión explícita la incorporación de posiciones short.
 
+`CalculadorPosicionActivo` es deliberadamente un componente de dominio, no una entidad persistente ni un servicio vacío. La obtención de movimientos desde persistencia podrá coordinarse mediante un servicio de aplicación cuando exista un caso de uso que lo requiera.
+
 ## Próximo paso
 
-Definir cómo `PosicionActivo` se obtiene y utiliza a partir de las operaciones financieras existentes, sin convertirla todavía en una entidad persistente. Antes de incorporar precio promedio, valuación, cotización, comisiones u otras reglas de inversión, definirlas explícitamente en el dominio.
+Revisar el modelo actual de inversiones y definir el siguiente caso de uso que necesite la posición de un activo. Antes de incorporar precio promedio, valuación, cotización, comisiones, resultado de la inversión u otras reglas financieras, definirlas explícitamente en el dominio.
 
-Evaluar también si la posición debe construirse desde una colección de `MovimientoActivo` o mediante un servicio de dominio/aplicación que coordine los movimientos existentes.
+Evaluar la necesidad de un servicio de aplicación únicamente cuando exista un flujo que deba coordinar repositorios y dominio.
 
 Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
 
