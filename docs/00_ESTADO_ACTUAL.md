@@ -13,9 +13,9 @@ La documentación de continuidad se mantiene en `docs/` dentro de la misma rama 
 
 ## Estado funcional actual
 
-**Bloque actual — OperacionFinanciera — integridad de movimientos reforzada y validada.**
+**Bloque actual — `OperacionFinanciera`: integridad reforzada y tipificación de la operación validadas.**
 
-`OperacionFinanciera` agrupa los movimientos monetarios que representan una transferencia entre una cuenta origen y una cuenta destino. El dominio ahora refuerza además la coherencia entre cada movimiento y la cuenta correspondiente.
+`OperacionFinanciera` agrupa movimientos monetarios y puede identificarse mediante `TipoOperacionFinanciera`: `TRANSFERENCIA`, `COMPRA` o `VENTA`. El comportamiento existente de las transferencias se mantiene compatible.
 
 La arquitectura actual contempla:
 
@@ -24,6 +24,7 @@ Activo
  └── Bono
 
 OperacionFinanciera
+ ├── TipoOperacionFinanciera
  ├── Movimiento
  └── MovimientoActivo
         └── Activo
@@ -41,28 +42,26 @@ MovimientoActivoRepository
 CalculadorPosicionActivo
 ```
 
-## Última validación — Build 055
+## Última validación — Build 056
 
-El bloque de integridad de `OperacionFinanciera` quedó validado mediante tests específicos y suite general.
+La incorporación de `TipoOperacionFinanciera` quedó validada mediante tests específicos y suite general.
 
 Tests específicos:
 
-- `OperacionFinancieraTest`: **14/14**.
-- `OperacionFinancieraIntegridadTest`: **4/4**.
-- Total específico del bloque: **18/18**.
+- `OperacionFinancieraTest`: **17/17**.
 
 Suite general:
 
 ```text
-Tests run: 397
+Tests run: 400
 Failures: 0
 Errors: 0
 Skipped: 0
 BUILD SUCCESS
 ```
 
-- Ejecución: **26/08/2026 16:48:26 -03:00**.
-- Duración: **20:54 min**.
+- Ejecución: **26/08/2026 18:42:57 -03:00**.
+- Duración: **16:05 min**.
 
 Validación Git posterior al Build:
 
@@ -72,17 +71,20 @@ Validación Git posterior al Build:
 
 ## Git
 
-Los últimos commits funcionales de la rama son:
+Últimos commits funcionales del bloque:
 
+- `70e4584` — `test: cubrir tipo de operacion financiera`.
+- `3025848` — `feat: incorporar tipo a operacion financiera`.
+- `21d8ed9` — `feat: agregar tipo de operacion financiera`.
 - `e7c567b` — `test: adaptar OperacionFinancieraTest a reglas de integridad`.
 - `31277fe` — `test: reforzar integridad de movimientos de operacion financiera`.
 - `3dcadc7` — `fix: reforzar integridad de movimientos de operacion financiera`.
 - `f484241` — `feat: incorporar servicio de posicion de activo`.
-- `6967bce` — `test: ampliar cobertura de busqueda de movimientos por activo`.
-- `4ead5a5` — `feat: agregar busqueda de movimientos de activo por activo`.
-- `72f2b84` — `docs: registrar Build 054 y calculador de posicion`.
 
-El último commit de documentación generado al cerrar este Build es `03ef85a7c69dd36deba6aeabfbe251fac6833071`.
+Commits de documentación del Build 056:
+
+- `ab7ef16` — `docs: registrar Build 056 y tipo de operacion financiera`.
+- `1654452` — `docs: actualizar tests del Build 056`.
 
 ## Dominio construido
 
@@ -94,13 +96,15 @@ Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `
 
 `MovimientoActivo` representa el efecto de una operación sobre la tenencia de un `Activo`, con tipo `COMPRA` o `VENTA`, cantidad y precio unitario. La cantidad se almacena como valor positivo; el tipo determina el efecto sobre la tenencia.
 
+`TipoOperacionFinanciera` distingue actualmente `TRANSFERENCIA`, `COMPRA` y `VENTA`.
+
 `OperacionFinanciera` permite agrupar el movimiento monetario y el movimiento específico del activo que forman parte de una misma operación. Para sus movimientos monetarios se valida la correspondencia entre cuenta y rol: origen/egreso y destino/ingreso.
 
 `PosicionActivo` representa la cantidad acumulada de un activo a partir de sus movimientos. Una compra incrementa la posición y una venta la disminuye. Actualmente es un concepto de dominio no persistente.
 
 `CalculadorPosicionActivo` construye una `PosicionActivo` desde una colección ordenada de `MovimientoActivo`, sin introducir persistencia ni una nueva entidad.
 
-Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuenta`, `TipoMovimiento` y `TipoMovimientoActivo`.
+Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuenta`, `TipoMovimiento`, `TipoMovimientoActivo` y `TipoOperacionFinanciera`.
 
 ## Persistencia
 
@@ -118,11 +122,13 @@ Los services coordinan repositorios y reglas de dominio cuando existe un caso de
 
 ## Decisiones de dominio relevantes
 
-Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferencia genera un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados mediante una `OperacionFinanciera`.
+Las transferencias no se modelan como un tercer `TipoMovimiento`. Una transferencia genera un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados mediante una `OperacionFinanciera` de tipo `TRANSFERENCIA`.
 
 Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Movimiento` puede estar asociado a una única `OperacionFinanciera`.
 
 Además, el dominio exige que el primer movimiento corresponda a la cuenta origen y sea un `EGRESO`, y que el segundo corresponda a la cuenta destino y sea un `INGRESO`.
+
+`TipoOperacionFinanciera` permite preparar el dominio para operaciones de inversión sin implementar todavía las reglas específicas de compra y venta.
 
 `Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservan para los bloques de operaciones y posiciones de inversión.
 
@@ -136,7 +142,9 @@ Además, el dominio exige que el primer movimiento corresponda a la cuenta orige
 
 ## Próximo paso
 
-Revisar el modelo actual de `OperacionFinanciera` y del bloque de inversiones para identificar el siguiente caso de uso necesario. Antes de incorporar precio promedio, valuación, cotización, comisiones, resultado de la inversión u otras reglas financieras, definirlas explícitamente en el dominio.
+Implementar progresivamente el caso de uso de **compra de activo**, comenzando por las reglas de dominio y sus tests. La compra deberá mantener sincronizados el movimiento monetario y el movimiento de activo y, cuando corresponda, validar que el importe sea `cantidad × precioUnitario`.
+
+La venta y su validación contra la posición disponible se abordarán posteriormente. Las comisiones y gastos se dejan para una etapa posterior, una vez estabilizado el núcleo de compra/venta.
 
 No realizar todavía merge a `main`. La rama `feature/operacion-financiera` continúa siendo la fuente de continuidad hasta alcanzar un estado funcional estable y validado.
 
