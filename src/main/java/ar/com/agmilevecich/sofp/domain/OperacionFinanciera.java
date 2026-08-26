@@ -116,6 +116,8 @@ public class OperacionFinanciera extends EntidadAuditable {
             );
         }
 
+        validarMovimiento(movimiento);
+
         movimiento.asociarOperacionFinanciera(
                 this
         );
@@ -142,6 +144,38 @@ public class OperacionFinanciera extends EntidadAuditable {
         );
 
         movimientosActivos.add(movimientoActivo);
+    }
+
+    private void validarMovimiento(
+            Movimiento movimiento) {
+
+        if (movimientos.isEmpty()) {
+            if (!cuentaOrigen.equals(movimiento.getCuenta())) {
+                throw new IllegalArgumentException(
+                        "El primer movimiento debe pertenecer a la cuenta de origen"
+                );
+            }
+
+            if (movimiento.getTipoMovimiento() != TipoMovimiento.EGRESO) {
+                throw new IllegalArgumentException(
+                        "El primer movimiento debe ser un egreso"
+                );
+            }
+
+            return;
+        }
+
+        if (!cuentaDestino.equals(movimiento.getCuenta())) {
+            throw new IllegalArgumentException(
+                    "El segundo movimiento debe pertenecer a la cuenta de destino"
+            );
+        }
+
+        if (movimiento.getTipoMovimiento() != TipoMovimiento.INGRESO) {
+            throw new IllegalArgumentException(
+                    "El segundo movimiento debe ser un ingreso"
+            );
+        }
     }
 
 }
