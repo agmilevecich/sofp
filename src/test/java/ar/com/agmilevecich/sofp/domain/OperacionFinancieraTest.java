@@ -126,6 +126,52 @@ class OperacionFinancieraTest {
     }
 
     @Test
+    void deberiaCrearCompraSinCuentaDestino() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinancieraSinCuentaDestino(
+                        TipoOperacionFinanciera.COMPRA
+                );
+
+        assertEquals(
+                TipoOperacionFinanciera.COMPRA,
+                operacion.getTipoOperacion()
+        );
+
+        assertTrue(
+                operacion.getCuentaOrigen() != null
+        );
+
+        assertEquals(
+                null,
+                operacion.getCuentaDestino()
+        );
+    }
+
+    @Test
+    void deberiaCrearVentaSinCuentaOrigen() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinancieraSinCuentaOrigen(
+                        TipoOperacionFinanciera.VENTA
+                );
+
+        assertEquals(
+                TipoOperacionFinanciera.VENTA,
+                operacion.getTipoOperacion()
+        );
+
+        assertEquals(
+                null,
+                operacion.getCuentaOrigen()
+        );
+
+        assertTrue(
+                operacion.getCuentaDestino() != null
+        );
+    }
+
+    @Test
     void deberiaCrearOperacionSinMovimientosInicialmente() {
 
         OperacionFinanciera operacion =
@@ -497,6 +543,72 @@ class OperacionFinancieraTest {
                 cuentaDestino,
                 new BigDecimal("100000.00"),
                 tipoOperacion
+        );
+    }
+
+    private OperacionFinanciera crearOperacionFinancieraSinCuentaDestino(
+            TipoOperacionFinanciera tipoOperacion) {
+
+        Cuenta cuentaOrigen = crearCuenta("Caja de Ahorro");
+
+        return new OperacionFinanciera(
+                cuentaOrigen,
+                null,
+                new BigDecimal("100000.00"),
+                tipoOperacion
+        );
+    }
+
+    private OperacionFinanciera crearOperacionFinancieraSinCuentaOrigen(
+            TipoOperacionFinanciera tipoOperacion) {
+
+        Cuenta cuentaDestino = crearCuenta("Cuenta Corriente");
+
+        return new OperacionFinanciera(
+                null,
+                cuentaDestino,
+                new BigDecimal("100000.00"),
+                tipoOperacion
+        );
+    }
+
+    private Cuenta crearCuenta(String nombre) {
+
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.operacion.cuenta."
+                        + System.nanoTime()
+                        + "@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Personal",
+                        usuario
+                );
+
+        InstitucionFinanciera banco =
+                new InstitucionFinanciera(
+                        "Banco Santander",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso Argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        return new Cuenta(
+                nombre,
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                banco,
+                moneda
         );
     }
 
