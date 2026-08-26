@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CalculadorPosicionActivoTest {
 
     @Test
-    void deberiaCalcularPosicionA partirDeMovimientos() {
+    void deberiaCalcularPosicionAPartirDeMovimientos() {
         Activo activo = crearActivo("Bono GD30");
 
         PosicionActivo posicion = CalculadorPosicionActivo.calcular(
@@ -101,7 +101,6 @@ class CalculadorPosicionActivoTest {
                                 crearMovimiento(activo, TipoMovimientoActivo.VENTA, "50", "130"),
                                 crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "100", "125")
                         )
-                )
         );
     }
 
