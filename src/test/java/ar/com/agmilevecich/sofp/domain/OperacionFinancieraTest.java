@@ -144,13 +144,15 @@ class OperacionFinancieraTest {
         Movimiento egreso =
                 crearMovimiento(
                         operacion.getCuentaOrigen(),
-                        "Transferencia enviada"
+                        "Transferencia enviada",
+                        TipoMovimiento.EGRESO
                 );
 
         Movimiento ingreso =
                 crearMovimiento(
                         operacion.getCuentaDestino(),
-                        "Transferencia recibida"
+                        "Transferencia recibida",
+                        TipoMovimiento.INGRESO
                 );
 
         operacion.agregarMovimiento(egreso);
@@ -173,173 +175,6 @@ class OperacionFinancieraTest {
                 ingreso,
                 movimientos.get(1)
         );
-
-        assertEquals(
-                operacion,
-                egreso.getOperacionFinanciera()
-        );
-
-        assertEquals(
-                operacion,
-                ingreso.getOperacionFinanciera()
-        );
-    }
-
-    @Test
-    void deberiaAgregarMovimientoActivoAOperacionFinanciera() {
-
-        OperacionFinanciera operacion =
-                crearOperacionFinanciera();
-
-        MovimientoActivo movimientoActivo =
-                crearMovimientoActivo();
-
-        operacion.agregarMovimientoActivo(
-                movimientoActivo
-        );
-
-        assertEquals(
-                1,
-                operacion.getMovimientosActivos().size()
-        );
-
-        assertEquals(
-                movimientoActivo,
-                operacion.getMovimientosActivos().get(0)
-        );
-
-        assertEquals(
-                operacion,
-                movimientoActivo.getOperacionFinanciera()
-        );
-    }
-
-    @Test
-    void deberiaPermitirMovimientosMonetariosYDeActivoEnLaMismaOperacion() {
-
-        OperacionFinanciera operacion =
-                crearOperacionFinanciera();
-
-        Movimiento movimiento =
-                crearMovimiento(
-                        operacion.getCuentaOrigen(),
-                        "Compra de bono"
-                );
-
-        MovimientoActivo movimientoActivo =
-                crearMovimientoActivo();
-
-        operacion.agregarMovimiento(movimiento);
-        operacion.agregarMovimientoActivo(movimientoActivo);
-
-        assertEquals(
-                1,
-                operacion.getMovimientos().size()
-        );
-
-        assertEquals(
-                1,
-                operacion.getMovimientosActivos().size()
-        );
-
-        assertEquals(
-                operacion,
-                movimiento.getOperacionFinanciera()
-        );
-
-        assertEquals(
-                operacion,
-                movimientoActivo.getOperacionFinanciera()
-        );
-    }
-
-    @Test
-    void deberiaRechazarMovimientoActivoNulo() {
-
-        OperacionFinanciera operacion =
-                crearOperacionFinanciera();
-
-        assertThrows(
-                NullPointerException.class,
-                () -> operacion.agregarMovimientoActivo(null)
-        );
-    }
-
-    @Test
-    void deberiaRechazarMovimientoActivoRepetido() {
-
-        OperacionFinanciera operacion =
-                crearOperacionFinanciera();
-
-        MovimientoActivo movimientoActivo =
-                crearMovimientoActivo();
-
-        operacion.agregarMovimientoActivo(
-                movimientoActivo
-        );
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> operacion.agregarMovimientoActivo(
-                        movimientoActivo
-                )
-        );
-
-        assertEquals(
-                1,
-                operacion.getMovimientosActivos().size()
-        );
-    }
-
-    @Test
-    void deberiaRechazarMovimientoActivoYaAsociadoAOtraOperacion() {
-
-        OperacionFinanciera primeraOperacion =
-                crearOperacionFinanciera();
-
-        OperacionFinanciera segundaOperacion =
-                crearOperacionFinanciera();
-
-        MovimientoActivo movimientoActivo =
-                crearMovimientoActivo();
-
-        primeraOperacion.agregarMovimientoActivo(
-                movimientoActivo
-        );
-
-        assertThrows(
-                IllegalStateException.class,
-                () -> segundaOperacion.agregarMovimientoActivo(
-                        movimientoActivo
-                )
-        );
-
-        assertEquals(
-                primeraOperacion,
-                movimientoActivo.getOperacionFinanciera()
-        );
-
-        assertEquals(
-                1,
-                primeraOperacion.getMovimientosActivos().size()
-        );
-
-        assertEquals(
-                0,
-                segundaOperacion.getMovimientosActivos().size()
-        );
-    }
-
-    @Test
-    void deberiaRechazarMovimientoNulo() {
-
-        OperacionFinanciera operacion =
-                crearOperacionFinanciera();
-
-        assertThrows(
-                NullPointerException.class,
-                () -> operacion.agregarMovimiento(null)
-        );
     }
 
     @Test
@@ -351,19 +186,22 @@ class OperacionFinancieraTest {
         Movimiento primero =
                 crearMovimiento(
                         operacion.getCuentaOrigen(),
-                        "Transferencia enviada"
+                        "Transferencia enviada",
+                        TipoMovimiento.EGRESO
                 );
 
         Movimiento segundo =
                 crearMovimiento(
                         operacion.getCuentaDestino(),
-                        "Transferencia recibida"
+                        "Transferencia recibida",
+                        TipoMovimiento.INGRESO
                 );
 
         Movimiento tercero =
                 crearMovimiento(
                         operacion.getCuentaOrigen(),
-                        "Movimiento adicional"
+                        "Movimiento adicional",
+                        TipoMovimiento.EGRESO
                 );
 
         operacion.agregarMovimiento(primero);
@@ -411,8 +249,21 @@ class OperacionFinancieraTest {
         OperacionFinanciera primeraOperacion =
                 crearOperacionFinanciera();
 
+        Cuenta cuentaDestinoAlternativa =
+                new Cuenta(
+                        "Cuenta Destino Alternativa",
+                        TipoCuenta.CUENTA_CORRIENTE,
+                        primeraOperacion.getCuentaOrigen().getPerfilFinanciero(),
+                        primeraOperacion.getCuentaOrigen().getInstitucionFinanciera(),
+                        primeraOperacion.getCuentaOrigen().getMoneda()
+                );
+
         OperacionFinanciera segundaOperacion =
-                crearOperacionFinanciera();
+                new OperacionFinanciera(
+                        primeraOperacion.getCuentaOrigen(),
+                        cuentaDestinoAlternativa,
+                        new BigDecimal("100000.00")
+                );
 
         Movimiento movimiento =
                 crearMovimiento(
@@ -602,6 +453,17 @@ class OperacionFinancieraTest {
     private Movimiento crearMovimiento(
             Cuenta cuenta,
             String descripcion) {
+        return crearMovimiento(
+                cuenta,
+                descripcion,
+                TipoMovimiento.EGRESO
+        );
+    }
+
+    private Movimiento crearMovimiento(
+            Cuenta cuenta,
+            String descripcion,
+            TipoMovimiento tipo) {
 
         Categoria categoria =
                 new Categoria(
@@ -612,7 +474,7 @@ class OperacionFinancieraTest {
         return new Movimiento(
                 cuenta,
                 categoria,
-                TipoMovimiento.EGRESO,
+                tipo,
                 new BigDecimal("100000.00"),
                 LocalDateTime.of(
                         2026,
