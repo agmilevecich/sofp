@@ -193,4 +193,96 @@ class MovimientoActivoRepositoryTest {
                 new BigDecimal(precio)
         );
     }
+
+    @Test
+    void deberiaListarMovimientosPorActivo() {
+
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Bono bono = crearBono();
+            Bono otroBono = new Bono("Bono AL30", bono.getMoneda());
+
+            MovimientoActivo primero =
+                    crearMovimiento(bono, TipoMovimientoActivo.COMPRA, "100", "105.50");
+
+            MovimientoActivo segundo =
+                    crearMovimiento(bono, TipoMovimientoActivo.VENTA, "30", "110.25");
+
+            MovimientoActivo deOtroActivo =
+                    crearMovimiento(otroBono, TipoMovimientoActivo.COMPRA, "50", "120");
+
+            MovimientoActivoRepository repository =
+                    new MovimientoActivoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(bono.getMoneda());
+            em.persist(bono);
+            em.persist(otroBono);
+
+            repository.guardar(primero);
+            repository.guardar(segundo);
+            repository.guardar(deOtroActivo);
+
+            em.getTransaction().commit();
+
+            List<MovimientoActivo> movimientos =
+                    repository.listarPorActivo(bono.getId());
+
+            assertEquals(2, movimientos.size());
+            assertEquals(primero.getId(), movimientos.get(0).getId());
+            assertEquals(segundo.getId(), movimientos.get(1).getId());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRetornarListaVaciaCuandoActivoNoTieneMovimientos() {
+
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Bono bono = crearBono();
+            MovimientoActivoRepository repository =
+                    new MovimientoActivoRepository(em);
+
+            em.getTransaction().begin();
+            em.persist(bono.getMoneda());
+            em.persist(bono);
+            em.getTransaction().commit();
+
+            List<MovimientoActivo> movimientos =
+                    repository.listarPorActivo(bono.getId());
+
+            assertTrue(movimientos.isEmpty());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarIdActivoNuloAlListarPorActivo() {
+
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            MovimientoActivoRepository repository =
+                    new MovimientoActivoRepository(em);
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> repository.listarPorActivo(null)
+            );
+
+        } finally {
+            em.close();
+        }
+    }
 }
