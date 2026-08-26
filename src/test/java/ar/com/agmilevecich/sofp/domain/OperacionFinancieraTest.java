@@ -81,6 +81,48 @@ class OperacionFinancieraTest {
                 new BigDecimal("100000.00"),
                 operacion.getImporte()
         );
+
+        assertEquals(
+                TipoOperacionFinanciera.TRANSFERENCIA,
+                operacion.getTipoOperacion()
+        );
+    }
+
+    @Test
+    void deberiaCrearOperacionConTipoEspecificado() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinanciera(
+                        TipoOperacionFinanciera.COMPRA
+                );
+
+        assertEquals(
+                TipoOperacionFinanciera.COMPRA,
+                operacion.getTipoOperacion()
+        );
+    }
+
+    @Test
+    void deberiaCrearOperacionDeVentaConTipoEspecificado() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinanciera(
+                        TipoOperacionFinanciera.VENTA
+                );
+
+        assertEquals(
+                TipoOperacionFinanciera.VENTA,
+                operacion.getTipoOperacion()
+        );
+    }
+
+    @Test
+    void deberiaRechazarTipoOperacionNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> crearOperacionFinanciera(null)
+        );
     }
 
     @Test
@@ -395,6 +437,13 @@ class OperacionFinancieraTest {
     }
 
     private OperacionFinanciera crearOperacionFinanciera() {
+        return crearOperacionFinanciera(
+                TipoOperacionFinanciera.TRANSFERENCIA
+        );
+    }
+
+    private OperacionFinanciera crearOperacionFinanciera(
+            TipoOperacionFinanciera tipoOperacion) {
 
         Usuario usuario = new Usuario(
                 "Ariel",
@@ -446,7 +495,8 @@ class OperacionFinancieraTest {
         return new OperacionFinanciera(
                 cuentaOrigen,
                 cuentaDestino,
-                new BigDecimal("100000.00")
+                new BigDecimal("100000.00"),
+                tipoOperacion
         );
     }
 
