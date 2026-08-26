@@ -13,11 +13,9 @@ La documentación de continuidad se mantiene en `docs/` dentro de la misma rama 
 
 ## Estado funcional actual
 
-**Bloque actual — Operaciones financieras con movimientos de activos — implementado y validado.**
+**Bloque actual — Posición de activo — concepto de dominio implementado y validado.**
 
-Se incorporó `MovimientoActivo` para representar el efecto de una operación sobre la tenencia de un activo, separado del efecto monetario representado por `Movimiento`.
-
-`OperacionFinanciera` puede asociar movimientos monetarios y movimientos de activos. De esta forma, una operación de inversión puede conservar en una misma operación el efecto sobre el dinero y el efecto sobre la tenencia del activo.
+Se incorporó `PosicionActivo` como concepto de dominio no persistente para representar la tenencia acumulada de un activo a partir de sus `MovimientoActivo`.
 
 La arquitectura actual contempla:
 
@@ -29,7 +27,12 @@ OperacionFinanciera
  ├── Movimiento
  └── MovimientoActivo
         └── Activo
+
+PosicionActivo
+ └── acumula MovimientoActivo
 ```
+
+`PosicionActivo` no duplica información persistente: calcula y mantiene únicamente la cantidad acumulada durante el uso del objeto. La posición se obtiene sumando las compras y restando las ventas.
 
 ## Última validación
 
@@ -43,8 +46,9 @@ Los tests específicos del bloque se encuentran en verde:
 - `MovimientoActivoRepositoryTest`: **6/6**.
 - `OperacionFinancieraTest`: **20/20**.
 - `OperacionFinancieraRepositoryTest`: **12/12**.
+- `PosicionActivoTest`: **8/8**.
 
-Suite general más reciente:
+Suite general más reciente conocida:
 
 ```text
 Tests run: 370
@@ -63,18 +67,13 @@ Durante la validación de persistencia se detectó una diferencia de escala en `
 
 - Rama única de trabajo y continuidad: `feature/operacion-financiera`.
 - `main` permanece separado y no fue modificado.
-- `589acf1` — `feat: incorporar entidad Bono`.
-- `6925447` — `feat: incorporar repositorio de Bono`.
-- `678c6ea` — `test: registrar Bono en persistencia JPA`.
-- `4be2264` — `feat: agregar tipo de movimiento de activo`.
-- `51d3860` — `feat: incorporar movimiento de activo`.
-- `381f3a6` — `feat: incorporar repositorio de movimiento de activo`.
-- `d14d114` — `test: registrar MovimientoActivo en persistencia JPA`.
-- `a579d4e` — `test: corregir comparacion decimal en MovimientoActivoRepositoryTest`.
-- `8a441ab` — `feat: asociar MovimientoActivo a OperacionFinanciera`.
-- `ab51734` — `test: ampliar OperacionFinanciera con movimientos de activo`.
-- `bbd3bbe` — `test: ampliar persistencia de OperacionFinanciera con MovimientoActivo`.
+- `c8b0057` — `feat: incorporar concepto de PosicionActivo`.
+- `796b256` — `test: agregar cobertura de PosicionActivo`.
+- `d2e2c2a` — `docs: actualizar continuidad al cierre de operaciones con activos`.
 - `dcd6f19` — `test: corregir comparacion decimal en OperacionFinancieraRepositoryTest`.
+- `bbd3bbe` — `test: ampliar persistencia de OperacionFinanciera con MovimientoActivo`.
+- `ab51734` — `test: ampliar OperacionFinanciera con movimientos de activo`.
+- `8a441ab` — `feat: asociar MovimientoActivo a OperacionFinanciera`.
 
 ## Dominio construido
 
@@ -88,11 +87,15 @@ Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `
 
 `OperacionFinanciera` permite agrupar el movimiento monetario y el movimiento específico del activo que forman parte de una misma operación.
 
+`PosicionActivo` representa la cantidad acumulada de un activo a partir de sus movimientos. Una compra incrementa la posición y una venta la disminuye. Actualmente es un concepto de dominio no persistente.
+
 Enumeraciones principales: `TipoInstitucionFinanciera`, `TipoMoneda`, `TipoCuenta`, `TipoMovimiento` y `TipoMovimientoActivo`.
 
 ## Persistencia
 
 Repositorios JPA: `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository`, `CuentaRepository`, `MovimientoRepository`, `CategoriaRepository`, `OperacionFinancieraRepository`, `ActivoRepository`, `BonoRepository` y `MovimientoActivoRepository`.
+
+`PosicionActivo` no posee repositorio ni tabla propia en esta etapa, deliberadamente.
 
 Las entidades nuevas están registradas explícitamente en la unidad de persistencia JPA utilizada por los tests.
 
@@ -112,11 +115,15 @@ Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Mo
 
 `Bono` se mantiene deliberadamente como una especialización mínima de `Activo`. No se incorporan todavía valor nominal, tasa, vencimiento, cupón, amortización, emisor u otros atributos financieros porque esas reglas de dominio aún no fueron definidas explícitamente.
 
-`MovimientoActivo` almacena una cantidad positiva y utiliza `COMPRA` o `VENTA` para determinar el signo de la variación de tenencia. La posición acumulada no se almacena todavía como entidad independiente.
+`MovimientoActivo` almacena una cantidad positiva y utiliza `COMPRA` o `VENTA` para determinar el signo de la variación de tenencia.
+
+`PosicionActivo` no permite que la cantidad acumulada resulte negativa. Una venta superior a la tenencia se rechaza en el dominio, dejando abierta para una futura decisión explícita la incorporación de posiciones short.
 
 ## Próximo paso
 
-Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas, especialmente el concepto de **posición de activo** y cómo se obtiene a partir de `MovimientoActivo` sin duplicar información ni generar inconsistencias.
+Definir cómo `PosicionActivo` se obtiene y utiliza a partir de las operaciones financieras existentes, sin convertirla todavía en una entidad persistente. Antes de incorporar precio promedio, valuación, cotización, comisiones u otras reglas de inversión, definirlas explícitamente en el dominio.
+
+Evaluar también si la posición debe construirse desde una colección de `MovimientoActivo` o mediante un servicio de dominio/aplicación que coordine los movimientos existentes.
 
 Antes de implementar un nuevo componente, revisar el dominio, repositorios, servicios y tests relacionados y mantener el cambio mínimo necesario.
 
