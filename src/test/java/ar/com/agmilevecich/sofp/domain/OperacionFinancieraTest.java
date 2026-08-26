@@ -95,6 +95,17 @@ class OperacionFinancieraTest {
     }
 
     @Test
+    void deberiaCrearOperacionSinMovimientosDeActivoInicialmente() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinanciera();
+
+        assertTrue(
+                operacion.getMovimientosActivos().isEmpty()
+        );
+    }
+
+    @Test
     void deberiaAgregarMovimientoAOperacionFinanciera() {
 
         OperacionFinanciera operacion =
@@ -171,6 +182,151 @@ class OperacionFinancieraTest {
         assertEquals(
                 operacion,
                 ingreso.getOperacionFinanciera()
+        );
+    }
+
+    @Test
+    void deberiaAgregarMovimientoActivoAOperacionFinanciera() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinanciera();
+
+        MovimientoActivo movimientoActivo =
+                crearMovimientoActivo();
+
+        operacion.agregarMovimientoActivo(
+                movimientoActivo
+        );
+
+        assertEquals(
+                1,
+                operacion.getMovimientosActivos().size()
+        );
+
+        assertEquals(
+                movimientoActivo,
+                operacion.getMovimientosActivos().get(0)
+        );
+
+        assertEquals(
+                operacion,
+                movimientoActivo.getOperacionFinanciera()
+        );
+    }
+
+    @Test
+    void deberiaPermitirMovimientosMonetariosYDeActivoEnLaMismaOperacion() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinanciera();
+
+        Movimiento movimiento =
+                crearMovimiento(
+                        operacion.getCuentaOrigen(),
+                        "Compra de bono"
+                );
+
+        MovimientoActivo movimientoActivo =
+                crearMovimientoActivo();
+
+        operacion.agregarMovimiento(movimiento);
+        operacion.agregarMovimientoActivo(movimientoActivo);
+
+        assertEquals(
+                1,
+                operacion.getMovimientos().size()
+        );
+
+        assertEquals(
+                1,
+                operacion.getMovimientosActivos().size()
+        );
+
+        assertEquals(
+                operacion,
+                movimiento.getOperacionFinanciera()
+        );
+
+        assertEquals(
+                operacion,
+                movimientoActivo.getOperacionFinanciera()
+        );
+    }
+
+    @Test
+    void deberiaRechazarMovimientoActivoNulo() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinanciera();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacion.agregarMovimientoActivo(null)
+        );
+    }
+
+    @Test
+    void deberiaRechazarMovimientoActivoRepetido() {
+
+        OperacionFinanciera operacion =
+                crearOperacionFinanciera();
+
+        MovimientoActivo movimientoActivo =
+                crearMovimientoActivo();
+
+        operacion.agregarMovimientoActivo(
+                movimientoActivo
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacion.agregarMovimientoActivo(
+                        movimientoActivo
+                )
+        );
+
+        assertEquals(
+                1,
+                operacion.getMovimientosActivos().size()
+        );
+    }
+
+    @Test
+    void deberiaRechazarMovimientoActivoYaAsociadoAOtraOperacion() {
+
+        OperacionFinanciera primeraOperacion =
+                crearOperacionFinanciera();
+
+        OperacionFinanciera segundaOperacion =
+                crearOperacionFinanciera();
+
+        MovimientoActivo movimientoActivo =
+                crearMovimientoActivo();
+
+        primeraOperacion.agregarMovimientoActivo(
+                movimientoActivo
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> segundaOperacion.agregarMovimientoActivo(
+                        movimientoActivo
+                )
+        );
+
+        assertEquals(
+                primeraOperacion,
+                movimientoActivo.getOperacionFinanciera()
+        );
+
+        assertEquals(
+                1,
+                primeraOperacion.getMovimientosActivos().size()
+        );
+
+        assertEquals(
+                0,
+                segundaOperacion.getMovimientosActivos().size()
         );
     }
 
@@ -466,6 +622,30 @@ class OperacionFinancieraTest {
                         0
                 ),
                 descripcion
+        );
+    }
+
+    private MovimientoActivo crearMovimientoActivo() {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso Argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        Activo activo =
+                new Activo(
+                        "Bono GD30",
+                        moneda
+                );
+
+        return new MovimientoActivo(
+                activo,
+                TipoMovimientoActivo.COMPRA,
+                new BigDecimal("100"),
+                new BigDecimal("1000.00")
         );
     }
 }
