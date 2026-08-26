@@ -59,4 +59,23 @@ public class MovimientoActivoRepository {
                 MovimientoActivo.class
         ).getResultList();
     }
+
+    public List<MovimientoActivo> listarPorActivo(Long activoId) {
+
+        Objects.requireNonNull(
+                activoId,
+                "El id del activo es obligatorio"
+        );
+
+        return entityManager.createQuery(
+                """
+                SELECT m
+                FROM MovimientoActivo m
+                WHERE m.activo.id = :activoId
+                ORDER BY m.id
+                """,
+                MovimientoActivo.class
+        ).setParameter("activoId", activoId)
+         .getResultList();
+    }
 }
