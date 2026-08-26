@@ -101,7 +101,7 @@ class CalculadorPosicionActivoTest {
                                 crearMovimiento(activo, TipoMovimientoActivo.VENTA, "50", "130"),
                                 crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "100", "125")
                         )
-        );
+        ));
     }
 
     private Activo crearActivo(String nombre) {
