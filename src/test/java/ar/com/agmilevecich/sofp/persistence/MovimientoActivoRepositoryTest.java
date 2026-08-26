@@ -42,8 +42,8 @@ class MovimientoActivoRepositoryTest {
             assertTrue(resultado.isPresent());
             assertEquals(id, resultado.get().getId());
             assertEquals(TipoMovimientoActivo.COMPRA, resultado.get().getTipoMovimiento());
-            assertEquals(new BigDecimal("100"), resultado.get().getCantidad());
-            assertEquals(new BigDecimal("105.50"), resultado.get().getPrecioUnitario());
+            assertEquals(0, new BigDecimal("100").compareTo(resultado.get().getCantidad()));
+            assertEquals(0, new BigDecimal("105.50").compareTo(resultado.get().getPrecioUnitario()));
             assertEquals(bono.getId(), resultado.get().getActivo().getId());
         } finally {
             em.close();
@@ -127,8 +127,8 @@ class MovimientoActivoRepositoryTest {
 
             MovimientoActivo actualizado = repository.buscarPorId(id).orElseThrow();
 
-            assertEquals(new BigDecimal("125"), actualizado.getCantidad());
-            assertEquals(new BigDecimal("107.75"), actualizado.getPrecioUnitario());
+            assertEquals(0, new BigDecimal("125").compareTo(actualizado.getCantidad()));
+            assertEquals(0, new BigDecimal("107.75").compareTo(actualizado.getPrecioUnitario()));
         } finally {
             em.close();
         }
