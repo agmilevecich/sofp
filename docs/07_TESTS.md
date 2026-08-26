@@ -4,6 +4,36 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 053 — Incorporación de MovimientoActivo — Cerrado
+
+Se incorporó el modelo de movimientos específicos de activos para representar el efecto de una operación sobre la tenencia de un activo, separado del efecto monetario representado por `Movimiento`.
+
+- `MovimientoActivoTest`: **11/11 tests en verde**.
+- `MovimientoActivoRepositoryTest`: **6/6 tests en verde**.
+- Total de tests nuevos del bloque: **17**.
+- La persistencia JPA de `MovimientoActivo` quedó validada después de registrarlo explícitamente en la configuración de persistencia utilizada por los tests.
+- Se corrigieron las comparaciones de valores `BigDecimal` en los tests de persistencia para no depender de la escala decimal devuelta por JPA/H2.
+
+Suite general:
+
+- Tests run: **370**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **26/08/2026 10:57:39 -03:00**
+- Duración: **24:34 min**
+
+Commits principales del bloque:
+
+- `4be2264` — `feat: agregar tipo de movimiento de activo`
+- `51d3860` — `feat: incorporar movimiento de activo`
+- `381f3a6` — `feat: incorporar repositorio de movimiento de activo`
+- `7a54b20` — `test: agregar cobertura de MovimientoActivo`
+- `eb57063` — `test: agregar cobertura de MovimientoActivoRepository`
+- `d14d114` — `test: registrar MovimientoActivo en persistencia JPA`
+- `a579d4e8` — `test: corregir comparacion decimal en MovimientoActivoRepositoryTest`
+
 ### Build 052 — Incorporación de Bono como especialización de Activo — Cerrado
 
 Se incorporaron las pruebas de la nueva especialización `Bono` y de su repositorio JPA.
@@ -55,70 +85,9 @@ Commits del bloque:
 - `1624f8c` — `feat: incorporar repositorio de Activo`
 - `70bdbf7` — `test: agregar cobertura de ActivoRepository`
 
-### Build 050 — Ampliación de cobertura de OperacionFinancieraService — Cerrado
-
-Se agregaron dos pruebas específicas a `OperacionFinancieraServiceTest`:
-
-- asociación de ambos movimientos generados a la misma `OperacionFinanciera`;
-- rechazo de la misma cuenta como origen y destino, verificando además que no se persistan movimientos.
-
-`OperacionFinancieraServiceTest`: **22/22 tests en verde**.
-
-Suite general: **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-
-La suite completa fue confirmada desde IntelliJ el **25/08/2026 10:47:02 -03:00**, con una duración de **12:04 min**.
-
-Commit:
-
-- `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`
-
-### Validación individual posterior al Build 050
-
-Se ejecutó individualmente `OperacionFinancieraRepositoryTest` desde IntelliJ.
-
-- `OperacionFinancieraRepositoryTest`: **10/10 tests en verde**.
-- No se modificó código de producción.
-- La prueba confirma la cobertura existente de persistencia del repositorio.
-
-### Build 049 — Asociación de Movimiento con OperacionFinanciera — Cerrado
-
-Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera` y se completaron las pruebas de asociación y consistencia de la relación.
-
-`OperacionFinancieraTest`: **14/14 tests en verde**.
-
-La suite completa quedó en **326/326 tests en verde**.
-
-### Build 048 — Implementación de OperacionFinancieraRepository — Cerrado
-
-`OperacionFinancieraRepositoryTest`: **10/10 tests en verde**.
-
-`OperacionFinancieraServiceTest`: **20/20 tests en verde**.
-
-`OperacionFinancieraTest`: **7/7 tests en verde**.
-
-Suite completa: **319/319 tests en verde**.
-
-### Build 047 — Completar cobertura de OperacionFinancieraService — Cerrado
-
-Se completaron las validaciones de cuentas inactivas, categorías de otro perfil, monedas diferentes, fecha/hora nula, descripción nula y ausencia de persistencia ante operaciones rechazadas.
-
-Suite general: **309/309 tests en verde**.
-
-### Build 046 — Implementación de OperacionFinancieraService — Cerrado
-
-Se incorporó `OperacionFinancieraService` y se amplió su cobertura hasta **20 tests en verde**.
-
-Suite general: **300/300 tests en verde**.
-
-### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
-
-`OperacionFinancieraTest`: **7/7 tests en verde**.
-
-Suite general: **289/289 tests en verde**.
-
 ### Builds anteriores
 
-Los Builds 001–044 y sus resultados permanecen registrados en el historial del proyecto.
+Los Builds 001–050 y sus resultados permanecen registrados en el historial del proyecto.
 
 ## Conteo actual por test de service
 
@@ -139,16 +108,18 @@ Tests de dominio destacados:
 - `OperacionFinancieraTest`: **14**
 - `ActivoTest`: **8**
 - `BonoTest`: **5**
+- `MovimientoActivoTest`: **11**
 
 Tests de persistencia destacados:
 
 - `OperacionFinancieraRepositoryTest`: **10**
 - `ActivoRepositoryTest`: **6**
 - `BonoRepositoryTest`: **6**
+- `MovimientoActivoRepositoryTest`: **6**
 
-Suite general actual: **353/353 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+Suite general actual: **370/370 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución general confirmada se realizó el **25/08/2026 a las 20:14:39 -03:00** y finalizó correctamente, con una duración de **16:07 min**.
+La última ejecución general confirmada se realizó el **26/08/2026 a las 10:57:39 -03:00** y finalizó correctamente, con una duración de **24:34 min**.
 
 ## Regla de cierre
 
