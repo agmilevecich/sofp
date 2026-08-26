@@ -1,5 +1,55 @@
 # SOFP — Historial de Builds
 
+## Build 055 — Refuerzo de integridad de OperacionFinanciera
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se reforzó la integridad del dominio de `OperacionFinanciera` para impedir asociaciones incoherentes de movimientos monetarios.
+
+Se incorporó:
+
+- Validación de que el primer movimiento pertenezca a `cuentaOrigen`.
+- Validación de que el primer movimiento sea un `EGRESO`.
+- Validación de que el segundo movimiento pertenezca a `cuentaDestino`.
+- Validación de que el segundo movimiento sea un `INGRESO`.
+- Conservación de las reglas existentes de máximo dos movimientos, no duplicación y asociación exclusiva.
+- Nuevos tests específicos mediante `OperacionFinancieraIntegridadTest`.
+- Adaptación de `OperacionFinancieraTest` a las nuevas reglas de integridad.
+
+Pruebas específicas:
+
+- `OperacionFinancieraTest` + `OperacionFinancieraIntegridadTest`: **18/18 tests en verde**.
+
+Suite general:
+
+- Tests run: **397**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **26/08/2026 16:48:26 -03:00**
+- Duración: **20:54 min**
+
+Commits principales:
+
+- `3dcadc7` — `fix: reforzar integridad de movimientos de operacion financiera`
+- `31277fe` — `test: reforzar integridad de movimientos de operacion financiera`
+- `e7c567b` — `test: adaptar OperacionFinancieraTest a reglas de integridad`
+
+Validación Git posterior al Build:
+
+- `git status`: working tree limpio.
+- `git diff --check`: sin errores.
+- Rama: `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+
+## Build 054 — Incorporación del servicio de posición de activo
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó `PosicionActivoService` como coordinación entre `Activo`, `MovimientoActivoRepository` y `CalculadorPosicionActivo`.
+
+La evolución incluyó además la búsqueda de movimientos de un activo y el calculador de posición.
+
 ## Build 053 — Incorporación de MovimientoActivo
 
 **Estado: COMPLETADO Y VALIDADO.**
@@ -21,8 +71,6 @@ Pruebas específicas:
 - `MovimientoActivoRepositoryTest`: **6/6 tests en verde**.
 - Total de tests nuevos: **17**.
 
-Durante la validación del repositorio se detectó una diferencia de escala en `BigDecimal` al recuperar valores mediante JPA/H2. Se corrigieron las comparaciones de los tests para utilizar comparación numérica, sin modificar el código de producción.
-
 Suite general:
 
 - Tests run: **370**
@@ -32,16 +80,6 @@ Suite general:
 - `BUILD SUCCESS`
 - Finalización: **26/08/2026 10:57:39 -03:00**
 - Duración: **24:34 min**
-
-Commits principales:
-
-- `4be2264` — `feat: agregar tipo de movimiento de activo`
-- `51d3860` — `feat: incorporar movimiento de activo`
-- `381f3a6` — `feat: incorporar repositorio de movimiento de activo`
-- `7a54b20` — `test: agregar cobertura de MovimientoActivo`
-- `eb57063` — `test: agregar cobertura de MovimientoActivoRepository`
-- `d14d114` — `test: registrar MovimientoActivo en persistencia JPA`
-- `a579d4e8` — `test: corregir comparacion decimal en MovimientoActivoRepositoryTest`
 
 ## Build 052 — Incorporación de Bono como especialización de Activo
 
@@ -53,23 +91,19 @@ Pruebas específicas: `BonoTest` **5/5** y `BonoRepositoryTest` **6/6**.
 
 Suite general: **353/353 tests en verde**, `BUILD SUCCESS`.
 
-Ejecución general: **25/08/2026 20:14:39 -03:00**. Duración: **16:07 min**.
-
-Commits del bloque: `589acf1`, `c11f1f4`, `6925447`, `74b8fff`, `678c6ea`.
-
 ## Builds anteriores
 
 Los Builds 001–051 permanecen registrados en el historial previo de este documento.
 
 ## Estado actual
 
-El último Build cerrado es **Build 053**. La última suite confirmada es **370/370 tests en verde**.
+El último Build cerrado es **Build 055**. La última suite confirmada es **397/397 tests en verde**.
 
 La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
-Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas, manteniendo las especializaciones y movimientos actuales sin inventar atributos financieros aún no definidos.
+Revisar el siguiente bloque funcional de `OperacionFinanciera` e inversiones a partir de reglas de negocio explícitas, manteniendo el dominio actual estable antes de incorporar nueva funcionalidad.
 
 ## Regla de cierre
 
