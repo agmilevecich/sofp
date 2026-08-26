@@ -21,6 +21,10 @@ public class OperacionFinanciera extends EntidadAuditable {
     @JoinColumn(name = "cuenta_destino_id", nullable = false)
     private Cuenta cuentaDestino;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private TipoOperacionFinanciera tipoOperacion;
+
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal importe;
 
@@ -43,12 +47,29 @@ public class OperacionFinanciera extends EntidadAuditable {
     }
 
     /**
-     * Constructor principal del dominio.
+     * Constructor compatible con las transferencias existentes.
      */
     public OperacionFinanciera(
             Cuenta cuentaOrigen,
             Cuenta cuentaDestino,
             BigDecimal importe) {
+
+        this(
+                cuentaOrigen,
+                cuentaDestino,
+                importe,
+                TipoOperacionFinanciera.TRANSFERENCIA
+        );
+    }
+
+    /**
+     * Constructor principal del dominio.
+     */
+    public OperacionFinanciera(
+            Cuenta cuentaOrigen,
+            Cuenta cuentaDestino,
+            BigDecimal importe,
+            TipoOperacionFinanciera tipoOperacion) {
 
         this.cuentaOrigen = Objects.requireNonNull(
                 cuentaOrigen,
@@ -70,6 +91,11 @@ public class OperacionFinanciera extends EntidadAuditable {
                 importe,
                 "El importe es obligatorio"
         );
+
+        this.tipoOperacion = Objects.requireNonNull(
+                tipoOperacion,
+                "El tipo de operación financiera es obligatorio"
+        );
     }
 
     public Cuenta getCuentaOrigen() {
@@ -78,6 +104,10 @@ public class OperacionFinanciera extends EntidadAuditable {
 
     public Cuenta getCuentaDestino() {
         return cuentaDestino;
+    }
+
+    public TipoOperacionFinanciera getTipoOperacion() {
+        return tipoOperacion;
     }
 
     public BigDecimal getImporte() {
