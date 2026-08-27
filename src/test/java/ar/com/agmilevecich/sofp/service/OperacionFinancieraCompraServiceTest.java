@@ -53,7 +53,7 @@ class OperacionFinancieraCompraServiceTest {
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         cuentaOrigen = new Cuenta("Cuenta origen", TipoCuenta.CAJA_AHORRO, perfil, banco, moneda);
         categoriaOrigen = new Categoria("Inversiones", perfil);
-        activo = new Bono("Bono GD30", moneda);
+        activo = new Bono("Bono GD30", "GD30", moneda);
 
         entityManager.getTransaction().begin();
         entityManager.persist(usuario);
