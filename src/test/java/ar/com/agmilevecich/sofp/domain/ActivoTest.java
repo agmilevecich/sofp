@@ -20,12 +20,18 @@ class ActivoTest {
         Activo activo =
                 new Activo(
                         "Bono GD30",
+                        "GD30",
                         moneda
                 );
 
         assertEquals(
                 "Bono GD30",
                 activo.getNombre()
+        );
+
+        assertEquals(
+                "GD30",
+                activo.getSimbolo()
         );
 
         assertEquals(
@@ -49,12 +55,18 @@ class ActivoTest {
         Activo activo =
                 new Activo(
                         "Tether USD",
+                        "USDT",
                         moneda
                 );
 
         assertEquals(
                 "Tether USD",
                 activo.getNombre()
+        );
+
+        assertEquals(
+                "USDT",
+                activo.getSimbolo()
         );
 
         assertEquals(
@@ -78,6 +90,7 @@ class ActivoTest {
         Activo activo =
                 new Activo(
                         "Bono GD30",
+                        "GD30",
                         moneda
                 );
 
@@ -112,6 +125,7 @@ class ActivoTest {
         Activo activo =
                 new Activo(
                         "Bono GD30",
+                        "GD30",
                         monedaInicial
                 );
 
@@ -139,6 +153,29 @@ class ActivoTest {
                 NullPointerException.class,
                 () -> new Activo(
                         null,
+                        "GD30",
+                        moneda
+                )
+        );
+    }
+
+
+    @Test
+    void deberiaRechazarSimboloNulo() {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> new Activo(
+                        "Bono GD30",
+                        null,
                         moneda
                 )
         );
@@ -152,6 +189,7 @@ class ActivoTest {
                 NullPointerException.class,
                 () -> new Activo(
                         "Bono GD30",
+                        "GD30",
                         null
                 )
         );
@@ -172,6 +210,7 @@ class ActivoTest {
         Activo activo =
                 new Activo(
                         "Bono GD30",
+                        "GD30",
                         moneda
                 );
 
@@ -196,6 +235,7 @@ class ActivoTest {
         Activo activo =
                 new Activo(
                         "Bono GD30",
+                        "GD30",
                         moneda
                 );
 
