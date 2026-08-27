@@ -412,4 +412,43 @@ class OperacionFinancieraCompraServiceTest {
                 )
         );
     }
+
+    @Test
+    void deberiaRechazarCategoriaDeOtroPerfil() {
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Otro",
+                        "Usuario",
+                        "operacion.compra.otro."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero otroPerfil =
+                new PerfilFinanciero(
+                        "Otro perfil",
+                        otroUsuario
+                );
+
+        Categoria otraCategoria =
+                new Categoria(
+                        "Inversiones de otro perfil",
+                        otroPerfil
+                );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        otraCategoria,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
 }
