@@ -14,7 +14,7 @@ public class Bono extends Activo {
     /**
      * Constructor principal del dominio.
      */
-    public Bono(String nombre, Moneda moneda) {
-        super(nombre, moneda);
+    public Bono(String nombre, String simbolo, Moneda moneda) {
+        super(nombre, simbolo, moneda);
     }
 }
