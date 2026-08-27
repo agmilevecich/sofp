@@ -1,62 +1,66 @@
 # SOFP — Tests
 
-Este documento registra la evolución de la batería de tests y los resultados verificados por Build.
+Este documento registra la evolución de la batería de tests y los resultados verificados.
 
 ## Estado actual
 
-### Build 044 — Ampliación de cobertura de Movimiento — Cerrado
+### Build 059 — Suite general posterior a venta y posición — Cerrado
 
-Se amplió `MovimientoTest`, pasando de **4 a 27 tests en verde**.
+Suite completa ejecutada desde IntelliJ IDEA el **27/08/2026 15:24:11 -03:00**.
 
-Se incorporaron **23 tests nuevos** para cubrir validaciones del constructor y operaciones de modificación de `Movimiento`, incluyendo cuenta, categoría, tipo, importe, fecha/hora, descripción, observaciones y valores inválidos.
+- Tests run: **433**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- Resultado: **BUILD SUCCESS**
+- Duración: **17:35 min**
 
-No se modificó código de producción.
+Los 433 tests fueron ejecutados después de los cambios recientes de venta, persistencia de relaciones e integración con posición. Todos finalizaron correctamente.
 
-La clase `MovimientoTest` quedó en **27/27 tests en verde**.
+### Validaciones específicas previas
 
-La suite general posterior a esta ampliación quedó en **282/282 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+- `OperacionFinancieraTest`: **17/17 tests en verde**.
+- `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
+- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
+- Total de los cuatro archivos: **65/65 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
 
-La ejecución terminó el **20/08/2026 a las 13:19:27 -03:00**, con una duración total de **07:21 min**.
+`OperacionFinancieraVentaServiceTest` verifica también las relaciones de `Movimiento` y `MovimientoActivo` después de recuperar la operación desde persistencia.
 
-Commit asociado:
+`PosicionActivoServiceTest` valida mediante los servicios reales una compra de 100 unidades seguida de una venta de 30, obteniendo una posición final de **70 unidades**.
 
-- `6f53f79` — `test: ampliar cobertura de Movimiento`
+## Última suite general confirmada
 
-### Build 043 — Ampliación de cobertura de MovimientoService
+**433/433 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-Se amplió `MovimientoServiceTest`, pasando de **37 a 50 tests en verde**.
+Esta es la suite general más reciente y debe considerarse la validación global vigente de la feature.
 
-La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+### Build 058 — Caso de uso de compra de activo — Cerrado
 
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 19:51:15 -03:00.
+Se implementó y validó `OperacionFinancieraService.comprarActivo(...)`.
 
-Commit asociado:
+Prueba específica:
 
-- `b6384f0` — `test: ampliar cobertura de MovimientoService`
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
 
-### Build 042 — Ampliación de cobertura de CuentaService
+Suite general:
 
-Se amplió `CuentaServiceTest`, pasando de **40 a 47 tests en verde**.
+- Tests run: **419**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **27/08/2026 12:45:13 -03:00**
+- Duración: **15:09 min**
 
-La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
+Durante la prueba de persistencia se detectaron diferencias de escala de `BigDecimal` al recuperar valores desde H2. Las comparaciones afectadas fueron adaptadas mediante `compareTo()`, sin modificar producción.
 
-La ejecución terminó con `BUILD SUCCESS` el 19/08/2026 a las 16:46:27 -03:00.
+### Builds anteriores
 
-Commit asociado:
+Los Builds 001–057 y sus resultados permanecen registrados en el historial del proyecto.
 
-- `526b378` — `test: ampliar cobertura de CuentaService`
-
-### Build 041 — Reforzamiento de validaciones de servicios y dominio
-
-Se amplió `InstitucionFinancieraServiceTest`, pasando de **23 a 26 tests en verde**.
-
-La batería general quedó en **239/239 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-
-Commit asociado:
-
-- `a9de29c` — `feat: reforzar validaciones de servicios y dominio`
-
-### Conteo actual por test de service
+## Conteo registrado de tests de services
 
 - `CategoriaServiceTest`: **21**
 - `CuentaServiceTest`: **47**
@@ -65,17 +69,14 @@ Commit asociado:
 - `MovimientoServiceTest`: **50**
 - `PerfilFinancieroServiceTest`: **13**
 - `UsuarioServiceTest`: **15**
+- `OperacionFinancieraServiceTest`: **22**
 
-Total confirmado de tests de services: **189**.
-
-`MovimientoTest`: **27**.
-
-**Total general confirmado: 282/282 tests en verde.**
-
-## Histórico de cobertura
-
-Los Builds anteriores y sus resultados permanecen registrados en el historial del proyecto. El último Build cerrado es Build 044 con **282 tests en verde**.
+Total registrado de tests de services: **211**.
 
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben quedar registrados para que la documentación refleje el estado real de los tests.
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. La documentación debe reflejar el estado real de `feature/operacion-financiera` antes de iniciar un nuevo bloque.
+
+## Próximo bloque
+
+Revisión final de `feature/operacion-financiera` contra `main`, incluyendo commits, archivos modificados y diferencia funcional. Luego determinar si la feature está lista para preparar el merge, sin modificar `main` automáticamente.

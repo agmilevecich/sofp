@@ -35,6 +35,10 @@ public class Movimiento extends EntidadAuditable {
     @Column(length = 1000)
     private String observaciones;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "operacion_financiera_id")
+    private OperacionFinanciera operacionFinanciera;
+
     /**
      * Constructor requerido por JPA.
      */
@@ -109,6 +113,30 @@ public class Movimiento extends EntidadAuditable {
 
     public String getObservaciones() {
         return observaciones;
+    }
+
+    public OperacionFinanciera getOperacionFinanciera() {
+        return operacionFinanciera;
+    }
+
+    public void asociarOperacionFinanciera(
+            OperacionFinanciera operacionFinanciera) {
+
+        Objects.requireNonNull(
+                operacionFinanciera,
+                "La operación financiera es obligatoria"
+        );
+
+        if (this.operacionFinanciera != null
+                && this.operacionFinanciera != operacionFinanciera) {
+
+            throw new IllegalStateException(
+                    "El movimiento ya pertenece a otra operación financiera"
+            );
+        }
+
+        this.operacionFinanciera =
+                operacionFinanciera;
     }
 
     public void modificarTipoMovimiento(

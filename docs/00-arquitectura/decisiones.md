@@ -1,6 +1,6 @@
 # Decisiones de arquitectura
 
-Este documento registra las decisiones iniciales de arquitectura (ADR) del proyecto SOFP.
+Este documento registra las decisiones de arquitectura (ADR) del proyecto SOFP y distingue entre decisiones vigentes e ideas de evolución todavía no implementadas.
 
 ## ADR-001: Sistema multiusuario
 
@@ -16,7 +16,7 @@ Este documento registra las decisiones iniciales de arquitectura (ADR) del proye
 
 **Motivo:** Permite agrupar inversiones, posiciones y movimientos bajo una representación explícita del perfil financiero.
 
-**Consecuencia:** Los futuros elementos del dominio financiero se relacionarán con un perfil financiero.
+**Consecuencia:** Los elementos del dominio financiero se relacionarán con un perfil financiero cuando corresponda.
 
 ## ADR-003: Herencia para Activo
 
@@ -28,11 +28,13 @@ Este documento registra las decisiones iniciales de arquitectura (ADR) del proye
 
 ## ADR-004: Saldos calculados desde movimientos
 
-**Decisión:** Los saldos de cuentas y las posiciones de activos se calcularán a partir de los movimientos registrados.
+**Decisión:** Los saldos de las cuentas se calculan a partir de los `Movimiento` registrados.
 
-**Motivo:** Los movimientos aportan trazabilidad sobre el origen y la variación de cada saldo o posición.
+**Estado actual:** `CuentaService.calcularSaldo(...)` ya implementa esta regla utilizando los movimientos de la cuenta. Un `INGRESO` suma al saldo y un `EGRESO` resta.
 
-**Consecuencia:** Las consultas de saldo deberán reconstruir o derivar los valores desde el historial de `MovimientoCuenta` y `MovimientoActivo`, en lugar de mantenerlos como fuente primaria independiente.
+**Motivo:** Los movimientos aportan trazabilidad sobre el origen y la variación del saldo.
+
+**Evolución:** Cuando se incorpore el cálculo de posiciones de activos, deberá definirse el mecanismo correspondiente para esos activos. No se deben presentar `MovimientoCuenta` o `MovimientoActivo` como entidades actualmente implementadas.
 
 ## ADR-005: Moneda como entidad transversal
 
@@ -52,8 +54,10 @@ Este documento registra las decisiones iniciales de arquitectura (ADR) del proye
 
 ## ADR-007: Separación entre operación y movimientos
 
-**Decisión:** `OperacionFinanciera` representará el hecho de negocio y generará los movimientos que afectan saldos y posiciones. Se distinguirán `MovimientoCuenta` y `MovimientoActivo`.
+**Decisión vigente:** `OperacionFinanciera` representa el hecho de negocio y puede agrupar los `Movimiento` que genera. En el modelo actual una operación puede tener como máximo dos movimientos.
 
-**Motivo:** Una operación puede impactar simultáneamente fondos de una cuenta y unidades de un activo, por lo que el evento registrado y sus efectos deben mantenerse diferenciados.
+**Motivo:** La operación conserva el contexto del hecho financiero y los movimientos representan sus efectos monetarios sobre las cuentas.
 
-**Consecuencia:** El sistema preservará el contexto de cada operación y calculará saldos desde movimientos especializados por tipo de posición.
+**Estado actual:** La relación entre `Movimiento` y `OperacionFinanciera` está implementada y validada en Build 049.
+
+**Evolución futura:** La eventual separación entre movimientos de cuentas y movimientos de posiciones de activos podrá evaluarse cuando el dominio de inversiones lo requiera. Esa separación no forma parte del modelo actual.

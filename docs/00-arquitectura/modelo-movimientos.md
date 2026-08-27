@@ -31,19 +31,9 @@ Esto garantiza:
 
 La entidad Cuenta no posee un atributo saldo.
 
-El saldo siempre se obtiene a partir de:
+El saldo se obtiene a partir de los movimientos registrados.
 
-Saldo inicial (si existiera)
-
-+
-
-Movimientos registrados
-
-=
-
-Saldo actual
-
-De esta manera nunca existen inconsistencias entre el historial y el saldo mostrado al usuario.
+De esta manera se evita mantener un saldo independiente del historial.
 
 ---
 
@@ -107,13 +97,15 @@ La implementación definitiva podrá ampliarse conforme evolucione el sistema.
 
 # Tipos de Movimiento
 
-El sistema utilizará inicialmente tres tipos principales:
+El diseño conceptual original contemplaba tres tipos principales:
 
 - INGRESO
 - EGRESO
 - TRANSFERENCIA
 
-Las categorías permitirán representar situaciones específicas como:
+En el modelo implementado actualmente, una transferencia no es un tercer `TipoMovimiento`: se representa mediante una `OperacionFinanciera` que agrupa un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino.
+
+Las categorías permiten representar situaciones específicas como:
 
 - sueldo;
 - supermercado;
@@ -134,6 +126,8 @@ Cada Movimiento pertenece a:
 - una Cuenta;
 - una Categoría;
 - un Perfil Financiero (de forma indirecta mediante la Cuenta).
+
+Además, un Movimiento puede pertenecer a una `OperacionFinanciera`. En el estado actual, una operación puede agrupar como máximo dos movimientos.
 
 ---
 
@@ -173,8 +167,8 @@ Por este motivo el diseño prioriza simplicidad, trazabilidad y extensibilidad.
 
 ---
 
-## Estado
+## Estado histórico
 
-Documento aprobado como base arquitectónica del módulo de movimientos.
+Este documento corresponde al diseño conceptual inicial del Build 009. La implementación posterior evolucionó el modelo: actualmente `Movimiento` está implementado como entidad persistente, utiliza `INGRESO` y `EGRESO`, y puede asociarse a `OperacionFinanciera`.
 
-La implementación comenzará en el Build 009.
+Para el estado técnico actual deben tomarse como referencia `docs/00-arquitectura/dominio.md`, `docs/00-arquitectura/modelo-jpa.md`, `docs/06_BUILDS.md` y `docs/07_TESTS.md`.

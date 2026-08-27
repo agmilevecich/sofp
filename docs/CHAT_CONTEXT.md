@@ -1,12 +1,12 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-Este archivo es el punto de entrada para continuar el proyecto SOFP en una nueva conversación. La fuente permanente de verdad es el repositorio, Git, la documentación y los tests.
+Este archivo es el punto de entrada para continuar SOFP en una nueva conversación. La fuente de verdad es el código, Git y los tests actuales; `docs/` resume el estado y puede quedar temporalmente desactualizada.
 
 ## Proyecto
 
 SOFP — Sistema Operativo Financiero Personal.
 
-Aplicación Java de finanzas personales, desarrollada progresivamente con dominio, persistencia JPA, servicios transaccionales y tests automatizados.
+Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios transaccionales y tests automatizados.
 
 ## Tecnologías
 
@@ -19,52 +19,61 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 - JUnit 5.11.4
 - BigDecimal para dinero
 
-## Repositorio y ramas
+## Ramas
 
-- GitHub: `agmilevecich/sofp`
-- Bitbucket: `agmilevecich/sofp`
-- Rama principal de trabajo: `main`
-- Rama de documentación/continuidad: `docs/continuidad-sofp`
+- Repositorio: `agmilevecich/sofp`
+- `main`: rama estable; no modificar durante el desarrollo de la feature.
+- `feature/operacion-financiera`: rama única de trabajo y continuidad actual.
+- `docs/continuidad-sofp`: eliminada.
 
-## Estado actual — 20/08/2026
+Todo código, tests y documentación de continuidad de esta etapa se mantiene en `feature/operacion-financiera`.
 
-Último Build cerrado: **Build 044 — Ampliación de cobertura de Movimiento**.
+## Estado actual — 27/08/2026
 
-Último commit de código confirmado:
+Último Build cerrado: **Build 059 — Suite general posterior a venta y posición**.
 
-- `dca3b80` — `test: corregir datos compartidos de Movimiento`
+Resultado: **433/433 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 
-Este commit modifica únicamente `TestDataFactory`. `crearMovimiento()` ahora construye la cuenta y la categoría utilizando el mismo `PerfilFinanciero`, evitando relaciones incoherentes entre datos de prueba.
+Finalizada: **27/08/2026 15:24:11 -03:00**. Duración: **17:35 min**.
 
-Build 044 amplió `MovimientoTest` sin modificar código de producción, pasando de **4 a 27 tests en verde** mediante **23 tests nuevos**.
+La etapa actual de `OperacionFinanciera` incluye:
 
-Resultado específico:
+- `TRANSFERENCIA`;
+- `COMPRA` de activos;
+- `VENTA` de activos;
+- movimientos monetarios y `MovimientoActivo`;
+- persistencia de las relaciones con `OperacionFinanciera`;
+- cálculo de posición de activos.
 
-- `MovimientoTest`: **27/27 tests en verde**.
+Validaciones recientes:
 
-Última suite general registrada:
+- `OperacionFinancieraTest`: **17/17**.
+- `OperacionFinancieraServiceTest`: **22/22**.
+- `OperacionFinancieraCompraServiceTest`: **13/13**.
+- `OperacionFinancieraVentaServiceTest`: **13/13**.
+- `PosicionActivoServiceTest`: **4/4**.
 
-- Tests run: **282**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalizada: **20/08/2026 14:17:58 -03:00**
-- Duración: **06:34 min**
+La integración real valida `COMPRA 100 + VENTA 30 = POSICION 70` mediante los servicios.
 
-Esta suite fue ejecutada antes del commit `dca3b80`; la corrección posterior afecta únicamente datos compartidos de tests y no código de producción.
+## Git y merge
 
-**Build 044 queda cerrado y validado.**
+Rama activa: `feature/operacion-financiera`.
 
-El commit `dca3b80` ya está publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+La comparación actual contra `main` muestra que la feature está por delante y que `main` tiene dos commits que no están en la feature. Esos dos commits corresponden únicamente a la creación y eliminación de `docs/00_ESTADO_ACTUAL.md.tmp`; no contienen cambios funcionales que deban incorporarse a la feature.
 
-## Decisión de dominio: transferencias
+No se debe integrar `docs/continuidad-sofp`.
 
-Las transferencias no se modelarán como un tercer `TipoMovimiento`.
+Antes del merge se debe hacer la revisión final local:
 
-Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**. Ambos efectos deberán quedar vinculados posteriormente mediante una `OperacionFinanciera` que represente la operación de transferencia.
+```text
+git status
+git diff
+git diff --check
+git log --oneline --decorate --graph --all
+git diff main...feature/operacion-financiera --stat
+```
 
-La implementación de esta decisión queda pendiente hasta el bloque de dominio correspondiente.
+Después evaluar la estrategia de merge. No modificar `main` automáticamente.
 
 ## Dominio actual
 
@@ -77,17 +86,21 @@ Entidades principales:
 - Cuenta
 - Categoria
 - Movimiento
+- OperacionFinanciera
+- Activo
+- Bono
 
-Enumeraciones:
+`Activo` y `Bono` se mantienen deliberadamente mínimos hasta definir reglas financieras específicas.
 
-- TipoInstitucionFinanciera
-- TipoMoneda
-- TipoCuenta
-- TipoMovimiento
+`OperacionFinanciera` agrupa la operación y sus movimientos. Una compra genera `EGRESO` + `MovimientoActivo.COMPRA`; una venta genera `INGRESO` + `MovimientoActivo.VENTA`.
+
+Una venta superior a la posición disponible se rechaza en el dominio. Las posiciones short quedan para una decisión futura explícita.
+
+Las comisiones y gastos quedan para una etapa posterior.
 
 ## Persistencia
 
-Repositorios JPA conocidos:
+Repositorios relevantes:
 
 - UsuarioRepository
 - PerfilFinancieroRepository
@@ -96,77 +109,26 @@ Repositorios JPA conocidos:
 - CuentaRepository
 - MovimientoRepository
 - CategoriaRepository
+- OperacionFinancieraRepository
+- ActivoRepository
+- BonoRepository
+- MovimientoActivoRepository
 
-`MovimientoRepository` permite guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
+## Forma de trabajo
 
-## Services
-
-La capa `service` contiene actualmente:
-
-- CuentaService
-- MovimientoService
-- CategoriaService
-- PerfilFinancieroService
-- UsuarioService
-- InstitucionFinancieraService
-- MonedaService
-
-`MovimientoService` utiliza `EntityManager` y `MovimientoRepository`, mantiene transacciones explícitas y centraliza las reglas contextuales de cuenta, categoría y perfil financiero.
-
-## Tests
-
-La última batería general registrada es de **282/282 tests en verde**.
-
-Conteo confirmado de tests de services:
-
-- `CategoriaServiceTest`: **21**
-- `CuentaServiceTest`: **47**
-- `InstitucionFinancieraServiceTest`: **26**
-- `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **50**
-- `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **15**
-
-Total confirmado: **189 tests de services**.
-
-`MovimientoTest`: **27/27 tests en verde**.
-
-La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
-
-## Próximo paso
-
-Revisar el estado actual del código, tests y documentación para definir el siguiente bloque de trabajo después del cierre de Build 044 y de la corrección de `TestDataFactory`.
-
-Antes de implementar una nueva funcionalidad se deben revisar las clases relacionadas, sus tests y las reglas de negocio documentadas. No asumir estructuras ni comportamientos no presentes en el repositorio.
-
-## Forma de trabajo acordada
-
-1. Definir qué vamos a construir.
-2. Revisar el código, tests y reglas de negocio existentes.
-3. Implementar una pieza concreta.
-4. Ejecutar tests específicos.
-5. Ejecutar la suite general.
-6. Confirmar que quedan en verde.
-7. Revisar `git diff`, `git diff --check` y `git status`.
-8. Hacer commit.
-9. Publicar en los remotos.
-10. Actualizar documentación de continuidad.
-11. Definir el siguiente paso.
-
-## Fuente de verdad
-
-La fuente permanente es:
-
-1. Código del repositorio.
-2. Git / historial de commits.
-3. Documentación de `docs/`.
-4. Tests automatizados.
-
-Los chats son sesiones de trabajo que consultan y actualizan esa fuente.
+1. Revisar código, tests y GitHub antes de cambiar.
+2. Hacer el cambio mínimo.
+3. Ejecutar tests específicos desde IntelliJ IDEA.
+4. Ejecutar suite general.
+5. Confirmar resultado.
+6. Revisar diff, `diff --check` y status local.
+7. Commit pequeño y descriptivo.
+8. Actualizar continuidad en esta misma rama.
+9. Definir el siguiente paso.
 
 ## Al cerrar una sesión
 
-Actualizar como mínimo:
+Actualizar, cuando corresponda:
 
 - `docs/00_ESTADO_ACTUAL.md`
 - `docs/06_BUILDS.md`
@@ -175,4 +137,4 @@ Actualizar como mínimo:
 - `docs/09_HISTORIAL_PROYECTO.md`
 - `docs/CHAT_CONTEXT.md`
 
-Si hubo una decisión arquitectónica o de negocio importante, actualizar también `docs/05_DECISIONES.md`.
+No registrar resultados de tests o builds que no hayan sido realmente ejecutados.

@@ -4,66 +4,85 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Pendientes inmediatos
 
-- Revisar el estado actual del dominio, servicios, repositorios y tests para definir el siguiente bloque de trabajo.
-- Definir la próxima funcionalidad antes de implementar código nuevo.
-- Mantener sincronizada la documentación de continuidad de `docs/continuidad-sofp` con los remotos.
+- Revisar el estado final de `feature/operacion-financiera` contra `main`.
+- Revisar commits y diferencia funcional antes de preparar el merge.
+- Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas.
+- Definir los atributos y comportamientos financieros específicos de `Bono` antes de incorporarlos al dominio.
+- Mantener código, tests y documentación de continuidad dentro de `feature/operacion-financiera`.
+
+## Estado actual — OperacionFinanciera
+
+La funcionalidad de transferencia, compra y venta de activos está implementada en `feature/operacion-financiera`.
+
+Compra incluye:
+- operación `COMPRA`;
+- movimiento monetario `EGRESO`;
+- `MovimientoActivo.COMPRA`;
+- cálculo de importe `cantidad × precioUnitario`;
+- validaciones de parámetros y valores positivos;
+- cuenta de origen activa;
+- categoría perteneciente al perfil;
+- persistencia y recuperación.
+
+Venta incluye:
+- operación `VENTA`;
+- movimiento monetario `INGRESO`;
+- `MovimientoActivo.VENTA`;
+- cálculo de importe `cantidad × precioUnitario`;
+- validaciones equivalentes a compra;
+- persistencia y recuperación;
+- verificación de las relaciones entre operación, movimiento monetario y movimiento de activo.
+
+## Estado actual — PosicionActivo
+
+La posición de un activo se calcula a partir de `MovimientoActivo` ordenados por id.
+
+Se validó:
+- compra de 100 → posición 100;
+- compra de 100 + venta de 30 → posición 70;
+- posición cero sin movimientos;
+- rechazo de posición negativa;
+- rechazo de movimiento de otro activo;
+- integración mediante `OperacionFinancieraService` y `PosicionActivoService`.
+
+## Validación global
+
+Build 059 quedó validado con la suite completa:
+
+- **433/433 tests en verde**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- ejecución informada desde IntelliJ el **27/08/2026 15:24:11 -03:00**;
+- duración: **17:35 min**.
 
 ## Trabajo recientemente completado
 
-- Build 029: eliminación en `CategoriaRepository`.
-- Build 030: eliminación en `CategoriaService`.
-- Build 031: eliminación en `CuentaRepository`.
-- Build 032: eliminación en `CuentaService`.
-- Build 033: reglas de negocio de `Movimiento`.
-- Build 034: ampliación de cobertura de `MovimientoServiceTest`.
-- Build 035: ampliación de cobertura de `CuentaServiceTest`.
-- Build 036: ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 037: ampliación de cobertura de `MonedaServiceTest`.
-- Build 038: ampliación de cobertura de `PerfilFinancieroServiceTest`.
-- Build 039: ampliación de cobertura de `UsuarioServiceTest` y endurecimiento del contrato de `UsuarioService`.
-- Build 040: ampliación de cobertura de `CategoriaServiceTest`.
-- Build 041: reforzamiento de validaciones de servicios y dominio y ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 042: ampliación de cobertura de `CuentaServiceTest`.
-- Build 043: ampliación de cobertura de `MovimientoServiceTest`.
-- Build 044: ampliación de `MovimientoTest`, con 23 tests nuevos, 27/27 tests específicos en verde y suite general 282/282 en verde.
+- Implementación y validación de compra de activo.
+- Implementación y validación de venta de activo.
+- Corrección de la regla de dominio `VENTA → INGRESO`.
+- Verificación de relaciones persistidas entre `OperacionFinanciera`, `Movimiento` y `MovimientoActivo`.
+- Integración real de compra + venta con `PosicionActivoService`, validando 100 - 30 = 70.
+- Suite general posterior a estos cambios: **433/433** en verde.
 
-## Build 044 — Cerrado
+## Estado Git de referencia
 
-Se amplió `MovimientoTest`, pasando de **4 a 27 tests en verde**.
-
-Se agregaron **23 tests** para validar constructor y comportamiento de modificación de `Movimiento`, incluyendo valores nulos, importes inválidos, descripción, fecha/hora, categoría, tipo y observaciones.
-
-No se modificó código de producción.
-
-Commit de código: `6f53f79` — `test: ampliar cobertura de Movimiento`.
-
-El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
-
-La suite general posterior al cambio confirmó:
-
-- Tests run: **282**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-
-La ejecución finalizó el **20/08/2026 a las 13:19:27 -03:00** y duró **07:21 min**.
-
-**Build 044 queda cerrado y validado.**
-
-## Estado de Git de referencia
-
-- Último commit de código confirmado: `6f53f79` — `test: ampliar cobertura de Movimiento`.
-- La documentación de continuidad se mantiene en `docs/continuidad-sofp`.
+- Rama de trabajo: `feature/operacion-financiera`.
+- `main` permanece sin modificar.
+- Los dos commits que `main` tiene y la feature no corresponden a un archivo temporal creado y eliminado; no contienen cambios funcionales que deban incorporarse a la feature.
+- La documentación de continuidad se mantiene en la rama de trabajo.
 
 ## Pendientes de arquitectura / evolución
 
-- Completar progresivamente la capa `service` según las necesidades reales del dominio.
-- Incorporar DTOs cuando los casos de uso y las fronteras de la aplicación lo requieran.
-- Incorporar la interfaz de usuario cuando el dominio y los casos de uso estén suficientemente consolidados.
+- Revisar commits y diferencia final contra `main`.
+- Definir reglas específicas de cada instrumento financiero antes de agregar atributos a sus entidades.
+- Definir evolución específica de `Bono` a partir de reglas financieras explícitas.
+- Completar progresivamente la capa `service` según necesidades reales del dominio.
+- Incorporar DTOs cuando los casos de uso y fronteras de aplicación lo requieran.
+- Incorporar interfaz de usuario cuando dominio y casos de uso estén consolidados.
 - Definir reportes y cálculos derivados de movimientos.
-- Ampliar las reglas de saldos y consistencia financiera.
-- Diseñar e implementar `OperacionFinanciera` cuando corresponda al siguiente bloque de dominio.
+- Evaluar nuevas reglas de saldos y consistencia financiera cuando aparezcan casos de uso que las requieran.
 
 ## Regla
 

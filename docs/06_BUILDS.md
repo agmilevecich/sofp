@@ -1,349 +1,132 @@
 # SOFP — Historial de Builds
 
-## Builds 001–010
+## Build 059 — Suite general posterior a venta y posición
 
-- **Build 001:** configuración inicial del proyecto.
-- **Build 002:** configuración inicial de persistencia y base de datos.
-- **Build 003:** primeras entidades y consolidación del dominio.
-- **Build 004:** evolución del modelo de dominio y pruebas.
-- **Build 005:** diseño de `Cuenta`.
-- **Builds posteriores:** consolidación de dominio, arquitectura, validaciones e instituciones financieras.
-- **Build 009.1:** implementación de `Categoria`.
-- **Build 010:** implementación de `Movimiento`, `TipoMovimiento`, relaciones, validación de importe positivo y tests unitarios/JPA.
+**Estado: COMPLETADO Y VALIDADO.**
 
-## Build 011 — Aislamiento y estabilización de tests JPA con H2
+Se ejecutó la suite general después de completar la cobertura de venta de activo, persistencia de relaciones e integración con posición.
 
-Se incorporó `JpaTestManager`, la unidad `sofp-persistence-unit-test`, H2 en memoria y `create-drop`, separando la persistencia de producción de la infraestructura de pruebas.
+Pruebas específicas previas:
 
-## Build 012 — Repositorios JPA de entidades base
+- `OperacionFinancieraTest`: **17/17 tests en verde**.
+- `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
+- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
 
-Se incorporaron `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository` y `MonedaRepository`, junto con sus tests.
+Validaciones destacadas:
 
-## Build 013 — Repository JPA de Cuenta
+- Venta produce `VENTA` + `INGRESO` + `MovimientoActivo.VENTA`.
+- Las relaciones de `Movimiento` y `MovimientoActivo` con `OperacionFinanciera` se conservan después de recuperar desde persistencia.
+- Compra de 100 unidades seguida de venta de 30 produce posición final de **70 unidades** mediante los servicios reales.
 
-Se incorporó `CuentaRepository` y sus pruebas para guardar/buscar, listar, listar por perfil y actualizar.
+Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 15:24:11 -03:00**:
 
-## Build 014 — Repository JPA de Movimiento
-
-Se incorporó `MovimientoRepository` y `MovimientoRepositoryTest` para guardar, actualizar, buscar, listar todos, listar por cuenta y listar por categoría.
-
-Resultado: **64/64 tests en verde**.
-
-Commit: `4f0b20f` — `Build 014 - Implementación de MovimientoRepository`.
-
-## Build 015 — Servicio de saldo de cuentas
-
-Se incorporó `CuentaService` y `CuentaServiceTest` para calcular saldo: `INGRESO` suma, `EGRESO` resta y una cuenta sin movimientos devuelve `BigDecimal.ZERO`.
-
-Resultado: **68/68 tests en verde**.
-
-Commit: `4697815` — `feat: implementar servicio de saldo de cuentas`.
-
-## Build 016 — Servicio de movimientos
-
-Se incorporó `MovimientoService` y `MovimientoServiceTest` para registrar, buscar y listar movimientos mediante transacciones explícitas.
-
-Resultado: **74/74 tests en verde**.
-
-Commit: `8f8594e` — `feat: implementar servicio de movimientos`.
-
-## Build 017 — Repository JPA de Categoria
-
-Se incorporó `CategoriaRepository` y `CategoriaRepositoryTest`.
-
-Commit: `f462b3b` — `feat: implementar CategoriaRepository`.
-
-## Build 018 — Servicio de Categoria
-
-Se incorporó `CategoriaService` y sus tests para registrar, buscar, listar y listar por perfil.
-
-Resultado: **82/82 tests en verde**.
-
-Commit: `d57e0b4` — `feat: implementar CategoriaService`.
-
-## Build 019 — Servicio de PerfilFinanciero
-
-Se incorporó `PerfilFinancieroService` y sus tests para guardar, buscar, listar por usuario, cambiar descripción y activar/desactivar.
-
-Resultado: **88/88 tests en verde**.
-
-Commit: `1cc00ca` — `feat: implementar PerfilFinancieroService`.
-
-## Build 020 — Servicio de Usuario
-
-Se incorporó `UsuarioService` y sus tests para guardar, buscar, listar, activar y desactivar usuarios.
-
-Resultado: **93/93 tests en verde**.
-
-Commit: `87786fe` — `feat: implementar UsuarioService`.
-
-## Build 021 — Servicio de InstitucionFinanciera
-
-Se incorporó `InstitucionFinancieraService` y sus tests para búsqueda, listado, modificaciones y activación/desactivación.
-
-Resultado: **101/101 tests en verde**.
-
-Commit: `20e21c3` — `feat: implementar InstitucionFinancieraService`.
-
-## Build 022 — Servicio de Moneda
-
-Se incorporó `MonedaService` y sus tests. Se corrigió el aislamiento de H2 mediante `JpaTestManager.close()`.
-
-Resultado: **109/109 tests en verde**.
-
-Commit: `0d0db87` — `feat: implementar MonedaService`.
-
-## Build 023 — Ampliación de CuentaService
-
-Se amplió `CuentaService` y `CuentaServiceTest` para registrar, buscar, listar, listar por perfil y verificar saldo.
-
-Resultado: **113/113 tests en verde**.
-
-Commit: `ea595d4` — `feat: ampliar CuentaService`.
-
-## Build 024 — Ampliación de MovimientoService
-
-Se ampliaron las operaciones de modificación de descripción, observaciones y categoría y las validaciones de IDs/existencia.
-
-Resultado: **118/118 tests en verde**.
-
-Commit: `110f7d7` — `feat: ampliar MovimientoService`.
-
-## Build 025 — Ampliación de Movimiento y MovimientoService
-
-Se incorporaron modificaciones de tipo, importe y fecha/hora en `Movimiento` y `MovimientoService`.
-
-Resultado: **121/121 tests en verde**.
-
-Commits: `da3b89d` y `81883ea`.
-
-## Build 026 — Eliminación de Movimiento
-
-Se incorporó eliminación en `MovimientoRepository` y `MovimientoService`, con validación de ID, existencia y transacción explícita.
-
-Resultado: **121/121 tests en verde**.
-
-Commit: `d386d02` — `feat: completar operaciones de Movimiento`.
-
-## Build 027 — Ampliación de CuentaService
-
-Se incorporaron modificaciones de cuenta y activación/desactivación, junto con `obtenerCuenta(...)` y transacciones explícitas.
-
-Resultado: **128/128 tests en verde**.
-
-Commit: `00d862c` — `feat: ampliar CuentaService`.
-
-### Cobertura posterior al Build 027
-
-Se agregó un test específico para eliminación de `MovimientoService`.
-
-Resultado: **129/129 tests en verde**.
-
-Commit: `3e93be2` — `test: cubrir eliminacion de MovimientoService`.
-
-## Build 028 — Ampliación de CategoriaService
-
-Se completaron operaciones de modificación y activación/desactivación de categorías.
-
-Resultado: **135/135 tests en verde**.
-
-Commit: `b5c200e` — `feat: ampliar CategoriaService`.
-
-## Build 029 — Eliminación en CategoriaRepository
-
-Se incorporó `CategoriaRepository.eliminar(...)` y su test específico.
-
-Resultado: **136/136 tests en verde**.
-
-Commit: `46ad669` — `feat: completar eliminacion de CategoriaRepository`.
-
-## Build 030 — Eliminación en CategoriaService
-
-Se incorporó `CategoriaService.eliminar(...)`, con validación, existencia y transacción explícita, más dos tests específicos.
-
-Resultado: **138/138 tests en verde**.
-
-Commit: `59b9628` — `feat: completar eliminacion de CategoriaService`.
-
-## Build 031 — Eliminación en CuentaRepository
-
-Se incorporó `CuentaRepository.eliminar(...)` y su test específico.
-
-Resultado: **139/139 tests en verde**.
-
-Commit: `40768d3` — `feat: completar eliminacion de CuentaRepository`.
-
-## Build 032 — Eliminación en CuentaService
-
-Se incorporó `CuentaService.eliminar(...)`, con validación, existencia y transacción explícita, más tests para eliminación existente e inexistente.
-
-Resultado: **141/141 tests en verde**.
-
-Commit: `a1a817d` — `feat: completar eliminacion de CuentaService`.
-
-## Build 033 — Reglas de negocio de Movimiento
-
-Se incorporaron en `MovimientoService` reglas de coherencia entre cuenta, categoría y perfil financiero y se rechazaron movimientos sobre cuentas desactivadas.
-
-Resultado: **144/144 tests en verde**.
-
-Commit: `b18ca96` — `feat: agregar reglas de negocio a movimientos`.
-
-## Build 034 — Ampliación de cobertura de MovimientoService
-
-Se ampliaron los tests de `MovimientoServiceTest` y se agregaron **17 tests nuevos**.
-
-`MovimientoServiceTest`: **32/32 tests en verde**.
-
-Batería general: **163/163 tests en verde**.
-
-Commit: `4d9dc2a` — `test: ampliar cobertura de MovimientoService`.
-
-## Build 035 — Ampliación de cobertura de CuentaService
-
-Se ampliaron los tests de `CuentaServiceTest` y se agregaron **20 tests nuevos**.
-
-`CuentaServiceTest`: **40/40 tests en verde**.
-
-Batería general: **186/186 tests en verde**.
-
-Commit: `57b8ad5` — `test: ampliar cobertura de CuentaService`.
-
-## Build 036 — Ampliación de cobertura de InstitucionFinancieraService
-
-Se ampliaron los tests de `InstitucionFinancieraServiceTest` con **15 tests nuevos**.
-
-`InstitucionFinancieraServiceTest`: **23/23 tests en verde**.
-
-Batería general: **201/201 tests en verde**.
-
-Commit: `bd7f4bd` — `test: ampliar cobertura de InstitucionFinancieraService`.
-
-## Build 037 — Ampliación de cobertura de MonedaService
-
-Se amplió `MonedaServiceTest`, pasando de **8 a 17 tests en verde**.
-
-Batería general: **210/210 tests en verde**.
-
-## Build 038 — Ampliación de cobertura de PerfilFinancieroService
-
-Se amplió `PerfilFinancieroServiceTest`, pasando de **6 a 13 tests en verde**.
-
-Batería general: **217/217 tests en verde**.
-
-Commit: `e2d3268` — `test: ampliar cobertura de PerfilFinancieroService`.
-
-## Build 039 — Ampliación de cobertura de UsuarioService
-
-Se amplió `UsuarioServiceTest`, pasando de **5 a 15 tests en verde**, con 10 tests nuevos y validaciones explícitas de IDs nulos en `UsuarioService.activar(...)` y `desactivar(...)`.
-
-Batería general: **227/227 tests en verde**.
-
-Commit: `0e27dfe` — `test: ampliar cobertura de UsuarioService`.
-
-## Build 040 — Ampliación de cobertura de CategoriaService
-
-Se amplió `CategoriaServiceTest`, pasando de **12 a 21 tests en verde** con 9 tests nuevos.
-
-No se modificó código de producción.
-
-Batería general: **236/236 tests en verde**.
-
-Commit: `9be5972` — `test: ampliar cobertura de CategoriaService`.
-
-## Build 041 — Reforzamiento de validaciones de servicios y dominio
-
-Se reforzaron validaciones de parámetros nulos en `InstitucionFinanciera`, `MonedaService` y `PerfilFinancieroService`.
-
-`InstitucionFinancieraServiceTest` pasó de **23 a 26 tests**, con 3 tests nuevos.
-
-Batería general: **239/239 tests en verde**.
-
-Resultado: `BUILD SUCCESS`, `Failures: 0`, `Errors: 0`, `Skipped: 0`.
-
-Commit: `a9de29c` — `feat: reforzar validaciones de servicios y dominio`.
-
-## Build 042 — Ampliación de cobertura de CuentaService
-
-Se amplió `CuentaServiceTest` sin modificar código de producción.
-
-`CuentaServiceTest` pasó de **40 a 47 tests en verde**.
-
-La batería general pasó de **239 a 246 tests en verde**.
-
-Resultado final: **246/246 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
-
-La ejecución general terminó el **19/08/2026 a las 16:46:27 -03:00**.
-
-Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
-
-## Build 043 — Ampliación de cobertura de MovimientoService
-
-Se amplió `MovimientoServiceTest` sin modificar código de producción.
-
-`MovimientoServiceTest` pasó de **37 a 50 tests en verde**.
-
-La batería general pasó de **246 a 259 tests en verde**.
-
-Resultado final: **259/259 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
-
-La ejecución general terminó el **19/08/2026 a las 19:51:15 -03:00**.
-
-Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
-
-## Build 044 — Ampliación de cobertura de Movimiento
-
-Se amplió `MovimientoTest` sin modificar código de producción.
-
-Se incorporaron **23 tests nuevos**, pasando de **4 a 27 tests en verde** en la clase.
-
-La cobertura agregada incluye validaciones del constructor y operaciones de modificación de `Movimiento`, incluyendo cuenta, categoría, tipo, importe, fecha/hora, descripción y observaciones.
-
-Resultado específico: **27/27 tests en verde**.
-
-Resultado de la suite general posterior al cambio:
-
-- Tests run: **282**
+- Tests run: **433**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
+- Duración: **17:35 min**
 
-La ejecución general terminó el **20/08/2026 a las 13:19:27 -03:00** y tuvo una duración total de **07:21 min**.
+**Build 059 queda cerrado y validado.**
 
-Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
+## Build 058 — Caso de uso de compra de activo
 
-El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
+**Estado: COMPLETADO Y VALIDADO.**
 
-**Build 044 queda cerrado y validado.**
+Se implementó el caso de uso de compra de activo mediante `OperacionFinancieraService.comprarActivo(...)`.
+
+Se incorporó y validó:
+
+- creación de una `OperacionFinanciera` de tipo `COMPRA`;
+- movimiento monetario `EGRESO` en la cuenta de origen;
+- movimiento `MovimientoActivo.COMPRA` asociado al activo;
+- cálculo del importe como `cantidad × precioUnitario`;
+- validaciones de parámetros obligatorios;
+- validaciones de cantidad y precio unitario positivos;
+- validación de cuenta de origen activa;
+- validación de pertenencia de la categoría al perfil correspondiente;
+- persistencia y recuperación de la operación y sus movimientos.
+
+Pruebas específicas:
+
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
+
+Suite general:
+
+- Tests run: **419**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **27/08/2026 12:45:13 -03:00**
+- Duración: **15:09 min**
+
+Durante la validación de persistencia se detectó una diferencia de escala de `BigDecimal` al recuperar valores desde H2. Se ajustaron las comparaciones del test con `compareTo()`, sin modificar la lógica de producción.
+
+## Build 057 — Integridad entre operación financiera y movimiento de activo
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se reforzó `OperacionFinanciera` para validar la coherencia entre `TipoOperacionFinanciera` y `MovimientoActivo`, y se adaptó la prueba de persistencia para representar explícitamente una operación de `COMPRA`.
+
+Pruebas específicas: `OperacionFinancieraMovimientoActivoIntegridadTest` **4/4** y `OperacionFinancieraRepositoryTest` **12/12**.
+
+Suite general final: **406/406**, `BUILD SUCCESS`.
+
+## Build 056 — Incorporación del tipo de operación financiera
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó `TipoOperacionFinanciera` para distinguir `TRANSFERENCIA`, `COMPRA` y `VENTA`, y se integró el tipo en `OperacionFinanciera`.
+
+Pruebas específicas: `OperacionFinancieraTest` **17/17**.
+
+Suite general: **400/400**, `BUILD SUCCESS`.
+
+## Build 055 — Refuerzo de integridad de OperacionFinanciera
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se reforzó la integridad del dominio para impedir asociaciones incoherentes de movimientos monetarios.
+
+Pruebas específicas: **18/18**.
+
+Suite general: **397/397**, `BUILD SUCCESS`.
+
+## Build 054 — Incorporación del servicio de posición de activo
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó `PosicionActivoService`, junto con la búsqueda de movimientos de un activo y el calculador de posición.
+
+## Build 053 — Incorporación de MovimientoActivo
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó el modelo de movimientos específicos de activos, `MovimientoActivoRepository` y su persistencia JPA.
+
+Pruebas específicas: **17**.
+
+Suite general: **370/370**, `BUILD SUCCESS`.
+
+## Builds anteriores
+
+Los Builds 001–052 permanecen registrados en el historial previo del proyecto.
 
 ## Estado actual
 
-El último bloque cerrado es el **Build 044**. La batería general actual es de **282/282 tests en verde**.
+El último Build cerrado es **Build 059**.
 
-El último commit de código es `6f53f79` — `test: ampliar cobertura de Movimiento`.
+La última suite general confirmada es **433/433 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
+La documentación de continuidad se mantiene en `feature/operacion-financiera`.
 
-## Builds recientes
+## Próximo paso
 
-- Build 029 — Eliminación en `CategoriaRepository`.
-- Build 030 — Eliminación en `CategoriaService`.
-- Build 031 — Eliminación en `CuentaRepository`.
-- Build 032 — Eliminación en `CuentaService`.
-- Build 033 — Reglas de negocio de `Movimiento`.
-- Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
-- Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
-- Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
-- Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
-- Build 041 — Reforzamiento de validaciones de servicios y dominio.
-- Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
+Revisión final de `feature/operacion-financiera` contra `main`, incluyendo commits, archivos modificados y diferencia funcional. Luego determinar si la feature está lista para preparar el merge, sin modificar `main` automáticamente.
 
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Los cambios posteriores de cobertura también deben registrarse para mantener la documentación sincronizada con el estado real del proyecto.
+Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. La documentación debe mantenerse sincronizada con el código real y permanecer en la misma rama de trabajo.

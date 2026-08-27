@@ -1,148 +1,150 @@
 # SOFP — Estado actual
 
-> Documento de continuidad del proyecto. Debe actualizarse al cerrar cada bloque importante de trabajo.
+> Documento de continuidad del proyecto. Debe actualizarse al cerrar cada bloque importante.
 
 ## Identidad del proyecto
 
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Rama de trabajo actual para esta documentación:** `docs/continuidad-sofp`
+**Rama de trabajo y continuidad:** `feature/operacion-financiera`
 
-## Objetivo
-
-Construir una aplicación Java de finanzas personales, preparada para múltiples usuarios, con persistencia JPA/Hibernate, base H2 y una interfaz que se incorporará progresivamente.
-
-## Stack conocido
-
-- Java / JDK 23.0.1
-- IntelliJ IDEA Community 2026.1.1
-- Maven
-- JPA / Jakarta Persistence
-- Hibernate 6.6.18.Final
-- H2 2.3.232
-- JUnit 5.11.4
-- BigDecimal para importes monetarios
+`main` permanece separada hasta disponer de un estado funcional estable y validado para realizar el merge.
 
 ## Estado funcional actual
 
-El último bloque confirmado es **Build 044 — Ampliación de cobertura de Movimiento**.
+**Bloque actual — compra y venta de activos implementadas y validadas, incluyendo posición e integración persistida.**
 
-Se amplió `MovimientoTest` sin modificar código de producción, incorporando **23 tests nuevos** y pasando de **4 a 27 tests en verde** en la clase.
+`OperacionFinanciera` distingue `TRANSFERENCIA`, `COMPRA` y `VENTA` y agrupa movimientos monetarios y movimientos de activos.
 
-La suite general posterior a la ampliación confirmó **282/282 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+La arquitectura actual contempla:
 
-Build 044 queda cerrado y validado.
+```text
+Activo
+ └── Bono
 
-Posteriormente se realizó una corrección de datos de prueba en `TestDataFactory`: `crearMovimiento()` ahora construye la `Cuenta` y la `Categoria` a partir del mismo `PerfilFinanciero`, evitando relaciones de prueba incoherentes.
+OperacionFinanciera
+ ├── TipoOperacionFinanciera
+ ├── Movimiento
+ └── MovimientoActivo
+        └── Activo
 
-## Último commit de código
+MovimientoActivo
+      ↓
+CalculadorPosicionActivo
+      ↓
+PosicionActivo
 
-El último commit de código publicado es:
+PosicionActivoService
+      ↓
+MovimientoActivoRepository
+      ↓
+CalculadorPosicionActivo
+```
 
-- `dca3b80` — `test: corregir datos compartidos de Movimiento`
+## Última validación
 
-Este commit modifica únicamente `src/test/java/ar/com/agmilevecich/sofp/support/TestDataFactory.java`. Fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`. El working tree quedó limpio.
+La compra y la venta de activos están implementadas mediante `OperacionFinancieraService`.
 
-El commit anterior fue:
+Compra:
+- cuenta de origen;
+- movimiento monetario `EGRESO`;
+- `MovimientoActivo.COMPRA`;
+- importe `cantidad × precioUnitario`.
 
-- `6f53f79` — `test: ampliar cobertura de Movimiento`
+Venta:
+- cuenta de destino;
+- movimiento monetario `INGRESO`;
+- `MovimientoActivo.VENTA`;
+- importe `cantidad × precioUnitario`.
 
-## Última suite general registrada
+La venta fue corregida para cumplir la regla de dominio de que su primer movimiento monetario debe ser un `INGRESO`.
 
-- Tests run: **282**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Última ejecución registrada: **20/08/2026 14:17:58 -03:00**
-- Tiempo total: **06:34 min**
+Validaciones específicas:
 
-Esta suite corresponde a la validación realizada antes de registrar el commit `dca3b80`; la corrección posterior es exclusivamente de datos compartidos de tests.
+- `OperacionFinancieraTest` + `OperacionFinancieraServiceTest` + `OperacionFinancieraCompraServiceTest` + `OperacionFinancieraVentaServiceTest`: **65/65 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+- Suite general posterior a los cambios: **433/433 tests en verde**.
 
-## Dominio construido
+## Posición de activos
 
-Entidades principales:
+`MovimientoActivo` representa `COMPRA` como variación positiva y `VENTA` como variación negativa.
 
-- `Usuario`
-- `PerfilFinanciero`
-- `InstitucionFinanciera`
-- `Moneda`
-- `Cuenta`
-- `Categoria`
-- `Movimiento`
+`PosicionActivo` acumula los movimientos y rechaza una posición negativa.
 
-Enumeraciones principales:
+`CalculadorPosicionActivo` procesa movimientos ordenados.
 
-- `TipoInstitucionFinanciera`
-- `TipoMoneda`
-- `TipoCuenta`
-- `TipoMovimiento`
+`MovimientoActivoRepository.listarPorActivo()` garantiza orden determinista mediante `ORDER BY m.id`.
+
+`PosicionActivoService` obtiene los movimientos persistidos y delega el cálculo al dominio.
+
+La integración actual comprueba:
+
+```text
+COMPRA 100
+VENTA 30
+      ↓
+POSICION 70
+```
+
+Los movimientos usados en esta comprobación son creados por `OperacionFinancieraService`, no directamente por el test.
 
 ## Persistencia
 
-Repositorios JPA incorporados:
+Repositorios JPA relevantes:
 
-- `UsuarioRepository`
-- `PerfilFinancieroRepository`
-- `InstitucionFinancieraRepository`
-- `MonedaRepository`
-- `CuentaRepository`
-- `MovimientoRepository`
-- `CategoriaRepository`
+- `OperacionFinancieraRepository`
+- `MovimientoActivoRepository`
+- `ActivoRepository`
+- `BonoRepository`
 
-`MovimientoRepository` proporciona guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
+`OperacionFinanciera` mantiene relaciones persistidas con `Movimiento` y `MovimientoActivo`.
 
-## Services
+La prueba de venta verifica que, después de recuperar la operación desde la base de datos, ambos movimientos continúan asociados a la misma `OperacionFinanciera` y conservan cuenta, activo, tipo, cantidad y precio.
 
-La capa `service` contiene:
-
-- `CuentaService`
-- `MovimientoService`
-- `CategoriaService`
-- `PerfilFinancieroService`
-- `UsuarioService`
-- `InstitucionFinancieraService`
-- `MonedaService`
-
-`MovimientoService` gestiona registro, búsqueda, listados, modificaciones y eliminación mediante transacciones explícitas. Desde Build 033 valida coherencia entre cuenta, categoría y perfil financiero y rechaza movimientos sobre cuentas desactivadas.
-
-## Tests
-
-La última batería general registrada es de **282/282 tests en verde**.
-
-Conteo confirmado de tests de services:
-
-- `CategoriaServiceTest`: **21**
-- `CuentaServiceTest`: **47**
-- `InstitucionFinancieraServiceTest`: **26**
-- `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **50**
-- `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **15**
-
-Total confirmado de tests de services: **189**.
-
-`MovimientoTest`: **27/27 tests en verde**.
-
-La infraestructura de pruebas utiliza `JpaTestManager`, H2 en memoria y aislamiento entre ejecuciones.
-
-## Decisiones de dominio relevantes
-
-Las transferencias no se modelarán como un tercer `TipoMovimiento`. Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**, vinculados posteriormente por una `OperacionFinanciera`.
+`PosicionActivo` y `CalculadorPosicionActivo` no poseen persistencia propia.
 
 ## Git
 
-Último commit de código confirmado en `main`:
+Últimos commits funcionales de esta etapa:
 
-- `dca3b80` — `test: corregir datos compartidos de Movimiento`
+- `f2dc770` — `fix: validar movimiento monetario de venta`
+- `26c4bca` — `test: verificar relaciones persistidas de venta`
+- `6a2fd5f` — `test: integrar compra y venta con posicion de activo`
 
-La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
+Últimos commits de documentación:
+
+- `da0f4ed` — registrar Build 059 y suite completa;
+- `77a6698` — cerrar validación de suite y actualizar pendientes;
+- `ed3632e` — actualización previa de continuidad.
+
+`main` permanece sin modificar.
+
+## Decisiones de dominio relevantes
+
+Una `COMPRA` requiere cuenta de origen y genera `EGRESO` + `MovimientoActivo.COMPRA`.
+
+Una `VENTA` requiere cuenta de destino y genera `INGRESO` + `MovimientoActivo.VENTA`.
+
+Una `VENTA` no puede dejar una posición negativa. Una venta superior a la tenencia se rechaza en el dominio. La incorporación de posiciones short queda para una decisión futura explícita.
+
+`MovimientoActivo` exige cantidad y precio unitario positivos.
+
+Las comisiones y gastos se dejan para una etapa posterior, una vez estabilizado el núcleo de compra/venta.
 
 ## Próximo paso
 
-Con Build 044 cerrado y la fábrica de datos de Movimiento corregida, revisar nuevamente las clases, repositorios, servicios y tests relacionados para definir el siguiente bloque de trabajo. No implementar código nuevo hasta confirmar las reglas de negocio y el diseño de la próxima funcionalidad.
+Realizar la revisión final de `feature/operacion-financiera` contra `main`:
+
+1. revisar commits y archivos modificados;
+2. revisar `git diff`;
+3. revisar `git diff --check`;
+4. revisar `git status` en el entorno local;
+5. verificar que la documentación sea coherente;
+6. determinar si la feature está lista para preparar el merge a `main`.
+
+No realizar todavía el merge a `main`.
 
 ## Regla de continuidad
 
-Cada bloque importante debe terminar con código funcionando, tests en verde, commit identificable cuando corresponda, actualización de documentación y registro del próximo paso.
+Código, tests y documentación de continuidad deben permanecer en `feature/operacion-financiera` hasta decidir el merge. La fuente de verdad técnica es el código y los tests actuales; la documentación es un resumen auxiliar.

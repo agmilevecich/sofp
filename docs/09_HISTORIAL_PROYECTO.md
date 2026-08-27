@@ -2,73 +2,119 @@
 
 Este documento conserva una línea temporal resumida de decisiones, avances y puntos de continuidad.
 
+## 2026-08-27
+
+### Build 059 — Suite general posterior a venta y posición — Cerrado
+
+- Se completó la validación del bloque de compra y venta de activos.
+- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+- Se verificaron las relaciones persistidas de `Movimiento` y `MovimientoActivo` con `OperacionFinanciera` después de recuperar la operación.
+- Se agregó una prueba de integración que ejecuta una compra de 100 y una venta de 30 mediante `OperacionFinancieraService`, y verifica una posición final de **70 unidades** mediante `PosicionActivoService`.
+- Suite general ejecutada desde IntelliJ IDEA: **433/433 tests en verde**.
+- `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
+- Finalizada: **15:24:11 -03:00**.
+- Duración: **17:35 min**.
+- `main` no fue modificado.
+- La documentación de continuidad permanece en `feature/operacion-financiera`.
+- **Build 059 queda cerrado y validado.**
+
+### Cierre de la etapa de OperacionFinanciera
+
+- Compra de activo implementada y validada.
+- Venta de activo implementada y validada.
+- Persistencia de operación y movimientos validada.
+- Posición de activo validada.
+- Integración compra + venta + posición validada.
+- Suite general posterior a los cambios: **433/433**.
+
+## 2026-08-25
+
+### Build 052 — Incorporación de Bono como especialización de Activo — Cerrado
+
+- Se incorporó `Bono` como primera especialización de `Activo`.
+- `Bono` hereda de `Activo` y actualmente no agrega atributos financieros específicos.
+- Se incorporó `BonoRepository` para persistencia JPA.
+- `BonoTest`: **5/5**.
+- `BonoRepositoryTest`: **6/6**.
+- Suite general: **353/353**, `BUILD SUCCESS`.
+- Se mantuvo como única rama de trabajo `feature/operacion-financiera`.
+- `main` no fue modificado.
+
+### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
+
+- Se incorporó `Activo` y `ActivoRepository`.
+- `ActivoTest`: **8/8**.
+- `ActivoRepositoryTest`: **6/6**.
+- Suite general: **342/342**, `BUILD SUCCESS`.
+
+### Build 050 — Ampliación de cobertura de OperacionFinancieraService — Cerrado
+
+- `OperacionFinancieraServiceTest`: **22/22**.
+- Suite general: **328/328**, `BUILD SUCCESS`.
+
+## 2026-08-23
+
+### Build 049 — Asociación de Movimiento con OperacionFinanciera — Cerrado
+
+- Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera`.
+- `OperacionFinancieraTest`: **14/14**.
+- Suite general: **326/326**.
+
+### Build 048 — OperacionFinancieraRepository — Cerrado
+
+- Se incorporó `OperacionFinancieraRepository` y su integración con el servicio.
+- `OperacionFinancieraRepositoryTest`: **10/10**.
+- Suite general: **319/319**.
+
+## 2026-08-21
+
+### Build 047 — Cobertura de OperacionFinancieraService — Cerrado
+
+- `OperacionFinancieraServiceTest`: **20/20**.
+- Suite general: **309/309**.
+
+### Build 046 — Implementación de OperacionFinancieraService — Cerrado
+
+- Transferencia coordinada mediante `OperacionFinanciera`, `EGRESO` e `INGRESO`.
+- Suite general: **300/300**.
+
 ## 2026-08-20
 
-### Build 044 — Ampliación de cobertura de Movimiento — Cerrado
+### Build 045 — Dominio de OperacionFinanciera — Cerrado
 
-- Se amplió `MovimientoTest` sin modificar código de producción.
-- Se incorporaron **23 tests nuevos**.
-- `MovimientoTest` pasó de **4 a 27 tests en verde**.
-- Se cubrieron validaciones del constructor y operaciones de modificación de `Movimiento`.
-- La ejecución específica quedó en **27/27 tests en verde**.
-- La suite general posterior quedó en **282/282 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-- `BUILD SUCCESS`.
-- La ejecución general finalizó a las **13:19:27 -03:00** y tuvo una duración de **07:21 min**.
-- Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
-- El commit fue publicado en `main` de GitHub y Bitbucket mediante `git pushall`.
-- **Build 044 queda cerrado y validado.**
+- Se incorporó `OperacionFinanciera`.
+- Suite general: **289/289**.
 
-### Build 043 — Ampliación de cobertura de MovimientoService
+### Build 044 — Cobertura de Movimiento — Cerrado
 
-- Se amplió `MovimientoServiceTest` sin modificar código de producción.
-- `MovimientoServiceTest` pasó de **37 a 50 tests en verde**.
-- La batería general quedó en **259/259 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-- `BUILD SUCCESS`.
-- La ejecución general finalizó a las 19:51:15 -03:00.
-- Commit: `b6384f0` — `test: ampliar cobertura de MovimientoService`.
-
-### Build 042 — Ampliación de cobertura de CuentaService
-
-- Se amplió `CuentaServiceTest` sin modificar código de producción.
-- `CuentaServiceTest` pasó de **40 a 47 tests en verde**.
-- La batería general quedó en **246/246 tests en verde**, con `Failures: 0`, `Errors: 0` y `Skipped: 0`.
-- `BUILD SUCCESS`.
-- La ejecución general finalizó a las 16:46:27 -03:00.
-- Commit: `526b378` — `test: ampliar cobertura de CuentaService`.
-
-### Builds 041–034
-
-Los Builds 041 a 034 ampliaron progresivamente las validaciones y la cobertura de `InstitucionFinanciera`, `MonedaService`, `PerfilFinancieroService`, `UsuarioService`, `CategoriaService`, `CuentaService` y `MovimientoService`. Los resultados completos permanecen registrados en `docs/06_BUILDS.md` y `docs/07_TESTS.md`.
+- `MovimientoTest`: **27/27**.
+- Suite general: **282/282**.
 
 ## Estado actual
 
-El último bloque cerrado es el **Build 044**.
+El último bloque cerrado es **Build 059 — Suite general posterior a venta y posición**.
 
-La batería general actual es de **282/282 tests en verde**.
+La suite general más reciente es **433/433 tests en verde**.
 
-El último commit de código es `6f53f79` — `test: ampliar cobertura de Movimiento`.
+La rama de trabajo y continuidad es `feature/operacion-financiera`. La rama `docs/continuidad-sofp` fue eliminada y no debe reincorporarse al flujo.
 
-La documentación de continuidad se mantiene en la rama `docs/continuidad-sofp`.
+`main` permanece separado de la feature hasta completar la revisión final y decidir el merge.
 
-## Builds recientes
+## Próximo punto de trabajo
 
-- Build 029 — Eliminación en `CategoriaRepository`.
-- Build 030 — Eliminación en `CategoriaService`.
-- Build 031 — Eliminación en `CuentaRepository`.
-- Build 032 — Eliminación en `CuentaService`.
-- Build 033 — Reglas de negocio de `Movimiento`.
-- Build 034 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 035 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 036 — Ampliación de cobertura de `InstitucionFinancieraServiceTest`.
-- Build 037 — Ampliación de cobertura de `MonedaServiceTest`.
-- Build 038 — Ampliación de cobertura de `PerfilFinancieroServiceTest`.
-- Build 039 — Ampliación de cobertura de `UsuarioServiceTest`.
-- Build 040 — Ampliación de cobertura de `CategoriaServiceTest`.
-- Build 041 — Reforzamiento de validaciones de servicios y dominio.
-- Build 042 — Ampliación de cobertura de `CuentaServiceTest`.
-- Build 043 — Ampliación de cobertura de `MovimientoServiceTest`.
-- Build 044 — Ampliación de cobertura de `MovimientoTest` — cerrado con 282/282 tests en verde.
+Revisión final de la feature contra `main`, incluyendo:
+
+- commits;
+- archivos modificados;
+- `git status`;
+- `git diff`;
+- `git diff --check`;
+- coherencia de documentación;
+- estrategia de merge.
+
+No realizar el merge automáticamente.
 
 ## Regla histórica
 
-Los hechos importantes del proyecto deben registrarse con Build y/o commit cuando exista. Las conversaciones pueden aportar contexto narrativo, pero no sustituyen este historial.
+Los hechos importantes se registran con Build y/o commit cuando corresponda. Los chats aportan contexto, pero no sustituyen el estado real del repositorio.
