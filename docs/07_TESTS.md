@@ -4,6 +4,41 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Build 057 — Integridad entre operación financiera y movimiento de activo — Cerrado
+
+Se reforzó `OperacionFinanciera` para validar la coherencia entre `TipoOperacionFinanciera` y `MovimientoActivo`, y se adaptó la prueba de persistencia para representar explícitamente una operación de `COMPRA`.
+
+Pruebas específicas del bloque:
+
+- `OperacionFinancieraMovimientoActivoIntegridadTest`: **4/4 tests en verde**.
+- `OperacionFinancieraRepositoryTest`: **12/12 tests en verde**.
+- Total específico verificado en el bloque: **16 tests en verde**.
+
+Suite general final:
+
+- Tests run: **406**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **26/08/2026 20:38:25 -03:00**
+- Duración: **13:00 min**
+
+Validación previa de la suite, antes de adaptar la prueba de persistencia:
+
+- Tests run: **406**
+- Failures: **0**
+- Errors: **1**
+- Skipped: **0**
+- Fallo: `OperacionFinancieraRepositoryTest.deberiaPersistirMovimientoActivoDentroDeOperacionFinanciera`.
+
+El fallo se produjo porque el test histórico creaba una transferencia mediante el constructor por defecto y luego intentaba agregar un `MovimientoActivo.COMPRA`. Se adaptó el test para crear explícitamente una operación `COMPRA`, sin modificar el helper compartido utilizado por los tests de transferencia.
+
+Commits principales del bloque:
+
+- `993e278` — `fix: validar tipo de movimiento de activo en operacion`
+- `9a719c8` — `test: adaptar persistencia de movimiento activo a compra`
+
 ### Build 056 — Incorporación del tipo de operación financiera — Cerrado
 
 Se incorporó `TipoOperacionFinanciera` con `TRANSFERENCIA`, `COMPRA` y `VENTA`, y se integró el tipo en `OperacionFinanciera` manteniendo la compatibilidad de las transferencias existentes.
@@ -98,16 +133,16 @@ Total registrado de tests de services: **211**.
 
 ## Tests de persistencia destacados
 
-- `OperacionFinancieraRepositoryTest`: **10**
+- `OperacionFinancieraRepositoryTest`: **12**
 - `ActivoRepositoryTest`: **6**
 - `BonoRepositoryTest`: **6**
 - `MovimientoActivoRepositoryTest`: **6**
 
 ## Última suite general confirmada
 
-**400/400 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+**406/406 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución general confirmada se realizó el **26/08/2026 a las 18:42:57 -03:00** y finalizó correctamente, con una duración de **16:05 min**.
+La última ejecución general confirmada se realizó el **26/08/2026 a las 20:38:25 -03:00** y finalizó correctamente, con una duración de **13:00 min**.
 
 ## Regla de cierre
 
