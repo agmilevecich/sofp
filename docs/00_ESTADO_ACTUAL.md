@@ -7,15 +7,15 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Rama de trabajo y continuidad:** `feature/operacion-financiera`  
+**Rama de trabajo y continuidad:** `feature/operacion-financiera`
 
-La documentación de continuidad se mantiene en `docs/` dentro de la misma rama de trabajo. `main` permanece separada hasta disponer de un estado funcional estable y validado para realizar el merge.
+`main` permanece separada hasta disponer de un estado funcional estable y validado para realizar el merge.
 
 ## Estado funcional actual
 
-**Bloque actual — compra de activo: implementado y validado con persistencia.**
+**Bloque actual — compra y venta de activos implementadas y validadas, incluyendo posición e integración persistida.**
 
-`OperacionFinanciera` agrupa movimientos monetarios y puede identificarse mediante `TipoOperacionFinanciera`: `TRANSFERENCIA`, `COMPRA` o `VENTA`.
+`OperacionFinanciera` distingue `TRANSFERENCIA`, `COMPRA` y `VENTA` y agrupa movimientos monetarios y movimientos de activos.
 
 La arquitectura actual contempla:
 
@@ -42,125 +42,107 @@ MovimientoActivoRepository
 CalculadorPosicionActivo
 ```
 
-## Última validación — Build 058
+## Última validación
 
-Se implementó y validó el caso de uso de compra de activo mediante `OperacionFinancieraService.comprarActivo(...)`.
+La compra y la venta de activos están implementadas mediante `OperacionFinancieraService`.
 
-La compra mantiene sincronizados el movimiento monetario de egreso y el `MovimientoActivo.COMPRA`, y valida el importe como `cantidad × precioUnitario`.
+Compra:
+- cuenta de origen;
+- movimiento monetario `EGRESO`;
+- `MovimientoActivo.COMPRA`;
+- importe `cantidad × precioUnitario`.
 
-Tests específicos:
+Venta:
+- cuenta de destino;
+- movimiento monetario `INGRESO`;
+- `MovimientoActivo.VENTA`;
+- importe `cantidad × precioUnitario`.
 
-- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
+La venta fue corregida para cumplir la regla de dominio de que su primer movimiento monetario debe ser un `INGRESO`.
 
-Suite general final:
+Validaciones confirmadas desde IntelliJ:
+
+- `OperacionFinancieraTest` + `OperacionFinancieraServiceTest` + `OperacionFinancieraCompraServiceTest` + `OperacionFinancieraVentaServiceTest`: **67/67 tests en verde**.
+- `OperacionFinancieraVentaServiceTest`, después de ampliar las comprobaciones de relaciones persistidas: **13/13 tests en verde**.
+- `PosicionActivoServiceTest`, después de integrar compra y venta reales mediante `OperacionFinancieraService`: **4/4 tests en verde**.
+
+También quedaron validados los bloques anteriores de dominio, persistencia y servicios. No se ha ejecutado todavía una nueva suite general completa después de estos cambios.
+
+## Posición de activos
+
+`MovimientoActivo` representa `COMPRA` como variación positiva y `VENTA` como variación negativa.
+
+`PosicionActivo` acumula los movimientos y rechaza una posición negativa.
+
+`CalculadorPosicionActivo` procesa movimientos ordenados.
+
+`MovimientoActivoRepository.listarPorActivo()` garantiza orden determinista mediante `ORDER BY m.id`.
+
+`PosicionActivoService` obtiene los movimientos persistidos y delega el cálculo al dominio.
+
+La integración actual comprueba:
 
 ```text
-Tests run: 419
-Failures: 0
-Errors: 0
-Skipped: 0
-BUILD SUCCESS
+COMPRA 100
+VENTA 30
+      ↓
+POSICION 70
 ```
 
-- Ejecución final: **27/08/2026 12:45:13 -03:00**.
-- Duración: **15:09 min**.
-- Tests específicos de compra: **13/13**.
-- Suite general: **419/419**.
-
-Durante la validación apareció una diferencia de escala de `BigDecimal` al recuperar valores desde H2 (`100` frente a `100.00000000` y valores equivalentes). Se corrigieron únicamente las comparaciones del test mediante `compareTo()`, sin modificar la lógica de producción.
-
-## Validación Git
-
-La rama de trabajo quedó validada previamente con:
-
-```text
-git status
-nothing to commit, working tree clean
-
-git diff --check
-sin errores
-```
-
-La documentación de continuidad se actualiza ahora en GitHub sobre `feature/operacion-financiera`.
-
-## Git
-
-Commits funcionales recientes relacionados con el bloque:
-
-- `993e278` — `fix: validar tipo de movimiento de activo en operacion`
-- `9a719c8` — `test: adaptar persistencia de movimiento activo a compra`
-- `135df51` — `fix: adaptar operacion financiera a cuentas segun tipo`
-- `ccf058c` — `test: cubrir cuentas segun tipo de operacion financiera`
-
-El test de compra de activo fue posteriormente ajustado para comparar `BigDecimal` sin depender de la escala de persistencia.
-
-## Dominio construido
-
-Entidades principales: `Usuario`, `PerfilFinanciero`, `InstitucionFinanciera`, `Moneda`, `Cuenta`, `Categoria`, `Movimiento`, `OperacionFinanciera`, `Activo`, `Bono` y `MovimientoActivo`.
-
-`Activo` representa la base común para futuros instrumentos financieros y actualmente contiene `nombre` y `moneda`.
-
-`Bono` es la primera especialización de `Activo` y se mantiene deliberadamente mínima.
-
-`MovimientoActivo` representa el efecto de una operación sobre la tenencia de un `Activo`, con tipo `COMPRA` o `VENTA`, cantidad positiva y precio unitario.
-
-`TipoOperacionFinanciera` distingue `TRANSFERENCIA`, `COMPRA` y `VENTA`.
-
-`OperacionFinanciera` agrupa el movimiento monetario y el movimiento específico del activo que forman parte de una misma operación. Para los movimientos monetarios valida la correspondencia entre cuenta y rol: origen/egreso y destino/ingreso.
-
-La operación también valida la coherencia entre `TipoOperacionFinanciera` y `TipoMovimientoActivo`: una compra requiere movimiento `COMPRA`, una venta requiere movimiento `VENTA` y una transferencia no admite movimientos de activo.
-
-`PosicionActivo` representa la cantidad acumulada de un activo a partir de sus movimientos. Una compra incrementa la posición y una venta la disminuye. Actualmente es un concepto de dominio no persistente.
-
-`CalculadorPosicionActivo` construye una `PosicionActivo` desde movimientos ordenados, sin introducir persistencia.
+Los movimientos usados en esta comprobación son creados por `OperacionFinancieraService`, no directamente por el test.
 
 ## Persistencia
 
-Repositorios JPA: `UsuarioRepository`, `PerfilFinancieroRepository`, `InstitucionFinancieraRepository`, `MonedaRepository`, `CuentaRepository`, `MovimientoRepository`, `CategoriaRepository`, `OperacionFinancieraRepository`, `ActivoRepository`, `BonoRepository` y `MovimientoActivoRepository`.
+Repositorios JPA relevantes:
 
-`PosicionActivo` y `CalculadorPosicionActivo` no poseen repositorio ni tabla propia en esta etapa.
+- `OperacionFinancieraRepository`
+- `MovimientoActivoRepository`
+- `ActivoRepository`
+- `BonoRepository`
 
-## Services
+`OperacionFinanciera` mantiene relaciones persistidas con `Movimiento` y `MovimientoActivo`.
 
-La capa `service` contiene `CuentaService`, `MovimientoService`, `CategoriaService`, `PerfilFinancieroService`, `UsuarioService`, `InstitucionFinancieraService`, `MonedaService`, `OperacionFinancieraService` y `PosicionActivoService`.
+La prueba de venta verifica que, después de recuperar la operación desde la base de datos, ambos movimientos continúan asociados a la misma `OperacionFinanciera` y conservan cuenta, activo, tipo, cantidad y precio.
 
-`OperacionFinancieraService` incorpora el caso de uso de compra de activo, coordinando la creación y persistencia de la operación, movimiento monetario y movimiento de activo.
+`PosicionActivo` y `CalculadorPosicionActivo` no poseen persistencia propia.
+
+## Git
+
+Últimos commits funcionales de esta etapa:
+
+- `f2dc770` — `fix: validar movimiento monetario de venta`
+- `26c4bca` — `test: verificar relaciones persistidas de venta`
+- `6a2fd5f` — `test: integrar compra y venta con posicion de activo`
+
+La documentación de continuidad se actualiza en esta misma rama.
 
 ## Decisiones de dominio relevantes
 
-Las transferencias generan un **EGRESO** en la cuenta origen y un **INGRESO** en la cuenta destino, vinculados mediante una `OperacionFinanciera` de tipo `TRANSFERENCIA`.
+Una `COMPRA` requiere cuenta de origen y genera `EGRESO` + `MovimientoActivo.COMPRA`.
 
-Una `OperacionFinanciera` puede contener como máximo dos movimientos y cada `Movimiento` puede estar asociado a una única operación.
+Una `VENTA` requiere cuenta de destino y genera `INGRESO` + `MovimientoActivo.VENTA`.
 
-En una `COMPRA`, la cuenta de origen es obligatoria y el movimiento de activo debe ser `COMPRA`. En una `VENTA`, la cuenta de destino es obligatoria y el movimiento de activo debe ser `VENTA`. Una `TRANSFERENCIA` requiere origen y destino y no admite movimientos de activo.
+Una `VENTA` no puede dejar una posición negativa. Una venta superior a la tenencia se rechaza en el dominio. La incorporación de posiciones short queda para una decisión futura explícita.
 
-La compra de activo exige cantidad y precio unitario positivos y mantiene el importe monetario sincronizado con `cantidad × precioUnitario`.
-
-`Activo` y `Bono` se mantienen deliberadamente mínimos hasta definir reglas financieras adicionales.
-
-`MovimientoActivo` almacena una cantidad positiva y utiliza `COMPRA` o `VENTA` para determinar el efecto sobre la tenencia.
-
-`PosicionActivo` no permite una cantidad acumulada negativa. Una venta superior a la tenencia se rechaza en el dominio; la incorporación de posiciones short queda para una decisión futura explícita.
-
-`PosicionActivoService` coordina la obtención de movimientos desde persistencia y delega el cálculo al dominio.
-
-## Próximo paso
-
-Implementar progresivamente el caso de uso de **venta de activo**, aprovechando la estructura ya implementada para compra.
-
-La venta deberá:
-
-- requerir cuenta de destino;
-- generar un movimiento monetario `INGRESO`;
-- generar un `MovimientoActivo.VENTA`;
-- calcular el importe como `cantidad × precioUnitario`;
-- validar la coherencia con `TipoOperacionFinanciera.VENTA`;
-- posteriormente validar la posición disponible para impedir ventas superiores a la tenencia.
+`MovimientoActivo` exige cantidad y precio unitario positivos.
 
 Las comisiones y gastos se dejan para una etapa posterior, una vez estabilizado el núcleo de compra/venta.
 
-No realizar todavía merge a `main`. Primero completar y validar el bloque de venta y los siguientes controles de integridad y persistencia.
+## Próximo paso
+
+Revisar el bloque de compra/venta para determinar si quedan controles de negocio o persistencia esenciales antes de ejecutar la suite general completa.
+
+Después:
+
+1. ejecutar suite general completa;
+2. revisar `git diff`;
+3. revisar `git diff --check`;
+4. revisar `git status`;
+5. actualizar documentación con el resultado;
+6. evaluar si la feature está suficientemente estable para preparar el merge a `main`.
+
+No realizar todavía el merge a `main`.
 
 ## Regla de continuidad
 
-Cada bloque importante debe terminar con código funcionando, tests en verde, commit identificable cuando corresponda, actualización de documentación y registro del próximo paso. Código, tests y documentación de continuidad deben permanecer en `feature/operacion-financiera` hasta decidir el merge a `main`.
+Código, tests y documentación de continuidad deben permanecer en `feature/operacion-financiera` hasta decidir el merge. La fuente de verdad técnica es el código y los tests actuales; la documentación es un resumen auxiliar.
