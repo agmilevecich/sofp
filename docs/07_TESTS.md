@@ -4,106 +4,57 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
-### Build 057 — Integridad entre operación financiera y movimiento de activo — Cerrado
+### Build 058 — Caso de uso de compra de activo — Cerrado
 
-Se reforzó `OperacionFinanciera` para validar la coherencia entre `TipoOperacionFinanciera` y `MovimientoActivo`, y se adaptó la prueba de persistencia para representar explícitamente una operación de `COMPRA`.
+Se implementó y validó `OperacionFinancieraService.comprarActivo(...)`.
 
 Pruebas específicas del bloque:
 
-- `OperacionFinancieraMovimientoActivoIntegridadTest`: **4/4 tests en verde**.
-- `OperacionFinancieraRepositoryTest`: **12/12 tests en verde**.
-- Total específico verificado en el bloque: **16 tests en verde**.
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
 
 Suite general final:
 
-- Tests run: **406**
+- Tests run: **419**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **26/08/2026 20:38:25 -03:00**
-- Duración: **13:00 min**
+- Finalizada: **27/08/2026 12:45:13 -03:00**
+- Duración: **15:09 min**
 
-Validación previa de la suite, antes de adaptar la prueba de persistencia:
+Durante la prueba de persistencia se detectaron diferencias de escala de `BigDecimal` al recuperar valores desde H2. Las comparaciones afectadas fueron adaptadas mediante `compareTo()`, sin modificar producción.
 
-- Tests run: **406**
-- Failures: **0**
-- Errors: **1**
-- Skipped: **0**
-- Fallo: `OperacionFinancieraRepositoryTest.deberiaPersistirMovimientoActivoDentroDeOperacionFinanciera`.
+### Build 057 — Integridad entre operación financiera y movimiento de activo — Cerrado
 
-El fallo se produjo porque el test histórico creaba una transferencia mediante el constructor por defecto y luego intentaba agregar un `MovimientoActivo.COMPRA`. Se adaptó el test para crear explícitamente una operación `COMPRA`, sin modificar el helper compartido utilizado por los tests de transferencia.
+Pruebas específicas:
 
-Commits principales del bloque:
+- `OperacionFinancieraMovimientoActivoIntegridadTest`: **4/4**.
+- `OperacionFinancieraRepositoryTest`: **12/12**.
+- Total específico: **16/16**.
 
-- `993e278` — `fix: validar tipo de movimiento de activo en operacion`
-- `9a719c8` — `test: adaptar persistencia de movimiento activo a compra`
+Suite general: **406/406**, `BUILD SUCCESS`.
 
 ### Build 056 — Incorporación del tipo de operación financiera — Cerrado
 
-Se incorporó `TipoOperacionFinanciera` con `TRANSFERENCIA`, `COMPRA` y `VENTA`, y se integró el tipo en `OperacionFinanciera` manteniendo la compatibilidad de las transferencias existentes.
+Pruebas específicas: `OperacionFinancieraTest` **17/17**.
 
-Pruebas específicas del bloque:
-
-- `OperacionFinancieraTest`: **17/17 tests en verde**.
-
-Suite general:
-
-- Tests run: **400**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalizada: **26/08/2026 18:42:57 -03:00**
-- Duración: **16:05 min**
-
-Commits principales del bloque:
-
-- `21d8ed9` — `feat: agregar tipo de operacion financiera`
-- `3025848` — `feat: incorporar tipo a operacion financiera`
-- `70e4584` — `test: cubrir tipo de operacion financiera`
-
-Validación Git posterior al Build:
-
-- `git status`: working tree limpio.
-- `git diff --check`: sin errores.
-- Rama `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+Suite general: **400/400**, `BUILD SUCCESS`.
 
 ### Build 055 — Refuerzo de integridad de OperacionFinanciera — Cerrado
 
-Se reforzó la integridad del dominio de `OperacionFinanciera` para impedir asociaciones incoherentes de movimientos monetarios.
+Pruebas específicas: **18/18**.
 
-Pruebas específicas del bloque:
-
-- `OperacionFinancieraTest`: **14/14 tests en verde**.
-- `OperacionFinancieraIntegridadTest`: **4/4 tests en verde**.
-- Total específico del bloque: **18/18 tests en verde**.
-
-Suite general:
-
-- Tests run: **397**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalizada: **26/08/2026 16:48:26 -03:00**
-- Duración: **20:54 min**
+Suite general: **397/397**, `BUILD SUCCESS`.
 
 ### Build 054 — Incorporación del servicio de posición de activo — Cerrado
 
-Se incorporó `PosicionActivoService` como coordinación entre `Activo`, `MovimientoActivoRepository` y `CalculadorPosicionActivo`.
-
-También se incorporaron la búsqueda de movimientos de un activo y el calculador de posición.
+Se incorporó `PosicionActivoService`, junto con la búsqueda de movimientos de un activo y el calculador de posición.
 
 ### Build 053 — Incorporación de MovimientoActivo — Cerrado
 
-Se incorporó el modelo de movimientos específicos de activos para representar el efecto sobre la tenencia de un activo separado del efecto monetario de `Movimiento`.
+Pruebas específicas: **17**.
 
-- `MovimientoActivoTest`: **11/11**.
-- `MovimientoActivoRepositoryTest`: **6/6**.
-- Total del bloque: **17 tests nuevos**.
-
-Suite general: **370/370**, `BUILD SUCCESS`, finalizada el **26/08/2026 10:57:39 -03:00**, duración **24:34 min**.
+Suite general: **370/370**, `BUILD SUCCESS`.
 
 ## Builds anteriores
 
@@ -140,9 +91,13 @@ Total registrado de tests de services: **211**.
 
 ## Última suite general confirmada
 
-**406/406 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+**419/419 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
-La última ejecución general confirmada se realizó el **26/08/2026 a las 20:38:25 -03:00** y finalizó correctamente, con una duración de **13:00 min**.
+La última ejecución general confirmada se realizó el **27/08/2026 a las 12:45:13 -03:00** y finalizó correctamente, con una duración de **15:09 min**.
+
+## Próximo bloque
+
+Implementar y probar la **venta de activo**, incluyendo el movimiento monetario `INGRESO`, `MovimientoActivo.VENTA`, cálculo de importe y validaciones específicas. La validación contra la posición disponible se incorporará como control posterior del caso de uso.
 
 ## Regla de cierre
 
