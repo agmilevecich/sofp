@@ -1,12 +1,12 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-Este archivo es el punto de entrada para continuar el proyecto SOFP en una nueva conversación. La fuente permanente de verdad es el repositorio, Git, la documentación y los tests.
+Este archivo es el punto de entrada para continuar SOFP en una nueva conversación. La fuente de verdad es el código, Git y los tests actuales; `docs/` resume el estado y puede quedar temporalmente desactualizada.
 
 ## Proyecto
 
 SOFP — Sistema Operativo Financiero Personal.
 
-Aplicación Java de finanzas personales, desarrollada progresivamente con dominio, persistencia JPA, servicios transaccionales y tests automatizados.
+Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios transaccionales y tests automatizados.
 
 ## Tecnologías
 
@@ -19,95 +19,61 @@ Aplicación Java de finanzas personales, desarrollada progresivamente con domini
 - JUnit 5.11.4
 - BigDecimal para dinero
 
-## Repositorio y ramas
+## Ramas
 
-- GitHub: `agmilevecich/sofp`
-- Bitbucket: `agmilevecich/sofp`
-- Rama principal del repositorio: `main`
-- Rama única de funcionalidad y continuidad actual: `feature/operacion-financiera`
-- Rama `docs/continuidad-sofp`: **eliminada**.
+- Repositorio: `agmilevecich/sofp`
+- `main`: rama estable; no modificar durante el desarrollo de la feature.
+- `feature/operacion-financiera`: rama única de trabajo y continuidad actual.
+- `docs/continuidad-sofp`: eliminada.
 
-Todo el código, tests y documentación de continuidad actual se mantiene dentro de `feature/operacion-financiera`.
+Todo código, tests y documentación de continuidad de esta etapa se mantiene en `feature/operacion-financiera`.
 
-Las ramas auxiliares creadas accidentalmente durante la implementación de `Bono` fueron eliminadas de los remotos. No forman parte del flujo del proyecto.
+## Estado actual — 27/08/2026
 
-## Estado actual — 25/08/2026
+Último Build cerrado: **Build 059 — Suite general posterior a venta y posición**.
 
-Último Build cerrado: **Build 052 — Incorporación de Bono como especialización de Activo**.
+Resultado: **433/433 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 
-`Bono` fue incorporado como primera especialización de `Activo`, deliberadamente mínima y sin atributos financieros específicos adicionales.
+Finalizada: **27/08/2026 15:24:11 -03:00**. Duración: **17:35 min**.
 
-`Bono` hereda `nombre` y `Moneda` desde `Activo`.
+La etapa actual de `OperacionFinanciera` incluye:
 
-Se incorporó `BonoRepository` y su cobertura JPA.
+- `TRANSFERENCIA`;
+- `COMPRA` de activos;
+- `VENTA` de activos;
+- movimientos monetarios y `MovimientoActivo`;
+- persistencia de las relaciones con `OperacionFinanciera`;
+- cálculo de posición de activos.
 
-Commits del bloque:
+Validaciones recientes:
 
-- `589acf1` — `feat: incorporar entidad Bono`
-- `c11f1f4` — `test: agregar cobertura de Bono`
-- `6925447` — `feat: incorporar repositorio de Bono`
-- `74b8fff` — `test: agregar cobertura de BonoRepository`
-- `678c6ea` — `test: registrar Bono en persistencia JPA`
+- `OperacionFinancieraTest`: **17/17**.
+- `OperacionFinancieraServiceTest`: **22/22**.
+- `OperacionFinancieraCompraServiceTest`: **13/13**.
+- `OperacionFinancieraVentaServiceTest`: **13/13**.
+- `PosicionActivoServiceTest`: **4/4**.
 
-La persistencia de `Bono` quedó validada mediante el registro explícito de la entidad en la configuración utilizada por los tests.
+La integración real valida `COMPRA 100 + VENTA 30 = POSICION 70` mediante los servicios.
 
-La rama `feature/operacion-financiera` está destinada a contener todo el código, tests y documentación de continuidad. `main` permanece separado.
+## Git y merge
 
-## Tests
+Rama activa: `feature/operacion-financiera`.
 
-La última batería general confirmada es de **353/353 tests en verde**.
+La comparación actual contra `main` muestra que la feature está por delante y que `main` tiene dos commits que no están en la feature. Esos dos commits corresponden únicamente a la creación y eliminación de `docs/00_ESTADO_ACTUAL.md.tmp`; no contienen cambios funcionales que deban incorporarse a la feature.
 
-Conteo confirmado de tests de services:
+No se debe integrar `docs/continuidad-sofp`.
 
-- `CategoriaServiceTest`: **21**
-- `CuentaServiceTest`: **47**
-- `InstitucionFinancieraServiceTest`: **26**
-- `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **50**
-- `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **15**
-- `OperacionFinancieraServiceTest`: **22**
+Antes del merge se debe hacer la revisión final local:
 
-Total confirmado: **211 tests de services**.
+```text
+git status
+git diff
+git diff --check
+git log --oneline --decorate --graph --all
+git diff main...feature/operacion-financiera --stat
+```
 
-Tests de dominio destacados:
-
-- `MovimientoTest`: **27**
-- `OperacionFinancieraTest`: **14**
-- `ActivoTest`: **8**
-- `BonoTest`: **5**
-
-Tests de persistencia destacados:
-
-- `OperacionFinancieraRepositoryTest`: **10**
-- `ActivoRepositoryTest`: **6**
-- `BonoRepositoryTest`: **6**
-
-Última suite general confirmada:
-
-- Tests run: **353**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalizada: **25/08/2026 20:14:39 -03:00**
-- Duración: **16:07 min**
-
-## Decisión de dominio: transferencias
-
-Las transferencias no se modelan como un tercer `TipoMovimiento`.
-
-Conceptualmente una transferencia genera un **EGRESO en la cuenta origen** y un **INGRESO en la cuenta destino**. Ambos efectos quedan vinculados mediante una `OperacionFinanciera` que representa la operación de transferencia.
-
-La relación entre la operación y sus movimientos ya está implementada y persistida. Una operación admite como máximo dos movimientos y cada movimiento puede estar asociado a una única operación financiera.
-
-La misma cuenta no puede utilizarse como origen y destino; esta regla pertenece al dominio y está cubierta por los tests del servicio.
-
-## Decisión de dominio: Bono
-
-`Bono` es la primera especialización de `Activo` y se mantiene deliberadamente mínima.
-
-Actualmente no define atributos financieros propios. No se incorporan valor nominal, tasa, vencimiento, cupón, amortización, emisor u otros datos específicos hasta que esas reglas sean definidas explícitamente en el dominio.
+Después evaluar la estrategia de merge. No modificar `main` automáticamente.
 
 ## Dominio actual
 
@@ -124,20 +90,17 @@ Entidades principales:
 - Activo
 - Bono
 
-`Activo` se mantiene deliberadamente como una entidad mínima. Cantidad, precio, cotización y posición se reservarán para los bloques posteriores de inversiones.
+`Activo` y `Bono` se mantienen deliberadamente mínimos hasta definir reglas financieras específicas.
 
-`Bono` hereda de `Activo` y actualmente no agrega atributos financieros propios.
+`OperacionFinanciera` agrupa la operación y sus movimientos. Una compra genera `EGRESO` + `MovimientoActivo.COMPRA`; una venta genera `INGRESO` + `MovimientoActivo.VENTA`.
 
-Enumeraciones:
+Una venta superior a la posición disponible se rechaza en el dominio. Las posiciones short quedan para una decisión futura explícita.
 
-- TipoInstitucionFinanciera
-- TipoMoneda
-- TipoCuenta
-- TipoMovimiento
+Las comisiones y gastos quedan para una etapa posterior.
 
 ## Persistencia
 
-Repositorios JPA conocidos:
+Repositorios relevantes:
 
 - UsuarioRepository
 - PerfilFinancieroRepository
@@ -149,68 +112,23 @@ Repositorios JPA conocidos:
 - OperacionFinancieraRepository
 - ActivoRepository
 - BonoRepository
+- MovimientoActivoRepository
 
-`MovimientoRepository` permite guardar, actualizar, buscar por ID, listar todos, listar por cuenta, listar por categoría y eliminar movimientos.
+## Forma de trabajo
 
-`OperacionFinancieraRepository` permite guardar, actualizar, buscar por ID, listar todas, listar por cuenta de origen y listar por cuenta de destino.
-
-`ActivoRepository` permite guardar, actualizar, buscar por ID y listar activos. Su persistencia y asociación obligatoria con `Moneda` están validadas por **6/6 tests**.
-
-`BonoRepository` permite guardar, actualizar, buscar por ID y listar bonos. Su persistencia y herencia desde `Activo` están validadas por **6/6 tests**.
-
-## Services
-
-La capa `service` contiene actualmente:
-
-- CuentaService
-- MovimientoService
-- CategoriaService
-- PerfilFinancieroService
-- UsuarioService
-- InstitucionFinancieraService
-- MonedaService
-- OperacionFinancieraService
-
-`OperacionFinancieraService` coordina la creación de la operación financiera y sus dos movimientos dentro de una única transacción y asocia ambos movimientos a la operación antes de persistirlos.
-
-## Próximo paso
-
-Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas.
-
-En particular, antes de agregar atributos financieros a `Bono`, definir qué información y comportamientos necesita representar SOFP para los bonos.
-
-Antes de implementar nuevas piezas, revisar el código actual, tests y reglas de negocio relacionados. No asumir estructuras ni comportamientos no presentes en el repositorio.
-
-La funcionalidad de `OperacionFinanciera`, su repositorio, su servicio y su asociación con `Movimiento` ya están implementados y validados. `Activo`, `ActivoRepository`, `Bono` y `BonoRepository` también están implementados y validados.
-
-## Forma de trabajo acordada
-
-1. Definir qué vamos a construir.
-2. Revisar el código, tests y reglas de negocio existentes.
-3. Implementar una pieza concreta.
-4. Ejecutar tests específicos.
-5. Ejecutar la suite general.
-6. Confirmar que quedan en verde.
-7. Revisar `git diff`, `git diff --check` y `git status`.
-8. Hacer commit.
-9. Publicar en los remotos cuando corresponda.
-10. Actualizar documentación de continuidad.
-11. Definir el siguiente paso.
-
-## Fuente de verdad
-
-La fuente permanente es:
-
-1. Código del repositorio.
-2. Git / historial de commits.
-3. Documentación de `docs/`.
-4. Tests automatizados.
-
-Los chats son sesiones de trabajo que consultan y actualizan esa fuente.
+1. Revisar código, tests y GitHub antes de cambiar.
+2. Hacer el cambio mínimo.
+3. Ejecutar tests específicos desde IntelliJ IDEA.
+4. Ejecutar suite general.
+5. Confirmar resultado.
+6. Revisar diff, `diff --check` y status local.
+7. Commit pequeño y descriptivo.
+8. Actualizar continuidad en esta misma rama.
+9. Definir el siguiente paso.
 
 ## Al cerrar una sesión
 
-Actualizar como mínimo:
+Actualizar, cuando corresponda:
 
 - `docs/00_ESTADO_ACTUAL.md`
 - `docs/06_BUILDS.md`
@@ -219,4 +137,4 @@ Actualizar como mínimo:
 - `docs/09_HISTORIAL_PROYECTO.md`
 - `docs/CHAT_CONTEXT.md`
 
-Si hubo una decisión arquitectónica o de negocio importante, actualizar la documentación correspondiente de arquitectura.
+No registrar resultados de tests o builds que no hayan sido realmente ejecutados.
