@@ -70,6 +70,52 @@ class ActivoRepositoryTest {
     }
 
     @Test
+    void deberiaBuscarActivoPorSimbolo() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Activo activo =
+                    new Activo(
+                            "Bitcoin",
+                            "BTC",
+                            moneda
+                    );
+
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(activo);
+
+            em.getTransaction().commit();
+
+            Optional<Activo> resultado =
+                    repository.buscarPorSimbolo("BTC");
+
+            assertTrue(resultado.isPresent());
+            assertEquals("Bitcoin", resultado.get().getNombre());
+            assertEquals("BTC", resultado.get().getSimbolo());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
     void deberiaRetornarOptionalVacioCuandoNoExisteActivo() {
 
         JpaTestManager.close();
@@ -83,6 +129,28 @@ class ActivoRepositoryTest {
 
             Optional<Activo> resultado =
                     repository.buscarPorId(999999L);
+
+            assertTrue(resultado.isEmpty());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRetornarOptionalVacioCuandoNoExisteActivoPorSimbolo() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            Optional<Activo> resultado =
+                    repository.buscarPorSimbolo("NOEXISTE");
 
             assertTrue(resultado.isEmpty());
 
@@ -238,6 +306,28 @@ class ActivoRepositoryTest {
             assertThrows(
                     NullPointerException.class,
                     () -> repository.buscarPorId(null)
+            );
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarSimboloNuloAlBuscar() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> repository.buscarPorSimbolo(null)
             );
 
         } finally {
