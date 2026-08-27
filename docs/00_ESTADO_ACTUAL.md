@@ -1,19 +1,18 @@
 # SOFP — Estado actual
 
-> Documento de continuidad del proyecto. Debe actualizarse al cerrar cada bloque importante.
+> Documento de continuidad del proyecto. El código y los tests actuales son la fuente de verdad técnica.
 
 ## Identidad del proyecto
 
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
-**Rama principal:** `main`  
-**Rama de trabajo y continuidad:** `feature/operacion-financiera`
+**Rama principal:** `main`
 
-`main` permanece separada hasta disponer de un estado funcional estable y validado para realizar el merge.
+La etapa `feature/operacion-financiera` fue integrada en `main`.
 
 ## Estado funcional actual
 
-**Bloque actual — compra y venta de activos implementadas y validadas, incluyendo posición e integración persistida.**
+**Bloque cerrado — operaciones financieras con activos.**
 
 `OperacionFinanciera` distingue `TRANSFERENCIA`, `COMPRA` y `VENTA` y agrupa movimientos monetarios y movimientos de activos.
 
@@ -65,6 +64,7 @@ Validaciones específicas:
 - `OperacionFinancieraTest` + `OperacionFinancieraServiceTest` + `OperacionFinancieraCompraServiceTest` + `OperacionFinancieraVentaServiceTest`: **65/65 tests en verde**.
 - `PosicionActivoServiceTest`: **4/4 tests en verde**.
 - Suite general posterior a los cambios: **433/433 tests en verde**.
+- Build 059: **BUILD SUCCESS**; ejecución informada desde IntelliJ el **27/08/2026 15:24:11 -03:00**; duración **17:35 min**.
 
 ## Posición de activos
 
@@ -106,19 +106,11 @@ La prueba de venta verifica que, después de recuperar la operación desde la ba
 
 ## Git
 
-Últimos commits funcionales de esta etapa:
+Cierre de la etapa:
 
-- `f2dc770` — `fix: validar movimiento monetario de venta`
-- `26c4bca` — `test: verificar relaciones persistidas de venta`
-- `6a2fd5f` — `test: integrar compra y venta con posicion de activo`
-
-Últimos commits de documentación:
-
-- `da0f4ed` — registrar Build 059 y suite completa;
-- `77a6698` — cerrar validación de suite y actualizar pendientes;
-- `ed3632e` — actualización previa de continuidad.
-
-`main` permanece sin modificar.
+- `d39632b` — `Merge branch 'feature/operacion-financiera'`
+- `main` local, `github/main` y `bitbucket/main` quedaron alineados en `d39632b`.
+- `feature/operacion-financiera` quedó integrada en `main`.
 
 ## Decisiones de dominio relevantes
 
@@ -134,17 +126,20 @@ Las comisiones y gastos se dejan para una etapa posterior, una vez estabilizado 
 
 ## Próximo paso
 
-Realizar la revisión final de `feature/operacion-financiera` contra `main`:
+Revisar el estado de `main` y definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas.
 
-1. revisar commits y archivos modificados;
-2. revisar `git diff`;
-3. revisar `git diff --check`;
-4. revisar `git status` en el entorno local;
-5. verificar que la documentación sea coherente;
-6. determinar si la feature está lista para preparar el merge a `main`.
+Antes de implementar nuevos atributos o comportamientos financieros, revisar el dominio actual, servicios, repositorios y tests relacionados.
 
-No realizar todavía el merge a `main`.
+Posibles líneas a evaluar, sin considerarlas todavía implementadas:
+
+- definir reglas específicas de los instrumentos financieros;
+- determinar la evolución de `Bono`;
+- ampliar progresivamente la capa `service` según casos de uso reales;
+- incorporar DTOs cuando las fronteras de aplicación lo requieran;
+- incorporar interfaz de usuario cuando dominio y casos de uso estén consolidados;
+- definir reportes y cálculos derivados de movimientos;
+- evaluar nuevas reglas de saldos y consistencia financiera cuando aparezcan casos de uso que las requieran.
 
 ## Regla de continuidad
 
-Código, tests y documentación de continuidad deben permanecer en `feature/operacion-financiera` hasta decidir el merge. La fuente de verdad técnica es el código y los tests actuales; la documentación es un resumen auxiliar.
+Código y tests son la fuente de verdad técnica. La documentación resume el estado y debe actualizarse al cerrar bloques importantes. No considerar implementado ningún pendiente hasta contar con código verificable y tests correspondientes.
