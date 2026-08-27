@@ -4,15 +4,34 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Estado actual
 
+### Validación posterior al Build 058 — Venta y posición de activo
+
+Pruebas específicas ejecutadas desde IntelliJ IDEA:
+
+- `OperacionFinancieraTest`: **17/17 tests en verde**.
+- `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
+- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
+- Total de los cuatro archivos: **65/65 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+
+Además, `OperacionFinancieraVentaServiceTest` fue ampliado para verificar las relaciones de `Movimiento` y `MovimientoActivo` después de recuperar la operación desde persistencia.
+
+La integración de posición valida mediante los servicios reales una compra de 100 unidades seguida de una venta de 30, obteniendo una posición final de **70 unidades**.
+
+Resultado de las ejecuciones informadas por el usuario: **todos los tests en verde**.
+
+No se ha ejecutado todavía una nueva suite general completa después de estos cambios.
+
 ### Build 058 — Caso de uso de compra de activo — Cerrado
 
 Se implementó y validó `OperacionFinancieraService.comprarActivo(...)`.
 
-Pruebas específicas del bloque:
+Prueba específica del bloque:
 
 - `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
 
-Suite general final:
+Suite general final registrada para este Build:
 
 - Tests run: **419**
 - Failures: **0**
@@ -97,7 +116,7 @@ La última ejecución general confirmada se realizó el **27/08/2026 a las 12:45
 
 ## Próximo bloque
 
-Implementar y probar la **venta de activo**, incluyendo el movimiento monetario `INGRESO`, `MovimientoActivo.VENTA`, cálculo de importe y validaciones específicas. La validación contra la posición disponible se incorporará como control posterior del caso de uso.
+Completar la validación del caso de uso de venta de activo y su integración con posición. La cobertura específica de venta y posición ya está en verde; falta ejecutar la suite general después de los cambios recientes y luego revisar el estado final de la feature antes del merge.
 
 ## Regla de cierre
 
