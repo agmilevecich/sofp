@@ -177,7 +177,7 @@ class MovimientoActivoRepositoryTest {
                 2,
                 TipoMoneda.FIAT
         );
-        return new Bono("Bono GD30", moneda);
+        return new Bono("Bono GD30", "GD30", moneda);
     }
 
     private MovimientoActivo crearMovimiento(
@@ -202,7 +202,7 @@ class MovimientoActivoRepositoryTest {
 
         try {
             Bono bono = crearBono();
-            Bono otroBono = new Bono("Bono AL30", bono.getMoneda());
+            Bono otroBono = new Bono("Bono AL30", "AL30", bono.getMoneda());
 
             MovimientoActivo primero =
                     crearMovimiento(bono, TipoMovimientoActivo.COMPRA, "100", "105.50");
