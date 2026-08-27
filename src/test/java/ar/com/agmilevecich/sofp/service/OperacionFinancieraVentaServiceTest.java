@@ -130,8 +130,11 @@ class OperacionFinancieraVentaServiceTest {
         Movimiento movimiento = recuperada.getMovimientos().get(0);
         assertEquals(TipoMovimiento.INGRESO, movimiento.getTipoMovimiento());
         assertEquals(0, importeEsperado.compareTo(movimiento.getImporte()));
+        assertEquals(id, movimiento.getOperacionFinanciera().getId());
+        assertEquals(cuentaDestino.getId(), movimiento.getCuenta().getId());
 
         MovimientoActivo movimientoActivo = recuperada.getMovimientosActivos().get(0);
+        assertEquals(id, movimientoActivo.getOperacionFinanciera().getId());
         assertEquals(activo.getId(), movimientoActivo.getActivo().getId());
         assertEquals(TipoMovimientoActivo.VENTA, movimientoActivo.getTipoMovimiento());
         assertEquals(0, cantidad.compareTo(movimientoActivo.getCantidad()));
