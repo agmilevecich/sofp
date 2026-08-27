@@ -112,7 +112,8 @@ class CalculadorPosicionActivoTest {
                 TipoMoneda.FIAT
         );
 
-        return new Activo(nombre, moneda);
+        String simbolo = nombre.equals("Bono GD30") ? "GD30" : "AL30";
+        return new Activo(nombre, simbolo, moneda);
     }
 
     private MovimientoActivo crearMovimiento(
