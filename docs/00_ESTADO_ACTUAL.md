@@ -60,13 +60,11 @@ Venta:
 
 La venta fue corregida para cumplir la regla de dominio de que su primer movimiento monetario debe ser un `INGRESO`.
 
-Validaciones confirmadas desde IntelliJ:
+Validaciones específicas:
 
-- `OperacionFinancieraTest` + `OperacionFinancieraServiceTest` + `OperacionFinancieraCompraServiceTest` + `OperacionFinancieraVentaServiceTest`: **67/67 tests en verde**.
-- `OperacionFinancieraVentaServiceTest`, después de ampliar las comprobaciones de relaciones persistidas: **13/13 tests en verde**.
-- `PosicionActivoServiceTest`, después de integrar compra y venta reales mediante `OperacionFinancieraService`: **4/4 tests en verde**.
-
-También quedaron validados los bloques anteriores de dominio, persistencia y servicios. No se ha ejecutado todavía una nueva suite general completa después de estos cambios.
+- `OperacionFinancieraTest` + `OperacionFinancieraServiceTest` + `OperacionFinancieraCompraServiceTest` + `OperacionFinancieraVentaServiceTest`: **65/65 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+- Suite general posterior a los cambios: **433/433 tests en verde**.
 
 ## Posición de activos
 
@@ -114,7 +112,13 @@ La prueba de venta verifica que, después de recuperar la operación desde la ba
 - `26c4bca` — `test: verificar relaciones persistidas de venta`
 - `6a2fd5f` — `test: integrar compra y venta con posicion de activo`
 
-La documentación de continuidad se actualiza en esta misma rama.
+Últimos commits de documentación:
+
+- `da0f4ed` — registrar Build 059 y suite completa;
+- `77a6698` — cerrar validación de suite y actualizar pendientes;
+- `ed3632e` — actualización previa de continuidad.
+
+`main` permanece sin modificar.
 
 ## Decisiones de dominio relevantes
 
@@ -130,16 +134,14 @@ Las comisiones y gastos se dejan para una etapa posterior, una vez estabilizado 
 
 ## Próximo paso
 
-Revisar el bloque de compra/venta para determinar si quedan controles de negocio o persistencia esenciales antes de ejecutar la suite general completa.
+Realizar la revisión final de `feature/operacion-financiera` contra `main`:
 
-Después:
-
-1. ejecutar suite general completa;
+1. revisar commits y archivos modificados;
 2. revisar `git diff`;
 3. revisar `git diff --check`;
-4. revisar `git status`;
-5. actualizar documentación con el resultado;
-6. evaluar si la feature está suficientemente estable para preparar el merge a `main`.
+4. revisar `git status` en el entorno local;
+5. verificar que la documentación sea coherente;
+6. determinar si la feature está lista para preparar el merge a `main`.
 
 No realizar todavía el merge a `main`.
 
