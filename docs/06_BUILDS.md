@@ -1,204 +1,102 @@
 # SOFP — Historial de Builds
 
+## Build 058 — Caso de uso de compra de activo
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se implementó el caso de uso de compra de activo mediante `OperacionFinancieraService.comprarActivo(...)`.
+
+Se incorporó y validó:
+
+- creación de una `OperacionFinanciera` de tipo `COMPRA`;
+- movimiento monetario `EGRESO` en la cuenta de origen;
+- movimiento `MovimientoActivo.COMPRA` asociado al activo;
+- cálculo del importe como `cantidad × precioUnitario`;
+- validaciones de parámetros obligatorios;
+- validaciones de cantidad y precio unitario positivos;
+- validación de cuenta de origen activa;
+- validación de pertenencia de la categoría al perfil correspondiente;
+- persistencia y recuperación de la operación y sus movimientos.
+
+Pruebas específicas:
+
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
+
+Suite general:
+
+- Tests run: **419**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **27/08/2026 12:45:13 -03:00**
+- Duración: **15:09 min**
+
+Durante la validación de persistencia se detectó una diferencia de escala de `BigDecimal` al recuperar valores desde H2. Se ajustaron las comparaciones del test con `compareTo()`, sin modificar la lógica de producción.
+
+El test específico quedó en **13/13 verde** y la suite completa en **419/419 verde**.
+
 ## Build 057 — Integridad entre operación financiera y movimiento de activo
 
 **Estado: COMPLETADO Y VALIDADO.**
 
 Se reforzó `OperacionFinanciera` para validar la coherencia entre `TipoOperacionFinanciera` y `MovimientoActivo`, y se adaptó la prueba de persistencia para representar explícitamente una operación de `COMPRA`.
 
-Se incorporó:
+Pruebas específicas: `OperacionFinancieraMovimientoActivoIntegridadTest` **4/4** y `OperacionFinancieraRepositoryTest` **12/12**.
 
-- Validación de que una `COMPRA` solo admita `MovimientoActivo.COMPRA`.
-- Validación de que una `VENTA` solo admita `MovimientoActivo.VENTA`.
-- Rechazo de movimientos de activo dentro de una `TRANSFERENCIA`.
-- Conservación de las validaciones existentes de asociación y duplicación.
-- Adaptación de `OperacionFinancieraRepositoryTest` para persistir un movimiento `COMPRA` dentro de una operación `COMPRA`.
-- Validación de persistencia de una compra de 100 unidades a $125, con importe de operación de $12.500.
-
-Pruebas específicas:
-
-- `OperacionFinancieraMovimientoActivoIntegridadTest`: **4/4 tests en verde**.
-- `OperacionFinancieraRepositoryTest`: **12/12 tests en verde**.
-- Total específico verificado en el bloque: **16 tests en verde**.
-
-Suite general:
-
-- Tests run: **406**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalización: **26/08/2026 19:53:45 -03:00**
-- Duración: **15:42 min**
-
-Posteriormente, tras adaptar la prueba de persistencia, se ejecutó nuevamente la suite completa:
-
-- Tests run: **406**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalización: **26/08/2026 20:38:25 -03:00**
-- Duración: **13:00 min**
-
-La segunda ejecución es la validación final utilizada para cerrar este Build.
-
-Commits principales:
-
-- `993e278` — `fix: validar tipo de movimiento de activo en operacion`
-- `9a719c8` — `test: adaptar persistencia de movimiento activo a compra`
-
-Validación Git posterior al Build:
-
-- `git status`: working tree limpio en la validación local.
-- `git diff --check`: sin errores.
-- Rama: `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+Suite general final: **406/406**, `BUILD SUCCESS`.
 
 ## Build 056 — Incorporación del tipo de operación financiera
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se incorporó `TipoOperacionFinanciera` para distinguir explícitamente `TRANSFERENCIA`, `COMPRA` y `VENTA`, y se integró el tipo en `OperacionFinanciera` manteniendo compatibilidad con el comportamiento existente de transferencias.
+Se incorporó `TipoOperacionFinanciera` para distinguir `TRANSFERENCIA`, `COMPRA` y `VENTA`, y se integró el tipo en `OperacionFinanciera`.
 
-Se incorporó:
+Pruebas específicas: `OperacionFinancieraTest` **17/17**.
 
-- `TipoOperacionFinanciera` con `TRANSFERENCIA`, `COMPRA` y `VENTA`.
-- `OperacionFinanciera` con tipo de operación.
-- Compatibilidad del constructor existente, que crea una operación de tipo `TRANSFERENCIA`.
-- Constructor explícito para indicar el tipo.
-- Rechazo de tipo `null`.
-- Tests específicos para transferencia por defecto, compra, venta y tipo nulo.
-
-Pruebas específicas:
-
-- `OperacionFinancieraTest`: **17/17 tests en verde**.
-
-Suite general:
-
-- Tests run: **400**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalización: **26/08/2026 18:42:57 -03:00**
-- Duración: **16:05 min**
-
-Commits principales:
-
-- `21d8ed9` — `feat: agregar tipo de operacion financiera`
-- `3025848` — `feat: incorporar tipo a operacion financiera`
-- `70e4584` — `test: cubrir tipo de operacion financiera`
-
-Validación Git posterior al Build:
-
-- `git status`: working tree limpio.
-- `git diff --check`: sin errores.
-- Rama: `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+Suite general: **400/400**, `BUILD SUCCESS`.
 
 ## Build 055 — Refuerzo de integridad de OperacionFinanciera
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se reforzó la integridad del dominio de `OperacionFinanciera` para impedir asociaciones incoherentes de movimientos monetarios.
+Se reforzó la integridad del dominio para impedir asociaciones incoherentes de movimientos monetarios.
 
-Se incorporó:
+Pruebas específicas: **18/18**.
 
-- Validación de que el primer movimiento pertenezca a `cuentaOrigen`.
-- Validación de que el primer movimiento sea un `EGRESO`.
-- Validación de que el segundo movimiento pertenezca a `cuentaDestino`.
-- Validación de que el segundo movimiento sea un `INGRESO`.
-- Conservación de las reglas existentes de máximo dos movimientos, no duplicación y asociación exclusiva.
-- Nuevos tests específicos mediante `OperacionFinancieraIntegridadTest`.
-- Adaptación de `OperacionFinancieraTest` a las nuevas reglas de integridad.
-
-Pruebas específicas:
-
-- `OperacionFinancieraTest` + `OperacionFinancieraIntegridadTest`: **18/18 tests en verde**.
-
-Suite general:
-
-- Tests run: **397**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalización: **26/08/2026 16:48:26 -03:00**
-- Duración: **20:54 min**
-
-Commits principales:
-
-- `3dcadc7` — `fix: reforzar integridad de movimientos de operacion financiera`
-- `31277fe` — `test: reforzar integridad de movimientos de operacion financiera`
-- `e7c567b` — `test: adaptar OperacionFinancieraTest a reglas de integridad`
-
-Validación Git posterior al Build:
-
-- `git status`: working tree limpio.
-- `git diff --check`: sin errores.
-- Rama: `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+Suite general: **397/397**, `BUILD SUCCESS`.
 
 ## Build 054 — Incorporación del servicio de posición de activo
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se incorporó `PosicionActivoService` como coordinación entre `Activo`, `MovimientoActivoRepository` y `CalculadorPosicionActivo`.
-
-La evolución incluyó además la búsqueda de movimientos de un activo y el calculador de posición.
+Se incorporó `PosicionActivoService`, junto con la búsqueda de movimientos de un activo y el calculador de posición.
 
 ## Build 053 — Incorporación de MovimientoActivo
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se incorporó el modelo de movimientos específicos de activos para separar el efecto sobre la tenencia del efecto monetario de `Movimiento`.
+Se incorporó el modelo de movimientos específicos de activos, `MovimientoActivoRepository` y su persistencia JPA.
 
-Se incorporaron:
+Pruebas específicas: **17**.
 
-- `TipoMovimientoActivo` con `COMPRA` y `VENTA`.
-- `MovimientoActivo` con referencia a `Activo`, tipo de movimiento, cantidad y precio unitario.
-- `MovimientoActivoRepository`.
-- Persistencia JPA de `MovimientoActivo` en la unidad utilizada por los tests.
-
-La cantidad se almacena como valor positivo y el dominio determina su efecto sobre la tenencia: compra positiva y venta negativa.
-
-Pruebas específicas:
-
-- `MovimientoActivoTest`: **11/11 tests en verde**.
-- `MovimientoActivoRepositoryTest`: **6/6 tests en verde**.
-- Total de tests nuevos: **17**.
-
-Suite general:
-
-- Tests run: **370**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalización: **26/08/2026 10:57:39 -03:00**
-- Duración: **24:34 min**
-
-## Build 052 — Incorporación de Bono como especialización de Activo
-
-**Estado: COMPLETADO Y VALIDADO.**
-
-Se incorporó `Bono` como primera especialización de `Activo`, manteniendo deliberadamente una definición mínima y sin atributos financieros adicionales.
-
-Pruebas específicas: `BonoTest` **5/5** y `BonoRepositoryTest` **6/6**.
-
-Suite general: **353/353 tests en verde**, `BUILD SUCCESS`.
+Suite general: **370/370**, `BUILD SUCCESS`.
 
 ## Builds anteriores
 
-Los Builds 001–051 permanecen registrados en el historial previo de este documento.
+Los Builds 001–052 permanecen registrados en el historial previo del proyecto.
 
 ## Estado actual
 
-El último Build cerrado es **Build 057**. La última suite confirmada es **406/406 tests en verde**.
+El último Build cerrado es **Build 058**.
 
-La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
+La última suite general confirmada es **419/419 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+
+La documentación de continuidad se mantiene en `feature/operacion-financiera`.
 
 ## Próximo paso
 
-Implementar progresivamente el caso de uso de compra de activo, comenzando por sus reglas de dominio y tests, manteniendo las transferencias existentes estables. La validación de importe como `cantidad × precioUnitario` deberá integrarse en el núcleo de compra antes de abordar la venta de activos.
+Implementar progresivamente el caso de uso de **venta de activo**, reutilizando la estructura de compra y manteniendo las transferencias existentes estables. Posteriormente se validará la venta contra la posición disponible.
 
 ## Regla de cierre
 
