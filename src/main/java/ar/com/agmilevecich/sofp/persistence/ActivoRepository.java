@@ -49,6 +49,28 @@ public class ActivoRepository {
         );
     }
 
+    public Optional<Activo> buscarPorSimbolo(String simbolo) {
+
+        Objects.requireNonNull(
+                simbolo,
+                "El símbolo es obligatorio"
+        );
+
+        List<Activo> activos =
+                entityManager.createQuery(
+                                """
+                                SELECT a
+                                FROM Activo a
+                                WHERE a.simbolo = :simbolo
+                                """,
+                                Activo.class
+                        )
+                        .setParameter("simbolo", simbolo)
+                        .getResultList();
+
+        return activos.stream().findFirst();
+    }
+
     public List<Activo> listarTodas() {
 
         return entityManager.createQuery(
