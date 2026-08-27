@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class OperacionFinancieraCompraServiceTest {
 
@@ -237,6 +238,178 @@ class OperacionFinancieraCompraServiceTest {
         assertEquals(
                 precioUnitario,
                 movimientoActivo.getPrecioUnitario()
+        );
+    }
+
+    @Test
+    void deberiaRechazarCuentaOrigenNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        null,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCategoriaOrigenNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        null,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarActivoNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        null,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCantidadNula() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        null,
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarPrecioUnitarioNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        null,
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCantidadCero() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        BigDecimal.ZERO,
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCantidadNegativa() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("-1"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarPrecioUnitarioCero() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        BigDecimal.ZERO,
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarPrecioUnitarioNegativo() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("-125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
+    @Test
+    void deberiaRechazarCuentaOrigenDesactivada() {
+
+        cuentaOrigen.desactivar();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
         );
     }
 }
