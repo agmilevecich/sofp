@@ -1,5 +1,59 @@
 # SOFP — Historial de Builds
 
+## Build 057 — Integridad entre operación financiera y movimiento de activo
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se reforzó `OperacionFinanciera` para validar la coherencia entre `TipoOperacionFinanciera` y `MovimientoActivo`, y se adaptó la prueba de persistencia para representar explícitamente una operación de `COMPRA`.
+
+Se incorporó:
+
+- Validación de que una `COMPRA` solo admita `MovimientoActivo.COMPRA`.
+- Validación de que una `VENTA` solo admita `MovimientoActivo.VENTA`.
+- Rechazo de movimientos de activo dentro de una `TRANSFERENCIA`.
+- Conservación de las validaciones existentes de asociación y duplicación.
+- Adaptación de `OperacionFinancieraRepositoryTest` para persistir un movimiento `COMPRA` dentro de una operación `COMPRA`.
+- Validación de persistencia de una compra de 100 unidades a $125, con importe de operación de $12.500.
+
+Pruebas específicas:
+
+- `OperacionFinancieraMovimientoActivoIntegridadTest`: **4/4 tests en verde**.
+- `OperacionFinancieraRepositoryTest`: **12/12 tests en verde**.
+- Total específico verificado en el bloque: **16 tests en verde**.
+
+Suite general:
+
+- Tests run: **406**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **26/08/2026 19:53:45 -03:00**
+- Duración: **15:42 min**
+
+Posteriormente, tras adaptar la prueba de persistencia, se ejecutó nuevamente la suite completa:
+
+- Tests run: **406**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalización: **26/08/2026 20:38:25 -03:00**
+- Duración: **13:00 min**
+
+La segunda ejecución es la validación final utilizada para cerrar este Build.
+
+Commits principales:
+
+- `993e278` — `fix: validar tipo de movimiento de activo en operacion`
+- `9a719c8` — `test: adaptar persistencia de movimiento activo a compra`
+
+Validación Git posterior al Build:
+
+- `git status`: working tree limpio en la validación local.
+- `git diff --check`: sin errores.
+- Rama: `feature/operacion-financiera` sincronizada con GitHub y Bitbucket.
+
 ## Build 056 — Incorporación del tipo de operación financiera
 
 **Estado: COMPLETADO Y VALIDADO.**
@@ -138,13 +192,13 @@ Los Builds 001–051 permanecen registrados en el historial previo de este docum
 
 ## Estado actual
 
-El último Build cerrado es **Build 056**. La última suite confirmada es **400/400 tests en verde**.
+El último Build cerrado es **Build 057**. La última suite confirmada es **406/406 tests en verde**.
 
 La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`.
 
 ## Próximo paso
 
-Implementar progresivamente el caso de uso de compra de activo, comenzando por sus reglas de dominio y tests, manteniendo las transferencias existentes estables. La validación de importe como `cantidad × precioUnitario` y la venta de activos quedarán para los pasos correspondientes.
+Implementar progresivamente el caso de uso de compra de activo, comenzando por sus reglas de dominio y tests, manteniendo las transferencias existentes estables. La validación de importe como `cantidad × precioUnitario` deberá integrarse en el núcleo de compra antes de abordar la venta de activos.
 
 ## Regla de cierre
 
