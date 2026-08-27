@@ -171,15 +171,25 @@ public class OperacionFinanciera extends EntidadAuditable {
 
     private void validarMovimiento(Movimiento movimiento) {
         if (movimientos.isEmpty()) {
-            if (cuentaOrigen != null && !cuentaOrigen.equals(movimiento.getCuenta())) {
+            Cuenta cuentaEsperada = tipoOperacion == TipoOperacionFinanciera.VENTA
+                    ? cuentaDestino
+                    : cuentaOrigen;
+
+            if (cuentaEsperada != null && !cuentaEsperada.equals(movimiento.getCuenta())) {
                 throw new IllegalArgumentException(
-                        "El primer movimiento debe pertenecer a la cuenta de origen"
+                        "El primer movimiento debe pertenecer a la cuenta correspondiente a la operación"
                 );
             }
 
-            if (movimiento.getTipoMovimiento() != TipoMovimiento.EGRESO) {
+            TipoMovimiento tipoEsperado = tipoOperacion == TipoOperacionFinanciera.VENTA
+                    ? TipoMovimiento.INGRESO
+                    : TipoMovimiento.EGRESO;
+
+            if (movimiento.getTipoMovimiento() != tipoEsperado) {
                 throw new IllegalArgumentException(
-                        "El primer movimiento debe ser un egreso"
+                        tipoEsperado == TipoMovimiento.INGRESO
+                                ? "El primer movimiento debe ser un ingreso"
+                                : "El primer movimiento debe ser un egreso"
                 );
             }
 
