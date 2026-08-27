@@ -45,44 +45,26 @@ class OperacionFinancieraCompraServiceTest {
     void setUp() {
         entityManager = JpaTestManager.createEntityManager();
 
-        MovimientoRepository movimientoRepository =
-                new MovimientoRepository(entityManager);
+        MovimientoRepository movimientoRepository = new MovimientoRepository(entityManager);
+        OperacionFinancieraRepository operacionFinancieraRepository = new OperacionFinancieraRepository(entityManager);
 
-        OperacionFinancieraRepository operacionFinancieraRepository =
-                new OperacionFinancieraRepository(entityManager);
-
-        operacionFinancieraService =
-                new OperacionFinancieraService(
-                        entityManager,
-                        movimientoRepository,
-                        operacionFinancieraRepository
-                );
+        operacionFinancieraService = new OperacionFinancieraService(
+                entityManager,
+                movimientoRepository,
+                operacionFinancieraRepository
+        );
 
         Usuario usuario = new Usuario(
                 "Ariel", "Milevecich",
                 "operacion.compra." + System.nanoTime() + "@test.com",
                 "hash"
         );
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        InstitucionFinanciera banco = new InstitucionFinanciera("Banco de Prueba", TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
 
-        PerfilFinanciero perfil = new PerfilFinanciero(
-                "Perfil principal", usuario
-        );
-
-        InstitucionFinanciera banco = new InstitucionFinanciera(
-                "Banco de Prueba", TipoInstitucionFinanciera.BANCO
-        );
-
-        Moneda moneda = new Moneda(
-                "ARS", "Peso argentino", 2, TipoMoneda.FIAT
-        );
-
-        cuentaOrigen = new Cuenta(
-                "Cuenta origen", TipoCuenta.CAJA_AHORRO,
-                perfil, banco, moneda
-        );
-
+        cuentaOrigen = new Cuenta("Cuenta origen", TipoCuenta.CAJA_AHORRO, perfil, banco, moneda);
         categoriaOrigen = new Categoria("Inversiones", perfil);
-
         activo = new Bono("Bono GD30", moneda);
 
         entityManager.getTransaction().begin();
@@ -159,14 +141,14 @@ class OperacionFinancieraCompraServiceTest {
                 .orElseThrow();
 
         assertEquals(TipoOperacionFinanciera.COMPRA, recuperada.getTipoOperacion());
-        assertEquals(importeEsperado, recuperada.getImporte());
+        assertEquals(0, importeEsperado.compareTo(recuperada.getImporte()));
         assertEquals(cuentaOrigen.getId(), recuperada.getCuentaOrigen().getId());
         assertEquals(1, recuperada.getMovimientos().size());
         assertEquals(1, recuperada.getMovimientosActivos().size());
 
         Movimiento movimiento = recuperada.getMovimientos().get(0);
         assertEquals(TipoMovimiento.EGRESO, movimiento.getTipoMovimiento());
-        assertEquals(importeEsperado, movimiento.getImporte());
+        assertEquals(0, importeEsperado.compareTo(movimiento.getImporte()));
 
         MovimientoActivo movimientoActivo = recuperada.getMovimientosActivos().get(0);
         assertEquals(activo.getId(), movimientoActivo.getActivo().getId());
