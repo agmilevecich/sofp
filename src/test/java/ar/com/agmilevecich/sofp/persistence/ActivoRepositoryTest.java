@@ -34,6 +34,7 @@ class ActivoRepositoryTest {
             Activo activo =
                     new Activo(
                             "Bitcoin",
+                            "BTC",
                             moneda
                     );
 
@@ -57,6 +58,7 @@ class ActivoRepositoryTest {
             assertTrue(resultado.isPresent());
             assertEquals(id, resultado.get().getId());
             assertEquals("Bitcoin", resultado.get().getNombre());
+            assertEquals("BTC", resultado.get().getSimbolo());
             assertEquals(
                     moneda.getId(),
                     resultado.get().getMoneda().getId()
@@ -107,10 +109,10 @@ class ActivoRepositoryTest {
                     );
 
             Activo primero =
-                    new Activo("Bitcoin", moneda);
+                    new Activo("Bitcoin", "BTC", moneda);
 
             Activo segundo =
-                    new Activo("Ethereum", moneda);
+                    new Activo("Ethereum", "ETH", moneda);
 
             ActivoRepository repository =
                     new ActivoRepository(em);
@@ -128,7 +130,9 @@ class ActivoRepositoryTest {
 
             assertEquals(2, activos.size());
             assertEquals("Bitcoin", activos.get(0).getNombre());
+            assertEquals("BTC", activos.get(0).getSimbolo());
             assertEquals("Ethereum", activos.get(1).getNombre());
+            assertEquals("ETH", activos.get(1).getSimbolo());
 
         } finally {
             em.close();
@@ -153,7 +157,7 @@ class ActivoRepositoryTest {
                     );
 
             Activo activo =
-                    new Activo("Bitcoin", moneda);
+                    new Activo("Bitcoin", "BTC", moneda);
 
             ActivoRepository repository =
                     new ActivoRepository(em);
@@ -189,6 +193,7 @@ class ActivoRepositoryTest {
                     "Bitcoin actualizado",
                     actualizado.getNombre()
             );
+            assertEquals("BTC", actualizado.getSimbolo());
             assertEquals(id, actualizado.getId());
 
         } finally {
