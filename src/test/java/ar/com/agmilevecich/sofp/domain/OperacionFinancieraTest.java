@@ -662,6 +662,7 @@ class OperacionFinancieraTest {
         Activo activo =
                 new Activo(
                         "Bono GD30",
+                        "GD30",
                         moneda
                 );
 
