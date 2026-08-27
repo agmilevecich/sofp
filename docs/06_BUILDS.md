@@ -1,5 +1,36 @@
 # SOFP — Historial de Builds
 
+## Build 059 — Suite general posterior a venta y posición
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se ejecutó la suite general después de completar la cobertura de venta de activo, persistencia de relaciones e integración con posición.
+
+Pruebas específicas previas:
+
+- `OperacionFinancieraTest`: **17/17 tests en verde**.
+- `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
+- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
+- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+
+Validaciones destacadas:
+
+- Venta produce `VENTA` + `INGRESO` + `MovimientoActivo.VENTA`.
+- Las relaciones de `Movimiento` y `MovimientoActivo` con `OperacionFinanciera` se conservan después de recuperar desde persistencia.
+- Compra de 100 unidades seguida de venta de 30 produce posición final de **70 unidades** mediante los servicios reales.
+
+Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 15:24:11 -03:00**:
+
+- Tests run: **433**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **17:35 min**
+
+**Build 059 queda cerrado y validado.**
+
 ## Build 058 — Caso de uso de compra de activo
 
 **Estado: COMPLETADO Y VALIDADO.**
@@ -33,8 +64,6 @@ Suite general:
 - Duración: **15:09 min**
 
 Durante la validación de persistencia se detectó una diferencia de escala de `BigDecimal` al recuperar valores desde H2. Se ajustaron las comparaciones del test con `compareTo()`, sin modificar la lógica de producción.
-
-El test específico quedó en **13/13 verde** y la suite completa en **419/419 verde**.
 
 ## Build 057 — Integridad entre operación financiera y movimiento de activo
 
@@ -88,15 +117,15 @@ Los Builds 001–052 permanecen registrados en el historial previo del proyecto.
 
 ## Estado actual
 
-El último Build cerrado es **Build 058**.
+El último Build cerrado es **Build 059**.
 
-La última suite general confirmada es **419/419 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+La última suite general confirmada es **433/433 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
 
 La documentación de continuidad se mantiene en `feature/operacion-financiera`.
 
 ## Próximo paso
 
-Implementar progresivamente el caso de uso de **venta de activo**, reutilizando la estructura de compra y manteniendo las transferencias existentes estables. Posteriormente se validará la venta contra la posición disponible.
+Revisión final de `feature/operacion-financiera` contra `main`, incluyendo commits, archivos modificados y diferencia funcional. Luego determinar si la feature está lista para preparar el merge, sin modificar `main` automáticamente.
 
 ## Regla de cierre
 
