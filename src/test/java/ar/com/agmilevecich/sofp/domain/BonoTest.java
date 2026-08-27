@@ -20,12 +20,18 @@ class BonoTest {
         Bono bono =
                 new Bono(
                         "Bono GD30",
+                        "GD30",
                         moneda
                 );
 
         assertEquals(
                 "Bono GD30",
                 bono.getNombre()
+        );
+
+        assertEquals(
+                "GD30",
+                bono.getSimbolo()
         );
 
         assertEquals(
@@ -56,6 +62,7 @@ class BonoTest {
         Bono bono =
                 new Bono(
                         "Bono GD30",
+                        "GD30",
                         monedaInicial
                 );
 
@@ -65,6 +72,10 @@ class BonoTest {
         assertEquals(
                 "Bono GD30 2030",
                 bono.getNombre()
+        );
+        assertEquals(
+                "GD30",
+                bono.getSimbolo()
         );
         assertEquals(
                 nuevaMoneda,
@@ -85,7 +96,24 @@ class BonoTest {
 
         assertThrows(
                 NullPointerException.class,
-                () -> new Bono(null, moneda)
+                () -> new Bono(null, "GD30", moneda)
+        );
+    }
+
+    @Test
+    void deberiaRechazarSimboloNulo() {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        assertThrows(
+                NullPointerException.class,
+                () -> new Bono("Bono GD30", null, moneda)
         );
     }
 
@@ -94,7 +122,7 @@ class BonoTest {
 
         assertThrows(
                 NullPointerException.class,
-                () -> new Bono("Bono GD30", null)
+                () -> new Bono("Bono GD30", "GD30", null)
         );
     }
 
@@ -112,6 +140,7 @@ class BonoTest {
         Bono bono =
                 new Bono(
                         "Bono GD30",
+                        "GD30",
                         moneda
                 );
 
