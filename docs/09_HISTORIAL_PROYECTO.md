@@ -2,138 +2,119 @@
 
 Este documento conserva una línea temporal resumida de decisiones, avances y puntos de continuidad.
 
+## 2026-08-27
+
+### Build 059 — Suite general posterior a venta y posición — Cerrado
+
+- Se completó la validación del bloque de compra y venta de activos.
+- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
+- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+- Se verificaron las relaciones persistidas de `Movimiento` y `MovimientoActivo` con `OperacionFinanciera` después de recuperar la operación.
+- Se agregó una prueba de integración que ejecuta una compra de 100 y una venta de 30 mediante `OperacionFinancieraService`, y verifica una posición final de **70 unidades** mediante `PosicionActivoService`.
+- Suite general ejecutada desde IntelliJ IDEA: **433/433 tests en verde**.
+- `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
+- Finalizada: **15:24:11 -03:00**.
+- Duración: **17:35 min**.
+- `main` no fue modificado.
+- La documentación de continuidad permanece en `feature/operacion-financiera`.
+- **Build 059 queda cerrado y validado.**
+
+### Cierre de la etapa de OperacionFinanciera
+
+- Compra de activo implementada y validada.
+- Venta de activo implementada y validada.
+- Persistencia de operación y movimientos validada.
+- Posición de activo validada.
+- Integración compra + venta + posición validada.
+- Suite general posterior a los cambios: **433/433**.
+
 ## 2026-08-25
 
 ### Build 052 — Incorporación de Bono como especialización de Activo — Cerrado
 
 - Se incorporó `Bono` como primera especialización de `Activo`.
 - `Bono` hereda de `Activo` y actualmente no agrega atributos financieros específicos.
-- Se mantuvieron `nombre` y `Moneda` como datos heredados de `Activo`.
 - Se incorporó `BonoRepository` para persistencia JPA.
-- Se registró `Bono` explícitamente en la configuración de persistencia utilizada por los tests.
-- `BonoTest`: **5/5 tests en verde**.
-- `BonoRepositoryTest`: **6/6 tests en verde**.
-- La suite general quedó en **353/353 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-- La ejecución general finalizó a las **20:14:39 -03:00** y tuvo una duración de **16:07 min**.
-- Commits del bloque: `589acf1`, `c11f1f4`, `6925447`, `74b8fff` y `678c6ea`.
-- Se eliminaron las ramas auxiliares creadas accidentalmente durante la implementación y se mantuvo como única rama de trabajo `feature/operacion-financiera`.
+- `BonoTest`: **5/5**.
+- `BonoRepositoryTest`: **6/6**.
+- Suite general: **353/353**, `BUILD SUCCESS`.
+- Se mantuvo como única rama de trabajo `feature/operacion-financiera`.
 - `main` no fue modificado.
-- **Build 052 queda cerrado y validado.**
 
 ### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
 
-- Se incorporó `Activo` como entidad base para el futuro bloque de inversiones.
-- `Activo` hereda de `EntidadAuditable` y contiene actualmente `nombre` y `Moneda` obligatorios.
-- Se incorporaron métodos de dominio para cambiar nombre y moneda.
-- Se incorporó `ActivoRepository` para persistencia JPA.
-- `ActivoTest`: **8/8 tests en verde**.
-- `ActivoRepositoryTest`: **6/6 tests en verde**.
-- La primera ejecución de `ActivoRepositoryTest` detectó la necesidad de registrar `Activo` en la configuración de persistencia utilizada por los tests; corregida esa configuración, los 6 tests quedaron en verde.
-- La suite general quedó en **342/342 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-- La ejecución general finalizó a las **16:30:22 -03:00** y tuvo una duración de **16:51 min**.
-- Commits del bloque: `0793126`, `5270e31`, `1624f8c` y `70bdbf7`.
-- El bloque quedó publicado y sincronizado en GitHub y Bitbucket.
-- Working tree quedó limpio.
-- `main` no fue modificado.
-- **Build 051 queda cerrado y validado.**
+- Se incorporó `Activo` y `ActivoRepository`.
+- `ActivoTest`: **8/8**.
+- `ActivoRepositoryTest`: **6/6**.
+- Suite general: **342/342**, `BUILD SUCCESS`.
 
 ### Build 050 — Ampliación de cobertura de OperacionFinancieraService — Cerrado
 
-- Se agregaron dos pruebas específicas a `OperacionFinancieraServiceTest`.
-- Se verificó que los dos movimientos generados por una transferencia quedan asociados a la misma `OperacionFinanciera`.
-- Se verificó el rechazo de la misma cuenta como origen y destino y la ausencia de movimientos persistidos ante el rechazo.
-- `OperacionFinancieraServiceTest` pasó de **20/20 a 22/22 tests en verde**.
-- La suite general quedó en **328/328 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-- La ejecución general finalizó a las **10:47:02 -03:00** y tuvo una duración de **12:04 min**.
-- Commit: `1f306e4` — `test: ampliar cobertura de OperacionFinancieraService`.
-- **Build 050 queda cerrado y validado.**
+- `OperacionFinancieraServiceTest`: **22/22**.
+- Suite general: **328/328**, `BUILD SUCCESS`.
 
 ## 2026-08-23
 
 ### Build 049 — Asociación de Movimiento con OperacionFinanciera — Cerrado
 
 - Se incorporó la relación persistente entre `Movimiento` y `OperacionFinanciera`.
-- `Movimiento` incorpora `@ManyToOne` y la columna `operacion_financiera_id`.
-- `OperacionFinanciera` incorpora `@OneToMany(mappedBy = "operacionFinanciera")`.
-- La colección de movimientos se expone como una lista no modificable.
-- Una `OperacionFinanciera` admite como máximo dos movimientos.
-- Se rechazan movimientos nulos, repetidos y movimientos que ya pertenecen a otra operación financiera.
-- `OperacionFinancieraService` asocia el `EGRESO` y el `INGRESO` a la operación antes de persistirlos.
-- `OperacionFinancieraTest` pasó de **7 a 14 tests en verde**.
-- La suite general quedó en **326/326 tests en verde**.
-- Commit funcional: `0f64fa9` — `feat: asociar movimientos a operacion financiera`.
-- **Build 049 queda cerrado y validado.**
+- `OperacionFinancieraTest`: **14/14**.
+- Suite general: **326/326**.
 
-### Build 048 — Implementación de OperacionFinancieraRepository — Cerrado
+### Build 048 — OperacionFinancieraRepository — Cerrado
 
-- Se incorporó `OperacionFinancieraRepository`.
-- Se integró el repositorio en `OperacionFinancieraService`.
-- `OperacionFinancieraRepositoryTest`: **10/10 tests en verde**.
-- `OperacionFinancieraServiceTest`: **20/20 tests en verde**.
-- `OperacionFinancieraTest`: **7/7 tests en verde**.
-- La suite general quedó en **319/319 tests en verde**.
-- **Build 048 queda cerrado y validado.**
+- Se incorporó `OperacionFinancieraRepository` y su integración con el servicio.
+- `OperacionFinancieraRepositoryTest`: **10/10**.
+- Suite general: **319/319**.
 
 ## 2026-08-21
 
-### Build 047 — Completar cobertura de OperacionFinancieraService — Cerrado
+### Build 047 — Cobertura de OperacionFinancieraService — Cerrado
 
-- Se completó la cobertura de `OperacionFinancieraServiceTest`.
-- Se incorporaron pruebas para cuentas inactivas, categorías pertenecientes a otros perfiles, monedas diferentes, fecha/hora nula, rechazo de descripción nula y ausencia de persistencia de movimientos ante operaciones rechazadas.
-- `OperacionFinancieraServiceTest` quedó en **20/20 tests en verde**.
-- La suite completa quedó en **309/309 tests en verde**.
-- Commit: `615161c` — `test: completar cobertura de OperacionFinancieraService`.
-- **Build 047 queda cerrado y validado.**
+- `OperacionFinancieraServiceTest`: **20/20**.
+- Suite general: **309/309**.
 
 ### Build 046 — Implementación de OperacionFinancieraService — Cerrado
 
-- Se incorporó `OperacionFinancieraService`.
-- El servicio materializa una transferencia mediante una `OperacionFinanciera`, un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino.
-- La persistencia se coordina dentro de una única transacción.
-- `OperacionFinancieraServiceTest`: **20/20 tests en verde**.
-- La suite completa quedó en **300/300 tests en verde**.
-- **Build 046 queda cerrado y validado.**
+- Transferencia coordinada mediante `OperacionFinanciera`, `EGRESO` e `INGRESO`.
+- Suite general: **300/300**.
 
 ## 2026-08-20
 
-### Build 045 — Implementación del dominio de OperacionFinanciera — Cerrado
+### Build 045 — Dominio de OperacionFinanciera — Cerrado
 
-- Se incorporó `OperacionFinanciera` como entidad de dominio para representar una transferencia entre cuenta origen y cuenta destino.
-- Se incorporó la regla de negocio que impide utilizar la misma cuenta como origen y destino.
-- `OperacionFinancieraTest`: **7/7 tests en verde**.
-- La suite general quedó en **289/289 tests en verde**.
-- Commit: `1f650dc` — `feat: implementar dominio de operacion financiera`.
-- **Build 045 queda cerrado y validado.**
+- Se incorporó `OperacionFinanciera`.
+- Suite general: **289/289**.
 
-### Build 044 — Ampliación de cobertura de Movimiento — Cerrado
+### Build 044 — Cobertura de Movimiento — Cerrado
 
-- Se amplió `MovimientoTest` hasta **27/27 tests en verde**.
-- La suite general quedó en **282/282 tests en verde**.
-- Commit: `6f53f79` — `test: ampliar cobertura de Movimiento`.
-- **Build 044 queda cerrado y validado.**
+- `MovimientoTest`: **27/27**.
+- Suite general: **282/282**.
 
 ## Estado actual
 
-El último bloque trabajado es **Build 052 — Incorporación de Bono como especialización de Activo — cerrado**.
+El último bloque cerrado es **Build 059 — Suite general posterior a venta y posición**.
 
-`BonoTest`: **5/5 tests en verde**.
+La suite general más reciente es **433/433 tests en verde**.
 
-`BonoRepositoryTest`: **6/6 tests en verde**.
+La rama de trabajo y continuidad es `feature/operacion-financiera`. La rama `docs/continuidad-sofp` fue eliminada y no debe reincorporarse al flujo.
 
-La suite completa está en **353/353 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
-
-La rama `feature/operacion-financiera` está sincronizada entre GitHub y Bitbucket antes de la actualización de esta documentación.
-
-La documentación de continuidad se mantiene exclusivamente en `feature/operacion-financiera`. La rama `docs/continuidad-sofp` fue eliminada.
-
-Las ramas auxiliares creadas accidentalmente durante la implementación de `Bono` fueron eliminadas de los remotos.
-
-`main` permanece separado de estos cambios.
+`main` permanece separado de la feature hasta completar la revisión final y decidir el merge.
 
 ## Próximo punto de trabajo
 
-Definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas. En particular, decidir qué atributos y comportamientos financieros debe tener `Bono` antes de incorporarlos al dominio.
+Revisión final de la feature contra `main`, incluyendo:
+
+- commits;
+- archivos modificados;
+- `git status`;
+- `git diff`;
+- `git diff --check`;
+- coherencia de documentación;
+- estrategia de merge.
+
+No realizar el merge automáticamente.
 
 ## Regla histórica
 
-Los hechos importantes del proyecto deben registrarse con Build y/o commit cuando exista. Las conversaciones pueden aportar contexto narrativo, pero no sustituyen este historial.
+Los hechos importantes se registran con Build y/o commit cuando corresponda. Los chats aportan contexto, pero no sustituyen el estado real del repositorio.
