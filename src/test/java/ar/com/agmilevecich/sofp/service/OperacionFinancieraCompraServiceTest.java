@@ -175,7 +175,7 @@ class OperacionFinancieraCompraServiceTest {
 
         assertEquals(
                 TipoOperacionFinanciera.COMPRA,
-                operacion.getTipo()
+                operacion.getTipoOperacion()
         );
 
         assertEquals(
