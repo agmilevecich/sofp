@@ -15,8 +15,6 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 - Finalizada: **15:24:11 -03:00**.
 - Duración: **17:35 min**.
-- `main` no fue modificado.
-- La documentación de continuidad permanece en `feature/operacion-financiera`.
 - **Build 059 queda cerrado y validado.**
 
 ### Cierre de la etapa de OperacionFinanciera
@@ -27,6 +25,13 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - Posición de activo validada.
 - Integración compra + venta + posición validada.
 - Suite general posterior a los cambios: **433/433**.
+
+### Integración en main
+
+- La rama `feature/operacion-financiera` fue integrada en `main` mediante `d39632b` — `Merge branch 'feature/operacion-financiera'`.
+- `main` fue publicado en Bitbucket y GitHub.
+- `main` local, `github/main` y `bitbucket/main` quedaron alineados en `d39632b`.
+- Se verificó el estado local: working tree limpio y sin diferencias pendientes.
 
 ## 2026-08-25
 
@@ -39,7 +44,6 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 - `BonoRepositoryTest`: **6/6**.
 - Suite general: **353/353**, `BUILD SUCCESS`.
 - Se mantuvo como única rama de trabajo `feature/operacion-financiera`.
-- `main` no fue modificado.
 
 ### Build 051 — Incorporación de Activo y persistencia JPA — Cerrado
 
@@ -93,27 +97,19 @@ Este documento conserva una línea temporal resumida de decisiones, avances y pu
 
 ## Estado actual
 
-El último bloque cerrado es **Build 059 — Suite general posterior a venta y posición**.
+El último bloco cerrado es **Build 059 — Suite general posterior a venta y posición**.
 
 La suite general más reciente es **433/433 tests en verde**.
 
-La rama de trabajo y continuidad es `feature/operacion-financiera`. La rama `docs/continuidad-sofp` fue eliminada y no debe reincorporarse al flujo.
+La etapa `feature/operacion-financiera` ya fue integrada en `main` mediante `d39632b`.
 
-`main` permanece separado de la feature hasta completar la revisión final y decidir el merge.
+La rama `docs/continuidad-sofp` no forma parte del flujo actual de trabajo.
 
 ## Próximo punto de trabajo
 
-Revisión final de la feature contra `main`, incluyendo:
+Revisar el dominio actual y definir la siguiente funcionalidad de inversiones a partir de reglas de negocio explícitas.
 
-- commits;
-- archivos modificados;
-- `git status`;
-- `git diff`;
-- `git diff --check`;
-- coherencia de documentación;
-- estrategia de merge.
-
-No realizar el merge automáticamente.
+Antes de crear una nueva rama `feature/...`, revisar las entidades, servicios, repositorios y tests relacionados con el próximo caso de uso.
 
 ## Regla histórica
 
