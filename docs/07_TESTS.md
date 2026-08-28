@@ -2,81 +2,61 @@
 
 Este documento registra la evolución de la batería de tests y los resultados verificados.
 
-## Estado actual
+## Validación global más reciente
 
-### Build 059 — Suite general posterior a venta y posición — Cerrado
+Suite completa ejecutada desde IntelliJ IDEA el **27/08/2026 19:52:48 -03:00**.
 
-Suite completa ejecutada desde IntelliJ IDEA el **27/08/2026 15:24:11 -03:00**.
-
-- Tests run: **433**
+- Tests run: **435**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **17:35 min**
+- Duración: **19:08 min**
 
-Los 433 tests fueron ejecutados después de los cambios recientes de venta, persistencia de relaciones e integración con posición. Todos finalizaron correctamente.
+Esta es la suite general más reciente confirmada y debe considerarse la validación global vigente.
 
-### Validaciones específicas previas
+## Validaciones de identificación por símbolo
 
-- `OperacionFinancieraTest`: **17/17 tests en verde**.
-- `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
-- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
-- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
-- Total de los cuatro archivos: **65/65 tests en verde**.
-- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+Se incorporó búsqueda de activos por símbolo y posteriormente búsqueda de bonos por símbolo.
 
-`OperacionFinancieraVentaServiceTest` verifica también las relaciones de `Movimiento` y `MovimientoActivo` después de recuperar la operación desde persistencia.
+- `ActivoRepository` — búsqueda por símbolo implementada y cubierta por test.
+- `BonoRepository` — búsqueda por símbolo implementada y cubierta por test.
+- Los tests específicos ejecutados desde IntelliJ fueron informados como verdes.
+- Los tests también cubren el rechazo de `null` en las búsquedas por símbolo.
 
-`PosicionActivoServiceTest` valida mediante los servicios reales una compra de 100 unidades seguida de una venta de 30, obteniendo una posición final de **70 unidades**.
+Commits:
 
-## Última suite general confirmada
+- `3f6c776` — `feat: agregar busqueda de activo por simbolo`
+- `6179f2d` — `test: cubrir busqueda de activo por simbolo`
+- `354e0b3` — `feat: agregar busqueda de bono por simbolo`
+- `976aff7` — `test: cubrir busqueda de bono por simbolo`
 
-**433/433 tests en verde**, con `Failures: 0`, `Errors: 0`, `Skipped: 0` y `BUILD SUCCESS`.
+## Adaptación al símbolo obligatorio
 
-Esta es la suite general más reciente y debe considerarse la validación global vigente de la feature.
+Antes de incorporar las búsquedas se adaptaron los constructores y tests afectados por el nuevo atributo identificador:
 
-### Build 058 — Caso de uso de compra de activo — Cerrado
+- `OperacionFinancieraMovimientoActivoIntegridadTest`
+- `MovimientoActivoRepositoryTest`
+- `PosicionActivoTest`
+- `OperacionFinancieraRepositoryTest`
+- `MovimientoActivoTest`
+- `ActivoRepositoryTest`
+- `OperacionFinancieraTest`
+- `OperacionFinancieraVentaServiceTest`
+- `CalculadorPosicionActivoTest`
+- `OperacionFinancieraCompraServiceTest`
+- `PosicionActivoServiceTest`
 
-Se implementó y validó `OperacionFinancieraService.comprarActivo(...)`.
+La suite general posterior quedó en **435/435**.
 
-Prueba específica:
+## Builds anteriores
 
-- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
-
-Suite general:
-
-- Tests run: **419**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Finalizada: **27/08/2026 12:45:13 -03:00**
-- Duración: **15:09 min**
-
-Durante la prueba de persistencia se detectaron diferencias de escala de `BigDecimal` al recuperar valores desde H2. Las comparaciones afectadas fueron adaptadas mediante `compareTo()`, sin modificar producción.
-
-### Builds anteriores
-
-Los Builds 001–057 y sus resultados permanecen registrados en el historial del proyecto.
-
-## Conteo registrado de tests de services
-
-- `CategoriaServiceTest`: **21**
-- `CuentaServiceTest`: **47**
-- `InstitucionFinancieraServiceTest`: **26**
-- `MonedaServiceTest`: **17**
-- `MovimientoServiceTest`: **50**
-- `PerfilFinancieroServiceTest`: **13**
-- `UsuarioServiceTest`: **15**
-- `OperacionFinancieraServiceTest`: **22**
-
-Total registrado de tests de services: **211**.
+Los Builds 001–059 permanecen registrados en el historial del proyecto. Build 059 fue el cierre de la etapa de compra, venta y posición de activos.
 
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. La documentación debe reflejar el estado real de `feature/operacion-financiera` antes de iniciar un nuevo bloque.
+No registrar resultados de tests que no hayan sido realmente ejecutados. Cada cambio funcional debe contar con cobertura específica y, cuando corresponda, validación de la suite general.
 
 ## Próximo bloque
 
-Revisión final de `feature/operacion-financiera` contra `main`, incluyendo commits, archivos modificados y diferencia funcional. Luego determinar si la feature está lista para preparar el merge, sin modificar `main` automáticamente.
+Cubrir la regla de unicidad del símbolo en persistencia, si la implementación actual mantiene dicha restricción, y continuar luego con el siguiente caso de uso de identificación de instrumentos.

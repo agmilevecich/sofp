@@ -31,56 +31,23 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaObtenerPosicionDelActivo() {
-
         JpaTestManager.close();
         EntityManager em = JpaTestManager.createEntityManager();
-
         try {
             Bono bono = crearBono();
-
-            MovimientoActivo compra =
-                    crearMovimiento(
-                            bono,
-                            TipoMovimientoActivo.COMPRA,
-                            "100",
-                            "125"
-                    );
-
-            MovimientoActivo venta =
-                    crearMovimiento(
-                            bono,
-                            TipoMovimientoActivo.VENTA,
-                            "30",
-                            "135"
-                    );
-
+            MovimientoActivo compra = crearMovimiento(bono, TipoMovimientoActivo.COMPRA, "100", "125");
+            MovimientoActivo venta = crearMovimiento(bono, TipoMovimientoActivo.VENTA, "30", "135");
             em.getTransaction().begin();
-
             em.persist(bono.getMoneda());
             em.persist(bono);
-
-            MovimientoActivoRepository repository =
-                    new MovimientoActivoRepository(em);
-
+            MovimientoActivoRepository repository = new MovimientoActivoRepository(em);
             repository.guardar(compra);
             repository.guardar(venta);
-
             em.getTransaction().commit();
-
-            PosicionActivoService service =
-                    new PosicionActivoService(repository);
-
-            PosicionActivo posicion =
-                    service.obtenerPosicion(bono);
-
+            PosicionActivoService service = new PosicionActivoService(repository);
+            PosicionActivo posicion = service.obtenerPosicion(bono);
             assertEquals(bono, posicion.getActivo());
-            assertEquals(
-                    0,
-                    posicion.getCantidad().compareTo(
-                            new BigDecimal("70")
-                    )
-            );
-
+            assertEquals(0, posicion.getCantidad().compareTo(new BigDecimal("70")));
         } finally {
             em.close();
         }
@@ -88,32 +55,18 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaObtenerPosicionCeroSinMovimientos() {
-
         JpaTestManager.close();
         EntityManager em = JpaTestManager.createEntityManager();
-
         try {
             Bono bono = crearBono();
-
             em.getTransaction().begin();
             em.persist(bono.getMoneda());
             em.persist(bono);
             em.getTransaction().commit();
-
-            MovimientoActivoRepository repository =
-                    new MovimientoActivoRepository(em);
-
-            PosicionActivoService service =
-                    new PosicionActivoService(repository);
-
-            PosicionActivo posicion =
-                    service.obtenerPosicion(bono);
-
-            assertEquals(
-                    0,
-                    posicion.getCantidad().compareTo(BigDecimal.ZERO)
-            );
-
+            MovimientoActivoRepository repository = new MovimientoActivoRepository(em);
+            PosicionActivoService service = new PosicionActivoService(repository);
+            PosicionActivo posicion = service.obtenerPosicion(bono);
+            assertEquals(0, posicion.getCantidad().compareTo(BigDecimal.ZERO));
         } finally {
             em.close();
         }
@@ -121,22 +74,12 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaRechazarActivoNulo() {
-
         JpaTestManager.close();
         EntityManager em = JpaTestManager.createEntityManager();
-
         try {
-            MovimientoActivoRepository repository =
-                    new MovimientoActivoRepository(em);
-
-            PosicionActivoService service =
-                    new PosicionActivoService(repository);
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> service.obtenerPosicion(null)
-            );
-
+            MovimientoActivoRepository repository = new MovimientoActivoRepository(em);
+            PosicionActivoService service = new PosicionActivoService(repository);
+            assertThrows(NullPointerException.class, () -> service.obtenerPosicion(null));
         } finally {
             em.close();
         }
@@ -144,46 +87,16 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaCalcularPosicionDesdeCompraYVentaReal() {
-
         JpaTestManager.close();
         EntityManager em = JpaTestManager.createEntityManager();
-
         try {
-            Usuario usuario = new Usuario(
-                    "Ariel",
-                    "Milevecich",
-                    "posicion.integracion." + System.nanoTime() + "@test.com",
-                    "hash"
-            );
-            PerfilFinanciero perfil = new PerfilFinanciero(
-                    "Perfil principal",
-                    usuario
-            );
-            InstitucionFinanciera banco = new InstitucionFinanciera(
-                    "Banco de Prueba",
-                    TipoInstitucionFinanciera.BANCO
-            );
-            Moneda moneda = new Moneda(
-                    "ARS",
-                    "Peso argentino",
-                    2,
-                    TipoMoneda.FIAT
-            );
-            Cuenta cuenta = new Cuenta(
-                    "Cuenta inversiones",
-                    TipoCuenta.CAJA_AHORRO,
-                    perfil,
-                    banco,
-                    moneda
-            );
-            Categoria categoria = new Categoria(
-                    "Inversiones",
-                    perfil
-            );
-            Bono bono = new Bono(
-                    "Bono GD30",
-                    moneda
-            );
+            Usuario usuario = new Usuario("Ariel", "Milevecich", "posicion.integracion." + System.nanoTime() + "@test.com", "hash");
+            PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+            InstitucionFinanciera banco = new InstitucionFinanciera("Banco de Prueba", TipoInstitucionFinanciera.BANCO);
+            Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+            Cuenta cuenta = new Cuenta("Cuenta inversiones", TipoCuenta.CAJA_AHORRO, perfil, banco, moneda);
+            Categoria categoria = new Categoria("Inversiones", perfil);
+            Bono bono = new Bono("Bono GD30", "GD30", moneda);
 
             em.getTransaction().begin();
             em.persist(usuario);
@@ -195,81 +108,30 @@ class PosicionActivoServiceTest {
             em.persist(bono);
             em.getTransaction().commit();
 
-            MovimientoRepository movimientoRepository =
-                    new MovimientoRepository(em);
-            OperacionFinancieraRepository operacionRepository =
-                    new OperacionFinancieraRepository(em);
-            OperacionFinancieraService operacionService =
-                    new OperacionFinancieraService(
-                            em,
-                            movimientoRepository,
-                            operacionRepository
-                    );
+            MovimientoRepository movimientoRepository = new MovimientoRepository(em);
+            OperacionFinancieraRepository operacionRepository = new OperacionFinancieraRepository(em);
+            OperacionFinancieraService operacionService = new OperacionFinancieraService(em, movimientoRepository, operacionRepository);
 
-            operacionService.comprarActivo(
-                    cuenta,
-                    categoria,
-                    bono,
-                    new BigDecimal("100"),
-                    new BigDecimal("125"),
-                    LocalDateTime.of(2026, 8, 27, 10, 0),
-                    "Compra Bono GD30"
-            );
+            operacionService.comprarActivo(cuenta, categoria, bono, new BigDecimal("100"), new BigDecimal("125"), LocalDateTime.of(2026, 8, 27, 10, 0), "Compra Bono GD30");
+            operacionService.venderActivo(cuenta, categoria, bono, new BigDecimal("30"), new BigDecimal("135"), LocalDateTime.of(2026, 8, 27, 14, 0), "Venta Bono GD30");
 
-            operacionService.venderActivo(
-                    cuenta,
-                    categoria,
-                    bono,
-                    new BigDecimal("30"),
-                    new BigDecimal("135"),
-                    LocalDateTime.of(2026, 8, 27, 14, 0),
-                    "Venta Bono GD30"
-            );
-
-            MovimientoActivoRepository movimientoActivoRepository =
-                    new MovimientoActivoRepository(em);
-            PosicionActivoService posicionService =
-                    new PosicionActivoService(movimientoActivoRepository);
-
+            MovimientoActivoRepository movimientoActivoRepository = new MovimientoActivoRepository(em);
+            PosicionActivoService posicionService = new PosicionActivoService(movimientoActivoRepository);
             PosicionActivo posicion = posicionService.obtenerPosicion(bono);
 
             assertEquals(bono.getId(), posicion.getActivo().getId());
-            assertEquals(
-                    0,
-                    new BigDecimal("70").compareTo(posicion.getCantidad())
-            );
-
+            assertEquals(0, new BigDecimal("70").compareTo(posicion.getCantidad()));
         } finally {
             em.close();
         }
     }
 
     private Bono crearBono() {
-
-        Moneda moneda = new Moneda(
-                "ARS",
-                "Peso argentino",
-                2,
-                TipoMoneda.FIAT
-        );
-
-        return new Bono(
-                "Bono GD30",
-                moneda
-        );
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        return new Bono("Bono GD30", "GD30", moneda);
     }
 
-    private MovimientoActivo crearMovimiento(
-            Bono bono,
-            TipoMovimientoActivo tipo,
-            String cantidad,
-            String precioUnitario) {
-
-        return new MovimientoActivo(
-                bono,
-                tipo,
-                new BigDecimal(cantidad),
-                new BigDecimal(precioUnitario)
-        );
+    private MovimientoActivo crearMovimiento(Bono bono, TipoMovimientoActivo tipo, String cantidad, String precioUnitario) {
+        return new MovimientoActivo(bono, tipo, new BigDecimal(cantidad), new BigDecimal(precioUnitario));
     }
 }

@@ -34,6 +34,7 @@ class BonoRepositoryTest {
             Bono bono =
                     new Bono(
                             "Bono GD30",
+                            "GD30",
                             moneda
                     );
 
@@ -57,10 +58,57 @@ class BonoRepositoryTest {
             assertTrue(resultado.isPresent());
             assertEquals(id, resultado.get().getId());
             assertEquals("Bono GD30", resultado.get().getNombre());
+            assertEquals("GD30", resultado.get().getSimbolo());
             assertEquals(
                     moneda.getId(),
                     resultado.get().getMoneda().getId()
             );
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaBuscarBonoPorSimbolo() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Bono bono =
+                    new Bono(
+                            "Bono GD30",
+                            "GD30",
+                            moneda
+                    );
+
+            BonoRepository repository =
+                    new BonoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(bono);
+
+            em.getTransaction().commit();
+
+            Optional<Bono> resultado =
+                    repository.buscarPorSimbolo("GD30");
+
+            assertTrue(resultado.isPresent());
+            assertEquals("Bono GD30", resultado.get().getNombre());
+            assertEquals("GD30", resultado.get().getSimbolo());
 
         } finally {
             em.close();
@@ -107,10 +155,10 @@ class BonoRepositoryTest {
                     );
 
             Bono primero =
-                    new Bono("Bono GD30", moneda);
+                    new Bono("Bono GD30", "GD30", moneda);
 
             Bono segundo =
-                    new Bono("Bono AL30", moneda);
+                    new Bono("Bono AL30", "AL30", moneda);
 
             BonoRepository repository =
                     new BonoRepository(em);
@@ -128,7 +176,9 @@ class BonoRepositoryTest {
 
             assertEquals(2, bonos.size());
             assertEquals("Bono GD30", bonos.get(0).getNombre());
+            assertEquals("GD30", bonos.get(0).getSimbolo());
             assertEquals("Bono AL30", bonos.get(1).getNombre());
+            assertEquals("AL30", bonos.get(1).getSimbolo());
 
         } finally {
             em.close();
@@ -153,7 +203,7 @@ class BonoRepositoryTest {
                     );
 
             Bono bono =
-                    new Bono("Bono GD30", moneda);
+                    new Bono("Bono GD30", "GD30", moneda);
 
             BonoRepository repository =
                     new BonoRepository(em);
@@ -189,7 +239,52 @@ class BonoRepositoryTest {
                     "Bono GD30 actualizado",
                     actualizado.getNombre()
             );
+            assertEquals("GD30", actualizado.getSimbolo());
             assertEquals(id, actualizado.getId());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarSimboloDuplicado() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Bono primero =
+                    new Bono("Bono GD30", "GD30", moneda);
+
+            Bono segundo =
+                    new Bono("Bono GD30 2", "GD30", moneda);
+
+            BonoRepository repository =
+                    new BonoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(primero);
+            em.flush();
+
+            assertThrows(
+                    RuntimeException.class,
+                    () -> repository.guardar(segundo)
+            );
+
+            em.getTransaction().rollback();
 
         } finally {
             em.close();

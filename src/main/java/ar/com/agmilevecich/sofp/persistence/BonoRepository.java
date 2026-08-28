@@ -49,6 +49,28 @@ public class BonoRepository {
         );
     }
 
+    public Optional<Bono> buscarPorSimbolo(String simbolo) {
+
+        Objects.requireNonNull(
+                simbolo,
+                "El símbolo es obligatorio"
+        );
+
+        List<Bono> bonos =
+                entityManager.createQuery(
+                                """
+                                SELECT b
+                                FROM Bono b
+                                WHERE b.simbolo = :simbolo
+                                """,
+                                Bono.class
+                        )
+                        .setParameter("simbolo", simbolo)
+                        .getResultList();
+
+        return bonos.stream().findFirst();
+    }
+
     public List<Bono> listarTodas() {
 
         return entityManager.createQuery(

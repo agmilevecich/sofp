@@ -15,6 +15,9 @@ public class Activo extends EntidadAuditable {
     @Column(nullable = false, length = 150)
     private String nombre;
 
+    @Column(nullable = false, unique = true, length = 30)
+    private String simbolo;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "moneda_id", nullable = false)
     private Moneda moneda;
@@ -28,10 +31,14 @@ public class Activo extends EntidadAuditable {
     /**
      * Constructor principal del dominio.
      */
-    public Activo(String nombre, Moneda moneda) {
+    public Activo(String nombre, String simbolo, Moneda moneda) {
         this.nombre = Objects.requireNonNull(
                 nombre,
                 "El nombre es obligatorio"
+        );
+        this.simbolo = Objects.requireNonNull(
+                simbolo,
+                "El símbolo es obligatorio"
         );
         this.moneda = Objects.requireNonNull(
                 moneda,
@@ -41,6 +48,10 @@ public class Activo extends EntidadAuditable {
 
     public String getNombre() {
         return nombre;
+    }
+
+    public String getSimbolo() {
+        return simbolo;
     }
 
     public Moneda getMoneda() {

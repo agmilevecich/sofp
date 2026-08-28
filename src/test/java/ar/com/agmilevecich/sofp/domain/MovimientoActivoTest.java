@@ -186,6 +186,6 @@ class MovimientoActivoTest {
                         TipoMoneda.FIAT
                 );
 
-        return new Bono("Bono GD30", moneda);
+        return new Bono("Bono GD30", "GD30", moneda);
     }
 }

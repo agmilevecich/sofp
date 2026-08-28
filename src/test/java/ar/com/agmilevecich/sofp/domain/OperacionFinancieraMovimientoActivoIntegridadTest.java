@@ -99,6 +99,7 @@ class OperacionFinancieraMovimientoActivoIntegridadTest {
 
         Activo activo = new Activo(
                 "Activo de prueba",
+                "TEST",
                 moneda
         );
 

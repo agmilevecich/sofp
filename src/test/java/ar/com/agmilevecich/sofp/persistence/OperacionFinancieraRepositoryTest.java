@@ -447,6 +447,7 @@ class OperacionFinancieraRepositoryTest {
             Bono bono =
                     new Bono(
                             "Bono GD30",
+                            "GD30",
                             datos.moneda()
                     );
 

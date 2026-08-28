@@ -34,6 +34,7 @@ class ActivoRepositoryTest {
             Activo activo =
                     new Activo(
                             "Bitcoin",
+                            "BTC",
                             moneda
                     );
 
@@ -57,10 +58,57 @@ class ActivoRepositoryTest {
             assertTrue(resultado.isPresent());
             assertEquals(id, resultado.get().getId());
             assertEquals("Bitcoin", resultado.get().getNombre());
+            assertEquals("BTC", resultado.get().getSimbolo());
             assertEquals(
                     moneda.getId(),
                     resultado.get().getMoneda().getId()
             );
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaBuscarActivoPorSimbolo() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Activo activo =
+                    new Activo(
+                            "Bitcoin",
+                            "BTC",
+                            moneda
+                    );
+
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(activo);
+
+            em.getTransaction().commit();
+
+            Optional<Activo> resultado =
+                    repository.buscarPorSimbolo("BTC");
+
+            assertTrue(resultado.isPresent());
+            assertEquals("Bitcoin", resultado.get().getNombre());
+            assertEquals("BTC", resultado.get().getSimbolo());
 
         } finally {
             em.close();
@@ -90,6 +138,28 @@ class ActivoRepositoryTest {
     }
 
     @Test
+    void deberiaRetornarOptionalVacioCuandoNoExisteActivoPorSimbolo() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            Optional<Activo> resultado =
+                    repository.buscarPorSimbolo("NOEXISTE");
+
+            assertTrue(resultado.isEmpty());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
     void deberiaListarTodosLosActivos() {
 
         JpaTestManager.close();
@@ -107,10 +177,10 @@ class ActivoRepositoryTest {
                     );
 
             Activo primero =
-                    new Activo("Bitcoin", moneda);
+                    new Activo("Bitcoin", "BTC", moneda);
 
             Activo segundo =
-                    new Activo("Ethereum", moneda);
+                    new Activo("Ethereum", "ETH", moneda);
 
             ActivoRepository repository =
                     new ActivoRepository(em);
@@ -128,7 +198,9 @@ class ActivoRepositoryTest {
 
             assertEquals(2, activos.size());
             assertEquals("Bitcoin", activos.get(0).getNombre());
+            assertEquals("BTC", activos.get(0).getSimbolo());
             assertEquals("Ethereum", activos.get(1).getNombre());
+            assertEquals("ETH", activos.get(1).getSimbolo());
 
         } finally {
             em.close();
@@ -153,7 +225,7 @@ class ActivoRepositoryTest {
                     );
 
             Activo activo =
-                    new Activo("Bitcoin", moneda);
+                    new Activo("Bitcoin", "BTC", moneda);
 
             ActivoRepository repository =
                     new ActivoRepository(em);
@@ -189,7 +261,52 @@ class ActivoRepositoryTest {
                     "Bitcoin actualizado",
                     actualizado.getNombre()
             );
+            assertEquals("BTC", actualizado.getSimbolo());
             assertEquals(id, actualizado.getId());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarSimboloDuplicado() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Activo primero =
+                    new Activo("Bitcoin", "BTC", moneda);
+
+            Activo segundo =
+                    new Activo("Bitcoin 2", "BTC", moneda);
+
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(primero);
+            em.flush();
+
+            assertThrows(
+                    RuntimeException.class,
+                    () -> repository.guardar(segundo)
+            );
+
+            em.getTransaction().rollback();
 
         } finally {
             em.close();
@@ -233,6 +350,28 @@ class ActivoRepositoryTest {
             assertThrows(
                     NullPointerException.class,
                     () -> repository.buscarPorId(null)
+            );
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarSimboloNuloAlBuscar() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> repository.buscarPorSimbolo(null)
             );
 
         } finally {
