@@ -25,29 +25,60 @@ Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 15:24:11 -03:00**:
 
 **Build 059 queda cerrado y validado.**
 
-## Validación posterior al Build 059 — Feature `identificacion-activo`
+## Validaciones posteriores al Build 059
 
-No se asigna un nuevo número de Build todavía. Esta sección registra validaciones posteriores realizadas durante la nueva feature.
+Las etapas posteriores se registran como validaciones y cierres funcionales, sin inventar nueva numeración de Build.
 
-Se incorporó identificación por símbolo en `Activo` y `Bono`, junto con búsquedas por símbolo en sus repositorios.
+### Identificación de activos por símbolo
 
-Suite general posterior ejecutada el **27/08/2026 19:52:48 -03:00**:
+Se incorporó identificación por símbolo en `Activo` y `Bono`, junto con búsquedas por símbolo en sus repositorios y cobertura de unicidad en persistencia.
 
-- Tests run: **435**
+La etapa quedó integrada y validada en `main`.
+
+### Cartera de activos
+
+Se incorporó el listado de movimientos por perfil financiero, agrupación de movimientos por activo y cálculo de posiciones mediante `CalculadorPosicionActivo`.
+
+La etapa quedó integrada y validada en `main` mediante fast-forward.
+
+### Costo promedio de posición activa
+
+Se incorporó en `PosicionActivo` el costo de adquisición acumulado, precio promedio y costo de adquisición remanente después de ventas.
+
+Tests específicos de `PosicionActivoTest`: **8/8 tests en verde**.
+
+Commits principales:
+
+- `da09ef0` — `feat: calcular costo promedio de posicion activa`;
+- `6cb038b` — `test: cubrir costo promedio de posicion activa`.
+
+La etapa quedó integrada en `main` mediante fast-forward.
+
+### Valorización de posición activa
+
+Se incorporó `ValorizacionPosicionActivo` para calcular valor actual, ganancia o pérdida y rendimiento porcentual a partir de un precio actual informado.
+
+Tests específicos de `ValorizacionPosicionActivoTest`: **8/8 tests en verde**.
+
+Commits principales:
+
+- `ef19486` — `feat: agregar valorizacion de posicion activa`;
+- `7379570` — `test: cubrir valorizacion de posicion activa`.
+
+La etapa quedó integrada en `main` mediante fast-forward.
+
+### Suite general posterior
+
+Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 19:56:00 -03:00**:
+
+- Tests run: **455**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **19:08 min**
+- Duración: **11:24 min**
 
-La suite quedó en **435/435**. Posteriormente se ejecutaron tests específicos de las búsquedas por símbolo y fueron informados como verdes.
-
-Commits principales de la feature:
-
-- `3f6c776` — búsqueda de activo por símbolo.
-- `6179f2d` — cobertura de búsqueda de activo por símbolo.
-- `354e0b3` — búsqueda de bono por símbolo.
-- `976aff7` — cobertura de búsqueda de bono por símbolo.
+La validación global vigente queda en **455/455 tests en verde**.
 
 ## Builds anteriores
 
@@ -55,15 +86,11 @@ Los Builds 001–058 permanecen registrados en el historial previo del proyecto.
 
 ## Estado actual
 
-El último Build numerado cerrado es **Build 059**.
-
-La validación global más reciente, posterior al Build 059, es **435/435 tests en verde**.
-
-La rama activa es `feature/identificacion-activo`. `main` no debe modificarse durante esta etapa.
+El último Build numerado cerrado es **Build 059**. Las etapas funcionales posteriores también se encuentran integradas y validadas en `main`.
 
 ## Próximo paso
 
-Cubrir la regla de unicidad del símbolo en persistencia mediante un test específico, verificando primero la implementación existente.
+Reconstruir el mapa funcional actual de `main` y seleccionar la siguiente evolución del backend a partir del código, entidades, repositorios, servicios, tests y reglas de negocio existentes.
 
 ## Regla de cierre
 
