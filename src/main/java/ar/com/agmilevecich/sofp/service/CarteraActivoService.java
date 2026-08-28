@@ -5,6 +5,7 @@ import ar.com.agmilevecich.sofp.domain.CalculadorPosicionActivo;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.PosicionActivo;
+import ar.com.agmilevecich.sofp.domain.ValorizacionPosicionActivo;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 
 import java.math.BigDecimal;
@@ -46,5 +47,26 @@ public class CarteraActivoService {
         }
 
         return posiciones;
+    }
+
+    public List<ValorizacionPosicionActivo> obtenerValorizaciones(
+            PerfilFinanciero perfilFinanciero,
+            Map<Activo, BigDecimal> preciosActuales) {
+        Objects.requireNonNull(preciosActuales, "Los precios actuales no pueden ser nulos");
+
+        List<ValorizacionPosicionActivo> valorizaciones = new ArrayList<>();
+        for (PosicionActivo posicion : obtenerPosiciones(perfilFinanciero)) {
+            Activo activo = posicion.getActivo();
+            if (!preciosActuales.containsKey(activo)) {
+                throw new IllegalArgumentException(
+                        "No existe precio actual para el activo: " + activo.getSimbolo());
+            }
+
+            valorizaciones.add(
+                    new ValorizacionPosicionActivo(posicion, preciosActuales.get(activo))
+            );
+        }
+
+        return valorizaciones;
     }
 }
