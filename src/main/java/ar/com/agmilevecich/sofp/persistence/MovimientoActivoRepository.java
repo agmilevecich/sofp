@@ -90,8 +90,11 @@ public class MovimientoActivoRepository {
                 """
                 SELECT m
                 FROM MovimientoActivo m
-                WHERE m.operacionFinanciera.cuentaOrigen.perfilFinanciero.id = :perfilFinancieroId
-                   OR m.operacionFinanciera.cuentaDestino.perfilFinanciero.id = :perfilFinancieroId
+                LEFT JOIN m.operacionFinanciera op
+                LEFT JOIN op.cuentaOrigen origen
+                LEFT JOIN op.cuentaDestino destino
+                WHERE origen.perfilFinanciero.id = :perfilFinancieroId
+                   OR destino.perfilFinanciero.id = :perfilFinancieroId
                 ORDER BY m.id
                 """,
                 MovimientoActivo.class
