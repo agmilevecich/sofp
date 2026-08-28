@@ -7,13 +7,13 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Rama de trabajo actual:** `feature/identificacion-activo`
-
-La etapa `feature/operacion-financiera` fue integrada en `main` mediante `d39632b`.
+**Estado:** `main` contiene las etapas `operacion-financiera` e `identificacion-activo` ya integradas.
 
 ## Estado funcional actual
 
-El bloque de operaciones financieras quedó cerrado. Actualmente se trabaja en la identificación de activos mediante símbolo.
+El bloque de operaciones financieras quedó cerrado e integrado en `main`.
+
+El bloque de identificación de activos mediante símbolo también quedó cerrado e integrado en `main`.
 
 `Activo` posee:
 - `nombre`;
@@ -33,18 +33,6 @@ Implementado y validado:
 - la persistencia rechaza símbolos duplicados tanto para `Activo` como para `Bono`;
 - la restricción de unicidad se verifica mediante tests específicos de repositorio.
 
-Commits relevantes:
-
-- `3f6c776` — `feat: agregar busqueda de activo por simbolo`
-- `6179f2d` — `test: cubrir busqueda de activo por simbolo`
-- `354e0b3` — `feat: agregar busqueda de bono por simbolo`
-- `976aff7` — `test: cubrir busqueda de bono por simbolo`
-- `7435ee0` — `test: cubrir unicidad del simbolo de activos`
-- `94dc53e` — `test: cubrir unicidad del simbolo de bonos`
-- `ac44680` — `fix: capturar unicidad de simbolos al guardar`
-
-Antes de estos cambios se adaptaron constructores y tests de compra, venta, posición, integridad y persistencia al símbolo obligatorio.
-
 ## Última validación global conocida
 
 Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 12:15:12 -03:00**:
@@ -60,9 +48,15 @@ Además, los tests específicos de `ActivoRepositoryTest` y `BonoRepositoryTest`
 
 ## Git
 
-La rama de trabajo actual es `feature/identificacion-activo`. `main` no debe modificarse mientras se continúa esta feature.
+`main` quedó actualizado después del merge de `feature/identificacion-activo`.
 
-La comparación anterior conocida con `main` indicó que la feature estaba por delante y sin commits pendientes de incorporar desde `main`. Antes del merge se realizará una nueva comparación final y se revisarán commits, archivos modificados y estado de la rama.
+Commit de merge: `0a554fb` — `merge: integrar identificacion de activos`.
+
+La última sincronización local confirmó:
+- `HEAD -> main` en `0a554fb`;
+- `github/main` en `0a554fb`;
+- `bitbucket/main` en `0a554fb`;
+- working tree limpio.
 
 ## Persistencia
 
@@ -75,6 +69,11 @@ Repositorios JPA relevantes:
 
 `ActivoRepository` y `BonoRepository` mantienen guardar, buscar por id, listar y buscar por símbolo.
 
+## Etapas cerradas
+
+- `feature/operacion-financiera`: integrada en `main` mediante `d39632b`.
+- `feature/identificacion-activo`: integrada en `main` mediante `0a554fb`.
+
 ## Reglas de continuidad
 
 Código y tests son la fuente de verdad técnica. La documentación resume el estado y debe actualizarse al cerrar bloques importantes.
@@ -83,4 +82,4 @@ No considerar implementado ningún pendiente hasta contar con código verificabl
 
 ## Próximo paso
 
-Realizar la revisión final de `feature/identificacion-activo` contra `main`: commits, archivos modificados, funcionalidades, tests y documentación. Determinar si la feature está lista para merge o si existe algún pendiente adicional.
+Definir la próxima evolución funcional a partir del código y los casos de uso existentes. Antes de implementar, revisar las entidades, repositorios, servicios y tests actuales para elegir el cambio mínimo y mantener las reglas de negocio existentes.
