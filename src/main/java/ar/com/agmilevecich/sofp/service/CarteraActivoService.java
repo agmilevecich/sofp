@@ -1,11 +1,13 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Activo;
+import ar.com.agmilevecich.sofp.domain.CalculadorPosicionActivo;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.PosicionActivo;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,10 +37,10 @@ public class CarteraActivoService {
         }
 
         List<PosicionActivo> posiciones = new ArrayList<>();
-        CalculadorPosicionActivo calculador = new CalculadorPosicionActivo();
         for (Map.Entry<Activo, List<MovimientoActivo>> entry : movimientosPorActivo.entrySet()) {
-            PosicionActivo posicion = calculador.calcular(entry.getKey(), entry.getValue());
-            if (posicion.getCantidad().compareTo(java.math.BigDecimal.ZERO) != 0) {
+            PosicionActivo posicion = CalculadorPosicionActivo.calcular(
+                    entry.getKey(), entry.getValue());
+            if (posicion.getCantidad().compareTo(BigDecimal.ZERO) != 0) {
                 posiciones.add(posicion);
             }
         }
