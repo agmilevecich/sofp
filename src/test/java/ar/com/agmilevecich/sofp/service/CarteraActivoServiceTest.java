@@ -2,11 +2,19 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Bono;
+import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.PosicionActivo;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
+import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
+import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import jakarta.persistence.EntityManager;
@@ -35,7 +43,7 @@ class CarteraActivoServiceTest {
             persistirMovimientos(em, perfil, compraGd30, ventaGd30, compraAl30);
 
             CarteraActivoService service = new CarteraActivoService(new MovimientoActivoRepository(em));
-            List<ar.com.agmilevecich.sofp.domain.PosicionActivo> posiciones = service.obtenerPosiciones(perfil);
+            List<PosicionActivo> posiciones = service.obtenerPosiciones(perfil);
 
             assertEquals(2, posiciones.size());
             assertEquals(new BigDecimal("70"), cantidadDe(posiciones, "GD30"));
@@ -99,7 +107,7 @@ class CarteraActivoServiceTest {
 
             CarteraActivoService service = new CarteraActivoService(new MovimientoActivoRepository(em));
 
-            List<ar.com.agmilevecich.sofp.domain.PosicionActivo> posiciones = service.obtenerPosiciones(perfil1);
+            List<PosicionActivo> posiciones = service.obtenerPosiciones(perfil1);
             assertEquals(1, posiciones.size());
             assertEquals(new BigDecimal("100"), posiciones.get(0).getCantidad());
         } finally {
@@ -134,9 +142,9 @@ class CarteraActivoServiceTest {
         return new MovimientoActivo(bono, tipo, new BigDecimal(cantidad), new BigDecimal("100"));
     }
 
-    private void persistir(EntityManager em, PerfilFinanciero... perfilesYActivos) {
+    private void persistir(EntityManager em, Object... objetos) {
         em.getTransaction().begin();
-        for (Object objeto : perfilesYActivos) {
+        for (Object objeto : objetos) {
             if (objeto instanceof PerfilFinanciero perfil) {
                 em.persist(perfil.getUsuario());
                 em.persist(perfil);
@@ -149,35 +157,35 @@ class CarteraActivoServiceTest {
     }
 
     private void persistirMovimientos(EntityManager em, PerfilFinanciero perfil, MovimientoActivo... movimientos) {
-        ar.com.agmilevecich.sofp.domain.InstitucionFinanciera banco =
-                new ar.com.agmilevecich.sofp.domain.InstitucionFinanciera("Banco Cartera " + System.nanoTime(),
-                        ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera.BANCO);
-        ar.com.agmilevecich.sofp.domain.Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
-        ar.com.agmilevecich.sofp.domain.Cuenta cuenta = new ar.com.agmilevecich.sofp.domain.Cuenta(
-                "Cuenta cartera", ar.com.agmilevecich.sofp.domain.TipoCuenta.CAJA_AHORRO,
-                perfil, banco, moneda);
-        ar.com.agmilevecich.sofp.domain.Categoria categoria =
-                new ar.com.agmilevecich.sofp.domain.Categoria("Inversiones " + System.nanoTime(), perfil);
+        InstitucionFinanciera banco = new InstitucionFinanciera(
+                "Banco Cartera " + System.nanoTime(), TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta("Cuenta cartera", TipoCuenta.CAJA_AHORRO, perfil, banco, moneda);
+        Categoria categoria = new Categoria("Inversiones " + System.nanoTime(), perfil);
+
         em.getTransaction().begin();
         em.persist(banco);
         em.persist(moneda);
         em.persist(cuenta);
         em.persist(categoria);
+
         for (MovimientoActivo movimiento : movimientos) {
-            ar.com.agmilevecich.sofp.domain.OperacionFinanciera operacion =
-                    new ar.com.agmilevecich.sofp.domain.OperacionFinanciera(
-                            movimiento.getTipo() == TipoMovimientoActivo.COMPRA
-                                    ? ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera.COMPRA
-                                    : ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera.VENTA,
-                            cuenta, categoria, movimiento.getActivo(),
-                            movimiento.getCantidad(), movimiento.getPrecioUnitario());
+            TipoOperacionFinanciera tipoOperacion = movimiento.getTipoMovimiento() == TipoMovimientoActivo.COMPRA
+                    ? TipoOperacionFinanciera.COMPRA
+                    : TipoOperacionFinanciera.VENTA;
+
+            BigDecimal importe = movimiento.getCantidad().multiply(movimiento.getPrecioUnitario());
+            OperacionFinanciera operacion = tipoOperacion == TipoOperacionFinanciera.COMPRA
+                    ? new OperacionFinanciera(cuenta, null, importe, tipoOperacion)
+                    : new OperacionFinanciera(null, cuenta, importe, tipoOperacion);
+
             operacion.agregarMovimientoActivo(movimiento);
             em.persist(operacion);
         }
         em.getTransaction().commit();
     }
 
-    private BigDecimal cantidadDe(List<ar.com.agmilevecich.sofp.domain.PosicionActivo> posiciones, String simbolo) {
+    private BigDecimal cantidadDe(List<PosicionActivo> posiciones, String simbolo) {
         return posiciones.stream()
                 .filter(posicion -> simbolo.equals(posicion.getActivo().getSimbolo()))
                 .findFirst()
