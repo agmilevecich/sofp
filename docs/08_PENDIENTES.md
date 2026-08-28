@@ -6,7 +6,7 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 Las etapas `feature/operacion-financiera` y `feature/identificacion-activo` fueron integradas en `main` y quedaron validadas con la suite completa.
 
-Actualmente no existe una feature en desarrollo.
+Actualmente se encuentra en desarrollo `feature/cartera-activos`.
 
 ### Identificación de activos
 
@@ -22,24 +22,39 @@ Implementado y validado:
 
 Esta etapa está cerrada y fue integrada en `main` mediante `0a554fb`.
 
+### Cartera de activos
+
+Implementado y validado en `feature/cartera-activos`:
+- listado de movimientos de activos por perfil financiero;
+- obtención de posiciones agrupadas por activo;
+- cálculo mediante `CalculadorPosicionActivo`;
+- exclusión de posiciones con cantidad final cero;
+- separación de movimientos entre perfiles financieros;
+- inclusión correcta de compras y ventas al listar movimientos por perfil;
+- cobertura específica en `CarteraActivoServiceTest` con **5/5 tests en verde**;
+- suite general con **446/446 tests en verde**.
+
 ## Validación global
 
-La suite general más reciente fue ejecutada desde IntelliJ IDEA el **28/08/2026 12:15:12 -03:00**:
+La suite general más reciente fue ejecutada desde IntelliJ IDEA el **28/08/2026 17:47:36 -03:00**:
 
-- **441/441 tests en verde**;
+- **446/446 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **10:01 min**.
-
-Además, `ActivoRepositoryTest` y `BonoRepositoryTest` fueron ejecutados específicamente y resultaron en **18/18 tests en verde**.
+- duración: **12:34 min**.
 
 ## Próximo cambio
 
-No hay una próxima funcionalidad definida todavía.
+Antes del merge de `feature/cartera-activos` a `main` se debe:
+- revisar los commits de la feature;
+- comparar la feature con `main`;
+- verificar tests específicos y suite completa;
+- revisar `git diff`, `git diff --check` y `git status`;
+- confirmar que la documentación de cierre esté actualizada.
 
-Antes de comenzar una nueva feature se debe revisar el código, entidades, repositorios, servicios, tests y reglas de negocio actuales, y seleccionar el siguiente caso de uso real a desarrollar.
+No hacer merge a `main` automáticamente.
 
 ## Pendientes de arquitectura / evolución
 
