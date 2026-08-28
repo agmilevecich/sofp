@@ -4,9 +4,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Estado actual
 
-Las etapas `feature/operacion-financiera` y `feature/identificacion-activo` fueron integradas en `main` y quedaron validadas con la suite completa.
+Las etapas `feature/operacion-financiera`, `feature/identificacion-activo` y `feature/cartera-activos` fueron integradas en `main` y quedaron validadas con la suite completa.
 
-Actualmente se encuentra en desarrollo `feature/cartera-activos`.
+Actualmente no existe una feature en desarrollo.
 
 ### Identificación de activos
 
@@ -24,7 +24,7 @@ Esta etapa está cerrada y fue integrada en `main` mediante `0a554fb`.
 
 ### Cartera de activos
 
-Implementado y validado en `feature/cartera-activos`:
+Implementado y validado:
 - listado de movimientos de activos por perfil financiero;
 - obtención de posiciones agrupadas por activo;
 - cálculo mediante `CalculadorPosicionActivo`;
@@ -33,6 +33,8 @@ Implementado y validado en `feature/cartera-activos`:
 - inclusión correcta de compras y ventas al listar movimientos por perfil;
 - cobertura específica en `CarteraActivoServiceTest` con **5/5 tests en verde**;
 - suite general con **446/446 tests en verde**.
+
+Esta etapa está cerrada y fue integrada en `main` mediante fast-forward hasta `e75136b`.
 
 ## Validación global
 
@@ -47,14 +49,11 @@ La suite general más reciente fue ejecutada desde IntelliJ IDEA el **28/08/2026
 
 ## Próximo cambio
 
-Antes del merge de `feature/cartera-activos` a `main` se debe:
-- revisar los commits de la feature;
-- comparar la feature con `main`;
-- verificar tests específicos y suite completa;
-- revisar `git diff`, `git diff --check` y `git status`;
-- confirmar que la documentación de cierre esté actualizada.
+No hay una próxima funcionalidad definida todavía.
 
-No hacer merge a `main` automáticamente.
+Antes de comenzar una nueva feature se debe revisar el código, entidades, repositorios, servicios, tests y reglas de negocio actuales, y seleccionar el siguiente caso de uso real a desarrollar.
+
+No hacer cambios directamente sobre `main` cuando se esté trabajando en una nueva feature.
 
 ## Pendientes de arquitectura / evolución
 
