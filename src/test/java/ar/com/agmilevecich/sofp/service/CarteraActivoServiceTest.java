@@ -33,8 +33,9 @@ class CarteraActivoServiceTest {
         EntityManager em = JpaTestManager.createEntityManager();
         try {
             PerfilFinanciero perfil = crearPerfil("cartera.todos");
-            Bono gd30 = crearBono("GD30");
-            Bono al30 = crearBono("AL30");
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
+            Bono al30 = crearBono("AL30", moneda);
             persistir(em, perfil, gd30, al30);
 
             MovimientoActivo compraGd30 = movimiento(gd30, TipoMovimientoActivo.COMPRA, "100");
@@ -75,7 +76,7 @@ class CarteraActivoServiceTest {
         EntityManager em = JpaTestManager.createEntityManager();
         try {
             PerfilFinanciero perfil = crearPerfil("cartera.cero");
-            Bono gd30 = crearBono("GD30");
+            Bono gd30 = crearBono("GD30", crearMoneda());
             persistir(em, perfil, gd30);
 
             MovimientoActivo compra = movimiento(gd30, TipoMovimientoActivo.COMPRA, "100");
@@ -97,7 +98,7 @@ class CarteraActivoServiceTest {
         try {
             PerfilFinanciero perfil1 = crearPerfil("cartera.perfil1");
             PerfilFinanciero perfil2 = crearPerfil("cartera.perfil2");
-            Bono gd30 = crearBono("GD30");
+            Bono gd30 = crearBono("GD30", crearMoneda());
             persistir(em, perfil1, perfil2, gd30);
 
             MovimientoActivo movimientoPerfil1 = movimiento(gd30, TipoMovimientoActivo.COMPRA, "100");
@@ -133,8 +134,11 @@ class CarteraActivoServiceTest {
         return new PerfilFinanciero("Perfil cartera", usuario);
     }
 
-    private Bono crearBono(String simbolo) {
-        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+    private Moneda crearMoneda() {
+        return new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+    }
+
+    private Bono crearBono(String simbolo, Moneda moneda) {
         return new Bono("Bono " + simbolo, simbolo, moneda);
     }
 
@@ -149,7 +153,9 @@ class CarteraActivoServiceTest {
                 em.persist(perfil.getUsuario());
                 em.persist(perfil);
             } else if (objeto instanceof Bono bono) {
-                em.persist(bono.getMoneda());
+                if (!em.contains(bono.getMoneda())) {
+                    em.persist(bono.getMoneda());
+                }
                 em.persist(bono);
             }
         }
@@ -159,13 +165,12 @@ class CarteraActivoServiceTest {
     private void persistirMovimientos(EntityManager em, PerfilFinanciero perfil, MovimientoActivo... movimientos) {
         InstitucionFinanciera banco = new InstitucionFinanciera(
                 "Banco Cartera " + System.nanoTime(), TipoInstitucionFinanciera.BANCO);
-        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Moneda moneda = movimientos[0].getActivo().getMoneda();
         Cuenta cuenta = new Cuenta("Cuenta cartera", TipoCuenta.CAJA_AHORRO, perfil, banco, moneda);
         Categoria categoria = new Categoria("Inversiones " + System.nanoTime(), perfil);
 
         em.getTransaction().begin();
         em.persist(banco);
-        em.persist(moneda);
         em.persist(cuenta);
         em.persist(categoria);
 
