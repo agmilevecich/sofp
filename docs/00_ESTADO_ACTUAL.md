@@ -6,88 +6,62 @@
 
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
-**Rama principal:** `main`
+**Rama principal:** `main`  
+**Rama de trabajo actual:** `feature/identificacion-activo`
 
-La etapa `feature/operacion-financiera` fue integrada en `main`.
+La etapa `feature/operacion-financiera` fue integrada en `main` mediante `d39632b`.
 
 ## Estado funcional actual
 
-**Bloque cerrado — operaciones financieras con activos.**
+El bloque de operaciones financieras quedó cerrado. Actualmente se trabaja en la identificación de activos mediante símbolo.
 
-`OperacionFinanciera` distingue `TRANSFERENCIA`, `COMPRA` y `VENTA` y agrupa movimientos monetarios y movimientos de activos.
+`Activo` ahora posee:
+- `nombre`;
+- `simbolo` obligatorio;
+- `moneda` obligatoria.
 
-La arquitectura actual contempla:
+El símbolo está definido como único en persistencia (`unique = true`). `Bono` hereda de `Activo` y utiliza el constructor identificable `nombre + simbolo + moneda`.
 
-```text
-Activo
- └── Bono
+## Identificación y búsqueda
 
-OperacionFinanciera
- ├── TipoOperacionFinanciera
- ├── Movimiento
- └── MovimientoActivo
-        └── Activo
+Implementado y validado:
 
-MovimientoActivo
-      ↓
-CalculadorPosicionActivo
-      ↓
-PosicionActivo
+- `ActivoRepository.buscarPorSimbolo(String)` devuelve `Optional<Activo>`;
+- `BonoRepository.buscarPorSimbolo(String)` devuelve `Optional<Bono>`;
+- ambos rechazan `null` mediante `NullPointerException`;
+- los tests cubren la búsqueda por símbolo.
 
-PosicionActivoService
-      ↓
-MovimientoActivoRepository
-      ↓
-CalculadorPosicionActivo
-```
+Commits relevantes:
 
-## Última validación
+- `3f6c776` — `feat: agregar busqueda de activo por simbolo`
+- `6179f2d` — `test: cubrir busqueda de activo por simbolo`
+- `354e0b3` — `feat: agregar busqueda de bono por simbolo`
+- `976aff7` — `test: cubrir busqueda de bono por simbolo`
 
-La compra y la venta de activos están implementadas mediante `OperacionFinancieraService`.
+Antes de estos cambios se adaptaron constructores y tests de compra, venta, posición, integridad y persistencia al símbolo obligatorio.
 
-Compra:
-- cuenta de origen;
-- movimiento monetario `EGRESO`;
-- `MovimientoActivo.COMPRA`;
-- importe `cantidad × precioUnitario`.
+## Última validación global conocida
 
-Venta:
-- cuenta de destino;
-- movimiento monetario `INGRESO`;
-- `MovimientoActivo.VENTA`;
-- importe `cantidad × precioUnitario`.
+Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 19:52:48 -03:00**:
 
-La venta fue corregida para cumplir la regla de dominio de que su primer movimiento monetario debe ser un `INGRESO`.
+- Tests run: **435**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- Resultado: **BUILD SUCCESS**
+- Duración: **19:08 min**
 
-Validaciones específicas:
+Posteriormente se validaron desde IntelliJ las pruebas específicas de los cambios de identificación por símbolo, con todos los tests indicados en verde.
 
-- `OperacionFinancieraTest` + `OperacionFinancieraServiceTest` + `OperacionFinancieraCompraServiceTest` + `OperacionFinancieraVentaServiceTest`: **65/65 tests en verde**.
-- `PosicionActivoServiceTest`: **4/4 tests en verde**.
-- Suite general posterior a los cambios: **433/433 tests en verde**.
-- Build 059: **BUILD SUCCESS**; ejecución informada desde IntelliJ el **27/08/2026 15:24:11 -03:00**; duración **17:35 min**.
+## Git
 
-## Posición de activos
+Estado confirmado en GitHub:
 
-`MovimientoActivo` representa `COMPRA` como variación positiva y `VENTA` como variación negativa.
-
-`PosicionActivo` acumula los movimientos y rechaza una posición negativa.
-
-`CalculadorPosicionActivo` procesa movimientos ordenados.
-
-`MovimientoActivoRepository.listarPorActivo()` garantiza orden determinista mediante `ORDER BY m.id`.
-
-`PosicionActivoService` obtiene los movimientos persistidos y delega el cálculo al dominio.
-
-La integración actual comprueba:
-
-```text
-COMPRA 100
-VENTA 30
-      ↓
-POSICION 70
-```
-
-Los movimientos usados en esta comprobación son creados por `OperacionFinancieraService`, no directamente por el test.
+- `feature/identificacion-activo` está **19 commits por delante de `main`** y **0 por detrás**.
+- `main`: `d9e7849` — `docs: actualizar contexto tras merge de operacion financiera`.
+- HEAD de la feature: `976aff7` — `test: cubrir busqueda de bono por simbolo`.
+- La rama de trabajo está sincronizada con GitHub y Bitbucket y el working tree local fue informado como limpio.
+- `main` no debe modificarse mientras se continúa esta feature.
 
 ## Persistencia
 
@@ -98,48 +72,14 @@ Repositorios JPA relevantes:
 - `ActivoRepository`
 - `BonoRepository`
 
-`OperacionFinanciera` mantiene relaciones persistidas con `Movimiento` y `MovimientoActivo`.
+`ActivoRepository` y `BonoRepository` mantienen guardar, buscar por id, listar y ahora buscar por símbolo.
 
-La prueba de venta verifica que, después de recuperar la operación desde la base de datos, ambos movimientos continúan asociados a la misma `OperacionFinanciera` y conservan cuenta, activo, tipo, cantidad y precio.
+## Reglas de continuidad
 
-`PosicionActivo` y `CalculadorPosicionActivo` no poseen persistencia propia.
+Código y tests son la fuente de verdad técnica. La documentación resume el estado y debe actualizarse al cerrar bloques importantes.
 
-## Git
-
-Cierre de la etapa:
-
-- `d39632b` — `Merge branch 'feature/operacion-financiera'`
-- `main` local, `github/main` y `bitbucket/main` quedaron alineados en `d39632b`.
-- `feature/operacion-financiera` quedó integrada en `main`.
-
-## Decisiones de dominio relevantes
-
-Una `COMPRA` requiere cuenta de origen y genera `EGRESO` + `MovimientoActivo.COMPRA`.
-
-Una `VENTA` requiere cuenta de destino y genera `INGRESO` + `MovimientoActivo.VENTA`.
-
-Una `VENTA` no puede dejar una posición negativa. Una venta superior a la tenencia se rechaza en el dominio. La incorporación de posiciones short queda para una decisión futura explícita.
-
-`MovimientoActivo` exige cantidad y precio unitario positivos.
-
-Las comisiones y gastos se dejan para una etapa posterior, una vez estabilizado el núcleo de compra/venta.
+No considerar implementado ningún pendiente hasta contar con código verificable y tests correspondientes.
 
 ## Próximo paso
 
-Revisar el estado de `main` y definir la siguiente evolución del bloque de inversiones a partir de reglas de negocio explícitas.
-
-Antes de implementar nuevos atributos o comportamientos financieros, revisar el dominio actual, servicios, repositorios y tests relacionados.
-
-Posibles líneas a evaluar, sin considerarlas todavía implementadas:
-
-- definir reglas específicas de los instrumentos financieros;
-- determinar la evolución de `Bono`;
-- ampliar progresivamente la capa `service` según casos de uso reales;
-- incorporar DTOs cuando las fronteras de aplicación lo requieran;
-- incorporar interfaz de usuario cuando dominio y casos de uso estén consolidados;
-- definir reportes y cálculos derivados de movimientos;
-- evaluar nuevas reglas de saldos y consistencia financiera cuando aparezcan casos de uso que las requieran.
-
-## Regla de continuidad
-
-Código y tests son la fuente de verdad técnica. La documentación resume el estado y debe actualizarse al cerrar bloques importantes. No considerar implementado ningún pendiente hasta contar con código verificable y tests correspondientes.
+Revisar y cubrir con tests la regla de unicidad del símbolo en persistencia, verificando primero la implementación actual y manteniendo el cambio mínimo. Después continuar con la siguiente necesidad real de identificación de instrumentos.
