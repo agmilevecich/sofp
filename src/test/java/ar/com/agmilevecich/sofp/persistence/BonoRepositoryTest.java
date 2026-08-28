@@ -279,11 +279,9 @@ class BonoRepositoryTest {
             repository.guardar(primero);
             em.flush();
 
-            repository.guardar(segundo);
-
             assertThrows(
                     RuntimeException.class,
-                    em::flush
+                    () -> repository.guardar(segundo)
             );
 
             em.getTransaction().rollback();
