@@ -70,6 +70,52 @@ class BonoRepositoryTest {
     }
 
     @Test
+    void deberiaBuscarBonoPorSimbolo() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Bono bono =
+                    new Bono(
+                            "Bono GD30",
+                            "GD30",
+                            moneda
+                    );
+
+            BonoRepository repository =
+                    new BonoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(bono);
+
+            em.getTransaction().commit();
+
+            Optional<Bono> resultado =
+                    repository.buscarPorSimbolo("GD30");
+
+            assertTrue(resultado.isPresent());
+            assertEquals("Bono GD30", resultado.get().getNombre());
+            assertEquals("GD30", resultado.get().getSimbolo());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
     void deberiaRetornarOptionalVacioCuandoNoExisteBono() {
 
         JpaTestManager.close();
