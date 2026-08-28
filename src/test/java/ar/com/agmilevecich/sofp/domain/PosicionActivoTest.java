@@ -16,6 +16,8 @@ class PosicionActivoTest {
 
         assertEquals(activo, posicion.getActivo());
         assertEquals(0, posicion.getCantidad().compareTo(BigDecimal.ZERO));
+        assertEquals(0, posicion.getCostoAdquisicion().compareTo(BigDecimal.ZERO));
+        assertEquals(0, posicion.getPrecioPromedio().compareTo(BigDecimal.ZERO));
     }
 
     @Test
@@ -34,21 +36,39 @@ class PosicionActivoTest {
         posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "100", "125"));
 
         assertEquals(0, posicion.getCantidad().compareTo(new BigDecimal("100")));
+        assertEquals(0, posicion.getCostoAdquisicion().compareTo(new BigDecimal("12500")));
+        assertEquals(0, posicion.getPrecioPromedio().compareTo(new BigDecimal("125")));
     }
 
     @Test
-    void deberiaAplicarCompraYVenta() {
+    void deberiaCalcularPrecioPromedioConComprasADistintosPrecios() {
         Activo activo = crearActivo("Bono GD30");
         PosicionActivo posicion = new PosicionActivo(activo);
 
-        posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "100", "125"));
-        posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.VENTA, "30", "130"));
+        posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "100", "100"));
+        posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "50", "160"));
 
-        assertEquals(0, posicion.getCantidad().compareTo(new BigDecimal("70")));
+        assertEquals(0, posicion.getCantidad().compareTo(new BigDecimal("150")));
+        assertEquals(0, posicion.getCostoAdquisicion().compareTo(new BigDecimal("18000")));
+        assertEquals(0, posicion.getPrecioPromedio().compareTo(new BigDecimal("120")));
     }
 
     @Test
-    void deberiaPermitirCerrarLaPosicion() {
+    void deberiaAplicarCompraYVentaManteniendoCostoDeAdquisicionRemanente() {
+        Activo activo = crearActivo("Bono GD30");
+        PosicionActivo posicion = new PosicionActivo(activo);
+
+        posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "100", "100"));
+        posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.COMPRA, "50", "160"));
+        posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.VENTA, "50", "150"));
+
+        assertEquals(0, posicion.getCantidad().compareTo(new BigDecimal("100")));
+        assertEquals(0, posicion.getCostoAdquisicion().compareTo(new BigDecimal("12000")));
+        assertEquals(0, posicion.getPrecioPromedio().compareTo(new BigDecimal("120")));
+    }
+
+    @Test
+    void deberiaPermitirCerrarLaPosicionYReiniciarCosto() {
         Activo activo = crearActivo("Bono GD30");
         PosicionActivo posicion = new PosicionActivo(activo);
 
@@ -56,6 +76,8 @@ class PosicionActivoTest {
         posicion.aplicarMovimiento(crearMovimiento(activo, TipoMovimientoActivo.VENTA, "100", "130"));
 
         assertEquals(0, posicion.getCantidad().compareTo(BigDecimal.ZERO));
+        assertEquals(0, posicion.getCostoAdquisicion().compareTo(BigDecimal.ZERO));
+        assertEquals(0, posicion.getPrecioPromedio().compareTo(BigDecimal.ZERO));
     }
 
     @Test
@@ -103,6 +125,7 @@ class PosicionActivoTest {
         );
 
         assertEquals(0, posicion.getCantidad().compareTo(new BigDecimal("100")));
+        assertEquals(0, posicion.getCostoAdquisicion().compareTo(new BigDecimal("12500")));
     }
 
     private Activo crearActivo(String nombre) {
