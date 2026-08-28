@@ -7,7 +7,7 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Estado:** `main` contiene las etapas `operacion-financiera`, `identificacion-activo` y `cartera-activos` integradas y validadas. La feature `costo-promedio-activo` está desarrollada y validada, pendiente de integración.
+**Estado:** `main` contiene las etapas `operacion-financiera`, `identificacion-activo`, `cartera-activos`, `costo-promedio-activo` y `valorizacion-posicion-activo` integradas y validadas.
 
 ## Estado funcional actual
 
@@ -17,7 +17,9 @@ El bloque de identificación de activos mediante símbolo quedó cerrado e integ
 
 El bloque de cartera de activos quedó cerrado e integrado en `main`.
 
-La feature `costo-promedio-activo` implementó el cálculo del costo de adquisición remanente y del precio promedio de una posición activa.
+El bloque de costo promedio de posición activa quedó cerrado e integrado en `main`.
+
+El bloque de valorización de posición activa quedó cerrado e integrado en `main`.
 
 `Activo` posee:
 - `nombre`;
@@ -42,7 +44,7 @@ La feature `cartera-activos` fue integrada en `main` mediante fast-forward.
 
 ## Costo promedio de posición activa
 
-Implementado y validado en `feature/costo-promedio-activo`:
+Implementado y validado:
 
 - acumulación del costo de adquisición de las compras;
 - cálculo del precio promedio de la posición;
@@ -53,7 +55,24 @@ Implementado y validado en `feature/costo-promedio-activo`:
 - rechazo de movimientos nulos;
 - cobertura específica mediante `PosicionActivoTest` con **8/8 tests en verde**.
 
-La feature se encuentra 2 commits por delante de `main` y 0 commits por detrás. Los cambios funcionales están concentrados en `PosicionActivo` y su test específico.
+La feature `costo-promedio-activo` fue integrada en `main` mediante fast-forward.
+
+## Valorización de posición activa
+
+Implementado y validado:
+
+- cálculo del valor actual de una posición a partir de un precio informado;
+- cálculo de ganancia o pérdida respecto del costo de adquisición;
+- cálculo del rendimiento porcentual;
+- valorización de posiciones cerradas;
+- aceptación de precio actual cero;
+- rechazo de posición nula;
+- rechazo de precio actual nulo;
+- rechazo de precio actual negativo;
+- rendimiento cero cuando no existe costo de adquisición;
+- cobertura específica mediante `ValorizacionPosicionActivoTest` con **8/8 tests en verde**.
+
+La feature `valorizacion-posicion-activo` fue integrada en `main` mediante fast-forward hasta el commit `7379570`.
 
 ## Identificación y búsqueda
 
@@ -68,28 +87,28 @@ Implementado y validado:
 
 ## Última validación global conocida
 
-Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 19:12:22 -03:00**:
+Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 19:56:00 -03:00**:
 
-- Tests run: **447**
+- Tests run: **455**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **12:27 min**
+- Duración: **11:24 min**
 
-Además, los tests específicos de `PosicionActivoTest` fueron ejecutados durante el desarrollo de la feature y resultaron en **8/8 tests en verde**.
+Además, los tests específicos de `PosicionActivoTest` y `ValorizacionPosicionActivoTest` fueron ejecutados durante el desarrollo de las features y resultaron en **8/8** y **8/8 tests en verde**, respectivamente.
 
 ## Git
 
-`main` contiene las etapas funcionales cerradas de operaciones financieras, identificación de activos y cartera de activos.
+`main` contiene las etapas funcionales cerradas de operaciones financieras, identificación de activos, cartera de activos, costo promedio y valorización de posiciones activas.
 
-La feature actual es `feature/costo-promedio-activo`.
+La última feature integrada fue `feature/valorizacion-posicion-activo`.
 
-Últimos commits de la feature:
-- `6cb038b` — `test: cubrir costo promedio de posicion activa`;
-- `da09ef0` — `feat: calcular costo promedio de posicion activa`.
+Últimos commits funcionales de la feature integrada:
+- `7379570` — `test: cubrir valorizacion de posicion activa`;
+- `ef19486` — `feat: agregar valorizacion de posicion activa`.
 
-La feature está pendiente de integración en `main` mediante fast-forward.
+La integración se realizó mediante `git merge --ff-only`, sin commit de merge adicional. GitHub y Bitbucket quedaron actualizados hasta `7379570`.
 
 ## Persistencia
 
@@ -107,6 +126,8 @@ Repositorios JPA relevantes:
 - `feature/operacion-financiera`: integrada en `main`.
 - `feature/identificacion-activo`: integrada en `main`.
 - `feature/cartera-activos`: integrada en `main` mediante fast-forward.
+- `feature/costo-promedio-activo`: integrada en `main` mediante fast-forward.
+- `feature/valorizacion-posicion-activo`: integrada en `main` mediante fast-forward.
 
 ## Reglas de continuidad
 
@@ -116,4 +137,4 @@ No considerar implementado ningún pendiente hasta contar con código verificabl
 
 ## Próximo paso
 
-Cerrar documentalmente `feature/costo-promedio-activo`, verificar `git diff`, `git diff --check` y `git status`, y luego integrar la feature en `main` mediante `git merge --ff-only` una vez confirmada la validación final.
+Reconstruir el mapa funcional actual de `main` y revisar las entidades, repositorios, servicios, tests y reglas de negocio para seleccionar la siguiente evolución funcional mínima del backend. La parte gráfica continúa como etapa posterior, apoyándose sobre servicios y reglas de dominio estabilizados.
