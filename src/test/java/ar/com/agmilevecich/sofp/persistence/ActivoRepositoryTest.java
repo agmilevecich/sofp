@@ -270,6 +270,52 @@ class ActivoRepositoryTest {
     }
 
     @Test
+    void deberiaRechazarSimboloDuplicado() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Activo primero =
+                    new Activo("Bitcoin", "BTC", moneda);
+
+            Activo segundo =
+                    new Activo("Bitcoin 2", "BTC", moneda);
+
+            ActivoRepository repository =
+                    new ActivoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(primero);
+            em.flush();
+
+            repository.guardar(segundo);
+
+            assertThrows(
+                    RuntimeException.class,
+                    em::flush
+            );
+
+            em.getTransaction().rollback();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
     void deberiaRechazarActivoNuloAlGuardar() {
 
         JpaTestManager.close();
