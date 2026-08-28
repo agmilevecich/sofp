@@ -17,25 +17,26 @@ Implementado y validado:
 - `ActivoRepository.buscarPorSimbolo(String)`;
 - `BonoRepository.buscarPorSimbolo(String)`;
 - cobertura de tests para ambas búsquedas;
+- cobertura de persistencia que verifica el rechazo de símbolos duplicados para `Activo` y `Bono`;
 - adaptación de los tests y casos existentes al nuevo constructor identificable.
 
 ## Validación global
 
-La suite general más reciente fue ejecutada el **27/08/2026 19:52:48 -03:00**:
+La suite general más reciente fue ejecutada desde IntelliJ IDEA el **28/08/2026 12:15:12 -03:00**:
 
-- **435/435 tests en verde**;
+- **441/441 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **19:08 min**.
+- duración: **10:01 min**.
 
-Posteriormente se ejecutaron las pruebas específicas de los cambios de búsqueda por símbolo y fueron informadas como verdes.
+Además, `ActivoRepositoryTest` y `BonoRepositoryTest` fueron ejecutados específicamente y resultaron en **18/18 tests en verde**.
 
 ## Próximo cambio
 
-- Agregar cobertura específica para la regla de unicidad del símbolo en persistencia, verificando primero que la restricción existente sea la que debe protegerse mediante el test.
-- Revisar después si aparece una necesidad real de búsqueda o identificación adicional de instrumentos.
+- Revisar si aparece una necesidad real de búsqueda o identificación adicional de instrumentos.
+- Realizar la revisión final de la rama contra `main` antes de decidir el merge.
 
 ## Pendientes de arquitectura / evolución
 
