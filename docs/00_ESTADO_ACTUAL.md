@@ -7,15 +7,15 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Estado:** `main` contiene las etapas `operacion-financiera` e `identificacion-activo` ya integradas. La nueva feature `cartera-activos` está en desarrollo.
+**Estado:** `main` contiene las etapas `operacion-financiera`, `identificacion-activo` y `cartera-activos` integradas y validadas.
 
 ## Estado funcional actual
 
 El bloque de operaciones financieras quedó cerrado e integrado en `main`.
 
-El bloque de identificación de activos mediante símbolo también quedó cerrado e integrado en `main`.
+El bloque de identificación de activos mediante símbolo quedó cerrado e integrado en `main`.
 
-La feature `cartera-activos` implementó la obtención de posiciones de cartera por perfil financiero y el listado de movimientos de activos por perfil.
+El bloque de cartera de activos quedó cerrado e integrado en `main`.
 
 `Activo` posee:
 - `nombre`;
@@ -26,7 +26,7 @@ El símbolo está definido como único en persistencia (`unique = true`). `Bono`
 
 ## Cartera de activos
 
-Implementado y validado en `feature/cartera-activos`:
+Implementado y validado:
 
 - listado de movimientos de activos por perfil financiero;
 - agrupación de movimientos por activo;
@@ -35,6 +35,8 @@ Implementado y validado en `feature/cartera-activos`:
 - separación de movimientos entre perfiles financieros;
 - consideración correcta de compras y ventas al consultar movimientos por perfil;
 - cobertura específica mediante `CarteraActivoServiceTest`.
+
+La feature `cartera-activos` fue integrada en `main` mediante fast-forward hasta el commit `e75136b`.
 
 ## Identificación y búsqueda
 
@@ -62,11 +64,11 @@ Además, `CarteraActivoServiceTest` fue ejecutado específicamente y resultó en
 
 ## Git
 
-`main` contiene el merge de `feature/identificacion-activo` mediante `0a554fb`.
+`main` contiene las etapas funcionales cerradas de operaciones financieras, identificación de activos y cartera de activos.
 
-La feature actual es `feature/cartera-activos`.
+La feature `cartera-activos` quedó integrada mediante fast-forward; no se creó un commit de merge adicional.
 
-Último commit funcional de la feature: `b2e11d4` — `fix: incluir compras y ventas al listar movimientos por perfil`.
+Último commit de cierre documental de esta etapa: `docs: cerrar cartera de activos`.
 
 ## Persistencia
 
@@ -81,8 +83,9 @@ Repositorios JPA relevantes:
 
 ## Etapas cerradas
 
-- `feature/operacion-financiera`: integrada en `main` mediante `d39632b`.
+- `feature/operacion-financiera`: integrada en `main`.
 - `feature/identificacion-activo`: integrada en `main` mediante `0a554fb`.
+- `feature/cartera-activos`: integrada en `main` mediante fast-forward hasta `e75136b`.
 
 ## Reglas de continuidad
 
@@ -92,4 +95,4 @@ No considerar implementado ningún pendiente hasta contar con código verificabl
 
 ## Próximo paso
 
-Cerrar la documentación de la feature `cartera-activos`, revisar diff y estado de Git, y evaluar la cobertura restante antes de considerar el merge a `main`.
+Definir la próxima evolución funcional a partir del código y los casos de uso existentes. Antes de implementar, revisar las entidades, repositorios, servicios y tests actuales para elegir el cambio mínimo y mantener las reglas de negocio existentes.
