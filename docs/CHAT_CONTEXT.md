@@ -22,52 +22,58 @@ Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios
 ## Ramas
 
 - Repositorio: `agmilevecich/sofp`
-- `main`: rama estable actual.
-- `feature/operacion-financiera`: etapa integrada en `main`; no es la rama activa de desarrollo.
+- `main`: rama estable actual, actualmente en `d9e7849`.
+- `feature/operacion-financiera`: etapa integrada en `main`.
+- `feature/identificacion-activo`: rama activa de desarrollo.
 - `docs/continuidad-sofp`: no forma parte del flujo actual.
 
-El desarrollo de una nueva funcionalidad debe comenzar desde `main` creando una nueva rama `feature/...` cuando corresponda.
+## Estado actual — 2026-08-28
 
-## Estado actual — 27/08/2026
+La etapa `feature/operacion-financiera` está cerrada e integrada en `main`.
 
-Último Build cerrado: **Build 059 — Suite general posterior a venta y posición**.
+La rama activa `feature/identificacion-activo` trabaja sobre la identificación funcional de activos mediante símbolo.
 
-Resultado: **433/433 tests en verde**, `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
+`Activo` actualmente tiene `nombre`, `simbolo` obligatorio y único, y `moneda`. `Bono` hereda de `Activo` y utiliza `nombre + simbolo + moneda`.
 
-Finalizada: **27/08/2026 15:24:11 -03:00**. Duración: **17:35 min**.
+Se implementaron:
 
-La etapa cerrada de `OperacionFinanciera` incluye:
+- `ActivoRepository.buscarPorSimbolo(String)`;
+- `BonoRepository.buscarPorSimbolo(String)`;
+- retorno mediante `Optional`;
+- rechazo de `null` en ambas búsquedas;
+- adaptación de constructores y tests existentes al símbolo obligatorio.
 
-- `TRANSFERENCIA`;
-- `COMPRA` de activos;
-- `VENTA` de activos;
-- movimientos monetarios y `MovimientoActivo`;
-- persistencia de las relaciones con `OperacionFinanciera`;
-- cálculo de posición de activos.
+Commits funcionales recientes:
 
-Validaciones recientes:
+- `3f6c776` — `feat: agregar busqueda de activo por simbolo`
+- `6179f2d` — `test: cubrir busqueda de activo por simbolo`
+- `354e0b3` — `feat: agregar busqueda de bono por simbolo`
+- `976aff7` — `test: cubrir busqueda de bono por simbolo`
 
-- `OperacionFinancieraTest`: **17/17**.
-- `OperacionFinancieraServiceTest`: **22/22**.
-- `OperacionFinancieraCompraServiceTest`: **13/13**.
-- `OperacionFinancieraVentaServiceTest`: **13/13**.
-- `PosicionActivoServiceTest`: **4/4**.
+## Tests
 
-La integración real valida `COMPRA 100 + VENTA 30 = POSICION 70` mediante los servicios.
+Suite general más reciente conocida:
 
-## Git y merge
+- **435 tests**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Finalizada: **27/08/2026 19:52:48 -03:00**
+- Duración: **19:08 min**
 
-La etapa `feature/operacion-financiera` fue integrada en `main` mediante:
+Posteriormente se ejecutaron los tests específicos de los cambios de búsqueda por símbolo y fueron informados como verdes.
 
-```text
-d39632b Merge branch 'feature/operacion-financiera'
-```
+## Git y continuidad
 
-`main` local, `github/main` y `bitbucket/main` quedaron alineados en `d39632b` antes de la actualización documental.
+Comparación actual reconstruida desde GitHub:
 
-La divergencia histórica de GitHub que contenía únicamente la creación y eliminación de `docs/00_ESTADO_ACTUAL.md.tmp` fue resuelta mediante `--force-with-lease`.
-
-La documentación posterior al merge se actualiza directamente en `main`.
+- `feature/identificacion-activo`: **19 commits por delante de `main`**.
+- `feature/identificacion-activo`: **0 commits por detrás de `main`**.
+- `main`: `d9e7849`.
+- Último commit funcional de la feature antes de la actualización documental: `976aff7`.
+- Las actualizaciones de continuidad de esta sesión se realizan sobre `feature/identificacion-activo`.
+- `main` no debe modificarse automáticamente.
 
 ## Dominio actual
 
@@ -84,13 +90,7 @@ Entidades principales:
 - Activo
 - Bono
 
-`Activo` y `Bono` se mantienen deliberadamente mínimos hasta definir reglas financieras específicas.
-
-`OperacionFinanciera` agrupa la operación y sus movimientos. Una compra genera `EGRESO` + `MovimientoActivo.COMPRA`; una venta genera `INGRESO` + `MovimientoActivo.VENTA`.
-
-Una venta superior a la posición disponible se rechaza en el dominio. Las posiciones short quedan para una decisión futura explícita.
-
-Las comisiones y gastos quedan para una etapa posterior.
+`OperacionFinanciera` agrupa operaciones y movimientos. Compra y venta de activos están implementadas y validadas. `PosicionActivo` calcula la posición a partir de movimientos persistidos mediante los servicios reales.
 
 ## Persistencia
 
@@ -110,22 +110,21 @@ Repositorios relevantes:
 
 ## Próximo paso
 
-Revisar el dominio actual y definir la siguiente funcionalidad de inversiones a partir de reglas de negocio explícitas.
-
-Antes de implementar, revisar código, tests y documentación relacionada y crear una nueva rama `feature/...` desde `main` cuando corresponda.
+Cubrir la regla de unicidad del símbolo en persistencia mediante un test específico, verificando primero la implementación actual. Mantener el cambio mínimo y no modificar producción si la restricción existente ya es suficiente.
 
 ## Forma de trabajo
 
-1. Revisar código, tests y GitHub antes de cambiar.
-2. Hacer el cambio mínimo.
-3. Ejecutar tests específicos desde IntelliJ IDEA.
-4. Ejecutar suite general cuando corresponda.
-5. Confirmar el resultado real.
-6. Revisar diff, `diff --check` y status local.
-7. Commit pequeño y descriptivo.
-8. Actualizar continuidad en la rama activa.
-9. Antes del merge, revisar la feature contra `main`.
-10. Tras el merge, actualizar la continuidad en `main`.
+1. Reconstruir el estado desde GitHub antes de cambiar.
+2. Revisar código, tests y reglas de negocio relacionadas.
+3. Hacer el cambio mínimo en la rama activa.
+4. Ejecutar tests específicos desde IntelliJ IDEA.
+5. Ejecutar suite general cuando corresponda.
+6. Confirmar el resultado real.
+7. Revisar diff, `diff --check` y status local.
+8. Crear commit pequeño y descriptivo.
+9. Actualizar continuidad en la rama activa.
+10. Antes del merge, comparar la feature contra `main` y validar pendientes.
+11. No hacer merge a `main` automáticamente.
 
 ## Al cerrar una sesión
 
