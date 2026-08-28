@@ -76,7 +76,8 @@ class CarteraActivoServiceTest {
         EntityManager em = JpaTestManager.createEntityManager();
         try {
             PerfilFinanciero perfil = crearPerfil("cartera.cero");
-            Bono gd30 = crearBono("GD30", crearMoneda());
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
             persistir(em, perfil, gd30);
 
             MovimientoActivo compra = movimiento(gd30, TipoMovimientoActivo.COMPRA, "100");
@@ -98,7 +99,8 @@ class CarteraActivoServiceTest {
         try {
             PerfilFinanciero perfil1 = crearPerfil("cartera.perfil1");
             PerfilFinanciero perfil2 = crearPerfil("cartera.perfil2");
-            Bono gd30 = crearBono("GD30", crearMoneda());
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
             persistir(em, perfil1, perfil2, gd30);
 
             MovimientoActivo movimientoPerfil1 = movimiento(gd30, TipoMovimientoActivo.COMPRA, "100");
@@ -186,6 +188,7 @@ class CarteraActivoServiceTest {
 
             operacion.agregarMovimientoActivo(movimiento);
             em.persist(operacion);
+            em.persist(movimiento);
         }
         em.getTransaction().commit();
     }
