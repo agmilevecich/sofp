@@ -7,7 +7,7 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Estado:** `main` contiene las etapas `operacion-financiera` e `identificacion-activo` ya integradas.
+**Estado:** `main` contiene las etapas `operacion-financiera` e `identificacion-activo` ya integradas. La nueva feature `cartera-activos` está en desarrollo.
 
 ## Estado funcional actual
 
@@ -15,12 +15,26 @@ El bloque de operaciones financieras quedó cerrado e integrado en `main`.
 
 El bloque de identificación de activos mediante símbolo también quedó cerrado e integrado en `main`.
 
+La feature `cartera-activos` implementó la obtención de posiciones de cartera por perfil financiero y el listado de movimientos de activos por perfil.
+
 `Activo` posee:
 - `nombre`;
 - `simbolo` obligatorio;
 - `moneda` obligatoria.
 
 El símbolo está definido como único en persistencia (`unique = true`). `Bono` hereda de `Activo` y utiliza el constructor identificable `nombre + simbolo + moneda`.
+
+## Cartera de activos
+
+Implementado y validado en `feature/cartera-activos`:
+
+- listado de movimientos de activos por perfil financiero;
+- agrupación de movimientos por activo;
+- cálculo de posiciones mediante `CalculadorPosicionActivo`;
+- exclusión de posiciones cuya cantidad final es cero;
+- separación de movimientos entre perfiles financieros;
+- consideración correcta de compras y ventas al consultar movimientos por perfil;
+- cobertura específica mediante `CarteraActivoServiceTest`.
 
 ## Identificación y búsqueda
 
@@ -35,28 +49,24 @@ Implementado y validado:
 
 ## Última validación global conocida
 
-Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 12:15:12 -03:00**:
+Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 17:47:36 -03:00**:
 
-- Tests run: **441**
+- Tests run: **446**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **10:01 min**
+- Duración: **12:34 min**
 
-Además, los tests específicos de `ActivoRepositoryTest` y `BonoRepositoryTest` fueron ejecutados y resultaron en **18/18 tests en verde**.
+Además, `CarteraActivoServiceTest` fue ejecutado específicamente y resultó en **5/5 tests en verde**.
 
 ## Git
 
-`main` quedó actualizado después del merge de `feature/identificacion-activo`.
+`main` contiene el merge de `feature/identificacion-activo` mediante `0a554fb`.
 
-Commit de merge: `0a554fb` — `merge: integrar identificacion de activos`.
+La feature actual es `feature/cartera-activos`.
 
-La última sincronización local confirmó:
-- `HEAD -> main` en `0a554fb`;
-- `github/main` en `0a554fb`;
-- `bitbucket/main` en `0a554fb`;
-- working tree limpio.
+Último commit funcional de la feature: `b2e11d4` — `fix: incluir compras y ventas al listar movimientos por perfil`.
 
 ## Persistencia
 
@@ -67,7 +77,7 @@ Repositorios JPA relevantes:
 - `ActivoRepository`
 - `BonoRepository`
 
-`ActivoRepository` y `BonoRepository` mantienen guardar, buscar por id, listar y buscar por símbolo.
+`MovimientoActivoRepository.listarPorPerfilFinanciero(Long)` contempla las cuentas de origen y destino mediante la consulta correspondiente para incluir compras y ventas.
 
 ## Etapas cerradas
 
@@ -82,4 +92,4 @@ No considerar implementado ningún pendiente hasta contar con código verificabl
 
 ## Próximo paso
 
-Definir la próxima evolución funcional a partir del código y los casos de uso existentes. Antes de implementar, revisar las entidades, repositorios, servicios y tests actuales para elegir el cambio mínimo y mantener las reglas de negocio existentes.
+Cerrar la documentación de la feature `cartera-activos`, revisar diff y estado de Git, y evaluar la cobertura restante antes de considerar el merge a `main`.
