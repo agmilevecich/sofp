@@ -7,7 +7,7 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Estado:** `main` contiene las etapas `operacion-financiera`, `identificacion-activo` y `cartera-activos` integradas y validadas.
+**Estado:** `main` contiene las etapas `operacion-financiera`, `identificacion-activo` y `cartera-activos` integradas y validadas. La feature `costo-promedio-activo` está desarrollada y validada, pendiente de integración.
 
 ## Estado funcional actual
 
@@ -16,6 +16,8 @@ El bloque de operaciones financieras quedó cerrado e integrado en `main`.
 El bloque de identificación de activos mediante símbolo quedó cerrado e integrado en `main`.
 
 El bloque de cartera de activos quedó cerrado e integrado en `main`.
+
+La feature `costo-promedio-activo` implementó el cálculo del costo de adquisición remanente y del precio promedio de una posición activa.
 
 `Activo` posee:
 - `nombre`;
@@ -36,7 +38,22 @@ Implementado y validado:
 - consideración correcta de compras y ventas al consultar movimientos por perfil;
 - cobertura específica mediante `CarteraActivoServiceTest`.
 
-La feature `cartera-activos` fue integrada en `main` mediante fast-forward hasta el commit `e75136b`.
+La feature `cartera-activos` fue integrada en `main` mediante fast-forward.
+
+## Costo promedio de posición activa
+
+Implementado y validado en `feature/costo-promedio-activo`:
+
+- acumulación del costo de adquisición de las compras;
+- cálculo del precio promedio de la posición;
+- mantenimiento del costo de adquisición remanente después de ventas;
+- reinicio del costo de adquisición al cerrar completamente la posición;
+- rechazo de ventas superiores a la cantidad disponible;
+- rechazo de movimientos de otro activo;
+- rechazo de movimientos nulos;
+- cobertura específica mediante `PosicionActivoTest` con **8/8 tests en verde**.
+
+La feature se encuentra 2 commits por delante de `main` y 0 commits por detrás. Los cambios funcionales están concentrados en `PosicionActivo` y su test específico.
 
 ## Identificación y búsqueda
 
@@ -51,24 +68,28 @@ Implementado y validado:
 
 ## Última validación global conocida
 
-Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 17:47:36 -03:00**:
+Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 19:12:22 -03:00**:
 
-- Tests run: **446**
+- Tests run: **447**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **12:34 min**
+- Duración: **12:27 min**
 
-Además, `CarteraActivoServiceTest` fue ejecutado específicamente y resultó en **5/5 tests en verde**.
+Además, los tests específicos de `PosicionActivoTest` fueron ejecutados durante el desarrollo de la feature y resultaron en **8/8 tests en verde**.
 
 ## Git
 
 `main` contiene las etapas funcionales cerradas de operaciones financieras, identificación de activos y cartera de activos.
 
-La feature `cartera-activos` quedó integrada mediante fast-forward; no se creó un commit de merge adicional.
+La feature actual es `feature/costo-promedio-activo`.
 
-Último commit de cierre documental de esta etapa: `docs: cerrar cartera de activos`.
+Últimos commits de la feature:
+- `6cb038b` — `test: cubrir costo promedio de posicion activa`;
+- `da09ef0` — `feat: calcular costo promedio de posicion activa`.
+
+La feature está pendiente de integración en `main` mediante fast-forward.
 
 ## Persistencia
 
@@ -84,8 +105,8 @@ Repositorios JPA relevantes:
 ## Etapas cerradas
 
 - `feature/operacion-financiera`: integrada en `main`.
-- `feature/identificacion-activo`: integrada en `main` mediante `0a554fb`.
-- `feature/cartera-activos`: integrada en `main` mediante fast-forward hasta `e75136b`.
+- `feature/identificacion-activo`: integrada en `main`.
+- `feature/cartera-activos`: integrada en `main` mediante fast-forward.
 
 ## Reglas de continuidad
 
@@ -95,4 +116,4 @@ No considerar implementado ningún pendiente hasta contar con código verificabl
 
 ## Próximo paso
 
-Definir la próxima evolución funcional a partir del código y los casos de uso existentes. Antes de implementar, revisar las entidades, repositorios, servicios y tests actuales para elegir el cambio mínimo y mantener las reglas de negocio existentes.
+Cerrar documentalmente `feature/costo-promedio-activo`, verificar `git diff`, `git diff --check` y `git status`, y luego integrar la feature en `main` mediante `git merge --ff-only` una vez confirmada la validación final.
