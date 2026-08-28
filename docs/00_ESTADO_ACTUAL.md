@@ -15,7 +15,7 @@ La etapa `feature/operacion-financiera` fue integrada en `main` mediante `d39632
 
 El bloque de operaciones financieras quedó cerrado. Actualmente se trabaja en la identificación de activos mediante símbolo.
 
-`Activo` ahora posee:
+`Activo` posee:
 - `nombre`;
 - `simbolo` obligatorio;
 - `moneda` obligatoria.
@@ -29,7 +29,9 @@ Implementado y validado:
 - `ActivoRepository.buscarPorSimbolo(String)` devuelve `Optional<Activo>`;
 - `BonoRepository.buscarPorSimbolo(String)` devuelve `Optional<Bono>`;
 - ambos rechazan `null` mediante `NullPointerException`;
-- los tests cubren la búsqueda por símbolo.
+- los tests cubren la búsqueda por símbolo;
+- la persistencia rechaza símbolos duplicados tanto para `Activo` como para `Bono`;
+- la restricción de unicidad se verifica mediante tests específicos de repositorio.
 
 Commits relevantes:
 
@@ -37,31 +39,30 @@ Commits relevantes:
 - `6179f2d` — `test: cubrir busqueda de activo por simbolo`
 - `354e0b3` — `feat: agregar busqueda de bono por simbolo`
 - `976aff7` — `test: cubrir busqueda de bono por simbolo`
+- `7435ee0` — `test: cubrir unicidad del simbolo de activos`
+- `94dc53e` — `test: cubrir unicidad del simbolo de bonos`
+- `ac44680` — `fix: capturar unicidad de simbolos al guardar`
 
 Antes de estos cambios se adaptaron constructores y tests de compra, venta, posición, integridad y persistencia al símbolo obligatorio.
 
 ## Última validación global conocida
 
-Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 19:52:48 -03:00**:
+Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 12:15:12 -03:00**:
 
-- Tests run: **435**
+- Tests run: **441**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **19:08 min**
+- Duración: **10:01 min**
 
-Posteriormente se validaron desde IntelliJ las pruebas específicas de los cambios de identificación por símbolo, con todos los tests indicados en verde.
+Además, los tests específicos de `ActivoRepositoryTest` y `BonoRepositoryTest` fueron ejecutados y resultaron en **18/18 tests en verde**.
 
 ## Git
 
-Estado confirmado en GitHub:
+La rama de trabajo actual es `feature/identificacion-activo`. `main` no debe modificarse mientras se continúa esta feature.
 
-- `feature/identificacion-activo` está **19 commits por delante de `main`** y **0 por detrás**.
-- `main`: `d9e7849` — `docs: actualizar contexto tras merge de operacion financiera`.
-- HEAD de la feature: `976aff7` — `test: cubrir busqueda de bono por simbolo`.
-- La rama de trabajo está sincronizada con GitHub y Bitbucket y el working tree local fue informado como limpio.
-- `main` no debe modificarse mientras se continúa esta feature.
+La comparación anterior conocida con `main` indicó que la feature estaba por delante y sin commits pendientes de incorporar desde `main`. Antes del merge se realizará una nueva comparación final y se revisarán commits, archivos modificados y estado de la rama.
 
 ## Persistencia
 
@@ -72,7 +73,7 @@ Repositorios JPA relevantes:
 - `ActivoRepository`
 - `BonoRepository`
 
-`ActivoRepository` y `BonoRepository` mantienen guardar, buscar por id, listar y ahora buscar por símbolo.
+`ActivoRepository` y `BonoRepository` mantienen guardar, buscar por id, listar y buscar por símbolo.
 
 ## Reglas de continuidad
 
@@ -82,4 +83,4 @@ No considerar implementado ningún pendiente hasta contar con código verificabl
 
 ## Próximo paso
 
-Revisar y cubrir con tests la regla de unicidad del símbolo en persistencia, verificando primero la implementación actual y manteniendo el cambio mínimo. Después continuar con la siguiente necesidad real de identificación de instrumentos.
+Realizar la revisión final de `feature/identificacion-activo` contra `main`: commits, archivos modificados, funcionalidades, tests y documentación. Determinar si la feature está lista para merge o si existe algún pendiente adicional.
