@@ -16,12 +16,15 @@ import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.domain.ValorizacionPosicionActivo;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -130,6 +133,91 @@ class CarteraActivoServiceTest {
         }
     }
 
+    @Test
+    void deberiaObtenerValorizacionesDeTodosLosActivosDelPerfil() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            PerfilFinanciero perfil = crearPerfil("valorizacion.cartera");
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
+            Bono al30 = crearBono("AL30", moneda);
+            persistir(em, perfil, gd30, al30);
+
+            MovimientoActivo compraGd30 = movimiento(gd30, TipoMovimientoActivo.COMPRA, "100");
+            MovimientoActivo compraAl30 = movimiento(al30, TipoMovimientoActivo.COMPRA, "50");
+            persistirMovimientos(em, perfil, compraGd30, compraAl30);
+
+            Map<Activo, BigDecimal> precios = new HashMap<>();
+            precios.put(gd30, new BigDecimal("120"));
+            precios.put(al30, new BigDecimal("80"));
+
+            CarteraActivoService service = new CarteraActivoService(new MovimientoActivoRepository(em));
+            List<ValorizacionPosicionActivo> valorizaciones = service.obtenerValorizaciones(perfil, precios);
+
+            assertEquals(2, valorizaciones.size());
+            assertEquals(new BigDecimal("2000"), valorDe(valorizaciones, "GD30"));
+            assertEquals(new BigDecimal("-1000"), gananciaDe(valorizaciones, "AL30"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaDevolverListaVaciaDeValorizacionesSinMovimientos() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            PerfilFinanciero perfil = crearPerfil("valorizacion.vacia");
+            persistir(em, perfil);
+
+            CarteraActivoService service = new CarteraActivoService(new MovimientoActivoRepository(em));
+
+            assertTrue(service.obtenerValorizaciones(perfil, Map.of()).isEmpty());
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarPreciosActualesNulos() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            PerfilFinanciero perfil = crearPerfil("valorizacion.null");
+            CarteraActivoService service = new CarteraActivoService(new MovimientoActivoRepository(em));
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> service.obtenerValorizaciones(perfil, null)
+            );
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarPrecioFaltanteParaUnaPosicion() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            PerfilFinanciero perfil = crearPerfil("valorizacion.faltante");
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
+            persistir(em, perfil, gd30);
+            persistirMovimientos(em, perfil, movimiento(gd30, TipoMovimientoActivo.COMPRA, "100"));
+
+            CarteraActivoService service = new CarteraActivoService(new MovimientoActivoRepository(em));
+
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> service.obtenerValorizaciones(perfil, Map.of())
+            );
+        } finally {
+            em.close();
+        }
+    }
+
     private PerfilFinanciero crearPerfil(String prefijo) {
         Usuario usuario = new Usuario("Ariel", "Milevecich",
                 prefijo + "." + System.nanoTime() + "@test.com", "hash");
@@ -199,5 +287,23 @@ class CarteraActivoServiceTest {
                 .findFirst()
                 .orElseThrow()
                 .getCantidad();
+    }
+
+    private BigDecimal valorDe(List<ValorizacionPosicionActivo> valorizaciones, String simbolo) {
+        return valorizaciones.stream()
+                .filter(valorizacion -> simbolo.equals(
+                        valorizacion.getPosicion().getActivo().getSimbolo()))
+                .findFirst()
+                .orElseThrow()
+                .getValorActual();
+    }
+
+    private BigDecimal gananciaDe(List<ValorizacionPosicionActivo> valorizaciones, String simbolo) {
+        return valorizaciones.stream()
+                .filter(valorizacion -> simbolo.equals(
+                        valorizacion.getPosicion().getActivo().getSimbolo()))
+                .findFirst()
+                .orElseThrow()
+                .getGananciaPerdida();
     }
 }
