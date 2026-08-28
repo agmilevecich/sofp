@@ -248,6 +248,52 @@ class BonoRepositoryTest {
     }
 
     @Test
+    void deberiaRechazarSimboloDuplicado() {
+
+        JpaTestManager.close();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
+        try {
+            Moneda moneda =
+                    new Moneda(
+                            "ARS",
+                            "Peso Argentino",
+                            2,
+                            TipoMoneda.FIAT
+                    );
+
+            Bono primero =
+                    new Bono("Bono GD30", "GD30", moneda);
+
+            Bono segundo =
+                    new Bono("Bono GD30 2", "GD30", moneda);
+
+            BonoRepository repository =
+                    new BonoRepository(em);
+
+            em.getTransaction().begin();
+
+            em.persist(moneda);
+            repository.guardar(primero);
+            em.flush();
+
+            repository.guardar(segundo);
+
+            assertThrows(
+                    RuntimeException.class,
+                    em::flush
+            );
+
+            em.getTransaction().rollback();
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
     void deberiaRechazarBonoNuloAlGuardar() {
 
         JpaTestManager.close();
