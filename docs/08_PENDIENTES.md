@@ -4,9 +4,9 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 ## Estado actual
 
-La etapa `feature/operacion-financiera` fue integrada en `main` y quedó validada con la suite completa.
+Las etapas `feature/operacion-financiera` y `feature/identificacion-activo` fueron integradas en `main` y quedaron validadas con la suite completa.
 
-La rama de trabajo actual es `feature/identificacion-activo`.
+Actualmente no existe una feature en desarrollo.
 
 ### Identificación de activos
 
@@ -19,6 +19,8 @@ Implementado y validado:
 - cobertura de tests para ambas búsquedas;
 - cobertura de persistencia que verifica el rechazo de símbolos duplicados para `Activo` y `Bono`;
 - adaptación de los tests y casos existentes al nuevo constructor identificable.
+
+Esta etapa está cerrada y fue integrada en `main` mediante `0a554fb`.
 
 ## Validación global
 
@@ -35,8 +37,9 @@ Además, `ActivoRepositoryTest` y `BonoRepositoryTest` fueron ejecutados especí
 
 ## Próximo cambio
 
-- Revisar si aparece una necesidad real de búsqueda o identificación adicional de instrumentos.
-- Realizar la revisión final de la rama contra `main` antes de decidir el merge.
+No hay una próxima funcionalidad definida todavía.
+
+Antes de comenzar una nueva feature se debe revisar el código, entidades, repositorios, servicios, tests y reglas de negocio actuales, y seleccionar el siguiente caso de uso real a desarrollar.
 
 ## Pendientes de arquitectura / evolución
 
