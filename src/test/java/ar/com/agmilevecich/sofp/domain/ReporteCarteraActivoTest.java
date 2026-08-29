@@ -39,6 +39,61 @@ class ReporteCarteraActivoTest {
     }
 
     @Test
+    void deberiaCalcularComposicionDetalladaPorValorActual() {
+        PosicionActivo gd30 = crearPosicion("GD30", "100", "100");
+        PosicionActivo al30 = crearPosicion("AL30", "50", "100");
+
+        ValorizacionPosicionActivo valorizacionGd30 = new ValorizacionPosicionActivo(
+                gd30,
+                new BigDecimal("120")
+        );
+        ValorizacionPosicionActivo valorizacionAl30 = new ValorizacionPosicionActivo(
+                al30,
+                new BigDecimal("80")
+        );
+
+        ReporteCarteraActivo reporte = new ReporteCarteraActivo(
+                List.of(valorizacionGd30, valorizacionAl30)
+        );
+
+        List<DetalleComposicionCarteraActivo> composicion = reporte.getComposicion();
+
+        assertEquals(2, composicion.size());
+        assertEquals(
+                0,
+                composicion.get(0).getParticipacionPorcentual()
+                        .compareTo(new BigDecimal("75"))
+        );
+        assertEquals(
+                0,
+                composicion.get(1).getParticipacionPorcentual()
+                        .compareTo(new BigDecimal("25"))
+        );
+        assertEquals(
+                valorizacionGd30,
+                composicion.get(0).getValorizacion()
+        );
+    }
+
+    @Test
+    void deberiaDevolverComposicionEnCeroParaCarteraSinValorActual() {
+        PosicionActivo gd30 = crearPosicion("GD30", "100", "100");
+        ValorizacionPosicionActivo valorizacion = new ValorizacionPosicionActivo(
+                gd30,
+                BigDecimal.ZERO
+        );
+
+        ReporteCarteraActivo reporte = new ReporteCarteraActivo(List.of(valorizacion));
+
+        assertEquals(1, reporte.getComposicion().size());
+        assertEquals(
+                0,
+                reporte.getComposicion().get(0).getParticipacionPorcentual()
+                        .compareTo(BigDecimal.ZERO)
+        );
+    }
+
+    @Test
     void deberiaDevolverTotalesEnCeroParaUnaCarteraVacia() {
         ReporteCarteraActivo reporte = new ReporteCarteraActivo(List.of());
 
@@ -47,6 +102,7 @@ class ReporteCarteraActivoTest {
         assertEquals(0, reporte.getValorActualTotal().compareTo(BigDecimal.ZERO));
         assertEquals(0, reporte.getGananciaPerdidaTotal().compareTo(BigDecimal.ZERO));
         assertEquals(0, reporte.getRendimientoPorcentualTotal().compareTo(BigDecimal.ZERO));
+        assertTrue(reporte.getComposicion().isEmpty());
     }
 
     @Test
@@ -78,6 +134,10 @@ class ReporteCarteraActivoTest {
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> reporte.getValorizaciones().clear()
+        );
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> reporte.getComposicion().clear()
         );
     }
 
