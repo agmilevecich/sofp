@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.EvolucionSaldoCuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
@@ -12,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -115,6 +117,47 @@ public class CuentaService {
         }
 
         return saldo;
+    }
+
+    public List<EvolucionSaldoCuenta> obtenerEvolucionSaldo(Long cuentaId) {
+
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+
+        List<EvolucionSaldoCuenta> evolucion =
+                new ArrayList<>();
+
+        BigDecimal saldo = BigDecimal.ZERO;
+
+        for (Movimiento movimiento :
+                movimientoRepository.listarPorCuenta(cuentaId)) {
+
+            if (movimiento.getTipoMovimiento()
+                    == TipoMovimiento.INGRESO) {
+
+                saldo = saldo.add(
+                        movimiento.getImporte()
+                );
+
+            } else if (movimiento.getTipoMovimiento()
+                    == TipoMovimiento.EGRESO) {
+
+                saldo = saldo.subtract(
+                        movimiento.getImporte()
+                );
+            }
+
+            evolucion.add(
+                    new EvolucionSaldoCuenta(
+                            movimiento.getFechaHora(),
+                            saldo
+                    )
+            );
+        }
+
+        return evolucion;
     }
 
     public Cuenta modificarNombre(
