@@ -26,7 +26,7 @@ El bloque incluye:
 - detalle de movimientos de cartera;
 - evolución histórica del saldo de una cuenta.
 
-El estado final de `main` y `feature/reportes-cartera` coincide en el commit `0b73e87`.
+El estado funcional final de `main` y `feature/reportes-cartera` coincide en `0b73e87`.
 
 ## Próximo paso
 
