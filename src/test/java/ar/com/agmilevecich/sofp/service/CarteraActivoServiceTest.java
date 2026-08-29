@@ -11,6 +11,7 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.PosicionActivo;
+import ar.com.agmilevecich.sofp.domain.ReporteCarteraActivo;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
@@ -159,6 +160,34 @@ class CarteraActivoServiceTest {
             assertEquals(2, valorizaciones.size());
             assertEquals(new BigDecimal("12000"), valorDe(valorizaciones, "GD30"));
             assertEquals(new BigDecimal("-1000"), gananciaDe(valorizaciones, "AL30"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaObtenerReporteConsolidadoDeLaCartera() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            PerfilFinanciero perfil = crearPerfil("reporte.cartera");
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
+            persistir(em, perfil, gd30);
+
+            MovimientoActivo compra = movimiento(gd30, TipoMovimientoActivo.COMPRA, "100");
+            persistirMovimientos(em, perfil, compra);
+
+            CarteraActivoService service = new CarteraActivoService(new MovimientoActivoRepository(em));
+            ReporteCarteraActivo reporte = service.obtenerReporte(
+                    perfil,
+                    Map.of(gd30, new BigDecimal("120"))
+            );
+
+            assertEquals(1, reporte.getValorizaciones().size());
+            assertEquals(new BigDecimal("10000"), reporte.getCostoTotal());
+            assertEquals(new BigDecimal("12000"), reporte.getValorActualTotal());
+            assertEquals(new BigDecimal("2000"), reporte.getGananciaPerdidaTotal());
         } finally {
             em.close();
         }
