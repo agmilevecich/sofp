@@ -16,15 +16,28 @@ Persistir el modelo de dominio y establecer los mecanismos necesarios para consu
 
 Implementar `OperacionFinanciera` y su asociación con los movimientos resultantes. En el estado actual, los efectos monetarios se registran mediante `Movimiento`, que pertenece a una `Cuenta`. La operación puede agrupar hasta dos movimientos y constituye el contexto de negocio de esos movimientos.
 
-La evolución hacia movimientos específicos para posiciones de activos (`MovimientoActivo`) queda como una etapa futura y no debe considerarse parte del modelo actualmente implementado.
+La evolución posterior incorporó movimientos específicos para posiciones de activos mediante `MovimientoActivo`, asociados a `OperacionFinanciera`. Este modelo ya forma parte del dominio implementado.
 
 ## Fase 5: Saldos y posiciones
 
-Implementar el cálculo de saldos de cuentas a partir de sus movimientos y, posteriormente, el cálculo de posiciones de activos a partir de sus movimientos específicos cuando ese modelo sea incorporado.
+Implementar el cálculo de saldos de cuentas a partir de sus movimientos y el cálculo de posiciones de activos a partir de sus movimientos específicos.
+
+El dominio actual incluye `PosicionActivo`, que permite obtener cantidad, costo de adquisición y precio promedio de una posición, y `CarteraActivoService`, que consolida las posiciones de todos los activos de un perfil. También se incorporó `ValorizacionPosicionActivo` y la valorización de las posiciones de una cartera a partir de precios actuales.
+
+### Estado actual de la Fase 5
+
+- Cálculo de posición por activo: implementado.
+- Costo promedio de adquisición: implementado.
+- Consolidación de posiciones de cartera: implementado.
+- Valorización de una posición: implementado.
+- Valorización de la cartera: implementado.
+- Pruebas unitarias y de integración asociadas: implementadas.
 
 ## Fase 6: Reportes
 
 Incorporar consultas y reportes de cartera, composición de activos, movimientos y evolución de saldos.
+
+La valorización de cartera ya constituye una base de dominio para futuros reportes, pero la capa de reportes consolidada todavía está pendiente.
 
 ## Fase 7: Seguridad
 
