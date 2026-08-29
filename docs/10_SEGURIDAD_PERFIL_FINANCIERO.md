@@ -6,13 +6,14 @@ Feature: `feature/seguridad-perfil-financiero`
 
 Estado: **IMPLEMENTADA Y VALIDADA**.
 
-La feature parte de `main` en `ce7c8af` y actualmente contiene tres commits propios:
+La feature parte de `main` en `ce7c8af` y actualmente contiene cuatro commits propios:
 
 - `6478262` — `feat: proteger operaciones de perfil por propietario`;
 - `8d3c775` — `test: cubrir autorizacion de operaciones de perfil`;
-- `c07393e` — `docs: documentar seguridad de perfil financiero`.
+- `c07393e` — `docs: documentar seguridad de perfil financiero`;
+- `b6194ae` — `docs: actualizar estado final de seguridad de perfil`.
 
-La comparación contra `main` confirma: **3 commits adelante, 0 detrás**.
+La comparación actual contra `main` confirma: **4 commits adelante, 0 detrás**.
 
 ## Cambio funcional
 
@@ -63,10 +64,10 @@ La rama de trabajo quedó sincronizada con sus dos remotos después de la actual
 
 - `git status` → working tree clean;
 - `git diff --check` → sin observaciones;
-- `HEAD` → `c07393e`;
+- `HEAD` → `b6194ae`;
 - `main` → `ce7c8af`;
-- `github/feature/seguridad-perfil-financiero` → `c07393e`;
-- `bitbucket/feature/seguridad-perfil-financiero` → `c07393e`.
+- `github/feature/seguridad-perfil-financiero` → `b6194ae`;
+- `bitbucket/feature/seguridad-perfil-financiero` → `b6194ae`.
 
 `main` en GitHub y Bitbucket quedó alineado en `ce7c8af` antes de continuar esta feature.
 
@@ -77,7 +78,7 @@ La implementación, las pruebas y la documentación están completas.
 Antes de integrar la feature en `main` mediante **fast-forward** corresponde realizar la comprobación final:
 
 1. actualizar referencias de ambos remotos;
-2. comprobar que la feature sigue 3 commits adelante y 0 detrás de `main`;
+2. comprobar que la feature sigue 4 commits adelante y 0 detrás de `main`;
 3. verificar que no existan cambios locales;
 4. revisar el diff final;
 5. confirmar `git diff --check`;
