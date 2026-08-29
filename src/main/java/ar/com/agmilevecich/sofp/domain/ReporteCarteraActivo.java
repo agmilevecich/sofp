@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.domain;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,6 +51,27 @@ public class ReporteCarteraActivo {
 
     public BigDecimal getRendimientoPorcentualTotal() {
         return rendimientoPorcentualTotal;
+    }
+
+    /**
+     * Devuelve la composición de la cartera según el valor actual de cada posición.
+     */
+    public List<DetalleComposicionCarteraActivo> getComposicion() {
+        if (valorActualTotal.compareTo(BigDecimal.ZERO) == 0) {
+            return valorizaciones.stream()
+                    .map(valorizacion -> new DetalleComposicionCarteraActivo(
+                            valorizacion, BigDecimal.ZERO))
+                    .toList();
+        }
+
+        List<DetalleComposicionCarteraActivo> composicion = new ArrayList<>();
+        for (ValorizacionPosicionActivo valorizacion : valorizaciones) {
+            BigDecimal participacion = valorizacion.getValorActual()
+                    .divide(valorActualTotal, MathContext.DECIMAL128)
+                    .multiply(new BigDecimal("100"));
+            composicion.add(new DetalleComposicionCarteraActivo(valorizacion, participacion));
+        }
+        return List.copyOf(composicion);
     }
 
     private BigDecimal calcularCostoTotal() {
