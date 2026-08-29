@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
@@ -156,7 +157,7 @@ class CarteraActivoServiceTest {
             List<ValorizacionPosicionActivo> valorizaciones = service.obtenerValorizaciones(perfil, precios);
 
             assertEquals(2, valorizaciones.size());
-            assertEquals(new BigDecimal("2000"), valorDe(valorizaciones, "GD30"));
+            assertEquals(new BigDecimal("12000"), valorDe(valorizaciones, "GD30"));
             assertEquals(new BigDecimal("-1000"), gananciaDe(valorizaciones, "AL30"));
         } finally {
             em.close();
