@@ -58,12 +58,10 @@ public class PerfilFinancieroService {
 
     public PerfilFinanciero cambiarDescripcion(
             Long perfilId,
+            Long usuarioId,
             String descripcion) {
 
-        Objects.requireNonNull(
-                perfilId,
-                "El id del perfil financiero es obligatorio"
-        );
+        validarIds(perfilId, usuarioId);
 
         Objects.requireNonNull(
                 descripcion,
@@ -73,39 +71,67 @@ public class PerfilFinancieroService {
         PerfilFinanciero perfil =
                 obtenerPorId(perfilId);
 
+        verificarPropietario(perfil, usuarioId);
+
         perfil.cambiarDescripcion(descripcion);
 
         return perfilFinancieroRepository.guardar(perfil);
     }
 
-    public PerfilFinanciero activar(Long perfilId) {
+    public PerfilFinanciero activar(
+            Long perfilId,
+            Long usuarioId) {
 
-        Objects.requireNonNull(
-                perfilId,
-                "El id del perfil financiero es obligatorio"
-        );
+        validarIds(perfilId, usuarioId);
 
         PerfilFinanciero perfil =
                 obtenerPorId(perfilId);
+
+        verificarPropietario(perfil, usuarioId);
 
         perfil.activar();
 
         return perfilFinancieroRepository.guardar(perfil);
     }
 
-    public PerfilFinanciero desactivar(Long perfilId) {
+    public PerfilFinanciero desactivar(
+            Long perfilId,
+            Long usuarioId) {
+
+        validarIds(perfilId, usuarioId);
+
+        PerfilFinanciero perfil =
+                obtenerPorId(perfilId);
+
+        verificarPropietario(perfil, usuarioId);
+
+        perfil.desactivar();
+
+        return perfilFinancieroRepository.guardar(perfil);
+    }
+
+    private void validarIds(Long perfilId, Long usuarioId) {
 
         Objects.requireNonNull(
                 perfilId,
                 "El id del perfil financiero es obligatorio"
         );
 
-        PerfilFinanciero perfil =
-                obtenerPorId(perfilId);
+        Objects.requireNonNull(
+                usuarioId,
+                "El id del usuario es obligatorio"
+        );
+    }
 
-        perfil.desactivar();
+    private void verificarPropietario(
+            PerfilFinanciero perfil,
+            Long usuarioId) {
 
-        return perfilFinancieroRepository.guardar(perfil);
+        if (!perfil.getUsuario().getId().equals(usuarioId)) {
+            throw new IllegalArgumentException(
+                    "El usuario no es propietario del perfil financiero"
+            );
+        }
     }
 
     private PerfilFinanciero obtenerPorId(Long perfilId) {
