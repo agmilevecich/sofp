@@ -15,7 +15,7 @@ Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**.
 
 Esta es la suite general más reciente confirmada y debe considerarse la validación global vigente.
 
-## Reportes de cartera
+## Reportes de cartera y evolución histórica
 
 Se incorporaron reportes de cartera, composición, movimientos y evolución histórica del saldo de una cuenta.
 
@@ -30,6 +30,8 @@ Cobertura específica incorporada:
 La evolución histórica de saldo cubre los puntos acumulados después de cada movimiento y el rechazo de un identificador de cuenta nulo.
 
 Las pruebas específicas de evolución histórica de saldo fueron ejecutadas con resultado **5/5 tests en verde**.
+
+La feature `feature/reportes-cartera` quedó validada e integrada en `main` mediante fast-forward.
 
 ## Valorización de posición activa
 
@@ -90,4 +92,4 @@ No registrar resultados de tests que no hayan sido realmente ejecutados. Cada ca
 
 ## Próximo bloque
 
-Completar la validación final de `feature/reportes-cartera` antes de su integración en `main`. No iniciar una nueva funcionalidad hasta cerrar esta validación y revisar el estado real de la rama.
+Definir la siguiente evolución funcional a partir del estado real de `main`. No iniciar una nueva funcionalidad sin revisar previamente código, tests y reglas de negocio relacionadas.
