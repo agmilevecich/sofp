@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.CalculadorPosicionActivo;
 import ar.com.agmilevecich.sofp.domain.DetalleComposicionCarteraActivo;
+import ar.com.agmilevecich.sofp.domain.DetalleMovimientoCarteraActivo;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.PosicionActivo;
@@ -84,5 +85,15 @@ public class CarteraActivoService {
             PerfilFinanciero perfilFinanciero,
             Map<Activo, BigDecimal> preciosActuales) {
         return obtenerReporte(perfilFinanciero, preciosActuales).getComposicion();
+    }
+
+    public List<DetalleMovimientoCarteraActivo> obtenerMovimientos(
+            PerfilFinanciero perfilFinanciero) {
+        Objects.requireNonNull(perfilFinanciero, "El perfil financiero no puede ser nulo");
+
+        return movimientoActivoRepository.listarPorPerfilFinanciero(perfilFinanciero.getId())
+                .stream()
+                .map(DetalleMovimientoCarteraActivo::new)
+                .toList();
     }
 }
