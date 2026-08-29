@@ -4,44 +4,48 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 Las etapas `feature/operacion-financiera`, `feature/identificacion-activo`, `feature/cartera-activos`, `feature/costo-promedio-activo` y `feature/valorizacion-posicion-activo` fueron integradas en `main` y quedaron validadas.
 
+La rama `feature/reportes-cartera` contiene actualmente el bloque funcional de reportes de cartera y evolución histórica de saldos, validado mediante la suite global.
+
 ## Validación global
 
-La suite general más reciente fue ejecutada desde IntelliJ IDEA el **28/08/2026 19:56:00 -03:00**:
+La suite general más reciente fue ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
 
-- **455/455 tests en verde**;
+- **480/480 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **11:24 min**.
+- duración: **12:23 min**.
 
-## Próximo cambio
+## Estado de la feature actual
 
-No existe actualmente una feature funcional pendiente de integración.
+`feature/reportes-cartera` está funcionalmente implementada y validada. El bloque incluye:
 
-El próximo paso debe definirse a partir del mapa real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio para seleccionar la siguiente evolución funcional mínima.
+- reporte de cartera de activos;
+- composición valorizada de cartera;
+- detalle de movimientos de cartera;
+- evolución histórica del saldo de una cuenta;
+- cobertura específica y validación de suite general.
 
-Antes de implementar una nueva feature:
-- revisar la implementación actual;
-- identificar las clases relacionadas;
-- revisar los tests existentes;
-- verificar las reglas de negocio ya establecidas;
-- crear una rama de trabajo desde `main` sincronizado;
-- implementar el cambio mínimo y agregar cobertura específica.
+No se considera todavía integrada en `main`.
 
-No hacer cambios directamente sobre `main` durante el desarrollo de una nueva feature.
+## Próximo paso
 
-## Estado de las etapas cerradas
+Completar la validación final de `feature/reportes-cartera` antes del merge:
 
-- operaciones financieras: integrada y validada;
-- identificación de activos por símbolo: integrada y validada;
-- cartera de activos: integrada y validada;
-- costo promedio de posición activa: integrado y validado;
-- valorización de posición activa: integrada y validada.
+- revisar los commits de la rama;
+- comparar la rama contra `main`;
+- revisar el diff completo;
+- verificar `git diff --check`;
+- verificar `git status`;
+- confirmar que `roadmap.md`, `06_BUILDS.md`, `07_TESTS.md` y este documento sean coherentes con el estado actual;
+- preparar el merge a `main`, sin realizarlo automáticamente.
+
+No hacer cambios directamente sobre `main` durante esta etapa.
 
 ## Pendientes de arquitectura / evolución
 
-Luego del cierre de estas etapas se deberá definir la siguiente evolución funcional a partir del código y los casos de uso existentes.
+Luego del cierre de `feature/reportes-cartera` se deberá definir la siguiente evolución funcional a partir del código y los casos de uso existentes.
 
 La parte gráfica se considera una etapa posterior: primero se continuará consolidando el backend y sus reglas de negocio para que la UI se apoye sobre servicios ya estabilizados.
 
@@ -50,7 +54,7 @@ Posibles líneas de evolución, sujetas a revisión del código antes de decidir
 - evolucionar la valorización desde un precio informado hacia una fuente de precios cuando exista un caso de uso concreto;
 - definir reglas específicas de cada instrumento financiero antes de agregar atributos financieros adicionales;
 - incorporar DTOs cuando los casos de uso y fronteras de aplicación lo requieran;
-- definir reportes y cálculos derivados de movimientos;
+- ampliar reportes y cálculos derivados de movimientos;
 - incorporar interfaz de usuario cuando dominio y casos de uso estén consolidados.
 
 ## Regla
