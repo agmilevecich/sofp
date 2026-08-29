@@ -32,12 +32,15 @@ El dominio actual incluye `PosicionActivo`, que permite obtener cantidad, costo 
 - Valorización de una posición: implementado.
 - Valorización de la cartera: implementado.
 - Pruebas unitarias y de integración asociadas: implementadas.
+- Fase 5: **cerrada y validada**.
 
 ## Fase 6: Reportes
 
 Incorporar consultas y reportes de cartera, composición de activos, movimientos y evolución de saldos.
 
-La Fase 6 ya cuenta con reporte consolidado, composición detallada y reporte de movimientos de cartera. `ReporteCarteraActivo` permite representar el costo total, valor actual total y ganancia o pérdida total de una cartera a partir de sus valorizaciones, y también expone el detalle de composición de cada posición según su participación porcentual sobre el valor actual total. `DetalleMovimientoCarteraActivo` representa cada movimiento de activo con sus datos relevantes e importe calculado. `CarteraActivoService` integra estas funcionalidades mediante la obtención del reporte, la composición y los movimientos del perfil.
+La Fase 6 cuenta con reporte consolidado, composición detallada, reporte de movimientos de cartera y evolución histórica de saldos. `ReporteCarteraActivo` permite representar el costo total, valor actual total y ganancia o pérdida total de una cartera a partir de sus valorizaciones, y también expone el detalle de composición de cada posición según su participación porcentual sobre el valor actual total. `DetalleMovimientoCarteraActivo` representa cada movimiento de activo con sus datos relevantes e importe calculado. `CarteraActivoService` integra estas funcionalidades mediante la obtención del reporte, la composición y los movimientos del perfil.
+
+La evolución histórica de saldo se representa mediante `EvolucionSaldoCuenta` y se integra en `CuentaService.obtenerEvolucionSaldo(Long)`, generando puntos con el saldo acumulado después de cada movimiento en orden cronológico determinista.
 
 ### Estado actual de la Fase 6
 
@@ -55,6 +58,9 @@ La Fase 6 ya cuenta con reporte consolidado, composición detallada y reporte de
 - Pruebas del detalle de movimientos: implementadas.
 - Pruebas del reporte de movimientos desde el servicio: implementadas.
 - Evolución histórica de saldos: implementada.
+- Pruebas de evolución histórica: implementadas.
+- Suite general vigente: **480/480 tests en verde**.
+- Fase 6: **cerrada, validada e integrada en `main` mediante fast-forward**.
 
 ## Fase 7: Seguridad
 
@@ -67,3 +73,7 @@ Incorporar la interfaz Swing cuando el dominio, los servicios y las operaciones 
 ## Fase 9: Optimización
 
 Optimizar consultas, cálculo de saldos, rendimiento general y experiencia de uso a medida que aumente el volumen de información.
+
+## Estado del roadmap
+
+Las Fases 1 a 6 están implementadas y, según corresponda, validadas y cerradas. La siguiente evolución debe definirse revisando el estado real del código y los tests de `main` antes de iniciar una nueva feature.
