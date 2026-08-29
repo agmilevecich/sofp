@@ -54,7 +54,7 @@ La Fase 6 ya cuenta con reporte consolidado, composición detallada y reporte de
 - Integración del reporte de movimientos en `CarteraActivoService`: implementada.
 - Pruebas del detalle de movimientos: implementadas.
 - Pruebas del reporte de movimientos desde el servicio: implementadas.
-- Evolución histórica de saldos: pendiente.
+- Evolución histórica de saldos: implementada.
 
 ## Fase 7: Seguridad
 
