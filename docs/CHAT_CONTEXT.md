@@ -22,7 +22,7 @@ Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios
 ## Ramas
 
 - Repositorio: `agmilevecich/sofp`
-- `main`: rama estable actual, en `0b73e87`.
+- `main`: rama estable actual.
 - `feature/operacion-financiera`: etapa integrada en `main`.
 - `feature/identificacion-activo`: etapa integrada en `main`.
 - `feature/cartera-activos`: etapa integrada en `main`.
@@ -41,7 +41,9 @@ La cartera de activos, costo promedio y valorización de posiciones están cerra
 
 La etapa `feature/reportes-cartera` también está cerrada e integrada en `main` mediante fast-forward.
 
-El estado actual de `main` y `feature/reportes-cartera` es idéntico en `0b73e87`.
+La integración funcional se verificó cuando `main` y `feature/reportes-cartera` coincidían en `0b73e87`, con **0 commits adelante / 0 commits detrás**.
+
+Las actualizaciones documentales posteriores se realizaron sobre `main` para registrar correctamente el estado post-merge.
 
 ## Reportes y evolución histórica
 
@@ -78,14 +80,13 @@ La suite general vigente queda en **480/480 tests en verde**.
 
 ## Git y continuidad
 
-Comparación reconstruida desde GitHub después de la integración:
+Estado funcional reconstruido desde GitHub después de la integración:
 
-- `main`: `0b73e87`;
-- `feature/reportes-cartera`: `0b73e87`;
-- diferencia: **0 commits adelante / 0 commits detrás**;
-- ramas idénticas.
+- `main` y `feature/reportes-cartera` coincidieron en `0b73e87`;
+- diferencia funcional: **0 commits adelante / 0 commits detrás**;
+- integración: **fast-forward**.
 
-El usuario confirmó localmente:
+El usuario confirmó localmente antes de las actualizaciones documentales:
 
 - `git syncsofp` → Already up to date / Everything up-to-date;
 - `git status` → working tree clean;
