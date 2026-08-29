@@ -18,7 +18,7 @@ Cambios principales:
 - cobertura específica de las funcionalidades;
 - suite general vigente de **480/480 tests en verde**.
 
-Último commit de cierre antes de la integración:
+Último commit funcional/documental de la feature antes de la actualización post-merge:
 
 - `0b73e87` — `docs: cerrar pendientes funcionales de reportes de cartera`.
 
@@ -26,12 +26,13 @@ Cambios principales:
 
 `feature/reportes-cartera` fue integrada en `main` mediante **fast-forward**.
 
-Estado verificado posteriormente en GitHub:
+Estado verificado en GitHub:
 
-- `main` = `0b73e87`;
-- `feature/reportes-cartera` = `0b73e87`;
-- diferencia: **0 commits adelante / 0 commits detrás**;
-- ambas ramas son idénticas.
+- `main` y `feature/reportes-cartera` coincidieron en `0b73e87`;
+- diferencia funcional: **0 commits adelante / 0 commits detrás**;
+- ambas ramas quedaron sobre el mismo estado funcional.
+
+Posteriormente se actualizaron los documentos de continuidad directamente en `main` para registrar el cierre post-merge.
 
 ### Validación global
 
@@ -85,7 +86,7 @@ Las siguientes etapas quedaron integradas en `main`:
 
 ## Estado actual
 
-`main` es la rama estable y se encuentra actualmente en `0b73e87`.
+`main` es la rama estable. El estado funcional de reportes de cartera quedó integrado mediante fast-forward.
 
 No existe una feature funcional pendiente de integración en este punto.
 
