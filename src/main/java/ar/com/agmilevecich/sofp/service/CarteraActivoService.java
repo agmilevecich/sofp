@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.CalculadorPosicionActivo;
+import ar.com.agmilevecich.sofp.domain.DetalleComposicionCarteraActivo;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.PosicionActivo;
@@ -77,5 +78,11 @@ public class CarteraActivoService {
         return new ReporteCarteraActivo(
                 obtenerValorizaciones(perfilFinanciero, preciosActuales)
         );
+    }
+
+    public List<DetalleComposicionCarteraActivo> obtenerComposicion(
+            PerfilFinanciero perfilFinanciero,
+            Map<Activo, BigDecimal> preciosActuales) {
+        return obtenerReporte(perfilFinanciero, preciosActuales).getComposicion();
     }
 }
