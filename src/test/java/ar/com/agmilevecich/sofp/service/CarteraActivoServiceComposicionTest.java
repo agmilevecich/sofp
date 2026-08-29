@@ -1,7 +1,6 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
-import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
@@ -57,12 +56,16 @@ class CarteraActivoServiceComposicionTest {
             );
 
             assertEquals(2, composicion.size());
-            assertEquals(new BigDecimal("75"), composicion.get(0).getParticipacionPorcentual());
-            assertEquals(new BigDecimal("25"), composicion.get(1).getParticipacionPorcentual());
+            assertEquals(0, composicion.get(0).getParticipacionPorcentual()
+                    .compareTo(new BigDecimal("75")));
+            assertEquals(0, composicion.get(1).getParticipacionPorcentual()
+                    .compareTo(new BigDecimal("25")));
             assertEquals("GD30", composicion.get(0).getValorizacion()
                     .getPosicion().getActivo().getSimbolo());
-            assertEquals(new BigDecimal("12000"), composicion.get(0).getValorizacion().getValorActual());
-            assertEquals(new BigDecimal("4000"), composicion.get(1).getValorizacion().getValorActual());
+            assertEquals(0, composicion.get(0).getValorizacion().getValorActual()
+                    .compareTo(new BigDecimal("12000")));
+            assertEquals(0, composicion.get(1).getValorizacion().getValorActual()
+                    .compareTo(new BigDecimal("4000")));
         } finally {
             em.close();
         }
