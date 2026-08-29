@@ -7,7 +7,36 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Estado:** `main` contiene las etapas `operacion-financiera`, `identificacion-activo`, `cartera-activos`, `costo-promedio-activo` y `valorizacion-posicion-activo` integradas y validadas.
+**Rama de trabajo actual:** `feature/reportes-cartera`  
+**Estado:** la rama de trabajo contiene la evolución de reportes de cartera y evolución histórica de saldos. Está **23 commits adelante de `main` y 0 commits detrás**, según la comparación actual de GitHub.
+
+## Último estado de la rama de trabajo
+
+Último commit:
+
+- `3c14bdf` — `docs: completar evolucion historica de saldos en roadmap`
+
+Commits funcionales más recientes:
+
+- `b11533b` — `feat: integrar evolucion historica de saldo en CuentaService`;
+- `405cde6` — `feat: agregar punto de evolucion historica de saldo`;
+- `d0854fd` — `feat: integrar reporte de movimientos en servicio de cartera`;
+- `19fc563` — `feat: agregar detalle de movimientos de cartera`.
+
+El árbol de trabajo local fue sincronizado con GitHub y Bitbucket y quedó limpio.
+
+## Validación global más reciente
+
+Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
+
+- Tests run: **480**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- Resultado: **BUILD SUCCESS**
+- Duración: **12:23 min**
+
+Esta es la validación global más reciente confirmada por el usuario y debe considerarse la validación vigente.
 
 ## Estado funcional actual
 
@@ -21,16 +50,16 @@ El bloque de costo promedio de posición activa quedó cerrado e integrado en `m
 
 El bloque de valorización de posición activa quedó cerrado e integrado en `main`.
 
-`Activo` posee:
-- `nombre`;
-- `simbolo` obligatorio;
-- `moneda` obligatoria.
+La rama actual `feature/reportes-cartera` agrega sobre ese estado:
 
-El símbolo está definido como único en persistencia (`unique = true`). `Bono` hereda de `Activo` y utiliza el constructor identificable `nombre + simbolo + moneda`.
+- reporte de cartera de activos;
+- composición valorizada de la cartera;
+- detalle de movimientos de cartera;
+- evolución histórica del saldo de una cuenta.
 
-## Cartera de activos
+## Cartera de activos y reportes
 
-Implementado y validado:
+Implementado y validado en la rama actual:
 
 - listado de movimientos de activos por perfil financiero;
 - agrupación de movimientos por activo;
@@ -38,9 +67,39 @@ Implementado y validado:
 - exclusión de posiciones cuya cantidad final es cero;
 - separación de movimientos entre perfiles financieros;
 - consideración correcta de compras y ventas al consultar movimientos por perfil;
-- cobertura específica mediante `CarteraActivoServiceTest`.
+- `ReporteCarteraActivo` para representar la cartera valorizada;
+- `DetalleComposicionCarteraActivo` para representar la composición;
+- `DetalleMovimientoCarteraActivo` para representar movimientos;
+- integración de estos reportes en `CarteraActivoService`;
+- cobertura específica de dominio y servicio.
 
-La feature `cartera-activos` fue integrada en `main` mediante fast-forward.
+## Evolución histórica de saldo
+
+Implementado y validado en la rama actual:
+
+- `EvolucionSaldoCuenta` representa un punto histórico compuesto por fecha/hora y saldo acumulado;
+- `CuentaService.obtenerEvolucionSaldo(Long)` recorre los movimientos de la cuenta en orden cronológico;
+- cada movimiento produce un punto con el saldo acumulado inmediatamente después de dicho movimiento;
+- los ingresos incrementan el saldo;
+- los egresos disminuyen el saldo;
+- un identificador de cuenta `null` es rechazado mediante `NullPointerException`;
+- cobertura específica mediante `CuentaServiceEvolucionSaldoTest` con **5/5 tests en verde**.
+
+La implementación reutiliza el orden cronológico ya establecido por `MovimientoRepository.listarPorCuenta(Long)`, que ordena por `fechaHora` e `id`.
+
+## Cuenta y saldo
+
+`CuentaService.calcularSaldo(Long)` mantiene el cálculo actual del saldo acumulando ingresos y restando egresos.
+
+La cobertura existente incluye:
+
+- cuenta sin movimientos;
+- ingreso;
+- egreso;
+- múltiples movimientos;
+- rechazo de identificador nulo.
+
+No se modificó la regla existente de cálculo de saldo.
 
 ## Costo promedio de posición activa
 
@@ -54,8 +113,6 @@ Implementado y validado:
 - rechazo de movimientos de otro activo;
 - rechazo de movimientos nulos;
 - cobertura específica mediante `PosicionActivoTest` con **8/8 tests en verde**.
-
-La feature `costo-promedio-activo` fue integrada en `main` mediante fast-forward.
 
 ## Valorización de posición activa
 
@@ -72,8 +129,6 @@ Implementado y validado:
 - rendimiento cero cuando no existe costo de adquisición;
 - cobertura específica mediante `ValorizacionPosicionActivoTest` con **8/8 tests en verde**.
 
-La feature `valorizacion-posicion-activo` fue integrada en `main` mediante fast-forward hasta el commit `7379570`.
-
 ## Identificación y búsqueda
 
 Implementado y validado:
@@ -85,49 +140,47 @@ Implementado y validado:
 - la persistencia rechaza símbolos duplicados tanto para `Activo` como para `Bono`;
 - la restricción de unicidad se verifica mediante tests específicos de repositorio.
 
-## Última validación global conocida
-
-Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 19:56:00 -03:00**:
-
-- Tests run: **455**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- Resultado: **BUILD SUCCESS**
-- Duración: **11:24 min**
-
-Además, los tests específicos de `PosicionActivoTest` y `ValorizacionPosicionActivoTest` fueron ejecutados durante el desarrollo de las features y resultaron en **8/8** y **8/8 tests en verde**, respectivamente.
-
-## Git
-
-`main` contiene las etapas funcionales cerradas de operaciones financieras, identificación de activos, cartera de activos, costo promedio y valorización de posiciones activas.
-
-La última feature integrada fue `feature/valorizacion-posicion-activo`.
-
-Últimos commits funcionales de la feature integrada:
-- `7379570` — `test: cubrir valorizacion de posicion activa`;
-- `ef19486` — `feat: agregar valorizacion de posicion activa`.
-
-La integración se realizó mediante `git merge --ff-only`, sin commit de merge adicional. GitHub y Bitbucket quedaron actualizados hasta `7379570`.
-
 ## Persistencia
 
 Repositorios JPA relevantes:
 
-- `OperacionFinancieraRepository`
-- `MovimientoActivoRepository`
-- `ActivoRepository`
-- `BonoRepository`
+- `OperacionFinancieraRepository`;
+- `MovimientoActivoRepository`;
+- `ActivoRepository`;
+- `BonoRepository`;
+- `MovimientoRepository`;
+- `CuentaRepository`.
+
+`MovimientoRepository.listarPorCuenta(Long)` ordena los movimientos por `fechaHora` e `id`, permitiendo construir la evolución histórica del saldo en orden determinista.
 
 `MovimientoActivoRepository.listarPorPerfilFinanciero(Long)` contempla las cuentas de origen y destino mediante la consulta correspondiente para incluir compras y ventas.
 
-## Etapas cerradas
+## Etapas cerradas e integración
 
-- `feature/operacion-financiera`: integrada en `main`.
-- `feature/identificacion-activo`: integrada en `main`.
-- `feature/cartera-activos`: integrada en `main` mediante fast-forward.
-- `feature/costo-promedio-activo`: integrada en `main` mediante fast-forward.
-- `feature/valorizacion-posicion-activo`: integrada en `main` mediante fast-forward.
+Integradas en `main`:
+
+- `feature/operacion-financiera`;
+- `feature/identificacion-activo`;
+- `feature/cartera-activos`;
+- `feature/costo-promedio-activo`;
+- `feature/valorizacion-posicion-activo`.
+
+En desarrollo actual:
+
+- `feature/reportes-cartera`.
+
+La comparación actual de GitHub indica que `feature/reportes-cartera` está 23 commits adelante de `main` y 0 detrás. No hay commits de `main` pendientes de incorporar a esta rama.
+
+## Últimos cambios de la feature actual
+
+La secuencia reciente es:
+
+- reporte de composición de cartera;
+- reporte de movimientos de cartera;
+- punto de evolución histórica de saldo;
+- integración de evolución histórica de saldo en `CuentaService`;
+- tests específicos de evolución histórica;
+- actualización del roadmap.
 
 ## Reglas de continuidad
 
@@ -135,6 +188,19 @@ Código y tests son la fuente de verdad técnica. La documentación resume el es
 
 No considerar implementado ningún pendiente hasta contar con código verificable y tests correspondientes.
 
+No modificar `main` mientras se trabaja sobre `feature/reportes-cartera`.
+
+Antes de cualquier nuevo cambio se debe revisar nuevamente el estado real de GitHub, comparar la rama con `main`, revisar código relacionado y tests, y mantener el cambio mínimo.
+
 ## Próximo paso
 
-Reconstruir el mapa funcional actual de `main` y revisar las entidades, repositorios, servicios, tests y reglas de negocio para seleccionar la siguiente evolución funcional mínima del backend. La parte gráfica continúa como etapa posterior, apoyándose sobre servicios y reglas de dominio estabilizados.
+La feature `feature/reportes-cartera` está funcionalmente validada con **480/480 tests en verde**. Antes del merge se debe realizar la validación final de la feature:
+
+1. revisar commits y comparación contra `main`;
+2. revisar el diff completo;
+3. verificar `git diff --check`;
+4. verificar `git status`;
+5. confirmar que la documentación (`roadmap.md`, builds, tests y pendientes) refleje los **480 tests** y el cierre de la feature;
+6. si todo está correcto, preparar el merge de `feature/reportes-cartera` a `main` sin realizarlo automáticamente.
+
+La parte gráfica continúa como etapa posterior, apoyándose sobre servicios y reglas de dominio estabilizados.
