@@ -4,33 +4,38 @@ Este documento registra la evolución de la batería de tests y los resultados v
 
 ## Validación global más reciente
 
-Suite completa ejecutada desde IntelliJ IDEA el **28/08/2026 19:56:00 -03:00**.
+Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**.
 
-- Tests run: **455**
+- Tests run: **480**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **11:24 min**
+- Duración: **12:23 min**
 
 Esta es la suite general más reciente confirmada y debe considerarse la validación global vigente.
+
+## Reportes de cartera
+
+Se incorporaron reportes de cartera, composición, movimientos y evolución histórica del saldo de una cuenta.
+
+Cobertura específica incorporada:
+
+- `DetalleMovimientoCarteraActivoTest`;
+- `ReporteCarteraActivoTest`;
+- `CarteraActivoServiceComposicionTest`;
+- `CarteraActivoServiceMovimientosTest`;
+- `CuentaServiceEvolucionSaldoTest`.
+
+La evolución histórica de saldo cubre los puntos acumulados después de cada movimiento y el rechazo de un identificador de cuenta nulo.
+
+Las pruebas específicas de evolución histórica de saldo fueron ejecutadas con resultado **5/5 tests en verde**.
 
 ## Valorización de posición activa
 
 Se incorporó `ValorizacionPosicionActivo` para calcular el valor actual, la ganancia o pérdida y el rendimiento porcentual de una posición a partir de un precio actual informado.
 
-Tests específicos de `ValorizacionPosicionActivoTest`:
-
-- cálculo de valor actual, ganancia y rendimiento;
-- cálculo de pérdida;
-- posición cerrada;
-- precio actual cero;
-- posición nula;
-- precio actual nulo;
-- precio actual negativo;
-- ausencia de costo de adquisición.
-
-Resultado: **8/8 tests en verde**.
+Tests específicos de `ValorizacionPosicionActivoTest`: **8/8 tests en verde**.
 
 Commits:
 
@@ -85,4 +90,4 @@ No registrar resultados de tests que no hayan sido realmente ejecutados. Cada ca
 
 ## Próximo bloque
 
-Definir la siguiente evolución funcional del backend a partir del código actual, entidades, repositorios, servicios, tests y reglas de negocio. No iniciar una nueva funcionalidad hasta revisar primero el estado real de `main`.
+Completar la validación final de `feature/reportes-cartera` antes de su integración en `main`. No iniciar una nueva funcionalidad hasta cerrar esta validación y revisar el estado real de la rama.
