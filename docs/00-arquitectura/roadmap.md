@@ -37,7 +37,17 @@ El dominio actual incluye `PosicionActivo`, que permite obtener cantidad, costo 
 
 Incorporar consultas y reportes de cartera, composición de activos, movimientos y evolución de saldos.
 
-La valorización de cartera ya constituye una base de dominio para futuros reportes, pero la capa de reportes consolidada todavía está pendiente.
+La Fase 6 ya cuenta con la primera funcionalidad de reportes consolidada: `ReporteCarteraActivo` permite representar el costo total, valor actual total y ganancia o pérdida total de una cartera a partir de sus valorizaciones. `CarteraActivoService` integra esta funcionalidad mediante la obtención del reporte consolidado a partir de las posiciones valorizadas y los precios actuales informados.
+
+### Estado actual de la Fase 6
+
+- Reporte consolidado de cartera: implementado.
+- Integración del reporte en `CarteraActivoService`: implementada.
+- Pruebas del reporte consolidado: implementadas.
+- Pruebas de integración del reporte desde el servicio: implementadas.
+- Composición detallada de activos: pendiente.
+- Reportes de movimientos: pendiente.
+- Evolución histórica de saldos: pendiente.
 
 ## Fase 7: Seguridad
 
