@@ -8,26 +8,31 @@
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
 **Rama de trabajo histórica recientemente cerrada:** `feature/reportes-cartera`  
-**Estado actual:** `feature/reportes-cartera` fue integrada en `main` mediante fast-forward. `main` y la feature apuntan al mismo commit `0b73e87`.
+**Estado actual:** `feature/reportes-cartera` fue integrada en `main` mediante fast-forward. Actualmente `main` y la feature apuntan al mismo estado final de la rama.
 
 ## Último estado verificado
 
-Último commit funcional/documental:
+Último commit de continuidad:
 
-- `0b73e87` — `docs: cerrar pendientes funcionales de reportes de cartera`
+- `333d4b0` — `docs: cerrar fase 6 en roadmap`
 
-Comparación verificada en GitHub:
+El estado funcional que precede a estas actualizaciones documentales quedó cerrado en:
 
-- `main` = `0b73e87`;
-- `feature/reportes-cartera` = `0b73e87`;
-- diferencia: **0 commits adelante / 0 commits detrás**;
-- las ramas son idénticas.
+- `0b73e87` — `docs: cerrar pendientes funcionales de reportes de cartera`.
 
-El árbol local informado por el usuario quedó limpio y sincronizado:
+Comparación verificada en GitHub después de la integración funcional:
+
+- `main` y `feature/reportes-cartera` eran idénticas en `0b73e87`;
+- diferencia funcional: **0 commits adelante / 0 commits detrás**;
+- la integración fue fast-forward.
+
+El árbol local informado por el usuario quedó limpio y sincronizado antes de estas actualizaciones documentales:
 
 - `git syncsofp` → sin cambios;
 - `git status` → working tree clean;
 - `git diff --check` → sin observaciones.
+
+Las actualizaciones documentales posteriores se realizaron directamente sobre `main` para dejar registrada la continuidad post-merge.
 
 ## Validación global más reciente
 
@@ -170,7 +175,7 @@ Integradas en `main`:
 - `feature/valorizacion-posicion-activo`;
 - `feature/reportes-cartera`.
 
-`feature/reportes-cartera` queda como **etapa cerrada**, no como rama activa de desarrollo. Su estado final coincide con `main` en `0b73e87`.
+`feature/reportes-cartera` queda como **etapa cerrada**, no como rama activa de desarrollo. Su estado funcional final fue integrado mediante fast-forward.
 
 ## Últimos cambios de la feature cerrada
 
@@ -182,7 +187,8 @@ La secuencia funcional reciente fue:
 - integración de evolución histórica de saldo en `CuentaService`;
 - tests específicos de evolución histórica;
 - actualización de documentación;
-- cierre documental de la feature.
+- cierre documental de la feature;
+- integración fast-forward en `main`.
 
 ## Reglas de continuidad
 
