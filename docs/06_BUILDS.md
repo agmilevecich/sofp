@@ -67,18 +67,30 @@ Commits principales:
 
 La etapa quedó integrada en `main` mediante fast-forward.
 
-### Suite general posterior
+### Reportes de cartera y evolución histórica de saldos
 
-Suite general ejecutada desde IntelliJ IDEA el **28/08/2026 19:56:00 -03:00**:
+Se incorporaron posteriormente:
 
-- Tests run: **455**
+- reporte de cartera de activos;
+- detalle de composición de cartera;
+- detalle de movimientos de cartera;
+- evolución histórica del saldo de una cuenta;
+- integración de la evolución histórica en `CuentaService`.
+
+La cobertura específica de estas etapas quedó incorporada en la suite general.
+
+### Suite general vigente
+
+Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
+
+- Tests run: **480**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **11:24 min**
+- Duración: **12:23 min**
 
-La validación global vigente queda en **455/455 tests en verde**.
+La validación global vigente queda en **480/480 tests en verde**.
 
 ## Builds anteriores
 
@@ -86,11 +98,11 @@ Los Builds 001–058 permanecen registrados en el historial previo del proyecto.
 
 ## Estado actual
 
-El último Build numerado cerrado es **Build 059**. Las etapas funcionales posteriores también se encuentran integradas y validadas en `main`.
+El último Build numerado cerrado es **Build 059**. Las etapas funcionales posteriores también fueron implementadas y validadas en `feature/reportes-cartera`.
 
 ## Próximo paso
 
-Reconstruir el mapa funcional actual de `main` y seleccionar la siguiente evolución del backend a partir del código, entidades, repositorios, servicios, tests y reglas de negocio existentes.
+Completar la validación final de `feature/reportes-cartera` antes de considerar su integración en `main`: revisar commits, comparación contra `main`, diff completo, `git diff --check`, `git status` y coherencia final de la documentación.
 
 ## Regla de cierre
 
