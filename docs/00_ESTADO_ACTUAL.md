@@ -7,23 +7,27 @@
 **Nombre:** SOFP — Sistema Operativo Financiero Personal  
 **Repositorio:** agmilevecich/sofp  
 **Rama principal:** `main`  
-**Rama de trabajo actual:** `feature/reportes-cartera`  
-**Estado:** la rama de trabajo contiene la evolución de reportes de cartera y evolución histórica de saldos. Está **23 commits adelante de `main` y 0 commits detrás**, según la comparación actual de GitHub.
+**Rama de trabajo histórica recientemente cerrada:** `feature/reportes-cartera`  
+**Estado actual:** `feature/reportes-cartera` fue integrada en `main` mediante fast-forward. `main` y la feature apuntan al mismo commit `0b73e87`.
 
-## Último estado de la rama de trabajo
+## Último estado verificado
 
-Último commit:
+Último commit funcional/documental:
 
-- `3c14bdf` — `docs: completar evolucion historica de saldos en roadmap`
+- `0b73e87` — `docs: cerrar pendientes funcionales de reportes de cartera`
 
-Commits funcionales más recientes:
+Comparación verificada en GitHub:
 
-- `b11533b` — `feat: integrar evolucion historica de saldo en CuentaService`;
-- `405cde6` — `feat: agregar punto de evolucion historica de saldo`;
-- `d0854fd` — `feat: integrar reporte de movimientos en servicio de cartera`;
-- `19fc563` — `feat: agregar detalle de movimientos de cartera`.
+- `main` = `0b73e87`;
+- `feature/reportes-cartera` = `0b73e87`;
+- diferencia: **0 commits adelante / 0 commits detrás**;
+- las ramas son idénticas.
 
-El árbol de trabajo local fue sincronizado con GitHub y Bitbucket y quedó limpio.
+El árbol local informado por el usuario quedó limpio y sincronizado:
+
+- `git syncsofp` → sin cambios;
+- `git status` → working tree clean;
+- `git diff --check` → sin observaciones.
 
 ## Validación global más reciente
 
@@ -40,17 +44,17 @@ Esta es la validación global más reciente confirmada por el usuario y debe con
 
 ## Estado funcional actual
 
-El bloque de operaciones financieras quedó cerrado e integrado en `main`.
+Los siguientes bloques quedaron cerrados e integrados en `main`:
 
-El bloque de identificación de activos mediante símbolo quedó cerrado e integrado en `main`.
+- operaciones financieras;
+- identificación de activos mediante símbolo;
+- cartera de activos;
+- costo promedio de posición activa;
+- valorización de posición activa;
+- reportes de cartera;
+- evolución histórica del saldo de una cuenta.
 
-El bloque de cartera de activos quedó cerrado e integrado en `main`.
-
-El bloque de costo promedio de posición activa quedó cerrado e integrado en `main`.
-
-El bloque de valorización de posición activa quedó cerrado e integrado en `main`.
-
-La rama actual `feature/reportes-cartera` agrega sobre ese estado:
+El bloque de reportes incluye:
 
 - reporte de cartera de activos;
 - composición valorizada de la cartera;
@@ -59,7 +63,7 @@ La rama actual `feature/reportes-cartera` agrega sobre ese estado:
 
 ## Cartera de activos y reportes
 
-Implementado y validado en la rama actual:
+Implementado y validado:
 
 - listado de movimientos de activos por perfil financiero;
 - agrupación de movimientos por activo;
@@ -75,7 +79,7 @@ Implementado y validado en la rama actual:
 
 ## Evolución histórica de saldo
 
-Implementado y validado en la rama actual:
+Implementado y validado:
 
 - `EvolucionSaldoCuenta` representa un punto histórico compuesto por fecha/hora y saldo acumulado;
 - `CuentaService.obtenerEvolucionSaldo(Long)` recorre los movimientos de la cuenta en orden cronológico;
@@ -85,7 +89,7 @@ Implementado y validado en la rama actual:
 - un identificador de cuenta `null` es rechazado mediante `NullPointerException`;
 - cobertura específica mediante `CuentaServiceEvolucionSaldoTest` con **5/5 tests en verde**.
 
-La implementación reutiliza el orden cronológico ya establecido por `MovimientoRepository.listarPorCuenta(Long)`, que ordena por `fechaHora` e `id`.
+La implementación reutiliza el orden cronológico establecido por `MovimientoRepository.listarPorCuenta(Long)`, que ordena por `fechaHora` e `id`.
 
 ## Cuenta y saldo
 
@@ -163,24 +167,22 @@ Integradas en `main`:
 - `feature/identificacion-activo`;
 - `feature/cartera-activos`;
 - `feature/costo-promedio-activo`;
-- `feature/valorizacion-posicion-activo`.
-
-En desarrollo actual:
-
+- `feature/valorizacion-posicion-activo`;
 - `feature/reportes-cartera`.
 
-La comparación actual de GitHub indica que `feature/reportes-cartera` está 23 commits adelante de `main` y 0 detrás. No hay commits de `main` pendientes de incorporar a esta rama.
+`feature/reportes-cartera` queda como **etapa cerrada**, no como rama activa de desarrollo. Su estado final coincide con `main` en `0b73e87`.
 
-## Últimos cambios de la feature actual
+## Últimos cambios de la feature cerrada
 
-La secuencia reciente es:
+La secuencia funcional reciente fue:
 
 - reporte de composición de cartera;
 - reporte de movimientos de cartera;
 - punto de evolución histórica de saldo;
 - integración de evolución histórica de saldo en `CuentaService`;
 - tests específicos de evolución histórica;
-- actualización del roadmap.
+- actualización de documentación;
+- cierre documental de la feature.
 
 ## Reglas de continuidad
 
@@ -188,19 +190,14 @@ Código y tests son la fuente de verdad técnica. La documentación resume el es
 
 No considerar implementado ningún pendiente hasta contar con código verificable y tests correspondientes.
 
-No modificar `main` mientras se trabaja sobre `feature/reportes-cartera`.
+Antes de cualquier nuevo cambio se debe revisar nuevamente el estado real de GitHub, comparar la rama de trabajo con `main`, revisar código relacionado y tests, y mantener el cambio mínimo.
 
-Antes de cualquier nuevo cambio se debe revisar nuevamente el estado real de GitHub, comparar la rama con `main`, revisar código relacionado y tests, y mantener el cambio mínimo.
+`main` es la rama estable. Una nueva feature debe desarrollarse en su propia rama y no debe modificar `main` directamente.
 
 ## Próximo paso
 
-La feature `feature/reportes-cartera` está funcionalmente validada con **480/480 tests en verde**. Antes del merge se debe realizar la validación final de la feature:
+No existe actualmente una feature funcional pendiente de integración.
 
-1. revisar commits y comparación contra `main`;
-2. revisar el diff completo;
-3. verificar `git diff --check`;
-4. verificar `git status`;
-5. confirmar que la documentación (`roadmap.md`, builds, tests y pendientes) refleje los **480 tests** y el cierre de la feature;
-6. si todo está correcto, preparar el merge de `feature/reportes-cartera` a `main` sin realizarlo automáticamente.
+El próximo trabajo debe definirse a partir del estado real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio para seleccionar la siguiente evolución funcional mínima.
 
 La parte gráfica continúa como etapa posterior, apoyándose sobre servicios y reglas de dominio estabilizados.
