@@ -2,50 +2,64 @@
 
 Este documento conserva una línea temporal resumida de decisiones, avances y puntos de continuidad.
 
-## 2026-08-28
+## 2026-08-29
 
-### Feature `identificacion-activo` — Identificación por símbolo
+### Feature `reportes-cartera` — Cierre e integración
 
-Se incorporó el símbolo como identificador funcional de los activos.
+Se completó el bloque funcional de reportes de cartera y evolución histórica de saldos.
 
 Cambios principales:
 
-- `Activo` ahora requiere `nombre`, `simbolo` y `moneda`.
-- `simbolo` es obligatorio y único en persistencia.
-- `Bono` utiliza el constructor `nombre + simbolo + moneda`.
-- `ActivoRepository.buscarPorSimbolo(String)` fue implementado.
-- `BonoRepository.buscarPorSimbolo(String)` fue implementado.
-- Las búsquedas devuelven `Optional` y rechazan `null`.
-- Se adaptaron los tests y constructores afectados por el nuevo atributo.
+- reporte de cartera de activos;
+- composición valorizada de cartera;
+- detalle de movimientos de cartera;
+- evolución histórica del saldo de una cuenta;
+- integración de la evolución histórica en `CuentaService`;
+- cobertura específica de las funcionalidades;
+- suite general vigente de **480/480 tests en verde**.
 
-Commits funcionales y de cobertura:
+Último commit de cierre antes de la integración:
 
-- `3f6c776` — `feat: agregar busqueda de activo por simbolo`
-- `6179f2d` — `test: cubrir busqueda de activo por simbolo`
-- `354e0b3` — `feat: agregar busqueda de bono por simbolo`
-- `976aff7` — `test: cubrir busqueda de bono por simbolo`
+- `0b73e87` — `docs: cerrar pendientes funcionales de reportes de cartera`.
 
-### Validación posterior
+### Integración en `main`
 
-Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 19:52:48 -03:00**:
+`feature/reportes-cartera` fue integrada en `main` mediante **fast-forward**.
 
-- **435/435 tests en verde**;
-- `Failures: 0`;
-- `Errors: 0`;
-- `Skipped: 0`;
+Estado verificado posteriormente en GitHub:
+
+- `main` = `0b73e87`;
+- `feature/reportes-cartera` = `0b73e87`;
+- diferencia: **0 commits adelante / 0 commits detrás**;
+- ambas ramas son idénticas.
+
+### Validación global
+
+Suite general ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
+
+- **480/480 tests en verde**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **19:08 min**.
+- duración: **12:23 min**.
 
-Después de esa suite se ejecutaron los tests específicos de los cambios de identificación por símbolo y fueron informados como verdes.
+## 2026-08-28
 
-### Estado Git de la feature
+### Evolución histórica de saldo
 
-- HEAD funcional antes de esta actualización documental: `976aff7`.
-- `feature/identificacion-activo` está 19 commits por delante de `main` y 0 por detrás.
-- `main` permanece en `d9e7849`.
-- `main` no fue modificado.
+- `405cde6` — `feat: agregar punto de evolucion historica de saldo`.
+- `b11533b` — `feat: integrar evolucion historica de saldo en CuentaService`.
+- `9a03c95` — `test: cubrir evolucion historica de saldo`.
+- `3c14bdf` — `docs: completar evolucion historica de saldos en roadmap`.
+
+La funcionalidad permite reconstruir el saldo acumulado después de cada movimiento de una cuenta, respetando el orden cronológico determinista.
 
 ## 2026-08-27
+
+### Reportes de movimientos de cartera
+
+Se incorporó el detalle de movimientos de cartera y su integración en `CarteraActivoService`.
 
 ### Build 059 — Suite general posterior a venta y posición — Cerrado
 
@@ -58,24 +72,27 @@ Después de esa suite se ejecutaron los tests específicos de los cambios de ide
 - `Failures: 0`, `Errors: 0`, `Skipped: 0`, `BUILD SUCCESS`.
 - Build 059 quedó cerrado y validado.
 
-### Integración en main
+## Etapas cerradas e integradas
 
-- `d39632b` — `Merge branch 'feature/operacion-financiera'`.
-- La etapa `feature/operacion-financiera` quedó integrada en `main`.
-- Posteriormente `main` quedó en `d9e7849` tras actualizar la documentación de continuidad.
+Las siguientes etapas quedaron integradas en `main`:
+
+- `feature/operacion-financiera`;
+- `feature/identificacion-activo`;
+- `feature/cartera-activos`;
+- `feature/costo-promedio-activo`;
+- `feature/valorizacion-posicion-activo`;
+- `feature/reportes-cartera`.
 
 ## Estado actual
 
-El bloque de operaciones financieras está cerrado y la evolución activa corresponde a `feature/identificacion-activo`.
+`main` es la rama estable y se encuentra actualmente en `0b73e87`.
 
-La feature actual incorpora identificación de activos por símbolo y ya cuenta con búsquedas por símbolo para `Activo` y `Bono`.
+No existe una feature funcional pendiente de integración en este punto.
 
 ## Próximo punto de trabajo
 
-Cubrir la regla de unicidad del símbolo en persistencia mediante un test específico, sin modificar producción si la restricción existente ya es suficiente.
-
-Después continuar con la siguiente necesidad real de identificación de instrumentos.
+Definir la siguiente evolución funcional a partir del código real de `main`, revisando entidades, repositorios, servicios, tests y reglas de negocio antes de crear una nueva rama o modificar funcionalidad.
 
 ## Regla histórica
 
-Los hechos importantes se registran con Build y/o commit cuando corresponda. Los chats aportan contexto, pero no sustituyen el estado real del repositorio.
+Los hechos importantes se registran con Build y/o commit cuando corresponde. Los chats aportan contexto, pero no sustituyen el estado real del repositorio.
