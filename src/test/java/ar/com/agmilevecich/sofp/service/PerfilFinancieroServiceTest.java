@@ -243,6 +243,7 @@ class PerfilFinancieroServiceTest {
         entityManager.getTransaction().commit();
 
         Long perfilId = perfil.getId();
+        Long usuarioId = usuario.getId();
 
         entityManager.clear();
 
@@ -250,6 +251,7 @@ class PerfilFinancieroServiceTest {
 
         perfilFinancieroService.cambiarDescripcion(
                 perfilId,
+                usuarioId,
                 "Perfil destinado a las finanzas personales"
         );
 
@@ -295,13 +297,15 @@ class PerfilFinancieroServiceTest {
         entityManager.getTransaction().commit();
 
         Long perfilId = perfil.getId();
+        Long usuarioId = usuario.getId();
 
         entityManager.clear();
 
         entityManager.getTransaction().begin();
 
         perfilFinancieroService.desactivar(
-                perfilId
+                perfilId,
+                usuarioId
         );
 
         entityManager.getTransaction().commit();
@@ -347,13 +351,15 @@ class PerfilFinancieroServiceTest {
         entityManager.getTransaction().commit();
 
         Long perfilId = perfil.getId();
+        Long usuarioId = usuario.getId();
 
         entityManager.clear();
 
         entityManager.getTransaction().begin();
 
         perfilFinancieroService.activar(
-                perfilId
+                perfilId,
+                usuarioId
         );
 
         entityManager.getTransaction().commit();
@@ -368,6 +374,168 @@ class PerfilFinancieroServiceTest {
         assertTrue(
                 verificado.isActivo()
         );
+    }
+
+    @Test
+    void debeRechazarCambioDeDescripcionSiElUsuarioNoEsPropietario() {
+
+        Usuario propietario =
+                new Usuario(
+                        "Ariel",
+                        "Propietario",
+                        "ariel.propietario." + System.nanoTime()
+                                + "@example.com",
+                        "hash"
+                );
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Ariel",
+                        "Otro Usuario",
+                        "ariel.otro." + System.nanoTime()
+                                + "@example.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil protegido",
+                        propietario
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(propietario);
+        entityManager.persist(otroUsuario);
+        perfilFinancieroService.guardar(perfil);
+
+        entityManager.getTransaction().commit();
+
+        Long perfilId = perfil.getId();
+        Long otroUsuarioId = otroUsuario.getId();
+
+        entityManager.clear();
+
+        entityManager.getTransaction().begin();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> perfilFinancieroService.cambiarDescripcion(
+                        perfilId,
+                        otroUsuarioId,
+                        "Intento no autorizado"
+                )
+        );
+
+        entityManager.getTransaction().rollback();
+    }
+
+    @Test
+    void debeRechazarActivacionSiElUsuarioNoEsPropietario() {
+
+        Usuario propietario =
+                new Usuario(
+                        "Ariel",
+                        "Propietario",
+                        "ariel.propietario.activar." + System.nanoTime()
+                                + "@example.com",
+                        "hash"
+                );
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Ariel",
+                        "Otro Usuario",
+                        "ariel.otro.activar." + System.nanoTime()
+                                + "@example.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil protegido",
+                        propietario
+                );
+
+        perfil.desactivar();
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(propietario);
+        entityManager.persist(otroUsuario);
+        perfilFinancieroService.guardar(perfil);
+
+        entityManager.getTransaction().commit();
+
+        Long perfilId = perfil.getId();
+        Long otroUsuarioId = otroUsuario.getId();
+
+        entityManager.clear();
+
+        entityManager.getTransaction().begin();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> perfilFinancieroService.activar(
+                        perfilId,
+                        otroUsuarioId
+                )
+        );
+
+        entityManager.getTransaction().rollback();
+    }
+
+    @Test
+    void debeRechazarDesactivacionSiElUsuarioNoEsPropietario() {
+
+        Usuario propietario =
+                new Usuario(
+                        "Ariel",
+                        "Propietario",
+                        "ariel.propietario.desactivar." + System.nanoTime()
+                                + "@example.com",
+                        "hash"
+                );
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Ariel",
+                        "Otro Usuario",
+                        "ariel.otro.desactivar." + System.nanoTime()
+                                + "@example.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil protegido",
+                        propietario
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(propietario);
+        entityManager.persist(otroUsuario);
+        perfilFinancieroService.guardar(perfil);
+
+        entityManager.getTransaction().commit();
+
+        Long perfilId = perfil.getId();
+        Long otroUsuarioId = otroUsuario.getId();
+
+        entityManager.clear();
+
+        entityManager.getTransaction().begin();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> perfilFinancieroService.desactivar(
+                        perfilId,
+                        otroUsuarioId
+                )
+        );
+
+        entityManager.getTransaction().rollback();
     }
 
     @Test
@@ -412,6 +580,7 @@ class PerfilFinancieroServiceTest {
                 IllegalArgumentException.class,
                 () -> perfilFinancieroService.cambiarDescripcion(
                         999999L,
+                        999999L,
                         "Descripción inexistente"
                 )
         );
@@ -422,7 +591,10 @@ class PerfilFinancieroServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> perfilFinancieroService.activar(999999L)
+                () -> perfilFinancieroService.activar(
+                        999999L,
+                        999999L
+                )
         );
     }
 
@@ -431,7 +603,47 @@ class PerfilFinancieroServiceTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> perfilFinancieroService.desactivar(999999L)
+                () -> perfilFinancieroService.desactivar(
+                        999999L,
+                        999999L
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlCambiarDescripcionConUsuarioIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> perfilFinancieroService.cambiarDescripcion(
+                        999999L,
+                        null,
+                        "Descripción"
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlActivarConUsuarioIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> perfilFinancieroService.activar(
+                        999999L,
+                        null
+                )
+        );
+    }
+
+    @Test
+    void debeLanzarExcepcionAlDesactivarConUsuarioIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> perfilFinancieroService.desactivar(
+                        999999L,
+                        null
+                )
         );
     }
 }
