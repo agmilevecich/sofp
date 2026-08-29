@@ -6,12 +6,13 @@ Feature: `feature/seguridad-perfil-financiero`
 
 Estado: **IMPLEMENTADA Y VALIDADA**.
 
-La feature parte de `main` en `ce7c8af` y contiene dos commits propios:
+La feature parte de `main` en `ce7c8af` y actualmente contiene tres commits propios:
 
 - `6478262` — `feat: proteger operaciones de perfil por propietario`;
-- `8d3c775` — `test: cubrir autorizacion de operaciones de perfil`.
+- `8d3c775` — `test: cubrir autorizacion de operaciones de perfil`;
+- `c07393e` — `docs: documentar seguridad de perfil financiero`.
 
-La comparación contra `main` confirma: **2 commits adelante, 0 detrás**.
+La comparación contra `main` confirma: **3 commits adelante, 0 detrás**.
 
 ## Cambio funcional
 
@@ -58,25 +59,25 @@ Esta es la validación global más reciente confirmada por el usuario.
 
 ## Estado Git
 
-La rama de trabajo está sincronizada con sus dos remotos y el último estado local informado fue:
+La rama de trabajo quedó sincronizada con sus dos remotos después de la actualización de documentación:
 
 - `git status` → working tree clean;
 - `git diff --check` → sin observaciones;
-- `HEAD` → `8d3c775`;
+- `HEAD` → `c07393e`;
 - `main` → `ce7c8af`;
-- `github/feature/seguridad-perfil-financiero` → `8d3c775`;
-- `bitbucket/feature/seguridad-perfil-financiero` → `8d3c775`.
+- `github/feature/seguridad-perfil-financiero` → `c07393e`;
+- `bitbucket/feature/seguridad-perfil-financiero` → `c07393e`.
 
-`main` en GitHub y Bitbucket quedó nuevamente alineado en `ce7c8af` antes de continuar esta feature.
+`main` en GitHub y Bitbucket quedó alineado en `ce7c8af` antes de continuar esta feature.
 
 ## Próximo paso
 
-La implementación y las validaciones están completas.
+La implementación, las pruebas y la documentación están completas.
 
 Antes de integrar la feature en `main` mediante **fast-forward** corresponde realizar la comprobación final:
 
 1. actualizar referencias de ambos remotos;
-2. comprobar que la feature sigue 2 commits adelante y 0 detrás de `main`;
+2. comprobar que la feature sigue 3 commits adelante y 0 detrás de `main`;
 3. verificar que no existan cambios locales;
 4. revisar el diff final;
 5. confirmar `git diff --check`;
