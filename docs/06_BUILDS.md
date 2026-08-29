@@ -79,6 +79,8 @@ Se incorporaron posteriormente:
 
 La cobertura específica de estas etapas quedó incorporada en la suite general.
 
+La etapa `feature/reportes-cartera` quedó cerrada y posteriormente integrada en `main` mediante fast-forward.
+
 ### Suite general vigente
 
 Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
@@ -98,11 +100,11 @@ Los Builds 001–058 permanecen registrados en el historial previo del proyecto.
 
 ## Estado actual
 
-El último Build numerado cerrado es **Build 059**. Las etapas funcionales posteriores también fueron implementadas y validadas en `feature/reportes-cartera`.
+El último Build numerado cerrado es **Build 059**. Las etapas funcionales posteriores también fueron implementadas, validadas e integradas en `main`.
 
 ## Próximo paso
 
-Completar la validación final de `feature/reportes-cartera` antes de considerar su integración en `main`: revisar commits, comparación contra `main`, diff completo, `git diff --check`, `git status` y coherencia final de la documentación.
+Definir la siguiente evolución funcional a partir del estado real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio. No existe actualmente una feature pendiente de integración.
 
 ## Regla de cierre
 
