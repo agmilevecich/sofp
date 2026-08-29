@@ -22,58 +22,74 @@ Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios
 ## Ramas
 
 - Repositorio: `agmilevecich/sofp`
-- `main`: rama estable actual, actualmente en `d9e7849`.
+- `main`: rama estable actual, en `0b73e87`.
 - `feature/operacion-financiera`: etapa integrada en `main`.
-- `feature/identificacion-activo`: rama activa de desarrollo.
+- `feature/identificacion-activo`: etapa integrada en `main`.
+- `feature/cartera-activos`: etapa integrada en `main`.
+- `feature/costo-promedio-activo`: etapa integrada en `main`.
+- `feature/valorizacion-posicion-activo`: etapa integrada en `main`.
+- `feature/reportes-cartera`: etapa cerrada e integrada en `main` mediante fast-forward.
 - `docs/continuidad-sofp`: no forma parte del flujo actual.
 
-## Estado actual — 2026-08-28
+## Estado actual — 2026-08-29
 
-La etapa `feature/operacion-financiera` está cerrada e integrada en `main`.
+El bloque de operaciones financieras está cerrado e integrado en `main`.
 
-La rama activa `feature/identificacion-activo` trabaja sobre la identificación funcional de activos mediante símbolo.
+La identificación funcional de activos mediante símbolo está cerrada e integrada en `main`.
 
-`Activo` actualmente tiene `nombre`, `simbolo` obligatorio y único, y `moneda`. `Bono` hereda de `Activo` y utiliza `nombre + simbolo + moneda`.
+La cartera de activos, costo promedio y valorización de posiciones están cerrados e integrados en `main`.
 
-Se implementaron:
+La etapa `feature/reportes-cartera` también está cerrada e integrada en `main` mediante fast-forward.
 
-- `ActivoRepository.buscarPorSimbolo(String)`;
-- `BonoRepository.buscarPorSimbolo(String)`;
-- retorno mediante `Optional`;
-- rechazo de `null` en ambas búsquedas;
-- adaptación de constructores y tests existentes al símbolo obligatorio.
+El estado actual de `main` y `feature/reportes-cartera` es idéntico en `0b73e87`.
 
-Commits funcionales recientes:
+## Reportes y evolución histórica
 
-- `3f6c776` — `feat: agregar busqueda de activo por simbolo`
-- `6179f2d` — `test: cubrir busqueda de activo por simbolo`
-- `354e0b3` — `feat: agregar busqueda de bono por simbolo`
-- `976aff7` — `test: cubrir busqueda de bono por simbolo`
+Se implementaron y validaron:
+
+- reporte de cartera de activos;
+- composición valorizada de cartera;
+- detalle de movimientos de cartera;
+- evolución histórica del saldo de una cuenta;
+- integración de la evolución histórica en `CuentaService`.
+
+`CuentaService.obtenerEvolucionSaldo(Long)` genera puntos históricos con el saldo acumulado después de cada movimiento, respetando el orden cronológico de `MovimientoRepository.listarPorCuenta(Long)`.
 
 ## Tests
 
-Suite general más reciente conocida:
+Suite general más reciente conocida y confirmada por el usuario:
 
-- **435 tests**
+- **480 tests**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalizada: **27/08/2026 19:52:48 -03:00**
-- Duración: **19:08 min**
+- Finalizada: **29/08/2026 13:29:56 -03:00**
+- Duración: **12:23 min**
 
-Posteriormente se ejecutaron los tests específicos de los cambios de búsqueda por símbolo y fueron informados como verdes.
+Tests específicos conocidos:
+
+- `CuentaServiceEvolucionSaldoTest`: **5/5 tests en verde**;
+- `PosicionActivoTest`: **8/8 tests en verde**;
+- `ValorizacionPosicionActivoTest`: **8/8 tests en verde**;
+- `CarteraActivoServiceTest`: **5/5 tests en verde**.
+
+La suite general vigente queda en **480/480 tests en verde**.
 
 ## Git y continuidad
 
-Comparación actual reconstruida desde GitHub:
+Comparación reconstruida desde GitHub después de la integración:
 
-- `feature/identificacion-activo`: **19 commits por delante de `main`**.
-- `feature/identificacion-activo`: **0 commits por detrás de `main`**.
-- `main`: `d9e7849`.
-- Último commit funcional de la feature antes de la actualización documental: `976aff7`.
-- Las actualizaciones de continuidad de esta sesión se realizan sobre `feature/identificacion-activo`.
-- `main` no debe modificarse automáticamente.
+- `main`: `0b73e87`;
+- `feature/reportes-cartera`: `0b73e87`;
+- diferencia: **0 commits adelante / 0 commits detrás**;
+- ramas idénticas.
+
+El usuario confirmó localmente:
+
+- `git syncsofp` → Already up to date / Everything up-to-date;
+- `git status` → working tree clean;
+- `git diff --check` → sin observaciones.
 
 ## Dominio actual
 
@@ -110,21 +126,28 @@ Repositorios relevantes:
 
 ## Próximo paso
 
-Cubrir la regla de unicidad del símbolo en persistencia mediante un test específico, verificando primero la implementación actual. Mantener el cambio mínimo y no modificar producción si la restricción existente ya es suficiente.
+Definir la siguiente evolución funcional a partir del estado real de `main`.
+
+Antes de implementar:
+
+1. revisar código relacionado;
+2. revisar tests;
+3. revisar reglas de negocio;
+4. seleccionar el cambio mínimo;
+5. crear o utilizar una rama de feature sin modificar `main` directamente;
+6. ejecutar tests específicos y, cuando corresponda, la suite general;
+7. revisar diff, `git diff --check` y `git status`;
+8. registrar el cierre en la documentación.
 
 ## Forma de trabajo
 
 1. Reconstruir el estado desde GitHub antes de cambiar.
-2. Revisar código, tests y reglas de negocio relacionadas.
+2. Código y tests prevalecen sobre la documentación.
 3. Hacer el cambio mínimo en la rama activa.
-4. Ejecutar tests específicos desde IntelliJ IDEA.
-5. Ejecutar suite general cuando corresponda.
-6. Confirmar el resultado real.
-7. Revisar diff, `diff --check` y status local.
-8. Crear commit pequeño y descriptivo.
-9. Actualizar continuidad en la rama activa.
-10. Antes del merge, comparar la feature contra `main` y validar pendientes.
-11. No hacer merge a `main` automáticamente.
+4. No asumir resultados de tests no informados.
+5. Crear commits pequeños y descriptivos.
+6. No hacer merge a `main` automáticamente.
+7. Al cerrar etapas importantes, actualizar la documentación de continuidad.
 
 ## Al cerrar una sesión
 
