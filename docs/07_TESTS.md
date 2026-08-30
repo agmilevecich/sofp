@@ -1,23 +1,29 @@
 # SOFP — Tests
 
-Este documento registra la evolución de la batería de tests y los resultados verificados.
+Este documento registra la evolución de la batería de tests y los resultados realmente verificados.
 
-## Validación global más reciente
+## Validación global vigente
 
-Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**.
+Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 20:00:23 -03:00**:
 
-- Tests run: **480**
+- Tests run: **486**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **12:23 min**
+- Duración: **15:50 min**
 
-Esta es la suite general más reciente confirmada y debe considerarse la validación global vigente.
+**486/486 tests en verde.** Esta es la validación global vigente.
+
+## Seguridad de PerfilFinanciero
+
+`PerfilFinancieroServiceTest`: **19/19 tests en verde**.
+
+La cobertura específica incluye operaciones permitidas al propietario, rechazo de usuario no propietario, identificadores nulos y perfiles inexistentes para las operaciones protegidas.
+
+La feature `feature/seguridad-perfil-financiero` quedó integrada en `main` mediante fast-forward.
 
 ## Reportes de cartera y evolución histórica
-
-Se incorporaron reportes de cartera, composición, movimientos y evolución histórica del saldo de una cuenta.
 
 Cobertura específica incorporada:
 
@@ -27,69 +33,44 @@ Cobertura específica incorporada:
 - `CarteraActivoServiceMovimientosTest`;
 - `CuentaServiceEvolucionSaldoTest`.
 
-La evolución histórica de saldo cubre los puntos acumulados después de cada movimiento y el rechazo de un identificador de cuenta nulo.
+`CuentaServiceEvolucionSaldoTest`: **5/5 tests en verde**.
 
-Las pruebas específicas de evolución histórica de saldo fueron ejecutadas con resultado **5/5 tests en verde**.
-
-La feature `feature/reportes-cartera` quedó validada e integrada en `main` mediante fast-forward.
+La feature `feature/reportes-cartera` quedó integrada en `main` mediante fast-forward.
 
 ## Valorización de posición activa
 
-Se incorporó `ValorizacionPosicionActivo` para calcular el valor actual, la ganancia o pérdida y el rendimiento porcentual de una posición a partir de un precio actual informado.
-
-Tests específicos de `ValorizacionPosicionActivoTest`: **8/8 tests en verde**.
-
-Commits:
-
-- `ef19486` — `feat: agregar valorizacion de posicion activa`
-- `7379570` — `test: cubrir valorizacion de posicion activa`
-
-La feature fue integrada en `main` mediante fast-forward.
-
-## Costo promedio de posición activa
-
-Se incorporó el cálculo del costo de adquisición acumulado, precio promedio y costo remanente después de ventas.
-
-Tests específicos de `PosicionActivoTest`: **8/8 tests en verde**.
+`ValorizacionPosicionActivoTest`: **8/8 tests en verde**.
 
 Commits principales:
 
-- `da09ef0` — `feat: calcular costo promedio de posicion activa`
-- `6cb038b` — `test: cubrir costo promedio de posicion activa`
+- `ef19486` — `feat: agregar valorizacion de posicion activa`;
+- `7379570` — `test: cubrir valorizacion de posicion activa`.
 
-La feature fue integrada en `main` mediante fast-forward.
+## Costo promedio de posición activa
+
+`PosicionActivoTest`: **8/8 tests en verde**.
+
+Commits principales:
+
+- `da09ef0` — `feat: calcular costo promedio de posicion activa`;
+- `6cb038b` — `test: cubrir costo promedio de posicion activa`.
 
 ## Cartera de activos
 
-Tests específicos de `CarteraActivoServiceTest`: **5/5 tests en verde**.
-
-La etapa quedó integrada en `main` mediante fast-forward.
+`CarteraActivoServiceTest`: **5/5 tests en verde**.
 
 ## Identificación por símbolo
 
-Se incorporó búsqueda de activos por símbolo y posteriormente búsqueda de bonos por símbolo.
+Se validaron las búsquedas por símbolo de `ActivoRepository` y `BonoRepository`, el rechazo de `null` y la unicidad de símbolos en persistencia.
 
-- `ActivoRepository` — búsqueda por símbolo implementada y cubierta por test.
-- `BonoRepository` — búsqueda por símbolo implementada y cubierta por test.
-- Los tests cubren el rechazo de `null` en las búsquedas por símbolo.
-- La persistencia rechaza símbolos duplicados tanto para `Activo` como para `Bono`.
+## Historial
 
-La etapa quedó integrada en `main` y validada.
-
-## Adaptación al símbolo obligatorio
-
-Se adaptaron los constructores y tests afectados por el nuevo atributo identificador. La cobertura quedó integrada en la suite general.
-
-## Builds anteriores
-
-Los Builds 001–059 permanecen registrados en el historial del proyecto. Build 059 fue el cierre de la etapa de compra, venta y posición de activos.
-
-Las validaciones posteriores se registran en este documento sin inventar numeración de Build cuando no corresponde.
+Los Builds 001–059 permanecen registrados en el historial del proyecto. La suite global pasó de 480 a **486 tests** con la incorporación de la cobertura de seguridad de `PerfilFinanciero`.
 
 ## Regla de cierre
 
-No registrar resultados de tests que no hayan sido realmente ejecutados. Cada cambio funcional debe contar con cobertura específica y, cuando corresponda, validación de la suite general.
+No registrar resultados no ejecutados. Cada funcionalidad debe contar con cobertura específica y, cuando corresponda, validación de la suite general.
 
 ## Próximo bloque
 
-Definir la siguiente evolución funcional a partir del estado real de `main`. No iniciar una nueva funcionalidad sin revisar previamente código, tests y reglas de negocio relacionadas.
+Definir la siguiente evolución funcional a partir del estado real de `main`, revisando código, tests y reglas de negocio antes de iniciar una nueva feature.
