@@ -1,55 +1,55 @@
 # SOFP — Estado actual
 
-> Documento de continuidad del proyecto. El código y los tests actuales son la fuente de verdad técnica.
+> Documento de continuidad. El código y los tests actuales son la fuente de verdad técnica.
 
-## Identidad del proyecto
+## Estado verificado
 
-**Nombre:** SOFP — Sistema Operativo Financiero Personal  
-**Repositorio:** agmilevecich/sofp  
-**Rama principal:** `main`  
-**Rama de trabajo histórica recientemente cerrada:** `feature/reportes-cartera`  
-**Estado actual:** `feature/reportes-cartera` fue integrada en `main` mediante fast-forward. Actualmente `main` y la feature apuntan al mismo estado final de la rama.
+**Rama estable:** `main`  
+**HEAD actual verificado:** `7d6632f` — `docs: actualizar revision final de seguridad de perfil`  
+**Fecha del estado:** 30/08/2026
 
-## Último estado verificado
+La feature `feature/seguridad-perfil-financiero` fue integrada en `main` mediante **fast-forward**. La feature permanece como rama histórica y apunta al mismo commit `7d6632f`.
 
-Último commit de continuidad:
+Los remotos `github/main` y `bitbucket/main` fueron alineados en `7d6632f` según la última verificación local informada por el usuario.
 
-- `333d4b0` — `docs: cerrar fase 6 en roadmap`
+## Validación global vigente
 
-El estado funcional que precede a estas actualizaciones documentales quedó cerrado en:
+Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 20:00:23 -03:00**:
 
-- `0b73e87` — `docs: cerrar pendientes funcionales de reportes de cartera`.
-
-Comparación verificada en GitHub después de la integración funcional:
-
-- `main` y `feature/reportes-cartera` eran idénticas en `0b73e87`;
-- diferencia funcional: **0 commits adelante / 0 commits detrás**;
-- la integración fue fast-forward.
-
-El árbol local informado por el usuario quedó limpio y sincronizado antes de estas actualizaciones documentales:
-
-- `git syncsofp` → sin cambios;
-- `git status` → working tree clean;
-- `git diff --check` → sin observaciones.
-
-Las actualizaciones documentales posteriores se realizaron directamente sobre `main` para dejar registrada la continuidad post-merge.
-
-## Validación global más reciente
-
-Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
-
-- Tests run: **480**
+- Tests run: **486**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **12:23 min**
+- Duración: **15:50 min**
 
-Esta es la validación global más reciente confirmada por el usuario y debe considerarse la validación vigente.
+Esta es la validación global más reciente confirmada por el usuario y reemplaza a la anterior de 480 tests como referencia vigente.
 
-## Estado funcional actual
+## Seguridad de PerfilFinanciero
 
-Los siguientes bloques quedaron cerrados e integrados en `main`:
+Implementado, probado e integrado:
+
+- `PerfilFinancieroService` verifica el propietario antes de modificar un perfil;
+- `cambiarDescripcion`, `activar` y `desactivar` requieren el `usuarioId` propietario;
+- `perfilId` nulo → `NullPointerException`;
+- `usuarioId` nulo → `NullPointerException`;
+- perfil inexistente → `IllegalArgumentException`;
+- usuario no propietario → `IllegalArgumentException`;
+- usuario propietario → operación permitida;
+- `PerfilFinancieroServiceTest`: **19/19 tests en verde**.
+
+La autorización permanece en la capa de servicio porque coordina la relación entre `PerfilFinanciero` y `Usuario`.
+
+Commits de la feature:
+
+- `6478262` — `feat: proteger operaciones de perfil por propietario`;
+- `8d3c775` — `test: cubrir autorizacion de operaciones de perfil`;
+- `c07393e` — `docs: documentar seguridad de perfil financiero`;
+- `b6194ae` — `docs: actualizar estado final de seguridad de perfil`;
+- `b2fbcfb` — `docs: corregir conteo de commits de seguridad de perfil`;
+- `7d6632f` — `docs: actualizar revision final de seguridad de perfil`.
+
+## Funcionalidades cerradas e integradas
 
 - operaciones financieras;
 - identificación de activos mediante símbolo;
@@ -57,153 +57,46 @@ Los siguientes bloques quedaron cerrados e integrados en `main`:
 - costo promedio de posición activa;
 - valorización de posición activa;
 - reportes de cartera;
-- evolución histórica del saldo de una cuenta.
+- evolución histórica del saldo de una cuenta;
+- seguridad de `PerfilFinanciero`.
 
-El bloque de reportes incluye:
-
-- reporte de cartera de activos;
-- composición valorizada de la cartera;
-- detalle de movimientos de cartera;
-- evolución histórica del saldo de una cuenta.
-
-## Cartera de activos y reportes
-
-Implementado y validado:
-
-- listado de movimientos de activos por perfil financiero;
-- agrupación de movimientos por activo;
-- cálculo de posiciones mediante `CalculadorPosicionActivo`;
-- exclusión de posiciones cuya cantidad final es cero;
-- separación de movimientos entre perfiles financieros;
-- consideración correcta de compras y ventas al consultar movimientos por perfil;
-- `ReporteCarteraActivo` para representar la cartera valorizada;
-- `DetalleComposicionCarteraActivo` para representar la composición;
-- `DetalleMovimientoCarteraActivo` para representar movimientos;
-- integración de estos reportes en `CarteraActivoService`;
-- cobertura específica de dominio y servicio.
-
-## Evolución histórica de saldo
-
-Implementado y validado:
-
-- `EvolucionSaldoCuenta` representa un punto histórico compuesto por fecha/hora y saldo acumulado;
-- `CuentaService.obtenerEvolucionSaldo(Long)` recorre los movimientos de la cuenta en orden cronológico;
-- cada movimiento produce un punto con el saldo acumulado inmediatamente después de dicho movimiento;
-- los ingresos incrementan el saldo;
-- los egresos disminuyen el saldo;
-- un identificador de cuenta `null` es rechazado mediante `NullPointerException`;
-- cobertura específica mediante `CuentaServiceEvolucionSaldoTest` con **5/5 tests en verde**.
-
-La implementación reutiliza el orden cronológico establecido por `MovimientoRepository.listarPorCuenta(Long)`, que ordena por `fechaHora` e `id`.
-
-## Cuenta y saldo
-
-`CuentaService.calcularSaldo(Long)` mantiene el cálculo actual del saldo acumulando ingresos y restando egresos.
-
-La cobertura existente incluye:
-
-- cuenta sin movimientos;
-- ingreso;
-- egreso;
-- múltiples movimientos;
-- rechazo de identificador nulo.
-
-No se modificó la regla existente de cálculo de saldo.
-
-## Costo promedio de posición activa
-
-Implementado y validado:
-
-- acumulación del costo de adquisición de las compras;
-- cálculo del precio promedio de la posición;
-- mantenimiento del costo de adquisición remanente después de ventas;
-- reinicio del costo de adquisición al cerrar completamente la posición;
-- rechazo de ventas superiores a la cantidad disponible;
-- rechazo de movimientos de otro activo;
-- rechazo de movimientos nulos;
-- cobertura específica mediante `PosicionActivoTest` con **8/8 tests en verde**.
-
-## Valorización de posición activa
-
-Implementado y validado:
-
-- cálculo del valor actual de una posición a partir de un precio informado;
-- cálculo de ganancia o pérdida respecto del costo de adquisición;
-- cálculo del rendimiento porcentual;
-- valorización de posiciones cerradas;
-- aceptación de precio actual cero;
-- rechazo de posición nula;
-- rechazo de precio actual nulo;
-- rechazo de precio actual negativo;
-- rendimiento cero cuando no existe costo de adquisición;
-- cobertura específica mediante `ValorizacionPosicionActivoTest` con **8/8 tests en verde**.
-
-## Identificación y búsqueda
-
-Implementado y validado:
-
-- `ActivoRepository.buscarPorSimbolo(String)` devuelve `Optional<Activo>`;
-- `BonoRepository.buscarPorSimbolo(String)` devuelve `Optional<Bono>`;
-- ambos rechazan `null` mediante `NullPointerException`;
-- los tests cubren la búsqueda por símbolo;
-- la persistencia rechaza símbolos duplicados tanto para `Activo` como para `Bono`;
-- la restricción de unicidad se verifica mediante tests específicos de repositorio.
-
-## Persistencia
+## Repositorios y servicios relevantes
 
 Repositorios JPA relevantes:
 
+- `UsuarioRepository`;
+- `PerfilFinancieroRepository`;
+- `InstitucionFinancieraRepository`;
+- `MonedaRepository`;
+- `CuentaRepository`;
+- `MovimientoRepository`;
+- `CategoriaRepository`;
 - `OperacionFinancieraRepository`;
-- `MovimientoActivoRepository`;
 - `ActivoRepository`;
 - `BonoRepository`;
-- `MovimientoRepository`;
-- `CuentaRepository`.
+- `MovimientoActivoRepository`.
 
-`MovimientoRepository.listarPorCuenta(Long)` ordena los movimientos por `fechaHora` e `id`, permitiendo construir la evolución histórica del saldo en orden determinista.
+Servicios y componentes funcionales recientes incluyen `PerfilFinancieroService`, `CuentaService`, `CarteraActivoService`, `OperacionFinancieraService`, `PosicionActivoService` y los componentes de valorización y reportes ya integrados.
 
-`MovimientoActivoRepository.listarPorPerfilFinanciero(Long)` contempla las cuentas de origen y destino mediante la consulta correspondiente para incluir compras y ventas.
+## Git y continuidad
 
-## Etapas cerradas e integración
+La estrategia de trabajo mantiene dos remotos (`github` y `bitbucket`) para disponer de una segunda referencia y recuperación ante errores accidentales. `main` es estable y las nuevas funcionalidades se desarrollan en ramas propias.
 
-Integradas en `main`:
+Para integrar una feature cerrada se utiliza explícitamente **fast-forward** (`git merge --ff-only`), sin merge commit.
 
-- `feature/operacion-financiera`;
-- `feature/identificacion-activo`;
-- `feature/cartera-activos`;
-- `feature/costo-promedio-activo`;
-- `feature/valorizacion-posicion-activo`;
-- `feature/reportes-cartera`.
+Antes de cualquier nuevo cambio:
 
-`feature/reportes-cartera` queda como **etapa cerrada**, no como rama activa de desarrollo. Su estado funcional final fue integrado mediante fast-forward.
-
-## Últimos cambios de la feature cerrada
-
-La secuencia funcional reciente fue:
-
-- reporte de composición de cartera;
-- reporte de movimientos de cartera;
-- punto de evolución histórica de saldo;
-- integración de evolución histórica de saldo en `CuentaService`;
-- tests específicos de evolución histórica;
-- actualización de documentación;
-- cierre documental de la feature;
-- integración fast-forward en `main`.
-
-## Reglas de continuidad
-
-Código y tests son la fuente de verdad técnica. La documentación resume el estado y debe actualizarse al cerrar bloques importantes.
-
-No considerar implementado ningún pendiente hasta contar con código verificable y tests correspondientes.
-
-Antes de cualquier nuevo cambio se debe revisar nuevamente el estado real de GitHub, comparar la rama de trabajo con `main`, revisar código relacionado y tests, y mantener el cambio mínimo.
-
-`main` es la rama estable. Una nueva feature debe desarrollarse en su propia rama y no debe modificar `main` directamente.
+1. reconstruir el estado desde GitHub;
+2. revisar rama y últimos commits;
+3. comparar con `main`;
+4. revisar código, tests y reglas de negocio relacionadas;
+5. hacer el cambio mínimo;
+6. validar tests específicos y suite general cuando corresponda;
+7. revisar `git diff`, `git diff --check` y `git status`;
+8. actualizar esta documentación al cerrar etapas importantes.
 
 ## Próximo paso
 
-No existe actualmente una feature funcional pendiente de integración.
+No hay una feature pendiente de integración. El próximo trabajo debe definirse a partir del código real de `main`, revisando entidades, repositorios, servicios, tests y reglas de negocio antes de crear la siguiente rama de feature.
 
-El próximo trabajo debe definirse a partir del estado real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio para seleccionar la siguiente evolución funcional mínima.
-
-La parte gráfica continúa como etapa posterior, apoyándose sobre servicios y reglas de dominio estabilizados.
+La interfaz gráfica continúa como evolución posterior, apoyándose sobre el backend ya estabilizado.
