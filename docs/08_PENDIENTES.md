@@ -2,56 +2,46 @@
 
 Este documento contiene únicamente trabajo pendiente o por decidir.
 
-Las etapas `feature/operacion-financiera`, `feature/identificacion-activo`, `feature/cartera-activos`, `feature/costo-promedio-activo`, `feature/valorizacion-posicion-activo` y `feature/reportes-cartera` fueron integradas en `main` y quedaron validadas.
+## Estado actual
+
+Las siguientes etapas están implementadas, validadas e integradas en `main` mediante fast-forward:
+
+- `feature/operacion-financiera`;
+- `feature/identificacion-activo`;
+- `feature/cartera-activos`;
+- `feature/costo-promedio-activo`;
+- `feature/valorizacion-posicion-activo`;
+- `feature/reportes-cartera`;
+- `feature/seguridad-perfil-financiero`.
+
+La última feature cerrada fue `feature/seguridad-perfil-financiero`.
 
 ## Validación global vigente
 
-La suite general más reciente fue ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
+Suite completa ejecutada el **29/08/2026 20:00:23 -03:00**:
 
-- **480/480 tests en verde**;
+- **486/486 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **12:23 min**.
+- duración: **15:50 min**.
 
-## Estado de la feature cerrada
+## Seguridad de PerfilFinanciero
 
-`feature/reportes-cartera` está funcionalmente implementada, validada e integrada en `main` mediante fast-forward.
+La autorización de las operaciones que modifican el perfil está implementada en `PerfilFinancieroService` y cubierta por **19/19 tests en verde**.
 
-El bloque incluye:
+La feature está integrada en `main`; no constituye un pendiente.
 
-- reporte de cartera de activos;
-- composición valorizada de cartera;
-- detalle de movimientos de cartera;
-- evolución histórica del saldo de una cuenta.
-
-El estado funcional final de `main` y `feature/reportes-cartera` coincide en `0b73e87`.
-
-## Próximo paso
+## Pendientes funcionales
 
 No existe actualmente una feature funcional pendiente de integración.
 
-El próximo trabajo debe definirse a partir del mapa real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio para seleccionar la siguiente evolución funcional mínima.
+El próximo trabajo debe definirse a partir del código real de `main`, sin asumir que las propuestas de esta sección son funcionalidades aprobadas.
 
-Antes de implementar una nueva feature:
+## Líneas de evolución posibles
 
-- revisar la implementación actual;
-- identificar las clases relacionadas;
-- revisar los tests existentes;
-- verificar las reglas de negocio ya establecidas;
-- crear una rama de trabajo desde `main` sincronizado;
-- implementar el cambio mínimo y agregar cobertura específica.
-
-No hacer cambios directamente sobre `main` durante el desarrollo de una nueva feature.
-
-## Pendientes de arquitectura / evolución
-
-La siguiente evolución funcional queda abierta y debe decidirse a partir del código y los casos de uso existentes.
-
-La parte gráfica se considera una etapa posterior: primero se continuará consolidando el backend y sus reglas de negocio para que la UI se apoye sobre servicios ya estabilizados.
-
-Posibles líneas de evolución, sujetas a revisión del código antes de decidir:
+Sujetas a revisión del código y decisión explícita antes de implementar:
 
 - completar progresivamente la capa `service` según necesidades reales del dominio;
 - evolucionar la valorización desde un precio informado hacia una fuente de precios cuando exista un caso de uso concreto;
@@ -60,6 +50,10 @@ Posibles líneas de evolución, sujetas a revisión del código antes de decidir
 - ampliar reportes y cálculos derivados de movimientos;
 - incorporar interfaz de usuario cuando dominio y casos de uso estén consolidados.
 
+## Próximo paso
+
+Revisar el estado real de `main`, identificar una necesidad funcional concreta y seleccionar la siguiente evolución mínima. La nueva funcionalidad deberá desarrollarse en una rama propia y no sobre `main` directamente.
+
 ## Regla
 
-No convertir un pendiente en trabajo realizado hasta que exista implementación verificable y tests correspondientes.
+No convertir una línea de evolución en trabajo realizado hasta que exista implementación verificable y tests correspondientes.
