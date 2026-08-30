@@ -21,11 +21,13 @@ Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios
 
 ## Estado actual — 30/08/2026
 
-`main` es la rama estable y su estado verificado más reciente es:
+`main` es la rama estable. El último commit del repositorio es:
 
-- `7d6632f` — `docs: actualizar revision final de seguridad de perfil`.
+- `1a2c3c1` — `docs: actualizar estado final de continuidad`.
 
-La feature `feature/seguridad-perfil-financiero` fue integrada en `main` mediante **fast-forward** y queda como rama histórica.
+El último commit funcional/documental de cierre de la feature de seguridad es `7d6632f` — `docs: actualizar revision final de seguridad de perfil`.
+
+`feature/seguridad-perfil-financiero` fue integrada en `main` mediante **fast-forward** y queda como rama histórica.
 
 ## Features cerradas e integradas
 
@@ -43,7 +45,7 @@ La feature `feature/seguridad-perfil-financiero` fue integrada en `main` mediant
 
 `PerfilFinancieroServiceTest`: **19/19 tests en verde**.
 
-La suite global posterior a esta feature quedó en **486/486 tests en verde**.
+La feature quedó integrada en `main` mediante fast-forward.
 
 ## Validación global vigente
 
@@ -123,8 +125,6 @@ No existe actualmente una feature pendiente de integración. El próximo trabajo
 La interfaz gráfica continúa como evolución posterior, apoyándose sobre el backend estabilizado.
 
 ## Documentación de continuidad
-
-Los documentos principales son:
 
 - `docs/00_ESTADO_ACTUAL.md`;
 - `docs/06_BUILDS.md`;
