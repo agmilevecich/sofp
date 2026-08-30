@@ -14,7 +14,7 @@ Pruebas específicas previas:
 - `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
 - `PosicionActivoServiceTest`: **4/4 tests en verde**.
 
-Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 15:24:11 -03:00**:
+Suite general ejecutada el **27/08/2026 15:24:11 -03:00**:
 
 - Tests run: **433**
 - Failures: **0**
@@ -23,89 +23,82 @@ Suite general ejecutada desde IntelliJ IDEA el **27/08/2026 15:24:11 -03:00**:
 - `BUILD SUCCESS`
 - Duración: **17:35 min**
 
-**Build 059 queda cerrado y validado.**
-
 ## Validaciones posteriores al Build 059
 
-Las etapas posteriores se registran como validaciones y cierres funcionales, sin inventar nueva numeración de Build.
+### Identificación por símbolo
 
-### Identificación de activos por símbolo
-
-Se incorporó identificación por símbolo en `Activo` y `Bono`, junto con búsquedas por símbolo en sus repositorios y cobertura de unicidad en persistencia.
-
-La etapa quedó integrada y validada en `main`.
+Se incorporó identificación por símbolo en `Activo` y `Bono`, búsquedas por símbolo y cobertura de unicidad en persistencia. Etapa integrada y validada en `main`.
 
 ### Cartera de activos
 
-Se incorporó el listado de movimientos por perfil financiero, agrupación de movimientos por activo y cálculo de posiciones mediante `CalculadorPosicionActivo`.
-
-La etapa quedó integrada y validada en `main` mediante fast-forward.
+Se incorporó el listado de movimientos por perfil financiero, agrupación por activo y cálculo de posiciones mediante `CalculadorPosicionActivo`. Etapa integrada y validada mediante fast-forward.
 
 ### Costo promedio de posición activa
 
-Se incorporó en `PosicionActivo` el costo de adquisición acumulado, precio promedio y costo de adquisición remanente después de ventas.
+Se incorporó costo de adquisición acumulado, precio promedio y costo remanente después de ventas.
 
-Tests específicos de `PosicionActivoTest`: **8/8 tests en verde**.
+`PosicionActivoTest`: **8/8 tests en verde**.
 
 Commits principales:
 
 - `da09ef0` — `feat: calcular costo promedio de posicion activa`;
 - `6cb038b` — `test: cubrir costo promedio de posicion activa`.
 
-La etapa quedó integrada en `main` mediante fast-forward.
+Etapa integrada mediante fast-forward.
 
 ### Valorización de posición activa
 
-Se incorporó `ValorizacionPosicionActivo` para calcular valor actual, ganancia o pérdida y rendimiento porcentual a partir de un precio actual informado.
+Se incorporó `ValorizacionPosicionActivo` para valor actual, ganancia/pérdida y rendimiento porcentual.
 
-Tests específicos de `ValorizacionPosicionActivoTest`: **8/8 tests en verde**.
+`ValorizacionPosicionActivoTest`: **8/8 tests en verde**.
 
 Commits principales:
 
 - `ef19486` — `feat: agregar valorizacion de posicion activa`;
 - `7379570` — `test: cubrir valorizacion de posicion activa`.
 
-La etapa quedó integrada en `main` mediante fast-forward.
+Etapa integrada mediante fast-forward.
 
-### Reportes de cartera y evolución histórica de saldos
+### Reportes, evolución histórica y seguridad de perfil
 
-Se incorporaron posteriormente:
+Posteriormente se incorporaron y validaron:
 
 - reporte de cartera de activos;
-- detalle de composición de cartera;
-- detalle de movimientos de cartera;
+- composición valorizada;
+- detalle de movimientos;
 - evolución histórica del saldo de una cuenta;
-- integración de la evolución histórica en `CuentaService`.
+- integración de la evolución histórica en `CuentaService`;
+- seguridad de operaciones de `PerfilFinanciero` mediante validación de propietario.
 
-La cobertura específica de estas etapas quedó incorporada en la suite general.
+La feature `feature/reportes-cartera` quedó integrada mediante fast-forward.
 
-La etapa `feature/reportes-cartera` quedó cerrada y posteriormente integrada en `main` mediante fast-forward.
+La feature `feature/seguridad-perfil-financiero` también quedó integrada mediante fast-forward.
 
-### Suite general vigente
+## Suite general vigente
 
-Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 13:29:56 -03:00**:
+Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 20:00:23 -03:00**:
 
-- Tests run: **480**
+- Tests run: **486**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **12:23 min**
+- Duración: **15:50 min**
 
-La validación global vigente queda en **480/480 tests en verde**.
+La validación global vigente es **486/486 tests en verde**.
 
 ## Builds anteriores
 
-Los Builds 001–058 permanecen registrados en el historial previo del proyecto.
+Los Builds 001–058 permanecen registrados en el historial previo del proyecto. Build 059 continúa siendo el último Build numerado cerrado; las validaciones posteriores se registran como etapas funcionales y no se inventa numeración.
 
 ## Estado actual
 
-El último Build numerado cerrado es **Build 059**. Las etapas funcionales posteriores también fueron implementadas, validadas e integradas en `main`.
+Las funcionalidades posteriores al Build 059 fueron implementadas, validadas e integradas en `main`. La seguridad de `PerfilFinanciero` es el último bloque funcional cerrado.
 
 ## Próximo paso
 
-Definir la siguiente evolución funcional a partir del estado real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio. No existe actualmente una feature pendiente de integración.
+Definir la siguiente evolución funcional a partir del estado real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio.
 
 ## Regla de cierre
 
-Cada Build debe quedar registrado con cambios principales, tests ejecutados, resultado, commit asociado cuando exista y próximo paso. Las validaciones posteriores que todavía no constituyen un Build nuevo se registran separadamente y no se inventa numeración.
+Cada Build debe registrar objetivo, cambios, tests y resultado. Las validaciones posteriores se registran separadamente cuando no constituyen un Build nuevo.
