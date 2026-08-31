@@ -7,21 +7,25 @@
 **Rama estable:** `main`  
 **Último commit integrado:** `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`  
 **Feature integrada:** `feature/seguridad-aislamiento-datos` mediante fast-forward.  
-**GitHub y Bitbucket:** sincronizados en `75d0a18`.  
-**Working tree local:** limpio.
 
-## Validación final de seguridad
+**Rama de trabajo:** `feature/swing-shell`  
+**Último commit:** `c6923eb` — `docs: documentar validacion del shell Swing`  
+**Último commit funcional previo:** `0c41a50` — `feat: agregar punto de entrada para shell Swing`.
 
-La auditoría transversal de seguridad y aislamiento de datos quedó completada antes de integrar la feature en `main`.
+La rama de trabajo está sincronizada con GitHub y Bitbucket.
+
+## Validación actual
 
 Suite general ejecutada localmente el **31/08/2026**:
 
-- Tests run: **512**
+- Tests run: **515**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **15:25 min**
+- Duración: **22:17 min**
+
+La validación global vigente es **515/515 tests en verde**.
 
 `AislamientoDatosServiceTest`: **7/7 en verde**.
 
@@ -39,16 +43,28 @@ La primera ejecución de ese test tuvo 7 fallos por datos de prueba inválidos: 
 - Se cerraron caminos internos que podían permitir saltar validaciones públicas.
 - `AislamientoDatosServiceTest` cubre recursos propios y ajenos y los principales caminos de lectura/creación.
 
-## Estado de la interfaz
+## Estado de la interfaz — Fase 8
 
-La implementación de Swing todavía no comenzó.
+La primera etapa del shell Swing quedó implementada en `feature/swing-shell`.
 
-La siguiente etapa es **Fase 8 — Interfaz de usuario**, partiendo del estado real del código y servicios existentes, sin asumir clases de UI no implementadas.
+Componentes actuales:
+
+- `MainFrame` como ventana principal;
+- `HeaderPanel`;
+- `SidebarPanel` con cinco botones: Inicio, Cuentas, Movimientos, Inversiones y Reportes;
+- área central basada en `CardLayout`;
+- tarjetas para Inicio, Cuentas, Movimientos e Inversiones;
+- `StatusBarPanel`;
+- punto de entrada `ar.com.agmilevecich.sofp.ui.Main`.
+
+Tests específicos:
+
+- `MainFrameTest`;
+- `MainFrameLayoutTest`;
+- `MainFrameNavigationTest`.
+
+El shell fue probado manualmente y la ventana principal abre correctamente con navegación lateral y estado inicial visible.
 
 ## Próximo paso
 
-1. Reconstruir desde `main` la estructura actual de `src/main/java`, especialmente paquetes y servicios disponibles para UI.
-2. Revisar tests y convenciones existentes antes de crear clases Swing.
-3. Definir la arquitectura mínima de la interfaz.
-4. Implementar el primer bloque Swing con cambios pequeños y verificables.
-5. Mantener documentación y tests actualizados durante la etapa.
+Continuar la Fase 8 con el siguiente bloque funcional de la interfaz, partiendo del shell ya validado y conectando progresivamente la UI con los servicios existentes, sin duplicar lógica de negocio.
