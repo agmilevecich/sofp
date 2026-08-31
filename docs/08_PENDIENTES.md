@@ -4,17 +4,6 @@
 
 Rama: `feature/seguridad-aislamiento-datos`.
 
-Últimos cambios de seguridad:
-
-- `85a4e86` — autorización de operaciones financieras por usuario;
-- `b0e6377` — cobertura de aislamiento por usuario;
-- `b2484a8` — protección de lecturas de cuenta;
-- `a214d16` — protección de lecturas de categoría;
-- `5b7de3a` — protección de lecturas y alta de movimientos;
-- `d62dbb9` — protección de lecturas de perfil y cartera;
-- `2381ea5` — protección del alta de perfil financiero;
-- `a28f902` — cierre del bypass interno de registro de movimiento.
-
 ## Seguridad
 
 Los hallazgos previstos de esta etapa fueron abordados en código:
@@ -25,10 +14,23 @@ Los hallazgos previstos de esta etapa fueron abordados en código:
 4. aislamiento de posición y cartera por perfil/usuario;
 5. cobertura específica de recursos propios y ajenos.
 
-## Pendiente de validación
+## Validación final
 
-La última suite conocida antes de esta tanda fue **505/505 en verde**. Falta ejecutar los tests sobre el estado actual y corregir cualquier fallo que aparezca.
+La auditoría fue validada localmente:
 
-Después de la validación: `git diff --check`, `git status`, comparación con `main` y cierre documental de la auditoría.
+- `AislamientoDatosServiceTest`: **7/7 en verde**;
+- suite general: **512/512 en verde**;
+- `Failures: 0`;
+- `Errors: 0`;
+- `Skipped: 0`;
+- `BUILD SUCCESS`.
 
-Swing continúa bloqueado hasta completar esta validación final.
+El primer intento del test específico tuvo 7 fallos por un dato de prueba inválido: el código de moneda generado excedía `VARCHAR(10)`. Se corrigió únicamente el fixture y la segunda ejecución quedó 7/7 en verde.
+
+## Estado de la auditoría
+
+**IMPLEMENTACIÓN Y TESTS COMPLETADOS.**
+
+Queda únicamente el cierre técnico del repositorio: sincronizar los commits documentales en la copia local, verificar `git status`, `git diff --check` y comparar nuevamente con `main`.
+
+Swing continúa bloqueado hasta realizar ese cierre técnico. No hacer merge a `main` automáticamente.
