@@ -2,9 +2,9 @@
 
 ## Estado
 
-**AUDITORÍA TRANSVERSAL COMPLETADA Y VALIDADA.**
+**AUDITORÍA TRANSVERSAL COMPLETADA, VALIDADA E INTEGRADA EN `main`.**
 
-La auditoría abordó los puntos de aislamiento por usuario/perfil en operaciones financieras, lecturas, listados y caminos alternativos de creación.
+La auditoría abordó el aislamiento por usuario/perfil en operaciones financieras, lecturas, listados y caminos alternativos de creación.
 
 ## Correcciones implementadas
 
@@ -36,19 +36,26 @@ Suite completa ejecutada localmente el **31/08/2026**:
 - `BUILD SUCCESS`
 - Duración: **15:25 min**
 
-La implementación actual queda validada con **512/512 tests en verde**.
+La implementación queda validada con **512/512 tests en verde**.
 
 ## Incidencia durante la validación
 
 La primera ejecución de `AislamientoDatosServiceTest` presentó 7 fallos durante `setUp()` porque el fixture generaba códigos de moneda de 17 caracteres para una columna limitada a 10. Se corrigió exclusivamente el dato de prueba y la segunda ejecución quedó 7/7 en verde. No se modificaron reglas de negocio por esta incidencia.
 
-## Cierre técnico pendiente
+## Cierre técnico
 
-La auditoría funcional y la validación de tests están completas. Para cerrar formalmente la etapa todavía corresponde verificar en la copia local:
+La auditoría funcional, los tests y el cierre técnico fueron completados.
 
-- `git status` limpio;
-- `git diff --check` sin salida;
-- comparación final de la feature contra `main`;
-- sincronización de los commits documentales con GitHub y Bitbucket.
+La feature `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante **fast-forward** hasta `75d0a18` y publicada en GitHub y Bitbucket.
 
-No hacer merge a `main` automáticamente.
+Se verificó localmente:
+
+- `git status`: working tree limpio;
+- `git diff --check`: sin salida;
+- `main`: sincronizada con GitHub y Bitbucket.
+
+**Auditoría de seguridad: CERRADA.**
+
+## Próxima etapa
+
+El siguiente frente del roadmap es **Fase 8 — Interfaz de usuario Swing**.
