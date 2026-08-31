@@ -19,9 +19,10 @@ class MainFrameNavigationTest {
         SwingUtilities.invokeAndWait(() -> frame.set(new MainFrame()));
 
         MainFrame mainFrame = frame.get();
-        JButton cuentas = buscarBoton(mainFrame, "Cuentas");
-        JButton movimientos = buscarBoton(mainFrame, "Movimientos");
-        JButton inversiones = buscarBoton(mainFrame, "Inversiones");
+        SidebarPanel sidebar = buscarSidebar(mainFrame);
+        JButton cuentas = buscarBoton(sidebar, "Cuentas");
+        JButton movimientos = buscarBoton(sidebar, "Movimientos");
+        JButton inversiones = buscarBoton(sidebar, "Inversiones");
 
         SwingUtilities.invokeAndWait(cuentas::doClick);
         assertEquals("Cuentas", etiquetaVisible(mainFrame));
@@ -33,6 +34,21 @@ class MainFrameNavigationTest {
         assertEquals("Inversiones", etiquetaVisible(mainFrame));
 
         mainFrame.dispose();
+    }
+
+    private SidebarPanel buscarSidebar(Container container) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof SidebarPanel sidebar) {
+                return sidebar;
+            }
+            if (component instanceof Container hijo) {
+                SidebarPanel encontrado = buscarSidebar(hijo);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+        throw new AssertionError("No se encontró el panel de navegación lateral");
     }
 
     private JButton buscarBoton(Container container, String texto) {
