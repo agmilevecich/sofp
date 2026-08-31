@@ -4,19 +4,27 @@
 
 Definir la estructura inicial del proyecto, la configuración de persistencia y las verificaciones básicas de conexión.
 
+**Estado:** cerrada.
+
 ## Fase 2: Modelo de dominio
 
 Incorporar el modelo financiero, incluyendo usuarios, perfiles financieros, monedas, cuentas, activos y la base transversal de auditoría.
 
+**Estado:** cerrada.
+
 ## Fase 3: Persistencia y acceso a datos
 
 Persistir el modelo de dominio y establecer los mecanismos necesarios para consultar y almacenar la información.
+
+**Estado:** cerrada.
 
 ## Fase 4: Operaciones financieras
 
 Implementar `OperacionFinanciera` y su asociación con los movimientos resultantes. En el estado actual, los efectos monetarios se registran mediante `Movimiento`, que pertenece a una `Cuenta`. La operación puede agrupar hasta dos movimientos y constituye el contexto de negocio de esos movimientos.
 
 La evolución posterior incorporó movimientos específicos para posiciones de activos mediante `MovimientoActivo`, asociados a `OperacionFinanciera`. Este modelo ya forma parte del dominio implementado.
+
+**Estado:** cerrada.
 
 ## Fase 5: Saldos y posiciones
 
@@ -32,7 +40,7 @@ El dominio actual incluye `PosicionActivo`, que permite obtener cantidad, costo 
 - Valorización de una posición: implementado.
 - Valorización de la cartera: implementado.
 - Pruebas unitarias y de integración asociadas: implementadas.
-- Aislamiento de posición por perfil financiero: implementado en la rama `feature/seguridad-aislamiento-datos`.
+- Aislamiento de posición por perfil financiero: implementado.
 - Fase 5 funcional: **cerrada y validada**.
 
 ## Fase 6: Reportes
@@ -52,15 +60,9 @@ La evolución histórica de saldo se representa mediante `EvolucionSaldoCuenta` 
 - Composición detallada de activos: implementada.
 - Integración de la composición en `CarteraActivoService`: implementada.
 - Pruebas de composición detallada: implementadas.
-- Pruebas de integración de composición desde el servicio: implementadas.
-- Reporte de movimientos de cartera: implementado.
-- Detalle de movimientos de cartera: implementado.
 - Integración del reporte de movimientos en `CarteraActivoService`: implementada.
-- Pruebas del detalle de movimientos: implementadas.
-- Pruebas del reporte de movimientos desde el servicio: implementadas.
 - Evolución histórica de saldos: implementada.
-- Pruebas de evolución histórica: implementadas.
-- Suite general histórica al cierre de Fase 6: **480/480 tests en verde**.
+- Suite histórica al cierre de Fase 6: **480/480 tests en verde**.
 - Fase 6: **cerrada, validada e integrada en `main` mediante fast-forward**.
 
 ## Fase 7: Seguridad
@@ -69,27 +71,44 @@ Agregar autenticación, autorización y controles de acceso para proteger la inf
 
 ### Estado actual de la Fase 7
 
-La seguridad de `PerfilFinanciero` fue implementada y quedó integrada en `main`.
+La auditoría transversal de seguridad y aislamiento de datos está **cerrada, validada e integrada en `main`**.
 
-La rama `feature/seguridad-aislamiento-datos` continúa esta fase corrigiendo el aislamiento de recursos por perfil.
+Se completaron:
 
-Correcciones realizadas en la rama actual:
+- autorización de operaciones financieras;
+- autorización de operaciones mutables de cuentas, categorías y movimientos;
+- aislamiento de lecturas por ID y listados;
+- protección de altas de cuentas, categorías, movimientos y perfiles;
+- aislamiento de posiciones y cartera por perfil/usuario;
+- cierre de caminos internos que podían saltar validaciones públicas;
+- cobertura transversal mediante `AislamientoDatosServiceTest`.
 
-- autorización de operaciones mutables de cuentas;
-- autorización de operaciones mutables de categorías;
-- autorización de operaciones mutables de movimientos;
-- aislamiento de posiciones de activos por perfil financiero;
-- cobertura y adaptación de tests asociados.
+Validación final local del 31/08/2026:
 
-Suite general vigente: **503/503 tests en verde**, con 0 failures, 0 errors y 0 skipped.
+- `AislamientoDatosServiceTest`: **7/7**;
+- suite general: **512/512 tests en verde**;
+- Failures: 0;
+- Errors: 0;
+- Skipped: 0;
+- `BUILD SUCCESS`.
 
-La Fase 7 todavía **no está cerrada**. Quedan por revisar `OperacionFinancieraService`, lecturas por ID/listados y caminos alternativos de creación de movimientos.
+La feature `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward hasta `75d0a18` y publicada en GitHub y Bitbucket.
+
+**Fase 7: cerrada.**
 
 ## Fase 8: Interfaz de usuario
 
-Incorporar la interfaz Swing cuando el dominio, los servicios, las operaciones principales y la seguridad transversal estén suficientemente consolidados.
+Incorporar la interfaz Swing sobre el dominio y servicios ya consolidados.
+
+### Estado actual de la Fase 8
 
 La implementación de Swing todavía no comenzó.
+
+El primer bloque deberá partir de la estructura real existente en `src/main/java`, revisar las clases y servicios disponibles, y definir una arquitectura mínima de UI sin duplicar lógica de negocio.
+
+Primer objetivo previsto: shell principal de Swing, navegación y área central para módulos, manteniendo la separación entre UI y servicios.
+
+**Fase 8: próxima etapa.**
 
 ## Fase 9: Optimización
 
@@ -97,6 +116,10 @@ Optimizar consultas, cálculo de saldos, rendimiento general y experiencia de us
 
 ## Estado del roadmap
 
-Las Fases 1 a 6 están implementadas y cerradas según su evolución documentada. La Fase 7 está en curso en `feature/seguridad-aislamiento-datos`, con **503/503 tests en verde** pero con hallazgos de seguridad todavía pendientes de cierre.
+Las Fases 1 a 7 están cerradas e integradas en `main` según su evolución documentada.
 
-La Fase 8 (Swing) será la siguiente etapa principal **después del cierre definitivo de la seguridad transversal** y de una validación final contra `main`.
+La validación global vigente es **512/512 tests en verde**.
+
+La etapa activa siguiente es **Fase 8 — Interfaz de usuario Swing**.
+
+Cualquier nueva sesión de trabajo debe reconstruir el estado desde el código, tests, commits y `main` antes de modificar código.
