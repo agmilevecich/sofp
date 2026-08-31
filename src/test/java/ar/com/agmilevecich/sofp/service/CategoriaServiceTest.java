@@ -90,7 +90,8 @@ class CategoriaServiceTest {
         Categoria categoria1 = new Categoria("Alimentación", perfil1);
         Categoria categoria2 = new Categoria("Transporte", perfil2);
 
-        persistir(usuario, perfil1, perfil2, categoria1, categoria2);
+        persistir(usuario, perfil1, categoria1);
+        persistir(usuario, perfil2, categoria2);
 
         List<Categoria> categorias = categoriaService.listarPorPerfilFinanciero(perfil1.getId());
 
