@@ -25,52 +25,11 @@ Suite general ejecutada el **27/08/2026 15:24:11 -03:00**:
 
 ## Validaciones posteriores al Build 059
 
-### Identificación por símbolo
+Se incorporaron y validaron identificación por símbolo, cartera de activos, costo promedio, valorización, reportes, evolución histórica y seguridad de perfil financiero.
 
-Se incorporó identificación por símbolo en `Activo` y `Bono`, búsquedas por símbolo y cobertura de unicidad en persistencia. Etapa integrada y validada en `main`.
+## Etapa — Seguridad y aislamiento por usuario
 
-### Cartera de activos
-
-Se incorporó el listado de movimientos por perfil financiero, agrupación por activo y cálculo de posiciones mediante `CalculadorPosicionActivo`. Etapa integrada y validada mediante fast-forward.
-
-### Costo promedio de posición activa
-
-Se incorporó costo de adquisición acumulado, precio promedio y costo remanente después de ventas.
-
-`PosicionActivoTest`: **8/8 tests en verde**.
-
-Commits principales:
-
-- `da09ef0` — `feat: calcular costo promedio de posicion activa`;
-- `6cb038b` — `test: cubrir costo promedio de posicion activa`.
-
-### Valorización de posición activa
-
-Se incorporó `ValorizacionPosicionActivo` para valor actual, ganancia/pérdida y rendimiento porcentual.
-
-`ValorizacionPosicionActivoTest`: **8/8 tests en verde**.
-
-Commits principales:
-
-- `ef19486` — `feat: agregar valorizacion de posicion activa`;
-- `7379570` — `test: cubrir valorizacion de posicion activa`.
-
-### Reportes, evolución histórica y seguridad de perfil
-
-Posteriormente se incorporaron y validaron:
-
-- reporte de cartera de activos;
-- composición valorizada;
-- detalle de movimientos;
-- evolución histórica del saldo de una cuenta;
-- integración de la evolución histórica en `CuentaService`;
-- seguridad de operaciones de `PerfilFinanciero` mediante validación de propietario.
-
-Las features `feature/reportes-cartera` y `feature/seguridad-perfil-financiero` quedaron integradas mediante fast-forward.
-
-## Etapa posterior — Seguridad y aislamiento por perfil
-
-Se creó la rama `feature/seguridad-aislamiento-datos` para corregir los hallazgos de la auditoría transversal de seguridad.
+La rama `feature/seguridad-aislamiento-datos` completó la auditoría transversal y posteriormente fue integrada en `main` mediante fast-forward.
 
 Se implementaron y validaron:
 
@@ -104,8 +63,12 @@ Durante la primera ejecución del test específico hubo 7 fallos por un fixture 
 
 ## Estado actual
 
-La implementación y los tests de la auditoría transversal de seguridad están completados y validados. La rama `feature/seguridad-aislamiento-datos` permanece separada de `main`.
+La seguridad transversal está cerrada y forma parte de `main`.
+
+La última integración de la etapa fue `75d0a18`. La copia local quedó con `working tree clean` y `git diff --check` sin salida.
 
 ## Próximo paso
 
-Realizar el cierre técnico del repositorio (`git status`, `git diff --check` y comparación final contra `main`). No hacer merge a `main` automáticamente.
+**Fase 8 — Interfaz de usuario Swing.**
+
+Antes de implementar UI se debe reconstruir desde `main` la estructura real de `src/main/java`, revisar servicios y tests, y definir el primer bloque Swing sin duplicar lógica de negocio.
