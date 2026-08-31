@@ -5,28 +5,47 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 ## Estado — 31/08/2026
 
 Rama de trabajo: `feature/seguridad-aislamiento-datos`.
-Último commit: `a28f9027` — `fix: cerrar bypass interno de registro de movimiento`.
+Último cambio de código: correcciones de aislamiento y autorización completadas.
+Los commits documentales posteriores registran la validación final.
 `main` no fue modificada.
 
 ## Seguridad
 
-La auditoría transversal avanzó desde operaciones mutables hasta lecturas y caminos alternativos de creación.
+La auditoría transversal quedó completada a nivel de implementación y tests.
 
 Implementado:
 
 - autorización de operaciones financieras;
 - aislamiento de cuentas, categorías y movimientos;
-- lecturas por ID/listados con usuario propietario;
+- lecturas por ID y listados con usuario propietario;
 - altas protegidas de cuentas, categorías, movimientos y perfiles;
 - aislamiento de posiciones y cartera por usuario/perfil;
-- cobertura específica en `AislamientoDatosServiceTest`.
+- cierre de caminos internos que podían saltar validaciones públicas;
+- cobertura transversal en `AislamientoDatosServiceTest`.
 
-## Última validación conocida
+## Validación final
 
-Antes de los cambios actuales, la suite general informada fue **505/505 en verde**. No se asume que ese resultado cubra los cambios posteriores.
+`AislamientoDatosServiceTest`: **7/7 en verde**.
 
-## Próximo paso obligatorio
+Suite general ejecutada localmente el **31/08/2026**:
 
-Ejecutar los tests sobre el estado actual, corregir cualquier fallo, ejecutar la suite completa, revisar `git diff --check`, `git status` y comparar con `main`.
+- Tests run: **512**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **15:25 min**
 
-No comenzar Swing hasta cerrar formalmente esta validación.
+La validación vigente es **512/512 tests en verde**.
+
+La primera ejecución del test específico tuvo 7 fallos por un dato de prueba que excedía la longitud de la columna `Moneda.codigo`; se corrigió el fixture y la segunda ejecución quedó 7/7 en verde.
+
+## Cierre de seguridad
+
+La auditoría transversal está funcionalmente completada y validada. Falta únicamente el cierre técnico local del repositorio: sincronizar los últimos commits documentales, verificar `git status`, `git diff --check` y comparar nuevamente la feature contra `main`.
+
+No hacer merge a `main` automáticamente.
+
+## Próximo paso
+
+Una vez confirmado el cierre técnico, la siguiente etapa prevista es continuar con Swing, manteniendo como fuente de verdad el código, los tests y Git.
