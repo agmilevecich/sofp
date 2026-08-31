@@ -79,6 +79,40 @@ public class MovimientoActivoRepository {
          .getResultList();
     }
 
+    public List<MovimientoActivo> listarPorActivoYPerfilFinanciero(
+            Long activoId,
+            Long perfilFinancieroId) {
+
+        Objects.requireNonNull(
+                activoId,
+                "El id del activo es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                perfilFinancieroId,
+                "El id del perfil financiero es obligatorio"
+        );
+
+        return entityManager.createQuery(
+                """
+                SELECT m
+                FROM MovimientoActivo m
+                LEFT JOIN m.operacionFinanciera op
+                LEFT JOIN op.cuentaOrigen origen
+                LEFT JOIN op.cuentaDestino destino
+                WHERE m.activo.id = :activoId
+                  AND (
+                       origen.perfilFinanciero.id = :perfilFinancieroId
+                       OR destino.perfilFinanciero.id = :perfilFinancieroId
+                  )
+                ORDER BY m.id
+                """,
+                MovimientoActivo.class
+        ).setParameter("activoId", activoId)
+         .setParameter("perfilFinancieroId", perfilFinancieroId)
+         .getResultList();
+    }
+
     public List<MovimientoActivo> listarPorPerfilFinanciero(Long perfilFinancieroId) {
 
         Objects.requireNonNull(
