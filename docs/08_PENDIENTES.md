@@ -6,22 +6,24 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 La rama de trabajo es `feature/seguridad-aislamiento-datos`.
 
-Último commit funcional/test antes de la actualización documental:
+Último commit funcional/test vigente:
 
-- `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
+- `b0e6377` — `test: cubrir aislamiento de datos por usuario`.
+- `85a4e86` — `fix: autorizar operaciones financieras por usuario`.
 
-En `c1f635f`, la rama estaba 11 commits por delante de `main` y 0 por detrás. Los commits posteriores realizados sobre esta rama son únicamente actualizaciones documentales de continuidad.
+La rama está sincronizada con los remotos `github` y `bitbucket`.
 
 ## Validación global vigente
 
-Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
+Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**:
 
-- **503/503 tests en verde**;
+- **505/505 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **15:01 min**.
+- `BUILD SUCCESS`.
+
+Este resultado es la última validación global informada para esta etapa.
 
 ## Seguridad: correcciones realizadas
 
@@ -31,18 +33,17 @@ Ya fueron implementadas y validadas correcciones para:
 2. `CategoriaService`: autorización de operaciones mutables por propietario.
 3. `MovimientoService`: autorización de modificaciones y eliminación por propietario.
 4. `PosicionActivoService`: aislamiento de la posición por perfil financiero.
-
-Los tests correspondientes fueron adaptados/cubiertos y la suite completa permanece en verde.
+5. `OperacionFinancieraService`: autorización explícita del usuario solicitante en las operaciones protegidas.
+6. Tests de aislamiento y autorización en operaciones financieras, compra, venta y posiciones de activos.
 
 ## Seguridad: pendientes reales
 
 La auditoría transversal todavía no está cerrada. Permanecen:
 
-1. `OperacionFinancieraService`: autorización explícita del usuario solicitante en las operaciones protegidas.
-2. Lecturas por ID y listados: revisar cuáles son casos de uso expuestos y garantizar aislamiento de recursos pertenecientes a otros perfiles cuando corresponda.
-3. Caminos alternativos de creación de movimientos: verificar que no permitan eludir las reglas de `MovimientoService`.
-4. Completar tests de lectura de recursos ajenos y autorización donde el código actual todavía no tenga cobertura específica.
-5. Revisar casos límite de activos compartidos entre perfiles y confirmar que las posiciones derivadas siempre respeten el perfil solicitado.
+1. Lecturas por ID y listados: revisar cuáles son casos de uso expuestos y garantizar aislamiento de recursos pertenecientes a otros perfiles cuando corresponda.
+2. Caminos alternativos de creación de movimientos: verificar que no permitan eludir las reglas de `MovimientoService`.
+3. Completar tests de lectura de recursos ajenos y autorización donde el código actual todavía no tenga cobertura específica.
+4. Revisar casos límite de activos compartidos entre perfiles y confirmar que las posiciones derivadas siempre respeten el perfil solicitado.
 
 Estos puntos son correcciones de seguridad, no nuevas funcionalidades independientes.
 
