@@ -162,12 +162,10 @@ public class CuentaService {
 
     public Cuenta modificarNombre(
             Long cuentaId,
+            Long usuarioId,
             String nombre) {
 
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
+        validarIds(cuentaId, usuarioId);
 
         Objects.requireNonNull(
                 nombre,
@@ -175,7 +173,7 @@ public class CuentaService {
         );
 
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -206,15 +204,13 @@ public class CuentaService {
 
     public Cuenta modificarIdentificadorExterno(
             Long cuentaId,
+            Long usuarioId,
             String identificadorExterno) {
 
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
+        validarIds(cuentaId, usuarioId);
 
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -247,12 +243,10 @@ public class CuentaService {
 
     public Cuenta modificarTipoCuenta(
             Long cuentaId,
+            Long usuarioId,
             TipoCuenta tipoCuenta) {
 
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
+        validarIds(cuentaId, usuarioId);
 
         Objects.requireNonNull(
                 tipoCuenta,
@@ -260,7 +254,7 @@ public class CuentaService {
         );
 
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -293,12 +287,10 @@ public class CuentaService {
 
     public Cuenta modificarInstitucionFinanciera(
             Long cuentaId,
+            Long usuarioId,
             InstitucionFinanciera institucionFinanciera) {
 
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
+        validarIds(cuentaId, usuarioId);
 
         Objects.requireNonNull(
                 institucionFinanciera,
@@ -306,7 +298,7 @@ public class CuentaService {
         );
 
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -339,12 +331,10 @@ public class CuentaService {
 
     public Cuenta modificarMoneda(
             Long cuentaId,
+            Long usuarioId,
             Moneda moneda) {
 
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
+        validarIds(cuentaId, usuarioId);
 
         Objects.requireNonNull(
                 moneda,
@@ -352,7 +342,7 @@ public class CuentaService {
         );
 
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -383,15 +373,14 @@ public class CuentaService {
         }
     }
 
-    public Cuenta activar(Long cuentaId) {
+    public Cuenta activar(
+            Long cuentaId,
+            Long usuarioId) {
 
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
+        validarIds(cuentaId, usuarioId);
 
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -420,15 +409,14 @@ public class CuentaService {
         }
     }
 
-    public Cuenta desactivar(Long cuentaId) {
+    public Cuenta desactivar(
+            Long cuentaId,
+            Long usuarioId) {
 
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
+        validarIds(cuentaId, usuarioId);
 
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -469,15 +457,46 @@ public class CuentaService {
         );
     }
 
-    public void eliminar(Long cuentaId) {
+    private Cuenta obtenerCuentaAutorizada(
+            Long cuentaId,
+            Long usuarioId) {
+
+        Cuenta cuenta = obtenerCuenta(cuentaId);
+
+        if (!cuenta.getPerfilFinanciero()
+                .getUsuario()
+                .getId()
+                .equals(usuarioId)) {
+
+            throw new IllegalArgumentException(
+                    "El usuario no es propietario de la cuenta"
+            );
+        }
+
+        return cuenta;
+    }
+
+    private void validarIds(Long cuentaId, Long usuarioId) {
 
         Objects.requireNonNull(
                 cuentaId,
                 "El id de la cuenta es obligatorio"
         );
 
+        Objects.requireNonNull(
+                usuarioId,
+                "El id del usuario es obligatorio"
+        );
+    }
+
+    public void eliminar(
+            Long cuentaId,
+            Long usuarioId) {
+
+        validarIds(cuentaId, usuarioId);
+
         Cuenta cuenta =
-                obtenerCuenta(cuentaId);
+                obtenerCuentaAutorizada(cuentaId, usuarioId);
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
