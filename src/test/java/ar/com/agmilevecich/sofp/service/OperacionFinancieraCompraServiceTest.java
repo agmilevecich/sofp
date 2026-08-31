@@ -36,6 +36,7 @@ class OperacionFinancieraCompraServiceTest {
 
     private EntityManager entityManager;
     private OperacionFinancieraService operacionFinancieraService;
+    private Usuario usuario;
     private Cuenta cuentaOrigen;
     private Categoria categoriaOrigen;
     private Activo activo;
@@ -43,19 +44,71 @@ class OperacionFinancieraCompraServiceTest {
     @BeforeEach
     void setUp() {
         entityManager = JpaTestManager.createEntityManager();
-        MovimientoRepository movimientoRepository = new MovimientoRepository(entityManager);
-        OperacionFinancieraRepository operacionFinancieraRepository = new OperacionFinancieraRepository(entityManager);
-        operacionFinancieraService = new OperacionFinancieraService(entityManager, movimientoRepository, operacionFinancieraRepository);
 
-        Usuario usuario = new Usuario("Ariel", "Milevecich", "operacion.compra." + System.nanoTime() + "@test.com", "hash");
-        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
-        InstitucionFinanciera banco = new InstitucionFinanciera("Banco de Prueba", TipoInstitucionFinanciera.BANCO);
-        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
-        cuentaOrigen = new Cuenta("Cuenta origen", TipoCuenta.CAJA_AHORRO, perfil, banco, moneda);
-        categoriaOrigen = new Categoria("Inversiones", perfil);
-        activo = new Bono("Bono GD30", "GD30", moneda);
+        MovimientoRepository movimientoRepository =
+                new MovimientoRepository(entityManager);
+
+        OperacionFinancieraRepository operacionFinancieraRepository =
+                new OperacionFinancieraRepository(entityManager);
+
+        operacionFinancieraService =
+                new OperacionFinancieraService(
+                        entityManager,
+                        movimientoRepository,
+                        operacionFinancieraRepository
+                );
+
+        usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "operacion.compra." + System.nanoTime() + "@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera banco =
+                new InstitucionFinanciera(
+                        "Banco de Prueba",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        cuentaOrigen =
+                new Cuenta(
+                        "Cuenta origen",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        banco,
+                        moneda
+                );
+
+        categoriaOrigen =
+                new Categoria(
+                        "Inversiones",
+                        perfil
+                );
+
+        activo =
+                new Bono(
+                        "Bono GD30",
+                        "GD30",
+                        moneda
+                );
 
         entityManager.getTransaction().begin();
+
         entityManager.persist(usuario);
         entityManager.persist(perfil);
         entityManager.persist(banco);
@@ -63,126 +116,491 @@ class OperacionFinancieraCompraServiceTest {
         entityManager.persist(cuentaOrigen);
         entityManager.persist(categoriaOrigen);
         entityManager.persist(activo);
+
         entityManager.getTransaction().commit();
     }
 
     @AfterEach
     void tearDown() {
         if (entityManager != null && entityManager.isOpen()) {
-            if (entityManager.getTransaction().isActive()) entityManager.getTransaction().rollback();
+
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
             entityManager.close();
         }
+
         JpaTestManager.close();
     }
 
     @Test
     void deberiaComprarUnActivo() {
-        LocalDateTime fechaHora = LocalDateTime.of(2026, 8, 27, 10, 0);
-        BigDecimal cantidad = new BigDecimal("100");
-        BigDecimal precioUnitario = new BigDecimal("125");
-        BigDecimal importeEsperado = new BigDecimal("12500");
-        OperacionFinanciera operacion = operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, cantidad, precioUnitario, fechaHora, "Compra Bono GD30");
+
+        LocalDateTime fechaHora =
+                LocalDateTime.of(
+                        2026,
+                        8,
+                        27,
+                        10,
+                        0
+                );
+
+        BigDecimal cantidad =
+                new BigDecimal("100");
+
+        BigDecimal precioUnitario =
+                new BigDecimal("125");
+
+        BigDecimal importeEsperado =
+                new BigDecimal("12500");
+
+        OperacionFinanciera operacion =
+                operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        cantidad,
+                        precioUnitario,
+                        fechaHora,
+                        "Compra Bono GD30"
+                );
 
         assertNotNull(operacion);
         assertNotNull(operacion.getId());
-        assertEquals(TipoOperacionFinanciera.COMPRA, operacion.getTipoOperacion());
-        assertEquals(cuentaOrigen.getId(), operacion.getCuentaOrigen().getId());
-        assertEquals(importeEsperado, operacion.getImporte());
-        assertEquals(1, operacion.getMovimientos().size());
-        Movimiento movimiento = operacion.getMovimientos().get(0);
-        assertEquals(TipoMovimiento.EGRESO, movimiento.getTipoMovimiento());
-        assertEquals(importeEsperado, movimiento.getImporte());
-        assertEquals(cuentaOrigen.getId(), movimiento.getCuenta().getId());
-        assertEquals(1, operacion.getMovimientosActivos().size());
-        MovimientoActivo movimientoActivo = operacion.getMovimientosActivos().get(0);
-        assertEquals(activo.getId(), movimientoActivo.getActivo().getId());
-        assertEquals(TipoMovimientoActivo.COMPRA, movimientoActivo.getTipoMovimiento());
-        assertEquals(cantidad, movimientoActivo.getCantidad());
-        assertEquals(precioUnitario, movimientoActivo.getPrecioUnitario());
+
+        assertEquals(
+                TipoOperacionFinanciera.COMPRA,
+                operacion.getTipoOperacion()
+        );
+
+        assertEquals(
+                cuentaOrigen.getId(),
+                operacion.getCuentaOrigen().getId()
+        );
+
+        assertEquals(
+                importeEsperado,
+                operacion.getImporte()
+        );
+
+        assertEquals(
+                1,
+                operacion.getMovimientos().size()
+        );
+
+        Movimiento movimiento =
+                operacion.getMovimientos().get(0);
+
+        assertEquals(
+                TipoMovimiento.EGRESO,
+                movimiento.getTipoMovimiento()
+        );
+
+        assertEquals(
+                importeEsperado,
+                movimiento.getImporte()
+        );
+
+        assertEquals(
+                cuentaOrigen.getId(),
+                movimiento.getCuenta().getId()
+        );
+
+        assertEquals(
+                1,
+                operacion.getMovimientosActivos().size()
+        );
+
+        MovimientoActivo movimientoActivo =
+                operacion.getMovimientosActivos().get(0);
+
+        assertEquals(
+                activo.getId(),
+                movimientoActivo.getActivo().getId()
+        );
+
+        assertEquals(
+                TipoMovimientoActivo.COMPRA,
+                movimientoActivo.getTipoMovimiento()
+        );
+
+        assertEquals(
+                cantidad,
+                movimientoActivo.getCantidad()
+        );
+
+        assertEquals(
+                precioUnitario,
+                movimientoActivo.getPrecioUnitario()
+        );
     }
 
     @Test
     void deberiaPersistirYRecuperarCompraDeActivo() {
-        BigDecimal cantidad = new BigDecimal("100");
-        BigDecimal precioUnitario = new BigDecimal("125");
-        BigDecimal importeEsperado = new BigDecimal("12500");
-        OperacionFinanciera operacion = operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, cantidad, precioUnitario, LocalDateTime.of(2026, 8, 27, 10, 0), "Compra Bono GD30");
+
+        BigDecimal cantidad =
+                new BigDecimal("100");
+
+        BigDecimal precioUnitario =
+                new BigDecimal("125");
+
+        BigDecimal importeEsperado =
+                new BigDecimal("12500");
+
+        OperacionFinanciera operacion =
+                operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        cantidad,
+                        precioUnitario,
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                27,
+                                10,
+                                0
+                        ),
+                        "Compra Bono GD30"
+                );
 
         Long id = operacion.getId();
-        entityManager.clear();
-        OperacionFinanciera recuperada = new OperacionFinancieraRepository(entityManager).buscarPorId(id).orElseThrow();
 
-        assertEquals(TipoOperacionFinanciera.COMPRA, recuperada.getTipoOperacion());
-        assertEquals(0, importeEsperado.compareTo(recuperada.getImporte()));
-        assertEquals(cuentaOrigen.getId(), recuperada.getCuentaOrigen().getId());
-        assertEquals(1, recuperada.getMovimientos().size());
-        assertEquals(1, recuperada.getMovimientosActivos().size());
-        Movimiento movimiento = recuperada.getMovimientos().get(0);
-        assertEquals(TipoMovimiento.EGRESO, movimiento.getTipoMovimiento());
-        assertEquals(0, importeEsperado.compareTo(movimiento.getImporte()));
-        MovimientoActivo movimientoActivo = recuperada.getMovimientosActivos().get(0);
-        assertEquals(activo.getId(), movimientoActivo.getActivo().getId());
-        assertEquals(TipoMovimientoActivo.COMPRA, movimientoActivo.getTipoMovimiento());
-        assertEquals(0, cantidad.compareTo(movimientoActivo.getCantidad()));
-        assertEquals(0, precioUnitario.compareTo(movimientoActivo.getPrecioUnitario()));
+        entityManager.clear();
+
+        OperacionFinanciera recuperada =
+                new OperacionFinancieraRepository(entityManager)
+                        .buscarPorId(id)
+                        .orElseThrow();
+
+        assertEquals(
+                TipoOperacionFinanciera.COMPRA,
+                recuperada.getTipoOperacion()
+        );
+
+        assertEquals(
+                0,
+                importeEsperado.compareTo(
+                        recuperada.getImporte()
+                )
+        );
+
+        assertEquals(
+                cuentaOrigen.getId(),
+                recuperada.getCuentaOrigen().getId()
+        );
+
+        assertEquals(
+                1,
+                recuperada.getMovimientos().size()
+        );
+
+        assertEquals(
+                1,
+                recuperada.getMovimientosActivos().size()
+        );
+
+        Movimiento movimiento =
+                recuperada.getMovimientos().get(0);
+
+        assertEquals(
+                TipoMovimiento.EGRESO,
+                movimiento.getTipoMovimiento()
+        );
+
+        assertEquals(
+                0,
+                importeEsperado.compareTo(
+                        movimiento.getImporte()
+                )
+        );
+
+        MovimientoActivo movimientoActivo =
+                recuperada.getMovimientosActivos().get(0);
+
+        assertEquals(
+                activo.getId(),
+                movimientoActivo.getActivo().getId()
+        );
+
+        assertEquals(
+                TipoMovimientoActivo.COMPRA,
+                movimientoActivo.getTipoMovimiento()
+        );
+
+        assertEquals(
+                0,
+                cantidad.compareTo(
+                        movimientoActivo.getCantidad()
+                )
+        );
+
+        assertEquals(
+                0,
+                precioUnitario.compareTo(
+                        movimientoActivo.getPrecioUnitario()
+                )
+        );
     }
 
     @Test
     void deberiaRechazarCuentaOrigenNula() {
-        assertThrows(NullPointerException.class, () -> operacionFinancieraService.comprarActivo(null, categoriaOrigen, activo, new BigDecimal("100"), new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        null,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarCategoriaOrigenNula() {
-        assertThrows(NullPointerException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, null, activo, new BigDecimal("100"), new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        null,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarActivoNulo() {
-        assertThrows(NullPointerException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, null, new BigDecimal("100"), new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        null,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarCantidadNula() {
-        assertThrows(NullPointerException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, null, new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        null,
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarPrecioUnitarioNulo() {
-        assertThrows(NullPointerException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, new BigDecimal("100"), null, LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        null,
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarCantidadCero() {
-        assertThrows(IllegalArgumentException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, BigDecimal.ZERO, new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        BigDecimal.ZERO,
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarCantidadNegativa() {
-        assertThrows(IllegalArgumentException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, new BigDecimal("-1"), new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("-1"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarPrecioUnitarioCero() {
-        assertThrows(IllegalArgumentException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, new BigDecimal("100"), BigDecimal.ZERO, LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        BigDecimal.ZERO,
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarPrecioUnitarioNegativo() {
-        assertThrows(IllegalArgumentException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, new BigDecimal("100"), new BigDecimal("-125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("-125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarCuentaOrigenDesactivada() {
+
         cuentaOrigen.desactivar();
-        assertThrows(IllegalArgumentException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, categoriaOrigen, activo, new BigDecimal("100"), new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
 
     @Test
     void deberiaRechazarCategoriaDeOtroPerfil() {
-        Usuario otroUsuario = new Usuario("Otro", "Usuario", "operacion.compra.otro." + System.nanoTime() + "@test.com", "hash");
-        PerfilFinanciero otroPerfil = new PerfilFinanciero("Otro perfil", otroUsuario);
-        Categoria otraCategoria = new Categoria("Inversiones de otro perfil", otroPerfil);
-        assertThrows(IllegalArgumentException.class, () -> operacionFinancieraService.comprarActivo(cuentaOrigen, otraCategoria, activo, new BigDecimal("100"), new BigDecimal("125"), LocalDateTime.now(), "Compra"));
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Otro",
+                        "Usuario",
+                        "operacion.compra.otro."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero otroPerfil =
+                new PerfilFinanciero(
+                        "Otro perfil",
+                        otroUsuario
+                );
+
+        Categoria otraCategoria =
+                new Categoria(
+                        "Inversiones de otro perfil",
+                        otroPerfil
+                );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        otraCategoria,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
     }
+
+    @Test
+    void deberiaRechazarUsuarioDiferenteAlPropietario() {
+
+        Usuario otroUsuario =
+                new Usuario(
+                        "Otro",
+                        "Usuario",
+                        "operacion.compra.usuario."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(otroUsuario);
+
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        otroUsuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+
+    }
+
 }

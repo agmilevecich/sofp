@@ -166,6 +166,7 @@ public class OperacionFinancieraServiceTest {
 
         OperacionFinanciera operacion =
                 operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -207,6 +208,7 @@ public class OperacionFinancieraServiceTest {
     void deberiaCrearUnEgresoEnLaCuentaOrigen() {
 
         operacionFinancieraService.transferir(
+                usuario.getId(),
                 cuentaOrigen,
                 cuentaDestino,
                 categoriaOrigen,
@@ -265,6 +267,7 @@ public class OperacionFinancieraServiceTest {
     void deberiaCrearUnIngresoEnLaCuentaDestino() {
 
         operacionFinancieraService.transferir(
+                usuario.getId(),
                 cuentaOrigen,
                 cuentaDestino,
                 categoriaOrigen,
@@ -332,6 +335,7 @@ public class OperacionFinancieraServiceTest {
                 );
 
         operacionFinancieraService.transferir(
+                usuario.getId(),
                 cuentaOrigen,
                 cuentaDestino,
                 categoriaOrigen,
@@ -369,11 +373,30 @@ public class OperacionFinancieraServiceTest {
     }
 
     @Test
+    void deberiaRechazarUsuarioIdNulo() {
+
+        assertThrows(
+                NullPointerException.class,
+                () -> operacionFinancieraService.transferir(
+                        null,
+                        cuentaOrigen,
+                        cuentaDestino,
+                        categoriaOrigen,
+                        categoriaDestino,
+                        new BigDecimal("100000.00"),
+                        LocalDateTime.now(),
+                        "Transferencia"
+                )
+        );
+    }
+
+    @Test
     void deberiaRechazarCuentaOrigenNula() {
 
         assertThrows(
                 NullPointerException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         null,
                         cuentaDestino,
                         categoriaOrigen,
@@ -391,6 +414,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 NullPointerException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         null,
                         categoriaOrigen,
@@ -408,6 +432,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 NullPointerException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         null,
@@ -425,6 +450,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 NullPointerException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -440,8 +466,9 @@ public class OperacionFinancieraServiceTest {
     void deberiaRechazarImporteNulo() {
 
         assertThrows(
-                IllegalArgumentException.class,
+                NullPointerException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -459,6 +486,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -476,6 +504,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -495,6 +524,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -514,6 +544,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -561,6 +592,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         otraCategoria,
@@ -608,6 +640,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -654,6 +687,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestinoDiferente,
                         categoriaOrigen,
@@ -671,6 +705,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 NullPointerException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -688,6 +723,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 NullPointerException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -707,6 +743,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -763,6 +800,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestinoDiferente,
                         categoriaOrigen,
@@ -789,6 +827,7 @@ public class OperacionFinancieraServiceTest {
 
         OperacionFinanciera operacion =
                 operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaDestino,
                         categoriaOrigen,
@@ -849,6 +888,7 @@ public class OperacionFinancieraServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> operacionFinancieraService.transferir(
+                        usuario.getId(),
                         cuentaOrigen,
                         cuentaOrigen,
                         categoriaOrigen,

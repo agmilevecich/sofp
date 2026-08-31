@@ -29,25 +29,60 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaObtenerPosicionDelActivoParaElPerfil() {
+
         JpaTestManager.close();
-        EntityManager em = JpaTestManager.createEntityManager();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
         try {
-            Moneda moneda = crearMonedaPersistida(em);
-            Bono bono = crearBonoPersistido(em, moneda);
-            Contexto contexto = crearContexto(em, "perfil.posicion.1", moneda, bono);
-            registrarCompra(em, contexto.cuenta, contexto.categoria, bono, "100");
+            Moneda moneda =
+                    crearMonedaPersistida(em);
 
-            PosicionActivoService service = new PosicionActivoService(
-                    new MovimientoActivoRepository(em)
+            Bono bono =
+                    crearBonoPersistido(
+                            em,
+                            moneda
+                    );
+
+            Contexto contexto =
+                    crearContexto(
+                            em,
+                            "perfil.posicion.1",
+                            moneda,
+                            bono
+                    );
+
+            registrarCompra(
+                    em,
+                    contexto.cuenta,
+                    contexto.categoria,
+                    bono,
+                    "100"
             );
 
-            PosicionActivo posicion = service.obtenerPosicion(
-                    contexto.perfil,
-                    bono
+            PosicionActivoService service =
+                    new PosicionActivoService(
+                            new MovimientoActivoRepository(em)
+                    );
+
+            PosicionActivo posicion =
+                    service.obtenerPosicion(
+                            contexto.perfil,
+                            bono
+                    );
+
+            assertEquals(
+                    bono.getId(),
+                    posicion.getActivo().getId()
             );
 
-            assertEquals(bono.getId(), posicion.getActivo().getId());
-            assertEquals(0, new BigDecimal("100").compareTo(posicion.getCantidad()));
+            assertEquals(
+                    0,
+                    new BigDecimal("100")
+                            .compareTo(posicion.getCantidad())
+            );
+
         } finally {
             em.close();
         }
@@ -55,33 +90,83 @@ class PosicionActivoServiceTest {
 
     @Test
     void noDeberiaMezclarMovimientosDelMismoActivoEntrePerfiles() {
+
         JpaTestManager.close();
-        EntityManager em = JpaTestManager.createEntityManager();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
         try {
-            Moneda moneda = crearMonedaPersistida(em);
-            Bono bono = crearBonoPersistido(em, moneda);
-            Contexto contexto1 = crearContexto(em, "perfil.posicion.2", moneda, bono);
-            Contexto contexto2 = crearContexto(em, "perfil.posicion.3", moneda, bono);
+            Moneda moneda =
+                    crearMonedaPersistida(em);
 
-            registrarCompra(em, contexto1.cuenta, contexto1.categoria, bono, "100");
-            registrarCompra(em, contexto2.cuenta, contexto2.categoria, bono, "40");
+            Bono bono =
+                    crearBonoPersistido(
+                            em,
+                            moneda
+                    );
 
-            PosicionActivoService service = new PosicionActivoService(
-                    new MovimientoActivoRepository(em)
+            Contexto contexto1 =
+                    crearContexto(
+                            em,
+                            "perfil.posicion.2",
+                            moneda,
+                            bono
+                    );
+
+            Contexto contexto2 =
+                    crearContexto(
+                            em,
+                            "perfil.posicion.3",
+                            moneda,
+                            bono
+                    );
+
+            registrarCompra(
+                    em,
+                    contexto1.cuenta,
+                    contexto1.categoria,
+                    bono,
+                    "100"
             );
 
-            PosicionActivo posicion1 = service.obtenerPosicion(
-                    contexto1.perfil,
-                    bono
+            registrarCompra(
+                    em,
+                    contexto2.cuenta,
+                    contexto2.categoria,
+                    bono,
+                    "40"
             );
 
-            PosicionActivo posicion2 = service.obtenerPosicion(
-                    contexto2.perfil,
-                    bono
+            PosicionActivoService service =
+                    new PosicionActivoService(
+                            new MovimientoActivoRepository(em)
+                    );
+
+            PosicionActivo posicion1 =
+                    service.obtenerPosicion(
+                            contexto1.perfil,
+                            bono
+                    );
+
+            PosicionActivo posicion2 =
+                    service.obtenerPosicion(
+                            contexto2.perfil,
+                            bono
+                    );
+
+            assertEquals(
+                    0,
+                    new BigDecimal("100")
+                            .compareTo(posicion1.getCantidad())
             );
 
-            assertEquals(0, new BigDecimal("100").compareTo(posicion1.getCantidad()));
-            assertEquals(0, new BigDecimal("40").compareTo(posicion2.getCantidad()));
+            assertEquals(
+                    0,
+                    new BigDecimal("40")
+                            .compareTo(posicion2.getCantidad())
+            );
+
         } finally {
             em.close();
         }
@@ -89,23 +174,47 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaObtenerPosicionCeroSinMovimientosDelPerfil() {
+
         JpaTestManager.close();
-        EntityManager em = JpaTestManager.createEntityManager();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
         try {
-            Moneda moneda = crearMonedaPersistida(em);
-            Bono bono = crearBonoPersistido(em, moneda);
-            Contexto contexto = crearContexto(em, "perfil.posicion.4", moneda, bono);
+            Moneda moneda =
+                    crearMonedaPersistida(em);
 
-            PosicionActivoService service = new PosicionActivoService(
-                    new MovimientoActivoRepository(em)
+            Bono bono =
+                    crearBonoPersistido(
+                            em,
+                            moneda
+                    );
+
+            Contexto contexto =
+                    crearContexto(
+                            em,
+                            "perfil.posicion.4",
+                            moneda,
+                            bono
+                    );
+
+            PosicionActivoService service =
+                    new PosicionActivoService(
+                            new MovimientoActivoRepository(em)
+                    );
+
+            PosicionActivo posicion =
+                    service.obtenerPosicion(
+                            contexto.perfil,
+                            bono
+                    );
+
+            assertEquals(
+                    0,
+                    posicion.getCantidad()
+                            .compareTo(BigDecimal.ZERO)
             );
 
-            PosicionActivo posicion = service.obtenerPosicion(
-                    contexto.perfil,
-                    bono
-            );
-
-            assertEquals(0, posicion.getCantidad().compareTo(BigDecimal.ZERO));
         } finally {
             em.close();
         }
@@ -113,19 +222,35 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaRechazarPerfilNulo() {
+
         JpaTestManager.close();
-        EntityManager em = JpaTestManager.createEntityManager();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
         try {
-            Moneda moneda = crearMonedaPersistida(em);
-            Bono bono = crearBonoPersistido(em, moneda);
-            PosicionActivoService service = new PosicionActivoService(
-                    new MovimientoActivoRepository(em)
-            );
+            Moneda moneda =
+                    crearMonedaPersistida(em);
+
+            Bono bono =
+                    crearBonoPersistido(
+                            em,
+                            moneda
+                    );
+
+            PosicionActivoService service =
+                    new PosicionActivoService(
+                            new MovimientoActivoRepository(em)
+                    );
 
             assertThrows(
                     NullPointerException.class,
-                    () -> service.obtenerPosicion(null, bono)
+                    () -> service.obtenerPosicion(
+                            null,
+                            bono
+                    )
             );
+
         } finally {
             em.close();
         }
@@ -133,45 +258,83 @@ class PosicionActivoServiceTest {
 
     @Test
     void deberiaRechazarActivoNulo() {
+
         JpaTestManager.close();
-        EntityManager em = JpaTestManager.createEntityManager();
+
+        EntityManager em =
+                JpaTestManager.createEntityManager();
+
         try {
-            Moneda moneda = crearMonedaPersistida(em);
-            Bono bono = crearBonoPersistido(em, moneda);
-            Contexto contexto = crearContexto(em, "perfil.posicion.6", moneda, bono);
-            PosicionActivoService service = new PosicionActivoService(
-                    new MovimientoActivoRepository(em)
-            );
+            Moneda moneda =
+                    crearMonedaPersistida(em);
+
+            Bono bono =
+                    crearBonoPersistido(
+                            em,
+                            moneda
+                    );
+
+            Contexto contexto =
+                    crearContexto(
+                            em,
+                            "perfil.posicion.6",
+                            moneda,
+                            bono
+                    );
+
+            PosicionActivoService service =
+                    new PosicionActivoService(
+                            new MovimientoActivoRepository(em)
+                    );
 
             assertThrows(
                     NullPointerException.class,
-                    () -> service.obtenerPosicion(contexto.perfil, null)
+                    () -> service.obtenerPosicion(
+                            contexto.perfil,
+                            null
+                    )
             );
+
         } finally {
             em.close();
         }
     }
 
-    private Moneda crearMonedaPersistida(EntityManager em) {
-        Moneda moneda = new Moneda(
-                "ARS",
-                "Peso argentino",
-                2,
-                TipoMoneda.FIAT
-        );
+    private Moneda crearMonedaPersistida(
+            EntityManager em) {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
 
         em.getTransaction().begin();
+
         em.persist(moneda);
+
         em.getTransaction().commit();
 
         return moneda;
     }
 
-    private Bono crearBonoPersistido(EntityManager em, Moneda moneda) {
-        Bono bono = new Bono("Bono GD30", "GD30", moneda);
+    private Bono crearBonoPersistido(
+            EntityManager em,
+            Moneda moneda) {
+
+        Bono bono =
+                new Bono(
+                        "Bono GD30",
+                        "GD30",
+                        moneda
+                );
 
         em.getTransaction().begin();
+
         em.persist(bono);
+
         em.getTransaction().commit();
 
         return bono;
@@ -183,38 +346,63 @@ class PosicionActivoServiceTest {
             Moneda moneda,
             Bono bono) {
 
-        Usuario usuario = new Usuario(
-                "Ariel",
-                "Milevecich",
-                emailPrefijo + "." + System.nanoTime() + "@test.com",
-                "hash"
-        );
-        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
-        InstitucionFinanciera banco = new InstitucionFinanciera(
-                "Banco de Prueba " + System.nanoTime(),
-                TipoInstitucionFinanciera.BANCO
-        );
-        Cuenta cuenta = new Cuenta(
-                "Cuenta inversiones " + System.nanoTime(),
-                TipoCuenta.CAJA_AHORRO,
-                perfil,
-                banco,
-                moneda
-        );
-        Categoria categoria = new Categoria(
-                "Inversiones " + System.nanoTime(),
-                perfil
-        );
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Milevecich",
+                        emailPrefijo
+                                + "."
+                                + System.nanoTime()
+                                + "@test.com",
+                        "hash"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera banco =
+                new InstitucionFinanciera(
+                        "Banco de Prueba "
+                                + System.nanoTime(),
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Cuenta cuenta =
+                new Cuenta(
+                        "Cuenta inversiones "
+                                + System.nanoTime(),
+                        TipoCuenta.CAJA_AHORRO,
+                        perfil,
+                        banco,
+                        moneda
+                );
+
+        Categoria categoria =
+                new Categoria(
+                        "Inversiones "
+                                + System.nanoTime(),
+                        perfil
+                );
 
         em.getTransaction().begin();
+
         em.persist(usuario);
         em.persist(perfil);
         em.persist(banco);
         em.persist(cuenta);
         em.persist(categoria);
+
         em.getTransaction().commit();
 
-        return new Contexto(perfil, cuenta, categoria, bono);
+        return new Contexto(
+                perfil,
+                cuenta,
+                categoria,
+                bono
+        );
     }
 
     private void registrarCompra(
@@ -224,9 +412,12 @@ class PosicionActivoServiceTest {
             Bono bono,
             String cantidad) {
 
-        MovimientoRepository movimientoRepository = new MovimientoRepository(em);
+        MovimientoRepository movimientoRepository =
+                new MovimientoRepository(em);
+
         OperacionFinancieraRepository operacionRepository =
                 new OperacionFinancieraRepository(em);
+
         OperacionFinancieraService operacionService =
                 new OperacionFinancieraService(
                         em,
@@ -234,13 +425,25 @@ class PosicionActivoServiceTest {
                         operacionRepository
                 );
 
+        Long usuarioId =
+                cuenta.getPerfilFinanciero()
+                        .getUsuario()
+                        .getId();
+
         operacionService.comprarActivo(
+                usuarioId,
                 cuenta,
                 categoria,
                 bono,
                 new BigDecimal(cantidad),
                 new BigDecimal("125"),
-                LocalDateTime.of(2026, 8, 27, 10, 0),
+                LocalDateTime.of(
+                        2026,
+                        8,
+                        27,
+                        10,
+                        0
+                ),
                 "Compra Bono GD30"
         );
     }
