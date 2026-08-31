@@ -72,19 +72,27 @@ public class CategoriaService {
 
     public Categoria modificarNombre(
             Long categoriaId,
+            Long usuarioId,
             String nuevoNombre) {
 
-        Categoria categoria =
-                obtenerCategoria(categoriaId);
+        validarIds(categoriaId, usuarioId);
 
         Objects.requireNonNull(
                 nuevoNombre,
                 "El nuevo nombre es obligatorio"
         );
 
-        entityManager.getTransaction().begin();
+        Categoria categoria =
+                obtenerCategoriaAutorizada(
+                        categoriaId,
+                        usuarioId
+                );
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
 
         try {
+            transaction.begin();
 
             categoria.renombrar(
                     nuevoNombre
@@ -92,14 +100,14 @@ public class CategoriaService {
 
             entityManager.flush();
 
-            entityManager.getTransaction().commit();
+            transaction.commit();
 
             return categoria;
 
         } catch (RuntimeException e) {
 
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
             }
 
             throw e;
@@ -108,14 +116,22 @@ public class CategoriaService {
 
     public Categoria modificarDescripcion(
             Long categoriaId,
+            Long usuarioId,
             String descripcion) {
 
-        Categoria categoria =
-                obtenerCategoria(categoriaId);
+        validarIds(categoriaId, usuarioId);
 
-        entityManager.getTransaction().begin();
+        Categoria categoria =
+                obtenerCategoriaAutorizada(
+                        categoriaId,
+                        usuarioId
+                );
+
+        EntityTransaction transaction =
+                entityManager.getTransaction();
 
         try {
+            transaction.begin();
 
             categoria.cambiarDescripcion(
                     descripcion
@@ -123,14 +139,14 @@ public class CategoriaService {
 
             entityManager.flush();
 
-            entityManager.getTransaction().commit();
+            transaction.commit();
 
             return categoria;
 
         } catch (RuntimeException e) {
 
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
+            if (transaction.isActive()) {
+                transaction.getRollbackOnly();
             }
 
             throw e;
@@ -138,27 +154,35 @@ public class CategoriaService {
     }
 
     public Categoria activar(
-            Long categoriaId) {
+            Long categoriaId,
+            Long usuarioId) {
+
+        validarIds(categoriaId, usuarioId);
 
         Categoria categoria =
-                obtenerCategoria(categoriaId);
+                obtenerCategoriaAutorizada(
+                        categoriaId,
+                        usuarioId
+                );
 
-        entityManager.getTransaction().begin();
+        EntityTransaction transaction =
+                entityManager.getTransaction();
 
         try {
+            transaction.begin();
 
             categoria.activar();
 
             entityManager.flush();
 
-            entityManager.getTransaction().commit();
+            transaction.commit();
 
             return categoria;
 
         } catch (RuntimeException e) {
 
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
             }
 
             throw e;
@@ -166,27 +190,35 @@ public class CategoriaService {
     }
 
     public Categoria desactivar(
-            Long categoriaId) {
+            Long categoriaId,
+            Long usuarioId) {
+
+        validarIds(categoriaId, usuarioId);
 
         Categoria categoria =
-                obtenerCategoria(categoriaId);
+                obtenerCategoriaAutorizada(
+                        categoriaId,
+                        usuarioId
+                );
 
-        entityManager.getTransaction().begin();
+        EntityTransaction transaction =
+                entityManager.getTransaction();
 
         try {
+            transaction.begin();
 
             categoria.desactivar();
 
             entityManager.flush();
 
-            entityManager.getTransaction().commit();
+            transaction.commit();
 
             return categoria;
 
         } catch (RuntimeException e) {
 
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
+            if (transaction.isActive()) {
+                transaction.rollback();
             }
 
             throw e;
@@ -211,15 +243,52 @@ public class CategoriaService {
                 );
     }
 
-    public void eliminar(Long categoriaId) {
+    private Categoria obtenerCategoriaAutorizada(
+            Long categoriaId,
+            Long usuarioId) {
+
+        Categoria categoria =
+                obtenerCategoria(categoriaId);
+
+        if (!categoria.getPerfilFinanciero()
+                .getUsuario()
+                .getId()
+                .equals(usuarioId)) {
+
+            throw new IllegalArgumentException(
+                    "El usuario no es propietario de la categoría"
+            );
+        }
+
+        return categoria;
+    }
+
+    private void validarIds(
+            Long categoriaId,
+            Long usuarioId) {
 
         Objects.requireNonNull(
                 categoriaId,
                 "El id de la categoría es obligatorio"
         );
 
+        Objects.requireNonNull(
+                usuarioId,
+                "El id del usuario es obligatorio"
+        );
+    }
+
+    public void eliminar(
+            Long categoriaId,
+            Long usuarioId) {
+
+        validarIds(categoriaId, usuarioId);
+
         Categoria categoria =
-                obtenerCategoria(categoriaId);
+                obtenerCategoriaAutorizada(
+                        categoriaId,
+                        usuarioId
+                );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -242,6 +311,4 @@ public class CategoriaService {
             throw e;
         }
     }
-
-
 }
