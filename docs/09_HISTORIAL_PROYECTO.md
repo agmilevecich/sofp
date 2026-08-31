@@ -8,7 +8,7 @@ Este documento conserva una línea temporal resumida de avances y puntos de cont
 
 A partir de la auditoría transversal de seguridad se creó la rama `feature/seguridad-aislamiento-datos`.
 
-La rama quedó **11 commits por delante de `main` y 0 por detrás**.
+En el último commit funcional/test de esta etapa, `c1f635f`, la rama estaba **11 commits por delante de `main` y 0 por detrás**. Los commits posteriores son únicamente actualizaciones documentales.
 
 Correcciones implementadas:
 
@@ -21,7 +21,7 @@ Correcciones implementadas:
 - adaptación de `MovimientoServiceTest` al aislamiento por usuario;
 - aislamiento de posiciones de activos por perfil mediante `MovimientoActivoRepository` y `PosicionActivoService`.
 
-Commits relevantes:
+Commits funcionales y de tests:
 
 - `e22f236` — `fix: autorizar operaciones mutables de cuenta`;
 - `346f64c` — `test: adaptar CuentaServiceTest a autorización por propietario`;
@@ -49,6 +49,10 @@ Este resultado reemplaza como referencia global a las validaciones anteriores de
 ### Estado de seguridad
 
 La corrección de aislamiento está avanzada, pero la etapa transversal todavía no está cerrada. Permanecen pendientes `OperacionFinancieraService`, la revisión de lecturas por ID/listados, los caminos alternativos de creación de movimientos y la cobertura específica asociada.
+
+### Actualización documental
+
+Después de la validación se actualizaron los documentos de continuidad de la rama para registrar el estado real, la suite de 503 tests, las correcciones de seguridad realizadas y los pendientes restantes.
 
 ## 2026-08-30
 
