@@ -1,75 +1,34 @@
 # SOFP — Pendientes
 
-Este documento contiene únicamente trabajo pendiente o por decidir.
+## Estado — 31/08/2026
 
-## Estado actual — 31/08/2026
+Rama: `feature/seguridad-aislamiento-datos`.
 
-La rama de trabajo es `feature/seguridad-aislamiento-datos`.
+Últimos cambios de seguridad:
 
-Último commit funcional/test vigente:
+- `85a4e86` — autorización de operaciones financieras por usuario;
+- `b0e6377` — cobertura de aislamiento por usuario;
+- `b2484a8` — protección de lecturas de cuenta;
+- `a214d16` — protección de lecturas de categoría;
+- `5b7de3a` — protección de lecturas y alta de movimientos;
+- `d62dbb9` — protección de lecturas de perfil y cartera;
+- `2381ea5` — protección del alta de perfil financiero;
+- `a28f902` — cierre del bypass interno de registro de movimiento.
 
-- `b0e6377` — `test: cubrir aislamiento de datos por usuario`.
-- `85a4e86` — `fix: autorizar operaciones financieras por usuario`.
+## Seguridad
 
-La rama está sincronizada con los remotos `github` y `bitbucket`.
+Los hallazgos previstos de esta etapa fueron abordados en código:
 
-## Validación global vigente
+1. autorización de `OperacionFinancieraService`;
+2. lecturas por ID y listados de recursos propios;
+3. caminos alternativos de creación de cuentas, categorías, movimientos y perfiles;
+4. aislamiento de posición y cartera por perfil/usuario;
+5. cobertura específica de recursos propios y ajenos.
 
-Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**:
+## Pendiente de validación
 
-- **505/505 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`.
+La última suite conocida antes de esta tanda fue **505/505 en verde**. Falta ejecutar los tests sobre el estado actual y corregir cualquier fallo que aparezca.
 
-Este resultado es la última validación global informada para esta etapa.
+Después de la validación: `git diff --check`, `git status`, comparación con `main` y cierre documental de la auditoría.
 
-## Seguridad: correcciones realizadas
-
-Ya fueron implementadas y validadas correcciones para:
-
-1. `CuentaService`: autorización de operaciones mutables por propietario.
-2. `CategoriaService`: autorización de operaciones mutables por propietario.
-3. `MovimientoService`: autorización de modificaciones y eliminación por propietario.
-4. `PosicionActivoService`: aislamiento de la posición por perfil financiero.
-5. `OperacionFinancieraService`: autorización explícita del usuario solicitante en las operaciones protegidas.
-6. Tests de aislamiento y autorización en operaciones financieras, compra, venta y posiciones de activos.
-
-## Seguridad: pendientes reales
-
-La auditoría transversal todavía no está cerrada. Permanecen:
-
-1. Lecturas por ID y listados: revisar cuáles son casos de uso expuestos y garantizar aislamiento de recursos pertenecientes a otros perfiles cuando corresponda.
-2. Caminos alternativos de creación de movimientos: verificar que no permitan eludir las reglas de `MovimientoService`.
-3. Completar tests de lectura de recursos ajenos y autorización donde el código actual todavía no tenga cobertura específica.
-4. Revisar casos límite de activos compartidos entre perfiles y confirmar que las posiciones derivadas siempre respeten el perfil solicitado.
-
-Estos puntos son correcciones de seguridad, no nuevas funcionalidades independientes.
-
-## Funcionalidades cerradas e integradas en `main`
-
-- `feature/operacion-financiera`;
-- `feature/identificacion-activo`;
-- `feature/cartera-activos`;
-- `feature/costo-promedio-activo`;
-- `feature/valorizacion-posicion-activo`;
-- `feature/reportes-cartera`;
-- `feature/seguridad-perfil-financiero`.
-
-## Swing
-
-La interfaz Swing todavía no debe considerarse iniciada. Queda como siguiente gran etapa después de cerrar la seguridad transversal y verificar nuevamente el estado del backend.
-
-Antes de comenzar Swing se deberá:
-
-- terminar los hallazgos de seguridad;
-- ejecutar tests específicos;
-- ejecutar la suite general;
-- revisar diff, `git diff --check` y status;
-- comparar la feature con `main`;
-- dejar documentado el cierre de seguridad.
-
-## Regla
-
-No convertir una línea de evolución en trabajo realizado hasta que exista implementación verificable y tests correspondientes.
+Swing continúa bloqueado hasta completar esta validación final.
