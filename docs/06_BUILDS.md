@@ -44,8 +44,6 @@ Commits principales:
 - `da09ef0` — `feat: calcular costo promedio de posicion activa`;
 - `6cb038b` — `test: cubrir costo promedio de posicion activa`.
 
-Etapa integrada mediante fast-forward.
-
 ### Valorización de posición activa
 
 Se incorporó `ValorizacionPosicionActivo` para valor actual, ganancia/pérdida y rendimiento porcentual.
@@ -56,8 +54,6 @@ Commits principales:
 
 - `ef19486` — `feat: agregar valorizacion de posicion activa`;
 - `7379570` — `test: cubrir valorizacion de posicion activa`.
-
-Etapa integrada mediante fast-forward.
 
 ### Reportes, evolución histórica y seguridad de perfil
 
@@ -70,35 +66,56 @@ Posteriormente se incorporaron y validaron:
 - integración de la evolución histórica en `CuentaService`;
 - seguridad de operaciones de `PerfilFinanciero` mediante validación de propietario.
 
-La feature `feature/reportes-cartera` quedó integrada mediante fast-forward.
+Las features `feature/reportes-cartera` y `feature/seguridad-perfil-financiero` quedaron integradas mediante fast-forward.
 
-La feature `feature/seguridad-perfil-financiero` también quedó integrada mediante fast-forward.
+## Etapa posterior — Seguridad y aislamiento por perfil
+
+Se creó la rama `feature/seguridad-aislamiento-datos` para corregir los hallazgos de la auditoría transversal de seguridad.
+
+Correcciones implementadas hasta el estado actual:
+
+- autorización de operaciones mutables de `CuentaService`;
+- adaptación de `CuentaServiceTest` a autorización por propietario;
+- autorización de operaciones mutables de `CategoriaService`;
+- corrección de rollback/persistencia detectada al adaptar `CategoriaServiceTest`;
+- autorización de operaciones mutables de `MovimientoService`;
+- adaptación de `MovimientoServiceTest` a las nuevas reglas;
+- aislamiento de `PosicionActivoService` por perfil financiero mediante consulta filtrada de `MovimientoActivoRepository`.
+
+Commits relevantes:
+
+- `e22f236` — `fix: autorizar operaciones mutables de cuenta`;
+- `346f64c` — `test: adaptar CuentaServiceTest a autorización por propietario`;
+- `98509e2` — `fix: autorizar operaciones mutables de categoria`;
+- `f628337` — `fix: corregir rollback en CategoriaService`;
+- `7a40f16` — `test: adaptar CategoriaServiceTest al aislamiento por usuario`;
+- `cb745a3` — `fix: corregir persistencia de perfiles en CategoriaServiceTest`;
+- `18b9286` — `fix: autorizar operaciones mutables de movimiento`;
+- `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
 
 ## Suite general vigente
 
-Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 20:00:23 -03:00**:
+Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
 
-- Tests run: **486**
+- Tests run: **503**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **15:50 min**
+- Duración: **15:01 min**
 
-La validación global vigente es **486/486 tests en verde**.
-
-## Builds anteriores
-
-Los Builds 001–058 permanecen registrados en el historial previo del proyecto. Build 059 continúa siendo el último Build numerado cerrado; las validaciones posteriores se registran como etapas funcionales y no se inventa numeración.
+La validación global vigente es **503/503 tests en verde**.
 
 ## Estado actual
 
-Las funcionalidades posteriores al Build 059 fueron implementadas, validadas e integradas en `main`. La seguridad de `PerfilFinanciero` es el último bloque funcional cerrado.
+La rama `feature/seguridad-aislamiento-datos` está 11 commits por delante de `main` y 0 por detrás. El último commit es `c1f635f`.
+
+La suite general confirma que las correcciones actuales no rompen el comportamiento cubierto por los 503 tests existentes.
+
+La etapa de seguridad transversal todavía no se considera cerrada porque permanecen pendientes `OperacionFinancieraService`, la revisión de aislamiento de lecturas y los caminos alternativos de creación de movimientos.
 
 ## Próximo paso
 
-Definir la siguiente evolución funcional a partir del estado real de `main`, revisando código, entidades, repositorios, servicios, tests y reglas de negocio.
+Continuar con los hallazgos restantes de seguridad. No inventar un nuevo Build numerado hasta que exista un bloque funcional que justifique uno; las correcciones de esta feature se registran por commit y validación.
 
-## Regla de cierre
-
-Cada Build debe registrar objetivo, cambios, tests y resultado. Las validaciones posteriores se registran separadamente cuando no constituyen un Build nuevo.
+Una vez cerrada la seguridad transversal, revisar nuevamente el código y los tests antes de iniciar la etapa de interfaz Swing.
