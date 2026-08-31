@@ -57,18 +57,43 @@ Luego se ejecutó la suite general:
 - `BUILD SUCCESS`
 - Duración: **15:25 min**
 
-La validación global vigente es **512/512 tests en verde**.
+La validación global de seguridad fue **512/512 tests en verde**.
 
 Durante la primera ejecución del test específico hubo 7 fallos por un fixture que generaba un código de moneda de 17 caracteres para una columna de máximo 10. Se corrigió el fixture sin alterar código de negocio y la segunda ejecución quedó completamente verde.
 
+## Fase 8 — Interfaz de usuario Swing
+
+La primera etapa del shell Swing quedó implementada y validada sobre la rama `feature/swing-shell`.
+
+Se incorporaron:
+
+- `MainFrame` como ventana principal;
+- `HeaderPanel`;
+- `SidebarPanel` con navegación por Inicio, Cuentas, Movimientos, Inversiones y Reportes;
+- área central con tarjetas para Inicio, Cuentas, Movimientos e Inversiones;
+- `StatusBarPanel`;
+- punto de entrada `ui.Main`;
+- pruebas de estructura, layout y navegación.
+
+Suite general ejecutada localmente el **31/08/2026**:
+
+- Tests run: **515**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **22:17 min**
+
+La validación global vigente es **515/515 tests en verde**.
+
 ## Estado actual
 
-La seguridad transversal está cerrada y forma parte de `main`.
+La seguridad transversal está cerrada e integrada en `main`.
 
-La última integración de la etapa fue `75d0a18`. La copia local quedó con `working tree clean` y `git diff --check` sin salida.
+La rama `feature/swing-shell` contiene el shell inicial de Swing y está sincronizada con GitHub y Bitbucket. Su último commit funcional es `0c41a50` — `feat: agregar punto de entrada para shell Swing`.
+
+La documentación se actualiza ahora para reflejar la validación real de la rama.
 
 ## Próximo paso
 
-**Fase 8 — Interfaz de usuario Swing.**
-
-Antes de implementar UI se debe reconstruir desde `main` la estructura real de `src/main/java`, revisar servicios y tests, y definir el primer bloque Swing sin duplicar lógica de negocio.
+Continuar la Fase 8 con el siguiente bloque funcional de la interfaz, manteniendo cambios pequeños, tests específicos y sin duplicar lógica de negocio.
