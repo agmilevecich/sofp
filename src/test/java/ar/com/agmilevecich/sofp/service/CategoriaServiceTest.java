@@ -25,690 +25,312 @@ class CategoriaServiceTest {
 
     @BeforeEach
     void setUp() {
-
-        entityManager =
-                JpaTestManager.createEntityManager();
-
-        categoriaRepository =
-                new CategoriaRepository(entityManager);
-
-        categoriaService =
-                new CategoriaService(
-                        entityManager,
-                        categoriaRepository
-                );
+        entityManager = JpaTestManager.createEntityManager();
+        categoriaRepository = new CategoriaRepository(entityManager);
+        categoriaService = new CategoriaService(entityManager, categoriaRepository);
     }
 
     @AfterEach
     void tearDown() {
-
-        if (entityManager != null
-                && entityManager.isOpen()) {
-
+        if (entityManager != null && entityManager.isOpen()) {
             entityManager.close();
         }
-
         JpaTestManager.close();
     }
 
     @Test
     void deberiaRegistrarCategoria() {
+        Usuario usuario = crearUsuario("registrar");
+        PerfilFinanciero perfil = crearPerfil(usuario, "Perfil principal");
+        Categoria categoria = new Categoria("Alimentación", perfil);
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.categoria." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        persistir(usuario, perfil, categoria);
 
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
-
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        Categoria registrada =
-                categoriaService.registrar(
-                        categoria
-                );
-
-        entityManager.getTransaction().commit();
-
-        assertTrue(
-                registrada.getId() != null
-        );
-
-        assertEquals(
-                "Alimentación",
-                registrada.getNombre()
-        );
+        assertTrue(categoria.getId() != null);
+        assertEquals("Alimentación", categoria.getNombre());
     }
 
     @Test
     void deberiaBuscarCategoriaPorId() {
+        Usuario usuario = crearUsuario("buscar");
+        PerfilFinanciero perfil = crearPerfil(usuario, "Perfil principal");
+        Categoria categoria = new Categoria("Alimentación", perfil);
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.buscar." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        persistir(usuario, perfil, categoria);
+        entityManager.clear();
 
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
+        Optional<Categoria> resultado = categoriaService.buscarPorId(categoria.getId());
 
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria
-        );
-
-        entityManager.getTransaction().commit();
-
-        Optional<Categoria> resultado =
-                categoriaService.buscarPorId(
-                        categoria.getId()
-                );
-
-        assertTrue(
-                resultado.isPresent()
-        );
-
-        assertEquals(
-                categoria.getId(),
-                resultado.get().getId()
-        );
-
-        assertEquals(
-                "Alimentación",
-                resultado.get().getNombre()
-        );
+        assertTrue(resultado.isPresent());
+        assertEquals(categoria.getId(), resultado.get().getId());
+        assertEquals("Alimentación", resultado.get().getNombre());
     }
 
     @Test
     void deberiaListarTodasLasCategorias() {
+        Usuario usuario = crearUsuario("listar");
+        PerfilFinanciero perfil = crearPerfil(usuario, "Perfil principal");
+        Categoria categoria1 = new Categoria("Alimentación", perfil);
+        Categoria categoria2 = new Categoria("Transporte", perfil);
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.listar." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        persistir(usuario, perfil, categoria1, categoria2);
 
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
+        List<Categoria> categorias = categoriaService.listarTodas();
 
-        Categoria categoria1 =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        Categoria categoria2 =
-                new Categoria(
-                        "Transporte",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria1
-        );
-
-        categoriaService.registrar(
-                categoria2
-        );
-
-        entityManager.getTransaction().commit();
-
-        List<Categoria> categorias =
-                categoriaService.listarTodas();
-
-        assertEquals(
-                2,
-                categorias.size()
-        );
-
-        assertEquals(
-                "Alimentación",
-                categorias.get(0).getNombre()
-        );
-
-        assertEquals(
-                "Transporte",
-                categorias.get(1).getNombre()
-        );
+        assertEquals(2, categorias.size());
+        assertEquals("Alimentación", categorias.get(0).getNombre());
+        assertEquals("Transporte", categorias.get(1).getNombre());
     }
 
     @Test
     void deberiaListarCategoriasPorPerfilFinanciero() {
+        Usuario usuario = crearUsuario("perfil");
+        PerfilFinanciero perfil1 = crearPerfil(usuario, "Perfil principal");
+        PerfilFinanciero perfil2 = crearPerfil(usuario, "Perfil secundario");
+        Categoria categoria1 = new Categoria("Alimentación", perfil1);
+        Categoria categoria2 = new Categoria("Transporte", perfil2);
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.perfil." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        persistir(usuario, perfil1, perfil2, categoria1, categoria2);
 
-        PerfilFinanciero perfil1 =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
+        List<Categoria> categorias = categoriaService.listarPorPerfilFinanciero(perfil1.getId());
 
-        PerfilFinanciero perfil2 =
-                new PerfilFinanciero(
-                        "Perfil secundario",
-                        usuario
-                );
-
-        Categoria categoriaPerfil1 =
-                new Categoria(
-                        "Alimentación",
-                        perfil1
-                );
-
-        Categoria categoriaPerfil2 =
-                new Categoria(
-                        "Transporte",
-                        perfil2
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil1);
-        entityManager.persist(perfil2);
-
-        categoriaService.registrar(
-                categoriaPerfil1
-        );
-
-        categoriaService.registrar(
-                categoriaPerfil2
-        );
-
-        entityManager.getTransaction().commit();
-
-        List<Categoria> categorias =
-                categoriaService.listarPorPerfilFinanciero(
-                        perfil1.getId()
-                );
-
-        assertEquals(
-                1,
-                categorias.size()
-        );
-
-        assertEquals(
-                "Alimentación",
-                categorias.get(0).getNombre()
-        );
-
-        assertEquals(
-                perfil1.getId(),
-                categorias.get(0)
-                        .getPerfilFinanciero()
-                        .getId()
-        );
+        assertEquals(1, categorias.size());
+        assertEquals("Alimentación", categorias.get(0).getNombre());
+        assertEquals(perfil1.getId(), categorias.get(0).getPerfilFinanciero().getId());
     }
 
     @Test
     void deberiaModificarNombreDeCategoria() {
+        Usuario usuario = crearUsuario("modificar.nombre");
+        Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.modificar.nombre." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        Categoria actualizada = categoriaService.modificarNombre(
+                categoria.getId(), usuario.getId(), "Supermercado");
 
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
-
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria
-        );
-
-        entityManager.getTransaction().commit();
-
-        Categoria actualizada =
-                categoriaService.modificarNombre(
-                        categoria.getId(),
-                        "Supermercado"
-                );
-
-        assertEquals(
-                categoria.getId(),
-                actualizada.getId()
-        );
-
-        assertEquals(
-                "Supermercado",
-                actualizada.getNombre()
-        );
+        assertEquals(categoria.getId(), actualizada.getId());
+        assertEquals("Supermercado", actualizada.getNombre());
     }
 
     @Test
     void deberiaModificarDescripcionDeCategoria() {
+        Usuario usuario = crearUsuario("modificar.descripcion");
+        Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.modificar.descripcion." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        Categoria actualizada = categoriaService.modificarDescripcion(
+                categoria.getId(), usuario.getId(),
+                "Gastos relacionados con alimentos y supermercado");
 
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
-
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria
-        );
-
-        entityManager.getTransaction().commit();
-
-        Categoria actualizada =
-                categoriaService.modificarDescripcion(
-                        categoria.getId(),
-                        "Gastos relacionados con alimentos y supermercado"
-                );
-
-        assertEquals(
-                categoria.getId(),
-                actualizada.getId()
-        );
-
-        assertEquals(
-                "Gastos relacionados con alimentos y supermercado",
-                actualizada.getDescripcion()
-        );
+        assertEquals(categoria.getId(), actualizada.getId());
+        assertEquals("Gastos relacionados con alimentos y supermercado", actualizada.getDescripcion());
     }
 
     @Test
     void deberiaActivarCategoria() {
-
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.activar." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
-
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
-
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria
-        );
-
+        Usuario usuario = crearUsuario("activar");
+        Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
         categoria.desactivar();
-
+        entityManager.getTransaction().begin();
+        entityManager.merge(categoria);
         entityManager.getTransaction().commit();
 
-        assertEquals(
-                false,
-                categoria.isActiva()
-        );
+        Categoria actualizada = categoriaService.activar(categoria.getId(), usuario.getId());
 
-        Categoria actualizada =
-                categoriaService.activar(
-                        categoria.getId()
-                );
-
-        assertEquals(
-                categoria.getId(),
-                actualizada.getId()
-        );
-
-        assertEquals(
-                true,
-                actualizada.isActiva()
-        );
+        assertTrue(actualizada.isActiva());
     }
 
     @Test
     void deberiaDesactivarCategoria() {
+        Usuario usuario = crearUsuario("desactivar");
+        Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.desactivar." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        Categoria actualizada = categoriaService.desactivar(categoria.getId(), usuario.getId());
 
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
-
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria
-        );
-
-        entityManager.getTransaction().commit();
-
-        assertEquals(
-                true,
-                categoria.isActiva()
-        );
-
-        Categoria actualizada =
-                categoriaService.desactivar(
-                        categoria.getId()
-                );
-
-        assertEquals(
-                categoria.getId(),
-                actualizada.getId()
-        );
-
-        assertEquals(
-                false,
-                actualizada.isActiva()
-        );
-    }
-
-    @Test
-    void deberiaLanzarExcepcionCuandoSeModificaUnaCategoriaInexistente() {
-
-        Long categoriaIdInexistente = 999999L;
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> categoriaService.modificarNombre(
-                        categoriaIdInexistente,
-                        "Nueva categoría"
-                )
-        );
-    }
-
-    @Test
-    void deberiaLanzarExcepcionCuandoSeDesactivaUnaCategoriaInexistente() {
-
-        Long categoriaIdInexistente = 999999L;
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> categoriaService.desactivar(
-                        categoriaIdInexistente
-                )
-        );
+        assertTrue(!actualizada.isActiva());
     }
 
     @Test
     void deberiaEliminarCategoriaExistente() {
-
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.eliminar." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
-
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
-
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
-
-        entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
-        entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria
-        );
-
-        entityManager.getTransaction().commit();
-
+        Usuario usuario = crearUsuario("eliminar");
+        Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
         Long categoriaId = categoria.getId();
 
-        categoriaService.eliminar(
-                categoriaId
-        );
+        categoriaService.eliminar(categoriaId, usuario.getId());
 
-        Optional<Categoria> resultado =
-                categoriaService.buscarPorId(
-                        categoriaId
-                );
-
-        assertTrue(
-                resultado.isEmpty()
-        );
+        assertTrue(categoriaService.buscarPorId(categoriaId).isEmpty());
     }
 
     @Test
-    void deberiaLanzarExcepcionCuandoSeEliminaUnaCategoriaInexistente() {
+    void deberiaPersistirLaModificacionDelNombre() {
+        Usuario usuario = crearUsuario("persistencia.nombre");
+        Categoria categoria = crearCategoriaPersistida(usuario, "Nombre original");
+        Long categoriaId = categoria.getId();
 
-        Long categoriaIdInexistente = 999999L;
+        categoriaService.modificarNombre(categoriaId, usuario.getId(), "Nombre persistido");
+        entityManager.clear();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> categoriaService.eliminar(
-                        categoriaIdInexistente
-                )
-        );
+        assertEquals("Nombre persistido", categoriaService.buscarPorId(categoriaId).orElseThrow().getNombre());
+    }
+
+    @Test
+    void deberiaRechazarModificacionDeCategoriaDeOtroUsuario() {
+        Usuario propietario = crearUsuario("propietario");
+        Categoria categoria = crearCategoriaPersistida(propietario, "Privada");
+        Usuario otroUsuario = crearUsuarioPersistido("otro.usuario");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.modificarNombre(categoria.getId(), otroUsuario.getId(), "Modificada"));
+    }
+
+    @Test
+    void deberiaRechazarModificacionDescripcionDeCategoriaDeOtroUsuario() {
+        Usuario propietario = crearUsuario("propietario.descripcion");
+        Categoria categoria = crearCategoriaPersistida(propietario, "Privada");
+        Usuario otroUsuario = crearUsuarioPersistido("otro.descripcion");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.modificarDescripcion(categoria.getId(), otroUsuario.getId(), "Modificada"));
+    }
+
+    @Test
+    void deberiaRechazarActivacionDeCategoriaDeOtroUsuario() {
+        Usuario propietario = crearUsuario("propietario.activar");
+        Categoria categoria = crearCategoriaPersistida(propietario, "Privada");
+        categoria.desactivar();
+        entityManager.getTransaction().begin();
+        entityManager.merge(categoria);
+        entityManager.getTransaction().commit();
+        Usuario otroUsuario = crearUsuarioPersistido("otro.activar");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.activar(categoria.getId(), otroUsuario.getId()));
+    }
+
+    @Test
+    void deberiaRechazarDesactivacionDeCategoriaDeOtroUsuario() {
+        Usuario propietario = crearUsuario("propietario.desactivar");
+        Categoria categoria = crearCategoriaPersistida(propietario, "Privada");
+        Usuario otroUsuario = crearUsuarioPersistido("otro.desactivar");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.desactivar(categoria.getId(), otroUsuario.getId()));
+    }
+
+    @Test
+    void deberiaRechazarEliminacionDeCategoriaDeOtroUsuario() {
+        Usuario propietario = crearUsuario("propietario.eliminar");
+        Categoria categoria = crearCategoriaPersistida(propietario, "Privada");
+        Usuario otroUsuario = crearUsuarioPersistido("otro.eliminar");
+        Long categoriaId = categoria.getId();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.eliminar(categoriaId, otroUsuario.getId()));
+
+        assertTrue(categoriaService.buscarPorId(categoriaId).isPresent());
+    }
+
+    @Test
+    void deberiaLanzarExcepcionCuandoLaCategoriaNoExiste() {
+        Usuario usuario = crearUsuarioPersistido("inexistente");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.modificarNombre(999999L, usuario.getId(), "Nueva categoría"));
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.modificarDescripcion(999999L, usuario.getId(), "Nueva descripción"));
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.activar(999999L, usuario.getId()));
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.desactivar(999999L, usuario.getId()));
+        assertThrows(IllegalArgumentException.class, () ->
+                categoriaService.eliminar(999999L, usuario.getId()));
     }
 
     @Test
     void deberiaLanzarExcepcionCuandoSeRegistraCategoriaNula() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.registrar(null)
-        );
+        assertThrows(NullPointerException.class, () -> categoriaService.registrar(null));
     }
 
     @Test
     void deberiaLanzarExcepcionCuandoSeBuscaCategoriaConIdNulo() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.buscarPorId(null)
-        );
+        assertThrows(NullPointerException.class, () -> categoriaService.buscarPorId(null));
     }
 
     @Test
     void deberiaLanzarExcepcionCuandoSeListaPorPerfilFinancieroConIdNulo() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.listarPorPerfilFinanciero(null)
-        );
+        assertThrows(NullPointerException.class, () -> categoriaService.listarPorPerfilFinanciero(null));
     }
 
     @Test
-    void deberiaLanzarExcepcionCuandoSeModificaNombreConIdNulo() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.modificarNombre(
-                        null,
-                        "Nueva categoría"
-                )
-        );
+    void deberiaLanzarExcepcionCuandoLosIdsSonNulos() {
+        assertThrows(NullPointerException.class, () -> categoriaService.modificarNombre(null, 1L, "Nueva"));
+        assertThrows(NullPointerException.class, () -> categoriaService.modificarNombre(1L, null, "Nueva"));
+        assertThrows(NullPointerException.class, () -> categoriaService.modificarDescripcion(null, 1L, "Nueva"));
+        assertThrows(NullPointerException.class, () -> categoriaService.modificarDescripcion(1L, null, "Nueva"));
+        assertThrows(NullPointerException.class, () -> categoriaService.activar(null, 1L));
+        assertThrows(NullPointerException.class, () -> categoriaService.activar(1L, null));
+        assertThrows(NullPointerException.class, () -> categoriaService.desactivar(null, 1L));
+        assertThrows(NullPointerException.class, () -> categoriaService.desactivar(1L, null));
+        assertThrows(NullPointerException.class, () -> categoriaService.eliminar(null, 1L));
+        assertThrows(NullPointerException.class, () -> categoriaService.eliminar(1L, null));
     }
 
     @Test
-    void deberiaLanzarExcepcionCuandoSeModificaNombreConNombreNulo() {
+    void deberiaLanzarExcepcionCuandoElNombreEsNulo() {
+        Usuario usuario = crearUsuario("nombre.nulo");
+        Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
 
-        Usuario usuario =
-                new Usuario(
-                        "Ariel",
-                        "Test",
-                        "ariel.modificar.nombre.nulo." + System.nanoTime() + "@test.com",
-                        "hash"
-                );
+        assertThrows(NullPointerException.class, () ->
+                categoriaService.modificarNombre(categoria.getId(), usuario.getId(), null));
+    }
 
-        PerfilFinanciero perfil =
-                new PerfilFinanciero(
-                        "Perfil principal",
-                        usuario
-                );
+    @Test
+    void deberiaDevolverListaVaciaCuandoNoExistenCategorias() {
+        assertTrue(categoriaService.listarTodas().isEmpty());
+    }
 
-        Categoria categoria =
-                new Categoria(
-                        "Alimentación",
-                        perfil
-                );
+    private Usuario crearUsuario(String sufijo) {
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Test",
+                "ariel.categoria." + sufijo + "." + System.nanoTime() + "@test.com",
+                "hash"
+        );
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuario);
+        entityManager.getTransaction().commit();
+        return usuario;
+    }
+
+    private Usuario crearUsuarioPersistido(String sufijo) {
+        return crearUsuario(sufijo);
+    }
+
+    private PerfilFinanciero crearPerfil(Usuario usuario, String nombre) {
+        return new PerfilFinanciero(nombre, usuario);
+    }
+
+    private Categoria crearCategoriaPersistida(Usuario usuario, String nombre) {
+        PerfilFinanciero perfil = crearPerfil(usuario, "Perfil principal");
+        Categoria categoria = new Categoria(nombre, perfil);
 
         entityManager.getTransaction().begin();
-
-        entityManager.persist(usuario);
         entityManager.persist(perfil);
-
-        categoriaService.registrar(
-                categoria
-        );
-
+        categoriaService.registrar(categoria);
         entityManager.getTransaction().commit();
 
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.modificarNombre(
-                        categoria.getId(),
-                        null
-                )
-        );
+        return categoria;
     }
 
-    @Test
-    void deberiaLanzarExcepcionCuandoSeModificaDescripcionConIdNulo() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.modificarDescripcion(
-                        null,
-                        "Nueva descripción"
-                )
-        );
-    }
-
-    @Test
-    void deberiaLanzarExcepcionCuandoSeActivaConIdNulo() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.activar(null)
-        );
-    }
-
-    @Test
-    void deberiaLanzarExcepcionCuandoSeDesactivaConIdNulo() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.desactivar(null)
-        );
-    }
-
-    @Test
-    void deberiaLanzarExcepcionCuandoSeEliminaConIdNulo() {
-
-        assertThrows(
-                NullPointerException.class,
-                () -> categoriaService.eliminar(null)
-        );
+    private void persistir(Usuario usuario, PerfilFinanciero perfil, Categoria... categorias) {
+        entityManager.getTransaction().begin();
+        if (entityManager.find(Usuario.class, usuario.getId()) == null) {
+            entityManager.persist(usuario);
+        }
+        if (perfil.getId() == null) {
+            entityManager.persist(perfil);
+        }
+        for (Categoria categoria : categorias) {
+            categoriaService.registrar(categoria);
+        }
+        entityManager.getTransaction().commit();
     }
 }
