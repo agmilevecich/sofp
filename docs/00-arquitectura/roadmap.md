@@ -32,7 +32,8 @@ El dominio actual incluye `PosicionActivo`, que permite obtener cantidad, costo 
 - Valorización de una posición: implementado.
 - Valorización de la cartera: implementado.
 - Pruebas unitarias y de integración asociadas: implementadas.
-- Fase 5: **cerrada y validada**.
+- Aislamiento de posición por perfil financiero: implementado en la rama `feature/seguridad-aislamiento-datos`.
+- Fase 5 funcional: **cerrada y validada**.
 
 ## Fase 6: Reportes
 
@@ -59,16 +60,36 @@ La evolución histórica de saldo se representa mediante `EvolucionSaldoCuenta` 
 - Pruebas del reporte de movimientos desde el servicio: implementadas.
 - Evolución histórica de saldos: implementada.
 - Pruebas de evolución histórica: implementadas.
-- Suite general vigente: **480/480 tests en verde**.
+- Suite general histórica al cierre de Fase 6: **480/480 tests en verde**.
 - Fase 6: **cerrada, validada e integrada en `main` mediante fast-forward**.
 
 ## Fase 7: Seguridad
 
 Agregar autenticación, autorización y controles de acceso para proteger la información de cada usuario.
 
+### Estado actual de la Fase 7
+
+La seguridad de `PerfilFinanciero` fue implementada y quedó integrada en `main`.
+
+La rama `feature/seguridad-aislamiento-datos` continúa esta fase corrigiendo el aislamiento de recursos por perfil.
+
+Correcciones realizadas en la rama actual:
+
+- autorización de operaciones mutables de cuentas;
+- autorización de operaciones mutables de categorías;
+- autorización de operaciones mutables de movimientos;
+- aislamiento de posiciones de activos por perfil financiero;
+- cobertura y adaptación de tests asociados.
+
+Suite general vigente: **503/503 tests en verde**, con 0 failures, 0 errors y 0 skipped.
+
+La Fase 7 todavía **no está cerrada**. Quedan por revisar `OperacionFinancieraService`, lecturas por ID/listados y caminos alternativos de creación de movimientos.
+
 ## Fase 8: Interfaz de usuario
 
-Incorporar la interfaz Swing cuando el dominio, los servicios y las operaciones principales estén suficientemente consolidados.
+Incorporar la interfaz Swing cuando el dominio, los servicios, las operaciones principales y la seguridad transversal estén suficientemente consolidados.
+
+La implementación de Swing todavía no comenzó.
 
 ## Fase 9: Optimización
 
@@ -76,4 +97,6 @@ Optimizar consultas, cálculo de saldos, rendimiento general y experiencia de us
 
 ## Estado del roadmap
 
-Las Fases 1 a 6 están implementadas y, según corresponda, validadas y cerradas. La siguiente evolución debe definirse revisando el estado real del código y los tests de `main` antes de iniciar una nueva feature.
+Las Fases 1 a 6 están implementadas y cerradas según su evolución documentada. La Fase 7 está en curso en `feature/seguridad-aislamiento-datos`, con **503/503 tests en verde** pero con hallazgos de seguridad todavía pendientes de cierre.
+
+La Fase 8 (Swing) será la siguiente etapa principal **después del cierre definitivo de la seguridad transversal** y de una validación final contra `main`.
