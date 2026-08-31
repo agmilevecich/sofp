@@ -72,50 +72,40 @@ Las features `feature/reportes-cartera` y `feature/seguridad-perfil-financiero` 
 
 Se creó la rama `feature/seguridad-aislamiento-datos` para corregir los hallazgos de la auditoría transversal de seguridad.
 
-Correcciones implementadas hasta el estado actual:
+Se implementaron y validaron:
 
 - autorización de operaciones mutables de `CuentaService`;
-- adaptación de `CuentaServiceTest` a autorización por propietario;
 - autorización de operaciones mutables de `CategoriaService`;
-- corrección de rollback/persistencia detectada al adaptar `CategoriaServiceTest`;
 - autorización de operaciones mutables de `MovimientoService`;
-- adaptación de `MovimientoServiceTest` a las nuevas reglas;
-- aislamiento de `PosicionActivoService` por perfil financiero mediante consulta filtrada de `MovimientoActivoRepository`.
+- autorización de `OperacionFinancieraService` por usuario solicitante;
+- lecturas por ID y listados protegidos por propietario;
+- cálculo de saldo y evolución contextualizados por usuario;
+- altas de cuentas, categorías, movimientos y perfiles con validación de propietario;
+- aislamiento de posiciones y cartera por usuario/perfil;
+- cierre de caminos internos que podían saltar las validaciones públicas;
+- cobertura transversal mediante `AislamientoDatosServiceTest`.
 
-Commits relevantes:
+## Validación final de seguridad
 
-- `e22f236` — `fix: autorizar operaciones mutables de cuenta`;
-- `346f64c` — `test: adaptar CuentaServiceTest a autorización por propietario`;
-- `98509e2` — `fix: autorizar operaciones mutables de categoria`;
-- `f628337` — `fix: corregir rollback en CategoriaService`;
-- `7a40f16` — `test: adaptar CategoriaServiceTest al aislamiento por usuario`;
-- `cb745a3` — `fix: corregir persistencia de perfiles en CategoriaServiceTest`;
-- `18b9286` — `fix: autorizar operaciones mutables de movimiento`;
-- `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
+El **31/08/2026** se ejecutó primero `AislamientoDatosServiceTest`: **7/7 tests en verde**.
 
-## Suite general vigente
+Luego se ejecutó la suite general:
 
-Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
-
-- Tests run: **503**
+- Tests run: **512**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **15:01 min**
+- Duración: **15:25 min**
 
-La validación global vigente es **503/503 tests en verde**.
+La validación global vigente es **512/512 tests en verde**.
+
+Durante la primera ejecución del test específico hubo 7 fallos por un fixture que generaba un código de moneda de 17 caracteres para una columna de máximo 10. Se corrigió el fixture sin alterar código de negocio y la segunda ejecución quedó completamente verde.
 
 ## Estado actual
 
-La rama `feature/seguridad-aislamiento-datos` está 11 commits por delante de `main` y 0 por detrás. El último commit es `c1f635f`.
-
-La suite general confirma que las correcciones actuales no rompen el comportamiento cubierto por los 503 tests existentes.
-
-La etapa de seguridad transversal todavía no se considera cerrada porque permanecen pendientes `OperacionFinancieraService`, la revisión de aislamiento de lecturas y los caminos alternativos de creación de movimientos.
+La implementación y los tests de la auditoría transversal de seguridad están completados y validados. La rama `feature/seguridad-aislamiento-datos` permanece separada de `main`.
 
 ## Próximo paso
 
-Continuar con los hallazgos restantes de seguridad. No inventar un nuevo Build numerado hasta que exista un bloque funcional que justifique uno; las correcciones de esta feature se registran por commit y validación.
-
-Una vez cerrada la seguridad transversal, revisar nuevamente el código y los tests antes de iniciar la etapa de interfaz Swing.
+Realizar el cierre técnico del repositorio (`git status`, `git diff --check` y comparación final contra `main`). No hacer merge a `main` automáticamente.
