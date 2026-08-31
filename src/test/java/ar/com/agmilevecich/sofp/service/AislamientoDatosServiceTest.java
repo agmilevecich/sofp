@@ -146,7 +146,7 @@ class AislamientoDatosServiceTest {
         usuario1.agregarPerfilFinanciero(perfil1);
         usuario2.agregarPerfilFinanciero(perfil2);
         InstitucionFinanciera banco = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
-        Moneda moneda = new Moneda("ARS" + System.nanoTime(), "Peso", 2, TipoMoneda.FIAT);
+        Moneda moneda = new Moneda("ARS" + (System.nanoTime() % 1000000), "Peso", 2, TipoMoneda.FIAT);
         cuenta1 = new Cuenta("Cuenta 1", TipoCuenta.CAJA_AHORRO, perfil1, banco, moneda);
         cuenta2 = new Cuenta("Cuenta 2", TipoCuenta.CAJA_AHORRO, perfil2, banco, moneda);
         categoria1 = new Categoria("Categoria 1", perfil1);
