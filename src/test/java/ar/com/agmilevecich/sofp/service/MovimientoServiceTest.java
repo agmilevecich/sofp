@@ -423,6 +423,7 @@ class MovimientoServiceTest {
         Movimiento actualizado =
                 movimientoService.modificarDescripcion(
                         movimiento.getId(),
+                        usuario.getId(),
                         "Compra supermercado"
                 );
 
@@ -459,6 +460,7 @@ class MovimientoServiceTest {
         Movimiento actualizado =
                 movimientoService.modificarObservaciones(
                         movimiento.getId(),
+                        usuario.getId(),
                         "Pago realizado con tarjeta"
                 );
 
@@ -507,6 +509,7 @@ class MovimientoServiceTest {
         Movimiento actualizado =
                 movimientoService.cambiarCategoria(
                         movimiento.getId(),
+                        usuario.getId(),
                         nuevaCategoria
                 );
 
@@ -535,6 +538,7 @@ class MovimientoServiceTest {
                 IllegalArgumentException.class,
                 () -> movimientoService.modificarDescripcion(
                         movimientoIdInexistente,
+                        usuario.getId(),
                         "Nueva descripción"
                 )
         );
@@ -549,6 +553,7 @@ class MovimientoServiceTest {
                 IllegalArgumentException.class,
                 () -> movimientoService.cambiarCategoria(
                         movimientoIdInexistente,
+                        usuario.getId(),
                         categoria
                 )
         );
@@ -576,6 +581,7 @@ class MovimientoServiceTest {
         Movimiento actualizado =
                 movimientoService.modificarTipoMovimiento(
                         movimiento.getId(),
+                        usuario.getId(),
                         TipoMovimiento.EGRESO
                 );
 
@@ -609,6 +615,7 @@ class MovimientoServiceTest {
         Movimiento actualizado =
                 movimientoService.modificarImporte(
                         movimiento.getId(),
+                        usuario.getId(),
                         new BigDecimal("75000.00")
                 );
 
@@ -651,6 +658,7 @@ class MovimientoServiceTest {
         Movimiento actualizado =
                 movimientoService.modificarFechaHora(
                         movimiento.getId(),
+                        usuario.getId(),
                         nuevaFechaHora
                 );
 
@@ -685,7 +693,8 @@ class MovimientoServiceTest {
                 movimiento.getId();
 
         movimientoService.eliminar(
-                movimientoId
+                movimientoId,
+                usuario.getId()
         );
 
         assertTrue(
@@ -954,6 +963,7 @@ class MovimientoServiceTest {
                 IllegalArgumentException.class,
                 () -> movimientoService.cambiarCategoria(
                         movimiento.getId(),
+                        usuario1.getId(),
                         categoria2
                 )
         );
@@ -993,6 +1003,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarDescripcion(
                         null,
+                        usuario.getId(),
                         "Nueva descripción"
                 )
         );
@@ -1021,6 +1032,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarDescripcion(
                         movimiento.getId(),
+                        usuario.getId(),
                         null
                 )
         );
@@ -1033,6 +1045,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.cambiarCategoria(
                         null,
+                        usuario.getId(),
                         categoria
                 )
         );
@@ -1061,6 +1074,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.cambiarCategoria(
                         movimiento.getId(),
+                        usuario.getId(),
                         null
                 )
         );
@@ -1073,6 +1087,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarTipoMovimiento(
                         null,
+                        usuario.getId(),
                         TipoMovimiento.INGRESO
                 )
         );
@@ -1101,6 +1116,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarTipoMovimiento(
                         movimiento.getId(),
+                        usuario.getId(),
                         null
                 )
         );
@@ -1113,6 +1129,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarImporte(
                         null,
+                        usuario.getId(),
                         new BigDecimal("5000.00")
                 )
         );
@@ -1141,6 +1158,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarImporte(
                         movimiento.getId(),
+                        usuario.getId(),
                         null
                 )
         );
@@ -1153,6 +1171,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarFechaHora(
                         null,
+                        usuario.getId(),
                         LocalDateTime.now()
                 )
         );
@@ -1181,6 +1200,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarFechaHora(
                         movimiento.getId(),
+                        usuario.getId(),
                         null
                 )
         );
@@ -1191,7 +1211,10 @@ class MovimientoServiceTest {
 
         assertThrows(
                 NullPointerException.class,
-                () -> movimientoService.eliminar(null)
+                () -> movimientoService.eliminar(
+                        null,
+                        usuario.getId()
+                )
         );
     }
 
@@ -1216,6 +1239,7 @@ class MovimientoServiceTest {
                 IllegalArgumentException.class,
                 () -> movimientoService.modificarTipoMovimiento(
                         movimientoIdInexistente,
+                        usuario.getId(),
                         TipoMovimiento.EGRESO
                 )
         );
@@ -1230,6 +1254,7 @@ class MovimientoServiceTest {
                 IllegalArgumentException.class,
                 () -> movimientoService.modificarImporte(
                         movimientoIdInexistente,
+                        usuario.getId(),
                         new BigDecimal("5000.00")
                 )
         );
@@ -1244,6 +1269,7 @@ class MovimientoServiceTest {
                 IllegalArgumentException.class,
                 () -> movimientoService.modificarFechaHora(
                         movimientoIdInexistente,
+                        usuario.getId(),
                         LocalDateTime.now()
                 )
         );
@@ -1257,7 +1283,8 @@ class MovimientoServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> movimientoService.eliminar(
-                        movimientoIdInexistente
+                        movimientoIdInexistente,
+                        usuario.getId()
                 )
         );
     }
@@ -1439,6 +1466,7 @@ class MovimientoServiceTest {
                 NullPointerException.class,
                 () -> movimientoService.modificarObservaciones(
                         null,
+                        usuario.getId(),
                         "Nueva observación"
                 )
         );
@@ -1453,6 +1481,7 @@ class MovimientoServiceTest {
                 IllegalArgumentException.class,
                 () -> movimientoService.modificarObservaciones(
                         movimientoIdInexistente,
+                        usuario.getId(),
                         "Nueva observación"
                 )
         );
