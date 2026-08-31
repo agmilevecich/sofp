@@ -1,17 +1,13 @@
 package ar.com.agmilevecich.sofp.ui;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 
-/**
- * Ventana principal de SOFP.
- *
- * <p>El shell inicial mantiene la navegación y los módulos desacoplados.
- * La lógica de negocio permanece en la capa de servicios.</p>
- */
+/** Ventana principal y shell de navegación de SOFP. */
 public class MainFrame extends JFrame {
 
     public MainFrame() {
@@ -21,7 +17,17 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel content = new JPanel(new BorderLayout());
-        content.add(new JLabel("SOFP", SwingConstants.CENTER), BorderLayout.CENTER);
+        content.add(new HeaderPanel(), BorderLayout.NORTH);
+        content.add(new SidebarPanel(), BorderLayout.WEST);
+        content.add(crearAreaCentral(), BorderLayout.CENTER);
+        content.add(new StatusBarPanel(), BorderLayout.SOUTH);
         setContentPane(content);
+    }
+
+    private JPanel crearAreaCentral() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        panel.add(new JLabel("Inicio", SwingConstants.CENTER), BorderLayout.CENTER);
+        return panel;
     }
 }
