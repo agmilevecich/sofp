@@ -146,7 +146,7 @@ public class CategoriaService {
         } catch (RuntimeException e) {
 
             if (transaction.isActive()) {
-                transaction.getRollbackOnly();
+                transaction.rollback();
             }
 
             throw e;
