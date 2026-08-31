@@ -17,8 +17,10 @@ public class PerfilFinancieroService {
                 "El repositorio de perfiles financieros es obligatorio");
     }
 
-    public PerfilFinanciero guardar(PerfilFinanciero perfil) {
+    public PerfilFinanciero guardar(PerfilFinanciero perfil, Long usuarioId) {
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(perfil, "El perfil financiero es obligatorio");
+        verificarPropietario(perfil, usuarioId);
         return perfilFinancieroRepository.guardar(perfil);
     }
 
@@ -33,6 +35,11 @@ public class PerfilFinancieroService {
     }
 
     /* API interna de compatibilidad para tests y coordinación interna del paquete. */
+    PerfilFinanciero guardar(PerfilFinanciero perfil) {
+        Objects.requireNonNull(perfil, "El perfil financiero es obligatorio");
+        return perfilFinancieroRepository.guardar(perfil);
+    }
+
     Optional<PerfilFinanciero> buscarPorId(Long id) {
         Objects.requireNonNull(id, "El id del perfil financiero es obligatorio");
         return perfilFinancieroRepository.buscarPorId(id);
