@@ -47,6 +47,7 @@ public class OperacionFinancieraService {
     }
 
     public OperacionFinanciera transferir(
+            Long usuarioId,
             Cuenta cuentaOrigen,
             Cuenta cuentaDestino,
             Categoria categoriaOrigen,
@@ -55,12 +56,24 @@ public class OperacionFinancieraService {
             LocalDateTime fechaHora,
             String descripcion) {
 
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(cuentaOrigen, "La cuenta de origen es obligatoria");
         Objects.requireNonNull(cuentaDestino, "La cuenta de destino es obligatoria");
         Objects.requireNonNull(categoriaOrigen, "La categoría de origen es obligatoria");
         Objects.requireNonNull(categoriaDestino, "La categoría de destino es obligatoria");
         Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
         Objects.requireNonNull(descripcion, "La descripción es obligatoria");
+
+        validarPropietario(usuarioId, cuentaOrigen);
+        validarPropietario(usuarioId, cuentaDestino);
+        validarPropietario(usuarioId, categoriaOrigen);
+        validarPropietario(usuarioId, categoriaDestino);
+
+        if (cuentaOrigen.equals(cuentaDestino)) {
+            throw new IllegalArgumentException(
+                    "La cuenta de origen y destino deben ser diferentes"
+            );
+        }
 
         if (!cuentaOrigen.isActiva()) {
             throw new IllegalArgumentException("No se puede realizar una transferencia desde una cuenta desactivada");
@@ -72,6 +85,7 @@ public class OperacionFinancieraService {
         validarMismoPerfil(cuentaOrigen, categoriaOrigen);
         validarMismoPerfil(cuentaDestino, categoriaDestino);
         validarMismaMoneda(cuentaOrigen, cuentaDestino);
+        validarImporte(importe);
 
         OperacionFinanciera operacion = new OperacionFinanciera(cuentaOrigen, cuentaDestino, importe);
 
@@ -97,6 +111,7 @@ public class OperacionFinancieraService {
     }
 
     public OperacionFinanciera comprarActivo(
+            Long usuarioId,
             Cuenta cuentaOrigen,
             Categoria categoriaOrigen,
             Activo activo,
@@ -105,11 +120,15 @@ public class OperacionFinancieraService {
             LocalDateTime fechaHora,
             String descripcion) {
 
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(cuentaOrigen, "La cuenta de origen es obligatoria");
         Objects.requireNonNull(categoriaOrigen, "La categoría de origen es obligatoria");
         Objects.requireNonNull(activo, "El activo es obligatorio");
         Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
         Objects.requireNonNull(descripcion, "La descripción es obligatoria");
+
+        validarPropietario(usuarioId, cuentaOrigen);
+        validarPropietario(usuarioId, categoriaOrigen);
 
         if (!cuentaOrigen.isActiva()) {
             throw new IllegalArgumentException("No se puede realizar una compra desde una cuenta desactivada");
@@ -157,6 +176,7 @@ public class OperacionFinancieraService {
     }
 
     public OperacionFinanciera venderActivo(
+            Long usuarioId,
             Cuenta cuentaDestino,
             Categoria categoriaDestino,
             Activo activo,
@@ -165,6 +185,7 @@ public class OperacionFinancieraService {
             LocalDateTime fechaHora,
             String descripcion) {
 
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(cuentaDestino, "La cuenta de destino es obligatoria");
         Objects.requireNonNull(categoriaDestino, "La categoría de destino es obligatoria");
         Objects.requireNonNull(activo, "El activo es obligatorio");
@@ -172,6 +193,9 @@ public class OperacionFinancieraService {
         Objects.requireNonNull(precioUnitario, "El precio unitario es obligatorio");
         Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
         Objects.requireNonNull(descripcion, "La descripción es obligatoria");
+
+        validarPropietario(usuarioId, cuentaDestino);
+        validarPropietario(usuarioId, categoriaDestino);
 
         if (!cuentaDestino.isActiva()) {
             throw new IllegalArgumentException(
@@ -229,6 +253,38 @@ public class OperacionFinancieraService {
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
+        }
+    }
+
+    private void validarPropietario(Long usuarioId, Cuenta cuenta) {
+        Long propietarioId = cuenta.getPerfilFinanciero()
+                .getUsuario()
+                .getId();
+
+        if (!Objects.equals(propietarioId, usuarioId)) {
+            throw new IllegalArgumentException(
+                    "El usuario no es propietario de la cuenta"
+            );
+        }
+    }
+
+    private void validarPropietario(Long usuarioId, Categoria categoria) {
+        Long propietarioId = categoria.getPerfilFinanciero()
+                .getUsuario()
+                .getId();
+
+        if (!Objects.equals(propietarioId, usuarioId)) {
+            throw new IllegalArgumentException(
+                    "El usuario no es propietario de la categoría"
+            );
+        }
+    }
+
+    private void validarImporte(BigDecimal importe) {
+        Objects.requireNonNull(importe, "El importe es obligatorio");
+
+        if (importe.signum() <= 0) {
+            throw new IllegalArgumentException("El importe debe ser positivo");
         }
     }
 
