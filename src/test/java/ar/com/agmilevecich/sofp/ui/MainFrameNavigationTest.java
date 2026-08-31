@@ -19,7 +19,7 @@ class MainFrameNavigationTest {
         SwingUtilities.invokeAndWait(() -> frame.set(new MainFrame()));
 
         MainFrame mainFrame = frame.get();
-        SidebarPanel sidebar = buscarSidebar(mainFrame);
+        SidebarPanel sidebar = buscarSidebar(mainFrame.getContentPane());
         JButton cuentas = buscarBoton(sidebar, "Cuentas");
         JButton movimientos = buscarBoton(sidebar, "Movimientos");
         JButton inversiones = buscarBoton(sidebar, "Inversiones");
