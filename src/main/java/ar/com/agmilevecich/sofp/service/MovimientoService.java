@@ -19,515 +19,203 @@ public class MovimientoService {
     private final MovimientoRepository movimientoRepository;
     private final EntityManager entityManager;
 
-    public MovimientoService(
-            EntityManager entityManager,
-            MovimientoRepository movimientoRepository) {
-
-        this.entityManager = Objects.requireNonNull(
-                entityManager,
-                "El EntityManager es obligatorio"
-        );
-
-        this.movimientoRepository = Objects.requireNonNull(
-                movimientoRepository,
-                "El repositorio de movimientos es obligatorio"
-        );
+    public MovimientoService(EntityManager entityManager, MovimientoRepository movimientoRepository) {
+        this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
+        this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El repositorio de movimientos es obligatorio");
     }
 
-    public Movimiento registrar(
-            Cuenta cuenta,
-            Categoria categoria,
-            TipoMovimiento tipoMovimiento,
-            BigDecimal importe,
-            LocalDateTime fechaHora,
-            String descripcion) {
-
-        validarPerfilFinanciero(
-                cuenta,
-                categoria
-        );
-
-        if (!cuenta.isActiva()) {
-            throw new IllegalArgumentException(
-                    "No se puede registrar un movimiento en una cuenta desactivada"
-            );
-        }
-
-        Movimiento movimiento = new Movimiento(
-                cuenta,
-                categoria,
-                tipoMovimiento,
-                importe,
-                fechaHora,
-                descripcion
-        );
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            Movimiento guardado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return guardado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
+                                BigDecimal importe, LocalDateTime fechaHora, String descripcion,
+                                Long usuarioId) {
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        validarPropietario(usuarioId, cuenta);
+        validarPropietario(usuarioId, categoria);
+        validarPerfilFinanciero(cuenta, categoria);
+        if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
+        return guardar(new Movimiento(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion));
     }
 
-    public Optional<Movimiento> buscarPorId(Long id) {
+    public Optional<Movimiento> buscarPorId(Long id, Long usuarioId) {
+        Objects.requireNonNull(id, "El id del movimiento es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        return Optional.of(obtenerMovimientoAutorizado(id, usuarioId));
+    }
 
-        Objects.requireNonNull(
-                id,
-                "El id del movimiento es obligatorio"
-        );
+    public List<Movimiento> listarPorCuenta(Long cuentaId, Long usuarioId) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        validarPropietario(usuarioId, obtenerCuenta(cuentaId));
+        return movimientoRepository.listarPorCuenta(cuentaId);
+    }
 
+    public List<Movimiento> listarPorCategoria(Long categoriaId, Long usuarioId) {
+        Objects.requireNonNull(categoriaId, "El id de la categoría es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        validarPropietario(usuarioId, obtenerCategoria(categoriaId));
+        return movimientoRepository.listarPorCategoria(categoriaId);
+    }
+
+    /* API interna de compatibilidad para tests y coordinación interna del paquete. */
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
+                                BigDecimal importe, LocalDateTime fechaHora, String descripcion) {
+        validarPerfilFinanciero(cuenta, categoria);
+        if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
+        return guardar(new Movimiento(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion));
+    }
+
+    Optional<Movimiento> buscarPorId(Long id) {
+        Objects.requireNonNull(id, "El id del movimiento es obligatorio");
         return movimientoRepository.buscarPorId(id);
     }
 
-    public List<Movimiento> listarTodos() {
-
+    List<Movimiento> listarTodos() {
         return movimientoRepository.listarTodos();
     }
 
-    public List<Movimiento> listarPorCuenta(Long cuentaId) {
-
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
-
-        return movimientoRepository.listarPorCuenta(
-                cuentaId
-        );
+    List<Movimiento> listarPorCuenta(Long cuentaId) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        return movimientoRepository.listarPorCuenta(cuentaId);
     }
 
-    public List<Movimiento> listarPorCategoria(Long categoriaId) {
-
-        Objects.requireNonNull(
-                categoriaId,
-                "El id de la categoría es obligatorio"
-        );
-
-        return movimientoRepository.listarPorCategoria(
-                categoriaId
-        );
+    List<Movimiento> listarPorCategoria(Long categoriaId) {
+        Objects.requireNonNull(categoriaId, "El id de la categoría es obligatorio");
+        return movimientoRepository.listarPorCategoria(categoriaId);
     }
 
-    public Movimiento modificarDescripcion(
-            Long movimientoId,
-            Long usuarioId,
-            String descripcion) {
+    public Movimiento modificarDescripcion(Long movimientoId, Long usuarioId, String descripcion) {
+        validarIds(movimientoId, usuarioId);
+        Objects.requireNonNull(descripcion, "La descripción es obligatoria");
+        Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        return modificar(movimiento, () -> movimiento.cambiarDescripcion(descripcion));
+    }
 
-        validarIds(
-                movimientoId,
-                usuarioId
-        );
+    public Movimiento modificarObservaciones(Long movimientoId, Long usuarioId, String observaciones) {
+        validarIds(movimientoId, usuarioId);
+        Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        return modificar(movimiento, () -> movimiento.cambiarObservaciones(observaciones));
+    }
 
-        Objects.requireNonNull(
-                descripcion,
-                "La descripción es obligatoria"
-        );
+    public Movimiento cambiarCategoria(Long movimientoId, Long usuarioId, Categoria categoria) {
+        validarIds(movimientoId, usuarioId);
+        Objects.requireNonNull(categoria, "La categoría es obligatoria");
+        Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarPropietario(usuarioId, categoria);
+        validarPerfilFinanciero(movimiento.getCuenta(), categoria);
+        return modificar(movimiento, () -> movimiento.cambiarCategoria(categoria));
+    }
 
-        Movimiento movimiento =
-                obtenerMovimientoAutorizado(
-                        movimientoId,
-                        usuarioId
-                );
+    public Movimiento modificarTipoMovimiento(Long movimientoId, Long usuarioId, TipoMovimiento tipoMovimiento) {
+        validarIds(movimientoId, usuarioId);
+        Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
+        Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        return modificar(movimiento, () -> movimiento.modificarTipoMovimiento(tipoMovimiento));
+    }
 
-        EntityTransaction transaction =
-                entityManager.getTransaction();
+    public Movimiento modificarImporte(Long movimientoId, Long usuarioId, BigDecimal importe) {
+        validarIds(movimientoId, usuarioId);
+        Objects.requireNonNull(importe, "El importe es obligatorio");
+        Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        return modificar(movimiento, () -> movimiento.cambiarImporte(importe));
+    }
 
+    public Movimiento modificarFechaHora(Long movimientoId, Long usuarioId, LocalDateTime fechaHora) {
+        validarIds(movimientoId, usuarioId);
+        Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+        Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        return modificar(movimiento, () -> movimiento.cambiarFechaHora(fechaHora));
+    }
+
+    public void eliminar(Long movimientoId, Long usuarioId) {
+        validarIds(movimientoId, usuarioId);
+        Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-
-            movimiento.cambiarDescripcion(descripcion);
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public Movimiento modificarObservaciones(
-            Long movimientoId,
-            Long usuarioId,
-            String observaciones) {
-
-        validarIds(
-                movimientoId,
-                usuarioId
-        );
-
-        Movimiento movimiento =
-                obtenerMovimientoAutorizado(
-                        movimientoId,
-                        usuarioId
-                );
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.cambiarObservaciones(observaciones);
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public Movimiento cambiarCategoria(
-            Long movimientoId,
-            Long usuarioId,
-            Categoria categoria) {
-
-        validarIds(
-                movimientoId,
-                usuarioId
-        );
-
-        Objects.requireNonNull(
-                categoria,
-                "La categoría es obligatoria"
-        );
-
-        Movimiento movimiento =
-                obtenerMovimientoAutorizado(
-                        movimientoId,
-                        usuarioId
-                );
-
-        validarPerfilFinanciero(
-                movimiento.getCuenta(),
-                categoria
-        );
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.cambiarCategoria(categoria);
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public Movimiento modificarTipoMovimiento(
-            Long movimientoId,
-            Long usuarioId,
-            TipoMovimiento tipoMovimiento) {
-
-        validarIds(
-                movimientoId,
-                usuarioId
-        );
-
-        Objects.requireNonNull(
-                tipoMovimiento,
-                "El tipo de movimiento es obligatorio"
-        );
-
-        Movimiento movimiento =
-                obtenerMovimientoAutorizado(
-                        movimientoId,
-                        usuarioId
-                );
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.modificarTipoMovimiento(
-                    tipoMovimiento
-            );
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public Movimiento modificarImporte(
-            Long movimientoId,
-            Long usuarioId,
-            BigDecimal importe) {
-
-        validarIds(
-                movimientoId,
-                usuarioId
-        );
-
-        Objects.requireNonNull(
-                importe,
-                "El importe es obligatorio"
-        );
-
-        Movimiento movimiento =
-                obtenerMovimientoAutorizado(
-                        movimientoId,
-                        usuarioId
-                );
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.cambiarImporte(importe);
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public Movimiento modificarFechaHora(
-            Long movimientoId,
-            Long usuarioId,
-            LocalDateTime fechaHora) {
-
-        validarIds(
-                movimientoId,
-                usuarioId
-        );
-
-        Objects.requireNonNull(
-                fechaHora,
-                "La fecha y hora son obligatorias"
-        );
-
-        Movimiento movimiento =
-                obtenerMovimientoAutorizado(
-                        movimientoId,
-                        usuarioId
-                );
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
-            movimiento.cambiarFechaHora(fechaHora);
-
-            Movimiento actualizado =
-                    movimientoRepository.guardar(movimiento);
-
-            entityManager.flush();
-
-            transaction.commit();
-
-            return actualizado;
-
-        } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            throw e;
-        }
-    }
-
-    public void eliminar(
-            Long movimientoId,
-            Long usuarioId) {
-
-        validarIds(
-                movimientoId,
-                usuarioId
-        );
-
-        Movimiento movimiento =
-                obtenerMovimientoAutorizado(
-                        movimientoId,
-                        usuarioId
-                );
-
-        EntityTransaction transaction =
-                entityManager.getTransaction();
-
-        try {
-            transaction.begin();
-
             movimientoRepository.eliminar(movimiento);
-
             entityManager.flush();
-
             transaction.commit();
-
         } catch (RuntimeException e) {
-
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
+            if (transaction.isActive()) transaction.rollback();
             throw e;
         }
     }
 
-    private void validarPerfilFinanciero(
-            Cuenta cuenta,
-            Categoria categoria) {
+    private Movimiento guardar(Movimiento movimiento) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            Movimiento guardado = movimientoRepository.guardar(movimiento);
+            entityManager.flush();
+            transaction.commit();
+            return guardado;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
 
-        Objects.requireNonNull(
-                cuenta,
-                "La cuenta es obligatoria"
-        );
+    private Movimiento modificar(Movimiento movimiento, Runnable cambio) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            cambio.run();
+            Movimiento actualizado = movimientoRepository.guardar(movimiento);
+            entityManager.flush();
+            transaction.commit();
+            return actualizado;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
 
-        Objects.requireNonNull(
-                categoria,
-                "La categoría es obligatoria"
-        );
-
-        Long cuentaPerfilId =
-                cuenta.getPerfilFinanciero().getId();
-
-        Long categoriaPerfilId =
-                categoria.getPerfilFinanciero().getId();
-
-        if (!Objects.equals(
-                cuentaPerfilId,
-                categoriaPerfilId
-        )) {
-            throw new IllegalArgumentException(
-                    "La cuenta y la categoría deben pertenecer al mismo perfil financiero"
-            );
+    private void validarPerfilFinanciero(Cuenta cuenta, Categoria categoria) {
+        Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
+        Objects.requireNonNull(categoria, "La categoría es obligatoria");
+        if (!Objects.equals(cuenta.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId())) {
+            throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
         }
     }
 
     private Movimiento obtenerMovimiento(Long movimientoId) {
-
-        return movimientoRepository.buscarPorId(
-                movimientoId
-        ).orElseThrow(
-                () -> new IllegalArgumentException(
-                        "No existe un movimiento con id "
-                                + movimientoId
-                )
-        );
+        return movimientoRepository.buscarPorId(movimientoId).orElseThrow(
+                () -> new IllegalArgumentException("No existe un movimiento con id " + movimientoId));
     }
 
-    private Movimiento obtenerMovimientoAutorizado(
-            Long movimientoId,
-            Long usuarioId) {
-
-        Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
-
-        if (!movimiento.getCuenta()
-                .getPerfilFinanciero()
-                .getUsuario()
-                .getId()
-                .equals(usuarioId)) {
-
-            throw new IllegalArgumentException(
-                    "El usuario no es propietario del movimiento"
-            );
-        }
-
+    private Movimiento obtenerMovimientoAutorizado(Long movimientoId, Long usuarioId) {
+        Movimiento movimiento = obtenerMovimiento(movimientoId);
+        validarPropietario(usuarioId, movimiento.getCuenta());
         return movimiento;
     }
 
-    private void validarIds(
-            Long movimientoId,
-            Long usuarioId) {
+    private Cuenta obtenerCuenta(Long cuentaId) {
+        Cuenta cuenta = entityManager.find(Cuenta.class, cuentaId);
+        if (cuenta == null) throw new IllegalArgumentException("No existe una cuenta con id " + cuentaId);
+        return cuenta;
+    }
 
-        Objects.requireNonNull(
-                movimientoId,
-                "El id del movimiento es obligatorio"
-        );
+    private Categoria obtenerCategoria(Long categoriaId) {
+        Categoria categoria = entityManager.find(Categoria.class, categoriaId);
+        if (categoria == null) throw new IllegalArgumentException("No existe la categoría con id " + categoriaId);
+        return categoria;
+    }
 
-        Objects.requireNonNull(
-                usuarioId,
-                "El id del usuario es obligatorio"
-        );
+    private void validarPropietario(Long usuarioId, Cuenta cuenta) {
+        Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
+        if (!Objects.equals(cuenta.getPerfilFinanciero().getUsuario().getId(), usuarioId)) {
+            throw new IllegalArgumentException("El usuario no es propietario de la cuenta");
+        }
+    }
+
+    private void validarPropietario(Long usuarioId, Categoria categoria) {
+        Objects.requireNonNull(categoria, "La categoría es obligatoria");
+        if (!Objects.equals(categoria.getPerfilFinanciero().getUsuario().getId(), usuarioId)) {
+            throw new IllegalArgumentException("El usuario no es propietario de la categoría");
+        }
+    }
+
+    private void validarIds(Long movimientoId, Long usuarioId) {
+        Objects.requireNonNull(movimientoId, "El id del movimiento es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
     }
 }
