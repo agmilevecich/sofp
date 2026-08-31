@@ -2,57 +2,65 @@
 
 > Documento de continuidad. El código y los tests actuales son la fuente de verdad técnica.
 
-## Estado verificado
+## Estado verificado — 31/08/2026
 
-**Rama estable:** `main`  
-**Último commit funcional de la feature de seguridad:** `7d6632f` — `docs: actualizar revision final de seguridad de perfil`  
-**Último commit de documentación:** `f9469276` — `docs: cerrar auditoria de seguridad y registrar hallazgos`  
-**Fecha del estado:** 31/08/2026
+**Rama de trabajo:** `feature/seguridad-aislamiento-datos`  
+**Último commit:** `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`  
+**Base:** `main`  
+**Comparación con `main`:** 11 commits por delante, 0 por detrás.
 
-La feature `feature/seguridad-perfil-financiero` fue integrada en `main` mediante **fast-forward**, sin merge commit, y queda como rama histórica.
+La rama de trabajo contiene la corrección progresiva de los hallazgos de la auditoría de seguridad de aislamiento por perfil. `main` no fue modificado durante esta etapa.
 
 ## Validación global vigente
 
-Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 20:00:23 -03:00**:
+Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
 
-- Tests run: **486**
+- Tests run: **503**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - Resultado: **BUILD SUCCESS**
-- Duración: **15:50 min**
+- Duración: **15:01 min**
 
-**486/486 tests en verde.** Esta es la validación global vigente y reemplaza a la anterior de 480 tests como referencia.
+**503/503 tests en verde.** Esta es la validación global vigente y reemplaza a las anteriores de 486 y 480 tests.
 
-## Seguridad de PerfilFinanciero
+## Seguridad y aislamiento por perfil
 
-Implementado, probado e integrado:
+Durante esta feature se corrigieron y probaron los siguientes bloques:
 
-- `PerfilFinancieroService` verifica el propietario antes de modificar un perfil;
-- `cambiarDescripcion`, `activar` y `desactivar` requieren el `usuarioId` propietario;
-- `perfilId` nulo → `NullPointerException`;
-- `usuarioId` nulo → `NullPointerException`;
-- perfil inexistente → `IllegalArgumentException`;
-- usuario no propietario → `IllegalArgumentException`;
-- usuario propietario → operación permitida;
-- `PerfilFinancieroServiceTest`: **19/19 tests en verde**.
+- `CuentaService`: las operaciones mutables relevantes reciben `usuarioId` y verifican que el usuario sea propietario de la cuenta; se cubrieron las adaptaciones correspondientes en `CuentaServiceTest`.
+- `CategoriaService`: las operaciones mutables relevantes reciben `usuarioId` y verifican el propietario; se corrigieron además problemas de persistencia/rollback detectados al adaptar los tests.
+- `MovimientoService`: las operaciones mutables reciben `usuarioId` y verifican que el movimiento pertenezca al perfil autorizado; `MovimientoServiceTest` fue adaptado a las nuevas firmas y reglas.
+- `PosicionActivoService`: la posición se obtiene mediante `activoId + perfilFinancieroId`, utilizando `MovimientoActivoRepository.listarPorActivoYPerfilFinanciero(...)` para impedir la mezcla de movimientos de distintos perfiles.
+- `MovimientoActivoRepository`: se incorporaron consultas filtradas por perfil para soportar el aislamiento de posiciones y cartera.
 
-## Auditoría de seguridad
+Commits principales de esta etapa:
 
-La auditoría transversal de seguridad y aislamiento de datos quedó **exploratoriamente finalizada** y está documentada en `docs/11_AUDITORIA_SEGURIDAD.md`.
+- `e22f236` — `fix: autorizar operaciones mutables de cuenta`;
+- `346f64c` — `test: adaptar CuentaServiceTest a autorización por propietario`;
+- `98509e2` — `fix: autorizar operaciones mutables de categoria`;
+- `f628337` — `fix: corregir rollback en CategoriaService`;
+- `7a40f16` — `test: adaptar CategoriaServiceTest al aislamiento por usuario`;
+- `cb745a3` — `fix: corregir persistencia de perfiles en CategoriaServiceTest`;
+- `18b9286` — `fix: autorizar operaciones mutables de movimiento`;
+- `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
 
-Hallazgos confirmados pendientes de corrección:
+También forma parte de la etapa la corrección del aislamiento de posición mediante:
 
-- `CuentaService`: operaciones mutables sin autorización explícita del propietario;
-- `CategoriaService`: operaciones mutables sin autorización uniforme del propietario;
-- `MovimientoService`: modificaciones y eliminación sin autorización explícita del propietario;
-- `OperacionFinancieraService`: autorización del usuario solicitante no demostrada;
-- `PosicionActivoService`: cálculo por activo sin aislamiento explícito por perfil;
-- lecturas por ID/listados: revisar cuáles cruzan la frontera hacia casos de uso y requieren aislamiento.
+- `573f3a0` — `test: cubrir aislamiento de posicion de activo por perfil`.
 
-La corrección de estos hallazgos es la próxima etapa de trabajo. No se debe considerar cerrada la seguridad transversal hasta que las correcciones tengan tests específicos y validación global.
+## Hallazgos todavía pendientes
 
-## Funcionalidades cerradas e integradas
+La auditoría original identificó otros puntos que todavía no deben marcarse como cerrados sin una implementación y tests verificables:
+
+1. `OperacionFinancieraService`: incorporar/verificar autorización explícita del usuario solicitante en las operaciones protegidas.
+2. Lecturas por ID y listados: revisar cuáles cruzan la frontera hacia casos de uso y requieren aislamiento por usuario/perfil.
+3. Caminos alternativos de creación de movimientos: comprobar que no permitan eludir las reglas aplicadas por `MovimientoService`.
+4. Tests específicos de lectura de recursos ajenos y de otros casos de autorización que aún no estén cubiertos.
+
+La corrección de cuentas, categorías, movimientos y posiciones **no implica que la auditoría transversal completa esté cerrada** hasta resolver y validar los puntos restantes.
+
+## Funcionalidades cerradas e integradas en `main`
 
 - operaciones financieras;
 - identificación de activos mediante símbolo;
@@ -62,6 +70,8 @@ La corrección de estos hallazgos es la próxima etapa de trabajo. No se debe co
 - reportes de cartera;
 - evolución histórica del saldo de una cuenta;
 - seguridad de `PerfilFinanciero`.
+
+La interfaz Swing todavía no fue iniciada como etapa de implementación. Se mantiene como evolución posterior a la estabilización de dominio, servicios y seguridad.
 
 ## Persistencia y servicios relevantes
 
@@ -79,13 +89,13 @@ Repositorios JPA relevantes:
 - `BonoRepository`;
 - `MovimientoActivoRepository`.
 
-Servicios y componentes funcionales recientes incluyen `PerfilFinancieroService`, `CuentaService`, `CarteraActivoService`, `OperacionFinancieraService`, `PosicionActivoService` y los componentes de valorización y reportes ya integrados.
+Servicios relevantes incluyen `PerfilFinancieroService`, `CuentaService`, `CategoriaService`, `MovimientoService`, `OperacionFinancieraService`, `PosicionActivoService` y `CarteraActivoService`.
 
 ## Git y continuidad
 
 Se mantienen dos remotos (`github` y `bitbucket`) como referencia y recuperación ante errores accidentales.
 
-`main` es estable y las nuevas funcionalidades se desarrollan en ramas propias. La integración de features se realiza mediante `git merge --ff-only`, sin merge commit.
+`main` es estable y las nuevas funcionalidades se desarrollan en ramas propias. No se debe modificar `main` directamente durante una feature.
 
 Antes de cualquier nuevo cambio:
 
@@ -100,6 +110,6 @@ Antes de cualquier nuevo cambio:
 
 ## Próximo paso
 
-**Corregir los hallazgos de la auditoría de seguridad**, empezando por `PosicionActivoService` y luego aplicar un patrón uniforme de autorización/aislamiento a cuentas, categorías, movimientos y operaciones financieras. Cada corrección deberá validarse con tests específicos y luego con la suite completa.
+Continuar la feature `feature/seguridad-aislamiento-datos` con los hallazgos restantes, comenzando por `OperacionFinancieraService` y la revisión de lecturas/paths alternativos. No pasar todavía a Swing sin decidir primero si la etapa de seguridad transversal queda cerrada con cobertura suficiente.
 
-La interfaz gráfica continúa como evolución posterior, apoyándose sobre el backend estabilizado.
+Al cerrar seguridad, realizar una validación final contra `main` y recién entonces preparar la siguiente etapa de interfaz Swing.
