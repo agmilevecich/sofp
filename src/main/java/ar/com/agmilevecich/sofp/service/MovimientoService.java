@@ -56,8 +56,8 @@ public class MovimientoService {
     }
 
     /* API interna de compatibilidad para tests y coordinación interna del paquete. */
-    public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
-                                BigDecimal importe, LocalDateTime fechaHora, String descripcion) {
+    Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
+                         BigDecimal importe, LocalDateTime fechaHora, String descripcion) {
         validarPerfilFinanciero(cuenta, categoria);
         if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
         return guardar(new Movimiento(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion));
