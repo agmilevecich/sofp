@@ -5,9 +5,9 @@
 ## Estado verificado — 31/08/2026
 
 **Rama de trabajo:** `feature/seguridad-aislamiento-datos`  
-**Último commit:** `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`  
+**Último commit funcional/test:** `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`  
 **Base:** `main`  
-**Comparación con `main`:** 11 commits por delante, 0 por detrás.
+**Situación:** la rama estaba 11 commits por delante de `main` en `c1f635f`; posteriormente se agregaron únicamente commits documentales de continuidad.
 
 La rama de trabajo contiene la corrección progresiva de los hallazgos de la auditoría de seguridad de aislamiento por perfil. `main` no fue modificado durante esta etapa.
 
@@ -34,7 +34,7 @@ Durante esta feature se corrigieron y probaron los siguientes bloques:
 - `PosicionActivoService`: la posición se obtiene mediante `activoId + perfilFinancieroId`, utilizando `MovimientoActivoRepository.listarPorActivoYPerfilFinanciero(...)` para impedir la mezcla de movimientos de distintos perfiles.
 - `MovimientoActivoRepository`: se incorporaron consultas filtradas por perfil para soportar el aislamiento de posiciones y cartera.
 
-Commits principales de esta etapa:
+Commits funcionales y de tests de esta etapa hasta la última validación:
 
 - `e22f236` — `fix: autorizar operaciones mutables de cuenta`;
 - `346f64c` — `test: adaptar CuentaServiceTest a autorización por propietario`;
@@ -42,23 +42,23 @@ Commits principales de esta etapa:
 - `f628337` — `fix: corregir rollback en CategoriaService`;
 - `7a40f16` — `test: adaptar CategoriaServiceTest al aislamiento por usuario`;
 - `cb745a3` — `fix: corregir persistencia de perfiles en CategoriaServiceTest`;
+- `573f3a0` — `test: cubrir aislamiento de posicion de activo por perfil`;
 - `18b9286` — `fix: autorizar operaciones mutables de movimiento`;
 - `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
 
-También forma parte de la etapa la corrección del aislamiento de posición mediante:
-
-- `573f3a0` — `test: cubrir aislamiento de posicion de activo por perfil`.
+Después de `c1f635f` se realizaron únicamente actualizaciones documentales de continuidad.
 
 ## Hallazgos todavía pendientes
 
-La auditoría original identificó otros puntos que todavía no deben marcarse como cerrados sin una implementación y tests verificables:
+La auditoría transversal todavía no está cerrada. Permanecen:
 
 1. `OperacionFinancieraService`: incorporar/verificar autorización explícita del usuario solicitante en las operaciones protegidas.
 2. Lecturas por ID y listados: revisar cuáles cruzan la frontera hacia casos de uso y requieren aislamiento por usuario/perfil.
 3. Caminos alternativos de creación de movimientos: comprobar que no permitan eludir las reglas aplicadas por `MovimientoService`.
-4. Tests específicos de lectura de recursos ajenos y de otros casos de autorización que aún no estén cubiertos.
+4. Tests específicos restantes de lectura de recursos ajenos y de otros escenarios de autorización.
+5. Casos límite de activos compartidos entre perfiles.
 
-La corrección de cuentas, categorías, movimientos y posiciones **no implica que la auditoría transversal completa esté cerrada** hasta resolver y validar los puntos restantes.
+La corrección de cuentas, categorías, movimientos y posiciones no implica que la auditoría transversal completa esté cerrada hasta resolver y validar los puntos restantes.
 
 ## Funcionalidades cerradas e integradas en `main`
 
