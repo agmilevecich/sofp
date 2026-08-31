@@ -4,14 +4,14 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 ## Estado — 31/08/2026
 
-Rama de trabajo: `feature/seguridad-aislamiento-datos`.
-Último cambio de código: correcciones de aislamiento y autorización completadas.
-Los commits documentales posteriores registran la validación final.
-`main` no fue modificada.
+Rama estable: `main`.
+Último commit integrado al momento de esta actualización: `75d0a18`.
+La rama `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward.
+GitHub y Bitbucket quedaron sincronizados y la copia local informó `working tree clean`.
 
 ## Seguridad
 
-La auditoría transversal quedó completada a nivel de implementación y tests.
+La auditoría transversal de seguridad y aislamiento de datos quedó completada e integrada en `main`.
 
 Implementado:
 
@@ -42,10 +42,14 @@ La primera ejecución del test específico tuvo 7 fallos por un dato de prueba q
 
 ## Cierre de seguridad
 
-La auditoría transversal está funcionalmente completada y validada. Falta únicamente el cierre técnico local del repositorio: sincronizar los últimos commits documentales, verificar `git status`, `git diff --check` y comparar nuevamente la feature contra `main`.
+La auditoría está cerrada funcional y técnicamente. La feature fue integrada en `main` mediante fast-forward y publicada en GitHub y Bitbucket.
 
-No hacer merge a `main` automáticamente.
+No queda pendiente de esta etapa ningún merge de seguridad.
 
-## Próximo paso
+## Próxima etapa
 
-Una vez confirmado el cierre técnico, la siguiente etapa prevista es continuar con Swing, manteniendo como fuente de verdad el código, los tests y Git.
+**Fase 8 — Interfaz de usuario Swing.**
+
+Antes de modificar código se debe reconstruir desde `main` la estructura real de `src/main/java`, revisar las clases y servicios disponibles para UI y verificar tests y convenciones existentes.
+
+La implementación de Swing todavía no comenzó.
