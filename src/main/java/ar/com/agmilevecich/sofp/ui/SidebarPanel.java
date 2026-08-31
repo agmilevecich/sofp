@@ -5,19 +5,27 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 
 /** Navegación lateral del shell principal. */
 public class SidebarPanel extends JPanel {
 
-    public SidebarPanel() {
+    public SidebarPanel(ActionListener navigationListener) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         setPreferredSize(new Dimension(190, 0));
 
-        add(new JButton("Inicio"));
-        add(new JButton("Cuentas"));
-        add(new JButton("Movimientos"));
-        add(new JButton("Inversiones"));
+        add(crearBoton("Inicio", "inicio", navigationListener));
+        add(crearBoton("Cuentas", "cuentas", navigationListener));
+        add(crearBoton("Movimientos", "movimientos", navigationListener));
+        add(crearBoton("Inversiones", "inversiones", navigationListener));
         add(new JButton("Reportes"));
+    }
+
+    private JButton crearBoton(String texto, String comando, ActionListener listener) {
+        JButton boton = new JButton(texto);
+        boton.setActionCommand(comando);
+        boton.addActionListener(listener);
+        return boton;
     }
 }
