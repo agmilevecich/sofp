@@ -6,11 +6,11 @@ Este documento contiene únicamente trabajo pendiente o por decidir.
 
 La rama de trabajo es `feature/seguridad-aislamiento-datos`.
 
-Último commit funcional/test antes de esta actualización documental:
+Último commit funcional/test antes de la actualización documental:
 
 - `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
 
-La rama está 11 commits por delante de `main` y 0 por detrás.
+En `c1f635f`, la rama estaba 11 commits por delante de `main` y 0 por detrás. Los commits posteriores realizados sobre esta rama son únicamente actualizaciones documentales de continuidad.
 
 ## Validación global vigente
 
@@ -30,18 +30,18 @@ Ya fueron implementadas y validadas correcciones para:
 1. `CuentaService`: autorización de operaciones mutables por propietario.
 2. `CategoriaService`: autorización de operaciones mutables por propietario.
 3. `MovimientoService`: autorización de modificaciones y eliminación por propietario.
-4. `PosicionActivoService`: aislamiento de la posición por perfil financiero mediante consultas filtradas.
+4. `PosicionActivoService`: aislamiento de la posición por perfil financiero.
 
-Los tests correspondientes fueron adaptados y la suite completa permanece en verde.
+Los tests correspondientes fueron adaptados/cubiertos y la suite completa permanece en verde.
 
 ## Seguridad: pendientes reales
 
 La auditoría transversal todavía no está cerrada. Permanecen:
 
-1. `OperacionFinancieraService`: incorporar/verificar autorización explícita del usuario solicitante en las operaciones protegidas.
+1. `OperacionFinancieraService`: autorización explícita del usuario solicitante en las operaciones protegidas.
 2. Lecturas por ID y listados: revisar cuáles son casos de uso expuestos y garantizar aislamiento de recursos pertenecientes a otros perfiles cuando corresponda.
 3. Caminos alternativos de creación de movimientos: verificar que no permitan eludir las reglas de `MovimientoService`.
-4. Completar tests de autorización y lectura de recursos ajenos donde el código actual todavía no tenga cobertura específica.
+4. Completar tests de lectura de recursos ajenos y autorización donde el código actual todavía no tenga cobertura específica.
 5. Revisar casos límite de activos compartidos entre perfiles y confirmar que las posiciones derivadas siempre respeten el perfil solicitado.
 
 Estos puntos son correcciones de seguridad, no nuevas funcionalidades independientes.
@@ -58,7 +58,7 @@ Estos puntos son correcciones de seguridad, no nuevas funcionalidades independie
 
 ## Swing
 
-La interfaz Swing todavía no debe considerarse iniciada. Queda como siguiente gran etapa **después de cerrar la seguridad transversal** y verificar nuevamente el estado del backend.
+La interfaz Swing todavía no debe considerarse iniciada. Queda como siguiente gran etapa después de cerrar la seguridad transversal y verificar nuevamente el estado del backend.
 
 Antes de comenzar Swing se deberá:
 
