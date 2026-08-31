@@ -2,13 +2,21 @@ package ar.com.agmilevecich.sofp.ui;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
 
 /** Ventana principal y shell de navegación de SOFP. */
 public class MainFrame extends JFrame {
+
+    private static final String INICIO = "inicio";
+    private static final String CUENTAS = "cuentas";
+    private static final String MOVIMIENTOS = "movimientos";
+    private static final String INVERSIONES = "inversiones";
+
+    private final CardLayout cardLayout;
+    private final JPanel areaCentral;
 
     public MainFrame() {
         super("SOFP - Sistema Operativo Financiero Personal");
@@ -16,18 +24,23 @@ public class MainFrame extends JFrame {
         setSize(1100, 700);
         setLocationRelativeTo(null);
 
+        cardLayout = new CardLayout();
+        areaCentral = new JPanel(cardLayout);
+        areaCentral.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        areaCentral.add(new InicioPanel(), INICIO);
+        areaCentral.add(new CuentasPanel(), CUENTAS);
+        areaCentral.add(new MovimientosPanel(), MOVIMIENTOS);
+        areaCentral.add(new InversionesPanel(), INVERSIONES);
+
         JPanel content = new JPanel(new BorderLayout());
         content.add(new HeaderPanel(), BorderLayout.NORTH);
-        content.add(new SidebarPanel(), BorderLayout.WEST);
-        content.add(crearAreaCentral(), BorderLayout.CENTER);
+        content.add(new SidebarPanel(this::navegar), BorderLayout.WEST);
+        content.add(areaCentral, BorderLayout.CENTER);
         content.add(new StatusBarPanel(), BorderLayout.SOUTH);
         setContentPane(content);
     }
 
-    private JPanel crearAreaCentral() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        panel.add(new JLabel("Inicio", SwingConstants.CENTER), BorderLayout.CENTER);
-        return panel;
+    private void navegar(ActionEvent evento) {
+        cardLayout.show(areaCentral, evento.getActionCommand());
     }
 }
