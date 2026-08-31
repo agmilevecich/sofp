@@ -19,17 +19,64 @@ Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios
 - JUnit 5.11.4
 - BigDecimal para dinero
 
-## Estado actual — 30/08/2026
+## Estado actual — 31/08/2026
 
-`main` es la rama estable. El último commit del repositorio es:
+La rama estable es `main`. La rama de trabajo actual es `feature/seguridad-aislamiento-datos`.
 
-- `1a2c3c1` — `docs: actualizar estado final de continuidad`.
+Estado verificado contra GitHub:
 
-El último commit funcional/documental de cierre de la feature de seguridad es `7d6632f` — `docs: actualizar revision final de seguridad de perfil`.
+- rama de trabajo: `feature/seguridad-aislamiento-datos`;
+- último commit funcional/test: `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`;
+- comparación con `main`: **11 commits por delante, 0 por detrás**;
+- `main` no fue modificado durante esta feature.
 
-`feature/seguridad-perfil-financiero` fue integrada en `main` mediante **fast-forward** y queda como rama histórica.
+La documentación de continuidad fue actualizada después de la validación global de esta etapa.
 
-## Features cerradas e integradas
+## Validación global vigente
+
+Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
+
+- **503 tests**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- Duración: **15:01 min**.
+
+**503/503 tests en verde.**
+
+## Seguridad y aislamiento — estado de la feature
+
+La auditoría exploratoria transversal fue finalizada y sus hallazgos están siendo corregidos en esta rama.
+
+Correcciones implementadas hasta ahora:
+
+- `CuentaService`: autorización por propietario para operaciones mutables relevantes;
+- `CategoriaService`: autorización por propietario para operaciones mutables relevantes;
+- `MovimientoService`: autorización por propietario para operaciones mutables relevantes;
+- `PosicionActivoService`: aislamiento de posición por `PerfilFinanciero`;
+- `MovimientoActivoRepository`: consultas filtradas por perfil para soportar el aislamiento de posiciones.
+
+Tests adaptados/cubiertos:
+
+- `CuentaServiceTest`;
+- `CategoriaServiceTest`;
+- `MovimientoServiceTest`;
+- `PosicionActivoServiceTest`.
+
+La suite completa de 503 tests permanece verde.
+
+## Hallazgos pendientes
+
+La seguridad transversal todavía no está cerrada. Quedan por resolver/verificar:
+
+1. autorización explícita del usuario solicitante en `OperacionFinancieraService`;
+2. aislamiento de lecturas por ID y listados cuando representen casos de uso accesibles al usuario;
+3. caminos alternativos de creación de movimientos que puedan eludir las reglas del servicio;
+4. tests específicos restantes de lectura de recursos ajenos y autorización;
+5. casos límite de activos compartidos entre perfiles.
+
+## Features cerradas e integradas en `main`
 
 - `feature/operacion-financiera`;
 - `feature/identificacion-activo`;
@@ -38,35 +85,6 @@ El último commit funcional/documental de cierre de la feature de seguridad es `
 - `feature/valorizacion-posicion-activo`;
 - `feature/reportes-cartera`;
 - `feature/seguridad-perfil-financiero`.
-
-## Seguridad de PerfilFinanciero
-
-`PerfilFinancieroService` verifica el propietario para las operaciones de cambio de descripción, activación y desactivación.
-
-`PerfilFinancieroServiceTest`: **19/19 tests en verde**.
-
-La feature quedó integrada en `main` mediante fast-forward.
-
-## Validación global vigente
-
-Suite completa ejecutada desde IntelliJ IDEA el **29/08/2026 20:00:23 -03:00**:
-
-- **486 tests**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- Duración: **15:50 min**.
-
-## Reportes y evolución histórica
-
-Se implementaron y validaron:
-
-- reporte de cartera de activos;
-- composición valorizada de cartera;
-- detalle de movimientos de cartera;
-- evolución histórica del saldo de una cuenta;
-- integración de la evolución histórica en `CuentaService`.
 
 ## Dominio actual
 
@@ -83,7 +101,7 @@ Entidades principales conocidas:
 - `Activo`;
 - `Bono`.
 
-Compra y venta de activos están implementadas y validadas. `PosicionActivo` calcula la posición a partir de movimientos persistidos.
+Compra y venta de activos están implementadas y validadas. `PosicionActivo` calcula la posición a partir de movimientos persistidos y, en la rama actual, el servicio contextualiza la consulta por perfil.
 
 ## Persistencia
 
@@ -105,7 +123,7 @@ Repositorios relevantes:
 
 Se mantienen dos remotos (`github` y `bitbucket`) como referencia y recuperación ante errores accidentales.
 
-`main` es estable. Las nuevas funcionalidades se desarrollan en ramas propias. La integración de features se realiza mediante `git merge --ff-only`, sin merge commit.
+`main` es estable. Las nuevas funcionalidades/correcciones se desarrollan en ramas propias. No modificar `main` directamente durante una feature.
 
 Antes de cualquier nuevo cambio:
 
@@ -114,15 +132,15 @@ Antes de cualquier nuevo cambio:
 3. comparar con `main`;
 4. revisar código, tests y reglas de negocio relacionadas;
 5. seleccionar el cambio mínimo;
-6. ejecutar tests específicos y la suite general cuando corresponda;
-7. revisar diff, `git diff --check` y `git status`;
-8. actualizar la documentación al cerrar etapas importantes.
+6. ejecutar tests específicos y suite general cuando corresponda;
+7. revisar `git diff`, `git diff --check` y `git status`;
+8. actualizar documentación al cerrar etapas importantes.
 
 ## Próximo paso
 
-No existe actualmente una feature pendiente de integración. El próximo trabajo debe definirse a partir del código real de `main`, revisando entidades, repositorios, servicios, tests y reglas de negocio antes de crear la siguiente rama.
+Continuar `feature/seguridad-aislamiento-datos` con `OperacionFinancieraService` y luego revisar las lecturas y caminos alternativos de creación de movimientos.
 
-La interfaz gráfica continúa como evolución posterior, apoyándose sobre el backend estabilizado.
+No comenzar todavía la implementación Swing hasta cerrar la seguridad transversal y realizar la validación final contra `main`.
 
 ## Documentación de continuidad
 
@@ -132,6 +150,7 @@ La interfaz gráfica continúa como evolución posterior, apoyándose sobre el b
 - `docs/08_PENDIENTES.md`;
 - `docs/09_HISTORIAL_PROYECTO.md`;
 - `docs/10_SEGURIDAD_PERFIL_FINANCIERO.md`;
+- `docs/11_AUDITORIA_SEGURIDAD.md`;
 - `docs/CHAT_CONTEXT.md`.
 
 No registrar resultados de tests o builds que no hayan sido realmente ejecutados.
