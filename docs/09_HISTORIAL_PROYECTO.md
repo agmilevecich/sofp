@@ -2,6 +2,54 @@
 
 Este documento conserva una línea temporal resumida de avances y puntos de continuidad.
 
+## 2026-08-31
+
+### Feature `feature/seguridad-aislamiento-datos` — correcciones de seguridad
+
+A partir de la auditoría transversal de seguridad se creó la rama `feature/seguridad-aislamiento-datos`.
+
+La rama quedó **11 commits por delante de `main` y 0 por detrás**.
+
+Correcciones implementadas:
+
+- autorización de operaciones mutables en `CuentaService`;
+- adaptación de `CuentaServiceTest` a autorización por propietario;
+- autorización de operaciones mutables en `CategoriaService`;
+- corrección de rollback/persistencia detectada en `CategoriaServiceTest`;
+- adaptación de `CategoriaServiceTest` al aislamiento por usuario;
+- autorización de operaciones mutables en `MovimientoService`;
+- adaptación de `MovimientoServiceTest` al aislamiento por usuario;
+- aislamiento de posiciones de activos por perfil mediante `MovimientoActivoRepository` y `PosicionActivoService`.
+
+Commits relevantes:
+
+- `e22f236` — `fix: autorizar operaciones mutables de cuenta`;
+- `346f64c` — `test: adaptar CuentaServiceTest a autorización por propietario`;
+- `98509e2` — `fix: autorizar operaciones mutables de categoria`;
+- `f628337` — `fix: corregir rollback en CategoriaService`;
+- `7a40f16` — `test: adaptar CategoriaServiceTest al aislamiento por usuario`;
+- `cb745a3` — `fix: corregir persistencia de perfiles en CategoriaServiceTest`;
+- `573f3a0` — `test: cubrir aislamiento de posicion de activo por perfil`;
+- `18b9286` — `fix: autorizar operaciones mutables de movimiento`;
+- `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
+
+### Validación global
+
+Suite general ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
+
+- **503/503 tests en verde**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **15:01 min**.
+
+Este resultado reemplaza como referencia global a las validaciones anteriores de 486, 480 y 433 tests.
+
+### Estado de seguridad
+
+La corrección de aislamiento está avanzada, pero la etapa transversal todavía no está cerrada. Permanecen pendientes `OperacionFinancieraService`, la revisión de lecturas por ID/listados, los caminos alternativos de creación de movimientos y la cobertura específica asociada.
+
 ## 2026-08-30
 
 ### Estado post-integración de seguridad de PerfilFinanciero
@@ -12,60 +60,28 @@ Commit final de la feature:
 
 - `7d6632f` — `docs: actualizar revision final de seguridad de perfil`.
 
-El estado verificado quedó con `main`, `github/main`, `bitbucket/main` y la rama histórica de seguridad en `7d6632f` según la última comprobación local informada por el usuario.
-
-### Validación global
-
-Suite general ejecutada desde IntelliJ IDEA el **29/08/2026 20:00:23 -03:00**:
-
-- **486/486 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **15:50 min**.
-
 ## 2026-08-29
 
 ### Seguridad de PerfilFinanciero
 
-Se implementó autorización por propietario en `PerfilFinancieroService` para:
+Se implementó autorización por propietario en `PerfilFinancieroService` para `cambiarDescripcion`, `activar` y `desactivar`.
 
-- `cambiarDescripcion`;
-- `activar`;
-- `desactivar`.
+Cobertura específica: **19/19 tests en verde**.
 
-La cobertura específica quedó en **19/19 tests en verde**.
-
-Commits funcionales y de cobertura:
+Commits principales:
 
 - `6478262` — `feat: proteger operaciones de perfil por propietario`;
 - `8d3c775` — `test: cubrir autorizacion de operaciones de perfil`.
 
-Commits documentales:
-
-- `c07393e` — `docs: documentar seguridad de perfil financiero`;
-- `b6194ae` — `docs: actualizar estado final de seguridad de perfil`;
-- `b2fbcfb` — `docs: corregir conteo de commits de seguridad de perfil`;
-- `7d6632f` — `docs: actualizar revision final de seguridad de perfil`.
-
 La feature quedó cerrada e integrada mediante fast-forward.
 
-### Feature `reportes-cartera` — Cierre e integración
+### Feature `reportes-cartera` — cierre e integración
 
-Se completó el bloque funcional de reportes de cartera y evolución histórica de saldos.
-
-Incluye:
-
-- reporte de cartera de activos;
-- composición valorizada de cartera;
-- detalle de movimientos de cartera;
-- evolución histórica del saldo de una cuenta;
-- integración de la evolución histórica en `CuentaService`.
+Se completó el bloque funcional de reportes de cartera y evolución histórica de saldos, incluyendo reporte consolidado, composición valorizada, detalle de movimientos y evolución histórica de una cuenta.
 
 La feature `feature/reportes-cartera` quedó cerrada e integrada mediante fast-forward.
 
-La suite general anterior fue de **480/480 tests en verde**.
+Suite general anterior: **480/480 tests en verde**.
 
 ## 2026-08-28
 
@@ -76,8 +92,6 @@ La suite general anterior fue de **480/480 tests en verde**.
 - `9a03c95` — `test: cubrir evolucion historica de saldo`;
 - `3c14bdf` — `docs: completar evolucion historica de saldos en roadmap`.
 
-La funcionalidad reconstruye el saldo acumulado después de cada movimiento respetando el orden cronológico determinista.
-
 ## 2026-08-27
 
 ### Build 059 — Suite general posterior a venta y posición
@@ -85,8 +99,6 @@ La funcionalidad reconstruye el saldo acumulado después de cada movimiento resp
 - Se completó la validación del bloque de compra y venta de activos.
 - `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
 - `PosicionActivoServiceTest`: **4/4 tests en verde**.
-- Se verificaron relaciones persistidas de `Movimiento` y `MovimientoActivo` con `OperacionFinanciera`.
-- Se agregó una prueba de integración de compra y venta con posición final de 70 unidades.
 - Suite general: **433/433 tests en verde**.
 - Build 059 quedó cerrado y validado.
 
@@ -102,11 +114,11 @@ La funcionalidad reconstruye el saldo acumulado después de cada movimiento resp
 
 ## Estado actual
 
-`main` es la rama estable. No existe una feature pendiente de integración.
+`main` es la rama estable. `feature/seguridad-aislamiento-datos` es la rama de trabajo actual y contiene las correcciones de seguridad indicadas arriba.
 
 ## Próximo punto de trabajo
 
-Definir la siguiente evolución funcional a partir del código real de `main`, revisando entidades, repositorios, servicios, tests y reglas de negocio antes de crear una nueva rama.
+Completar los hallazgos restantes de seguridad. Una vez cerrada la etapa, realizar la validación final contra `main` y preparar la siguiente etapa, que será la interfaz Swing.
 
 ## Regla histórica
 
