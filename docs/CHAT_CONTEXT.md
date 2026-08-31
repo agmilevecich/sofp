@@ -8,17 +8,6 @@ SOFP — Sistema Operativo Financiero Personal.
 
 Aplicación Java de finanzas personales con dominio, persistencia JPA, servicios y tests automatizados.
 
-## Tecnologías
-
-- Java / JDK 23.0.1
-- IntelliJ IDEA Community 2026.1.1
-- Maven
-- Jakarta Persistence / JPA
-- Hibernate 6.6.18.Final
-- H2 2.3.232
-- JUnit 5.11.4
-- BigDecimal para dinero
-
 ## Estado actual — 31/08/2026
 
 La rama estable es `main`. La rama de trabajo actual es `feature/seguridad-aislamiento-datos`.
@@ -26,24 +15,20 @@ La rama estable es `main`. La rama de trabajo actual es `feature/seguridad-aisla
 Estado verificado contra GitHub:
 
 - rama de trabajo: `feature/seguridad-aislamiento-datos`;
-- último commit funcional/test: `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`;
-- comparación con `main`: **11 commits por delante, 0 por detrás**;
+- último commit de código/tests antes de la actualización documental: `b0e6377` — `test: cubrir aislamiento de datos por usuario`;
+- commit funcional previo: `85a4e86` — `fix: autorizar operaciones financieras por usuario`;
+- la rama está sincronizada con `github/feature/seguridad-aislamiento-datos` y `bitbucket/feature/seguridad-aislamiento-datos`;
 - `main` no fue modificado durante esta feature.
-
-La documentación de continuidad fue actualizada después de la validación global de esta etapa.
 
 ## Validación global vigente
 
-Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
+Última suite completa informada por Ariel el **31/08/2026**:
 
-- **503 tests**;
+- **505/505 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
-- `BUILD SUCCESS`;
-- Duración: **15:01 min**.
-
-**503/503 tests en verde.**
+- `BUILD SUCCESS`.
 
 ## Seguridad y aislamiento — estado de la feature
 
@@ -55,69 +40,26 @@ Correcciones implementadas hasta ahora:
 - `CategoriaService`: autorización por propietario para operaciones mutables relevantes;
 - `MovimientoService`: autorización por propietario para operaciones mutables relevantes;
 - `PosicionActivoService`: aislamiento de posición por `PerfilFinanciero`;
-- `MovimientoActivoRepository`: consultas filtradas por perfil para soportar el aislamiento de posiciones.
+- `MovimientoActivoRepository`: consultas filtradas por perfil para soportar el aislamiento de posiciones;
+- `OperacionFinancieraService`: autorización explícita del usuario solicitante en las operaciones protegidas.
 
-Tests adaptados/cubiertos:
+Tests adaptados/cubiertos recientemente:
 
-- `CuentaServiceTest`;
-- `CategoriaServiceTest`;
-- `MovimientoServiceTest`;
+- `OperacionFinancieraCompraServiceTest`;
+- `OperacionFinancieraServiceTest`;
+- `OperacionFinancieraVentaServiceTest`;
 - `PosicionActivoServiceTest`.
 
-La suite completa de 503 tests permanece verde.
+El commit `b0e6377` registra esta cobertura de aislamiento por usuario.
 
 ## Hallazgos pendientes
 
 La seguridad transversal todavía no está cerrada. Quedan por resolver/verificar:
 
-1. autorización explícita del usuario solicitante en `OperacionFinancieraService`;
-2. aislamiento de lecturas por ID y listados cuando representen casos de uso accesibles al usuario;
-3. caminos alternativos de creación de movimientos que puedan eludir las reglas del servicio;
-4. tests específicos restantes de lectura de recursos ajenos y autorización;
-5. casos límite de activos compartidos entre perfiles.
-
-## Features cerradas e integradas en `main`
-
-- `feature/operacion-financiera`;
-- `feature/identificacion-activo`;
-- `feature/cartera-activos`;
-- `feature/costo-promedio-activo`;
-- `feature/valorizacion-posicion-activo`;
-- `feature/reportes-cartera`;
-- `feature/seguridad-perfil-financiero`.
-
-## Dominio actual
-
-Entidades principales conocidas:
-
-- `Usuario`;
-- `PerfilFinanciero`;
-- `InstitucionFinanciera`;
-- `Moneda`;
-- `Cuenta`;
-- `Categoria`;
-- `Movimiento`;
-- `OperacionFinanciera`;
-- `Activo`;
-- `Bono`.
-
-Compra y venta de activos están implementadas y validadas. `PosicionActivo` calcula la posición a partir de movimientos persistidos y, en la rama actual, el servicio contextualiza la consulta por perfil.
-
-## Persistencia
-
-Repositorios relevantes:
-
-- `UsuarioRepository`;
-- `PerfilFinancieroRepository`;
-- `InstitucionFinancieraRepository`;
-- `MonedaRepository`;
-- `CuentaRepository`;
-- `MovimientoRepository`;
-- `CategoriaRepository`;
-- `OperacionFinancieraRepository`;
-- `ActivoRepository`;
-- `BonoRepository`;
-- `MovimientoActivoRepository`.
+1. aislamiento de lecturas por ID y listados cuando representen casos de uso accesibles al usuario;
+2. caminos alternativos de creación de movimientos que puedan eludir las reglas del servicio;
+3. tests específicos restantes de lectura de recursos ajenos y autorización;
+4. casos límite de activos compartidos entre perfiles.
 
 ## Git y continuidad
 
@@ -138,7 +80,7 @@ Antes de cualquier nuevo cambio:
 
 ## Próximo paso
 
-Continuar `feature/seguridad-aislamiento-datos` con `OperacionFinancieraService` y luego revisar las lecturas y caminos alternativos de creación de movimientos.
+Continuar `feature/seguridad-aislamiento-datos` revisando las lecturas por ID y listados para garantizar el aislamiento entre perfiles. Luego revisar caminos alternativos de creación de movimientos y completar la cobertura pendiente.
 
 No comenzar todavía la implementación Swing hasta cerrar la seguridad transversal y realizar la validación final contra `main`.
 
