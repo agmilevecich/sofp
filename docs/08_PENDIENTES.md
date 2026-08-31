@@ -2,9 +2,51 @@
 
 Este documento contiene únicamente trabajo pendiente o por decidir.
 
-## Estado actual
+## Estado actual — 31/08/2026
 
-Las siguientes etapas están implementadas, validadas e integradas en `main` mediante fast-forward:
+La rama de trabajo es `feature/seguridad-aislamiento-datos`.
+
+Último commit funcional/test antes de esta actualización documental:
+
+- `c1f635f` — `test: adaptar MovimientoServiceTest al aislamiento por usuario`.
+
+La rama está 11 commits por delante de `main` y 0 por detrás.
+
+## Validación global vigente
+
+Suite completa ejecutada desde IntelliJ IDEA el **31/08/2026**, finalizada a las **12:46:20 -03:00**:
+
+- **503/503 tests en verde**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **15:01 min**.
+
+## Seguridad: correcciones realizadas
+
+Ya fueron implementadas y validadas correcciones para:
+
+1. `CuentaService`: autorización de operaciones mutables por propietario.
+2. `CategoriaService`: autorización de operaciones mutables por propietario.
+3. `MovimientoService`: autorización de modificaciones y eliminación por propietario.
+4. `PosicionActivoService`: aislamiento de la posición por perfil financiero mediante consultas filtradas.
+
+Los tests correspondientes fueron adaptados y la suite completa permanece en verde.
+
+## Seguridad: pendientes reales
+
+La auditoría transversal todavía no está cerrada. Permanecen:
+
+1. `OperacionFinancieraService`: incorporar/verificar autorización explícita del usuario solicitante en las operaciones protegidas.
+2. Lecturas por ID y listados: revisar cuáles son casos de uso expuestos y garantizar aislamiento de recursos pertenecientes a otros perfiles cuando corresponda.
+3. Caminos alternativos de creación de movimientos: verificar que no permitan eludir las reglas de `MovimientoService`.
+4. Completar tests de autorización y lectura de recursos ajenos donde el código actual todavía no tenga cobertura específica.
+5. Revisar casos límite de activos compartidos entre perfiles y confirmar que las posiciones derivadas siempre respeten el perfil solicitado.
+
+Estos puntos son correcciones de seguridad, no nuevas funcionalidades independientes.
+
+## Funcionalidades cerradas e integradas en `main`
 
 - `feature/operacion-financiera`;
 - `feature/identificacion-activo`;
@@ -14,59 +56,18 @@ Las siguientes etapas están implementadas, validadas e integradas en `main` med
 - `feature/reportes-cartera`;
 - `feature/seguridad-perfil-financiero`.
 
-La última feature cerrada fue `feature/seguridad-perfil-financiero`.
+## Swing
 
-## Validación global vigente
+La interfaz Swing todavía no debe considerarse iniciada. Queda como siguiente gran etapa **después de cerrar la seguridad transversal** y verificar nuevamente el estado del backend.
 
-Suite completa ejecutada el **29/08/2026 20:00:23 -03:00**:
+Antes de comenzar Swing se deberá:
 
-- **486/486 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **15:50 min**.
-
-## Auditoría de seguridad
-
-La auditoría exploratoria transversal quedó **FINALIZADA** y documentada en `docs/11_AUDITORIA_SEGURIDAD.md`.
-
-Quedan como trabajo pendiente las correcciones de los hallazgos confirmados:
-
-1. `CuentaService`: autorización del propietario en operaciones mutables.
-2. `CategoriaService`: autorización del propietario en operaciones mutables.
-3. `MovimientoService`: autorización del propietario en modificaciones y eliminación.
-4. `OperacionFinancieraService`: autorización explícita del usuario solicitante.
-5. `PosicionActivoService`: aislamiento de la posición por perfil financiero.
-6. Revisión de lecturas por ID/listados para determinar y garantizar aislamiento cuando crucen la frontera hacia casos de uso.
-7. Verificación de caminos alternativos de creación de movimientos.
-8. Tests específicos de autorización, lectura de recursos ajenos y activos compartidos.
-
-Estos pendientes son correcciones derivadas de la auditoría; no representan funcionalidades nuevas independientes.
-
-## Seguridad de PerfilFinanciero
-
-La autorización de las operaciones que modifican el perfil está implementada en `PerfilFinancieroService` y cubierta por **19/19 tests en verde**.
-
-La feature está integrada en `main`; no constituye un pendiente.
-
-## Pendientes funcionales
-
-No existe actualmente una feature funcional pendiente de integración.
-
-## Líneas de evolución posibles
-
-Sujetas a revisión del código y decisión explícita antes de implementar:
-
-- evolucionar la valorización desde un precio informado hacia una fuente de precios cuando exista un caso de uso concreto;
-- definir reglas específicas de cada instrumento financiero antes de agregar atributos financieros adicionales;
-- incorporar DTOs cuando los casos de uso y fronteras de aplicación lo requieran;
-- ampliar reportes y cálculos derivados de movimientos;
-- incorporar interfaz de usuario cuando dominio y casos de uso estén consolidados.
-
-## Próximo paso
-
-Crear una rama propia para corregir los hallazgos de seguridad, comenzando por `PosicionActivoService`, y luego aplicar el patrón de autorización/aislamiento al resto de recursos pertenecientes a perfiles. No modificar `main` directamente.
+- terminar los hallazgos de seguridad;
+- ejecutar tests específicos;
+- ejecutar la suite general;
+- revisar diff, `git diff --check` y status;
+- comparar la feature con `main`;
+- dejar documentado el cierre de seguridad.
 
 ## Regla
 
