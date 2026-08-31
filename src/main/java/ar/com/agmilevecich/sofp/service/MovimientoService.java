@@ -128,11 +128,12 @@ public class MovimientoService {
 
     public Movimiento modificarDescripcion(
             Long movimientoId,
+            Long usuarioId,
             String descripcion) {
 
-        Objects.requireNonNull(
+        validarIds(
                 movimientoId,
-                "El id del movimiento es obligatorio"
+                usuarioId
         );
 
         Objects.requireNonNull(
@@ -141,7 +142,10 @@ public class MovimientoService {
         );
 
         Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
+                obtenerMovimientoAutorizado(
+                        movimientoId,
+                        usuarioId
+                );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -172,15 +176,19 @@ public class MovimientoService {
 
     public Movimiento modificarObservaciones(
             Long movimientoId,
+            Long usuarioId,
             String observaciones) {
 
-        Objects.requireNonNull(
+        validarIds(
                 movimientoId,
-                "El id del movimiento es obligatorio"
+                usuarioId
         );
 
         Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
+                obtenerMovimientoAutorizado(
+                        movimientoId,
+                        usuarioId
+                );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -211,11 +219,12 @@ public class MovimientoService {
 
     public Movimiento cambiarCategoria(
             Long movimientoId,
+            Long usuarioId,
             Categoria categoria) {
 
-        Objects.requireNonNull(
+        validarIds(
                 movimientoId,
-                "El id del movimiento es obligatorio"
+                usuarioId
         );
 
         Objects.requireNonNull(
@@ -224,7 +233,10 @@ public class MovimientoService {
         );
 
         Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
+                obtenerMovimientoAutorizado(
+                        movimientoId,
+                        usuarioId
+                );
 
         validarPerfilFinanciero(
                 movimiento.getCuenta(),
@@ -260,11 +272,12 @@ public class MovimientoService {
 
     public Movimiento modificarTipoMovimiento(
             Long movimientoId,
+            Long usuarioId,
             TipoMovimiento tipoMovimiento) {
 
-        Objects.requireNonNull(
+        validarIds(
                 movimientoId,
-                "El id del movimiento es obligatorio"
+                usuarioId
         );
 
         Objects.requireNonNull(
@@ -273,7 +286,10 @@ public class MovimientoService {
         );
 
         Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
+                obtenerMovimientoAutorizado(
+                        movimientoId,
+                        usuarioId
+                );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -306,11 +322,12 @@ public class MovimientoService {
 
     public Movimiento modificarImporte(
             Long movimientoId,
+            Long usuarioId,
             BigDecimal importe) {
 
-        Objects.requireNonNull(
+        validarIds(
                 movimientoId,
-                "El id del movimiento es obligatorio"
+                usuarioId
         );
 
         Objects.requireNonNull(
@@ -319,7 +336,10 @@ public class MovimientoService {
         );
 
         Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
+                obtenerMovimientoAutorizado(
+                        movimientoId,
+                        usuarioId
+                );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -350,11 +370,12 @@ public class MovimientoService {
 
     public Movimiento modificarFechaHora(
             Long movimientoId,
+            Long usuarioId,
             LocalDateTime fechaHora) {
 
-        Objects.requireNonNull(
+        validarIds(
                 movimientoId,
-                "El id del movimiento es obligatorio"
+                usuarioId
         );
 
         Objects.requireNonNull(
@@ -363,7 +384,10 @@ public class MovimientoService {
         );
 
         Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
+                obtenerMovimientoAutorizado(
+                        movimientoId,
+                        usuarioId
+                );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -392,15 +416,20 @@ public class MovimientoService {
         }
     }
 
-    public void eliminar(Long movimientoId) {
+    public void eliminar(
+            Long movimientoId,
+            Long usuarioId) {
 
-        Objects.requireNonNull(
+        validarIds(
                 movimientoId,
-                "El id del movimiento es obligatorio"
+                usuarioId
         );
 
         Movimiento movimiento =
-                obtenerMovimiento(movimientoId);
+                obtenerMovimientoAutorizado(
+                        movimientoId,
+                        usuarioId
+                );
 
         EntityTransaction transaction =
                 entityManager.getTransaction();
@@ -463,6 +492,42 @@ public class MovimientoService {
                         "No existe un movimiento con id "
                                 + movimientoId
                 )
+        );
+    }
+
+    private Movimiento obtenerMovimientoAutorizado(
+            Long movimientoId,
+            Long usuarioId) {
+
+        Movimiento movimiento =
+                obtenerMovimiento(movimientoId);
+
+        if (!movimiento.getCuenta()
+                .getPerfilFinanciero()
+                .getUsuario()
+                .getId()
+                .equals(usuarioId)) {
+
+            throw new IllegalArgumentException(
+                    "El usuario no es propietario del movimiento"
+            );
+        }
+
+        return movimiento;
+    }
+
+    private void validarIds(
+            Long movimientoId,
+            Long usuarioId) {
+
+        Objects.requireNonNull(
+                movimientoId,
+                "El id del movimiento es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                usuarioId,
+                "El id del usuario es obligatorio"
         );
     }
 }
