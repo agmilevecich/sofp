@@ -5,9 +5,9 @@
 ## Estado verificado
 
 **Rama estable:** `main`  
-**Último commit del repositorio:** `bf66e45` — `docs: actualizar contexto de continuidad`  
 **Último commit funcional de la feature de seguridad:** `7d6632f` — `docs: actualizar revision final de seguridad de perfil`  
-**Fecha del estado:** 30/08/2026
+**Último commit de documentación:** `f9469276` — `docs: cerrar auditoria de seguridad y registrar hallazgos`  
+**Fecha del estado:** 31/08/2026
 
 La feature `feature/seguridad-perfil-financiero` fue integrada en `main` mediante **fast-forward**, sin merge commit, y queda como rama histórica.
 
@@ -36,6 +36,21 @@ Implementado, probado e integrado:
 - usuario no propietario → `IllegalArgumentException`;
 - usuario propietario → operación permitida;
 - `PerfilFinancieroServiceTest`: **19/19 tests en verde**.
+
+## Auditoría de seguridad
+
+La auditoría transversal de seguridad y aislamiento de datos quedó **exploratoriamente finalizada** y está documentada en `docs/11_AUDITORIA_SEGURIDAD.md`.
+
+Hallazgos confirmados pendientes de corrección:
+
+- `CuentaService`: operaciones mutables sin autorización explícita del propietario;
+- `CategoriaService`: operaciones mutables sin autorización uniforme del propietario;
+- `MovimientoService`: modificaciones y eliminación sin autorización explícita del propietario;
+- `OperacionFinancieraService`: autorización del usuario solicitante no demostrada;
+- `PosicionActivoService`: cálculo por activo sin aislamiento explícito por perfil;
+- lecturas por ID/listados: revisar cuáles cruzan la frontera hacia casos de uso y requieren aislamiento.
+
+La corrección de estos hallazgos es la próxima etapa de trabajo. No se debe considerar cerrada la seguridad transversal hasta que las correcciones tengan tests específicos y validación global.
 
 ## Funcionalidades cerradas e integradas
 
@@ -85,6 +100,6 @@ Antes de cualquier nuevo cambio:
 
 ## Próximo paso
 
-No hay una feature pendiente de integración. El próximo trabajo debe definirse a partir del código real de `main`, revisando entidades, repositorios, servicios, tests y reglas de negocio antes de crear la siguiente rama de feature.
+**Corregir los hallazgos de la auditoría de seguridad**, empezando por `PosicionActivoService` y luego aplicar un patrón uniforme de autorización/aislamiento a cuentas, categorías, movimientos y operaciones financieras. Cada corrección deberá validarse con tests específicos y luego con la suite completa.
 
 La interfaz gráfica continúa como evolución posterior, apoyándose sobre el backend estabilizado.
