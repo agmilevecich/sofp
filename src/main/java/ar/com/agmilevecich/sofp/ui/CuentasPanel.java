@@ -1,15 +1,64 @@
 package ar.com.agmilevecich.sofp.ui;
 
+import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.service.CuentaService;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
+import java.util.List;
+import java.util.Objects;
 
-/** Panel inicial del módulo de cuentas. */
+/** Panel del módulo de cuentas. */
 public class CuentasPanel extends JPanel {
 
+    private final DefaultListModel<String> modeloCuentas;
+
+    /**
+     * Constructor del shell sin contexto de usuario.
+     * Mantiene el estado inicial utilizado por la navegación básica.
+     */
     public CuentasPanel() {
+        modeloCuentas = new DefaultListModel<>();
         setLayout(new BorderLayout());
         add(new JLabel("Cuentas", SwingConstants.CENTER), BorderLayout.CENTER);
+    }
+
+    /**
+     * Constructor para mostrar las cuentas del perfil del usuario autenticado.
+     * La consulta pasa por CuentaService, que mantiene las reglas de autorización.
+     */
+    public CuentasPanel(CuentaService cuentaService,
+                        Long perfilFinancieroId,
+                        Long usuarioId) {
+
+        Objects.requireNonNull(cuentaService, "El CuentaService es obligatorio");
+        Objects.requireNonNull(perfilFinancieroId, "El id del perfil financiero es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        modeloCuentas = new DefaultListModel<>();
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+        add(new JLabel("Cuentas"), BorderLayout.NORTH);
+
+        JList<String> lista = new JList<>(modeloCuentas);
+        add(new JScrollPane(lista), BorderLayout.CENTER);
+
+        cargarCuentas(cuentaService.listarPorPerfilFinanciero(
+                perfilFinancieroId,
+                usuarioId
+        ));
+    }
+
+    private void cargarCuentas(List<Cuenta> cuentas) {
+        for (Cuenta cuenta : cuentas) {
+            modeloCuentas.addElement(cuenta.getNombre());
+        }
     }
 }
