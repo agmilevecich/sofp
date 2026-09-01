@@ -46,11 +46,10 @@ public class MovimientosPanel extends JPanel {
      */
     public MovimientosPanel(MovimientoService movimientoService,
                             CategoriaService categoriaService,
-                            Long cuentaId,
+                            Cuenta cuenta,
                             Long usuarioId) {
-
         Objects.requireNonNull(movimientoService, "El MovimientoService es obligatorio");
-        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
         modeloMovimientos = new DefaultListModel<>();
@@ -61,31 +60,38 @@ public class MovimientosPanel extends JPanel {
 
         add(new JLabel("Movimientos"), BorderLayout.NORTH);
         add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
-
-        List<Movimiento> movimientos = movimientoService.listarPorCuenta(
-                cuentaId,
-                usuarioId
-        );
-        cargarMovimientos(movimientos);
+        cargarMovimientos(movimientoService.listarPorCuenta(cuenta.getId(), usuarioId));
 
         if (categoriaService != null) {
-            Cuenta cuenta = movimientoService.buscarPorId(
-                    movimientos.isEmpty() ? null : movimientos.get(0).getId(),
+            add(new RegistrarMovimientoPanel(
+                    movimientoService,
+                    categoriaService,
+                    cuenta,
                     usuarioId
-            ).map(Movimiento::getCuenta).orElse(null);
-            if (cuenta != null) {
-                add(new RegistrarMovimientoPanel(
-                        movimientoService,
-                        categoriaService,
-                        cuenta,
-                        usuarioId
-                ), BorderLayout.SOUTH);
-            }
+            ), BorderLayout.SOUTH);
         }
     }
 
     public JList<String> getListaMovimientos() {
         return listaMovimientos;
+    }
+
+    private MovimientosPanel(MovimientoService movimientoService,
+                             CategoriaService categoriaService,
+                             Long cuentaId,
+                             Long usuarioId) {
+        Objects.requireNonNull(movimientoService, "El MovimientoService es obligatorio");
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        modeloMovimientos = new DefaultListModel<>();
+        listaMovimientos = new JList<>(modeloMovimientos);
+
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        add(new JLabel("Movimientos"), BorderLayout.NORTH);
+        add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
+        cargarMovimientos(movimientoService.listarPorCuenta(cuentaId, usuarioId));
     }
 
     private void cargarMovimientos(List<Movimiento> movimientos) {
