@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CuentasPanelTest {
 
@@ -114,6 +115,48 @@ class CuentasPanelTest {
         assertEquals(2, lista.getModel().getSize());
         assertEquals("Cuenta principal", lista.getModel().getElementAt(0));
         assertEquals("Cuenta secundaria", lista.getModel().getElementAt(1));
+    }
+
+    @Test
+    void deberiaRechazarUnPerfilDeOtroUsuario() {
+        Usuario usuarioPropietario = new Usuario(
+                "Propietario",
+                "Test",
+                "ariel.cuentas.panel.propietario." + System.nanoTime(),
+                "hash"
+        );
+        Usuario otroUsuario = new Usuario(
+                "Otro",
+                "Test",
+                "ariel.cuentas.panel.otro." + System.nanoTime(),
+                "hash"
+        );
+        PerfilFinanciero perfilPropietario = new PerfilFinanciero(
+                "Perfil propietario",
+                usuarioPropietario
+        );
+        PerfilFinanciero perfilAjeno = new PerfilFinanciero(
+                "Perfil ajeno",
+                otroUsuario
+        );
+        usuarioPropietario.agregarPerfilFinanciero(perfilPropietario);
+        otroUsuario.agregarPerfilFinanciero(perfilAjeno);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuarioPropietario);
+        entityManager.persist(otroUsuario);
+        entityManager.persist(perfilPropietario);
+        entityManager.persist(perfilAjeno);
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new CuentasPanel(
+                        cuentaService,
+                        perfilAjeno.getId(),
+                        usuarioPropietario.getId()
+                )
+        );
     }
 
     private JList<?> buscarLista(Container container) {
