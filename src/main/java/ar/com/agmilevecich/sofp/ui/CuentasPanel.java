@@ -17,7 +17,8 @@ import java.util.Objects;
 /** Panel del módulo de cuentas. */
 public class CuentasPanel extends JPanel {
 
-    private final DefaultListModel<String> modeloCuentas;
+    private final DefaultListModel<Cuenta> modeloCuentas;
+    private final JList<Cuenta> listaCuentas;
 
     /**
      * Constructor del shell sin contexto de usuario.
@@ -25,6 +26,10 @@ public class CuentasPanel extends JPanel {
      */
     public CuentasPanel() {
         modeloCuentas = new DefaultListModel<>();
+        listaCuentas = new JList<>(modeloCuentas);
+        listaCuentas.setCellRenderer((lista, cuenta, indice, seleccionado, conFoco) ->
+                new JLabel(cuenta.getNombre())
+        );
         setLayout(new BorderLayout());
         add(new JLabel("Cuentas", SwingConstants.CENTER), BorderLayout.CENTER);
     }
@@ -42,13 +47,16 @@ public class CuentasPanel extends JPanel {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
         modeloCuentas = new DefaultListModel<>();
+        listaCuentas = new JList<>(modeloCuentas);
+        listaCuentas.setCellRenderer((lista, cuenta, indice, seleccionado, conFoco) ->
+                new JLabel(cuenta.getNombre())
+        );
+
         setLayout(new BorderLayout(8, 8));
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         add(new JLabel("Cuentas"), BorderLayout.NORTH);
-
-        JList<String> lista = new JList<>(modeloCuentas);
-        add(new JScrollPane(lista), BorderLayout.CENTER);
+        add(new JScrollPane(listaCuentas), BorderLayout.CENTER);
 
         cargarCuentas(cuentaService.listarPorPerfilFinanciero(
                 perfilFinancieroId,
@@ -56,9 +64,14 @@ public class CuentasPanel extends JPanel {
         ));
     }
 
+    /** Devuelve la cuenta actualmente seleccionada, o null si no hay selección. */
+    public Cuenta getCuentaSeleccionada() {
+        return listaCuentas.getSelectedValue();
+    }
+
     private void cargarCuentas(List<Cuenta> cuentas) {
         for (Cuenta cuenta : cuentas) {
-            modeloCuentas.addElement(cuenta.getNombre());
+            modeloCuentas.addElement(cuenta);
         }
     }
 }
