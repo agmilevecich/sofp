@@ -1,6 +1,8 @@
 package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 
@@ -24,11 +26,13 @@ public class MainFrame extends JFrame {
     private final JPanel areaCentral;
     private final CuentasPanel cuentasPanel;
     private final MovimientoService movimientoService;
+    private final CarteraActivoService carteraActivoService;
+    private final PerfilFinanciero perfilFinanciero;
     private final Long usuarioId;
     private MovimientosPanel movimientosPanel;
 
     public MainFrame() {
-        this(null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     /**
@@ -39,17 +43,31 @@ public class MainFrame extends JFrame {
     public MainFrame(CuentaService cuentaService,
                      Long perfilFinancieroId,
                      Long usuarioId) {
-        this(cuentaService, null, perfilFinancieroId, usuarioId);
+        this(cuentaService, null, null, null, perfilFinancieroId, usuarioId);
     }
 
     /**
-     * Constructor para ejecutar el shell con cuentas y movimientos del usuario.
-     * Los movimientos se cargan para la cuenta seleccionada al navegar al módulo.
+     * Constructor para ejecutar el shell con cuentas, movimientos e inversiones
+     * del usuario actual.
      */
     public MainFrame(CuentaService cuentaService,
                      MovimientoService movimientoService,
-                     Long perfilFinancieroId,
+                     CarteraActivoService carteraActivoService,
+                     PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
+        this(cuentaService, movimientoService, carteraActivoService,
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+    }
+
+    /**
+     * Constructor interno completo para mantener el contexto ya resuelto.
+     */
+    private MainFrame(CuentaService cuentaService,
+                      MovimientoService movimientoService,
+                      CarteraActivoService carteraActivoService,
+                      PerfilFinanciero perfilFinanciero,
+                      Long perfilFinancieroId,
+                      Long usuarioId) {
         super("SOFP - Sistema Operativo Financiero Personal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 700);
@@ -57,6 +75,8 @@ public class MainFrame extends JFrame {
 
         if (cuentaService == null) {
             if (movimientoService != null
+                    || carteraActivoService != null
+                    || perfilFinanciero != null
                     || perfilFinancieroId != null
                     || usuarioId != null) {
                 throw new IllegalArgumentException(
@@ -65,6 +85,8 @@ public class MainFrame extends JFrame {
             }
             this.cuentasPanel = new CuentasPanel();
             this.movimientoService = null;
+            this.carteraActivoService = null;
+            this.perfilFinanciero = null;
             this.usuarioId = null;
         } else {
             this.cuentasPanel = new CuentasPanel(
@@ -79,6 +101,8 @@ public class MainFrame extends JFrame {
                     )
             );
             this.movimientoService = movimientoService;
+            this.carteraActivoService = carteraActivoService;
+            this.perfilFinanciero = perfilFinanciero;
             this.usuarioId = usuarioId;
         }
 
@@ -90,7 +114,16 @@ public class MainFrame extends JFrame {
 
         movimientosPanel = new MovimientosPanel();
         areaCentral.add(movimientosPanel, MOVIMIENTOS);
-        areaCentral.add(new InversionesPanel(), INVERSIONES);
+
+        if (carteraActivoService != null && perfilFinanciero != null) {
+            areaCentral.add(new InversionesPanel(
+                    carteraActivoService,
+                    perfilFinanciero,
+                    usuarioId
+            ), INVERSIONES);
+        } else {
+            areaCentral.add(new InversionesPanel(), INVERSIONES);
+        }
 
         JPanel content = new JPanel(new BorderLayout());
         content.add(new HeaderPanel(), BorderLayout.NORTH);
