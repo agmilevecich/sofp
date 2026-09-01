@@ -1,6 +1,8 @@
 package ar.com.agmilevecich.sofp.ui;
 
+import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.service.CuentaService;
+import ar.com.agmilevecich.sofp.service.MovimientoService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -20,9 +22,13 @@ public class MainFrame extends JFrame {
 
     private final CardLayout cardLayout;
     private final JPanel areaCentral;
+    private final CuentasPanel cuentasPanel;
+    private final MovimientoService movimientoService;
+    private final Long usuarioId;
+    private MovimientosPanel movimientosPanel;
 
     public MainFrame() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
     /**
@@ -33,41 +39,57 @@ public class MainFrame extends JFrame {
     public MainFrame(CuentaService cuentaService,
                      Long perfilFinancieroId,
                      Long usuarioId) {
+        this(cuentaService, null, perfilFinancieroId, usuarioId);
+    }
+
+    /**
+     * Constructor para ejecutar el shell con cuentas y movimientos del usuario.
+     * Los movimientos se cargan para la cuenta seleccionada al navegar al módulo.
+     */
+    public MainFrame(CuentaService cuentaService,
+                     MovimientoService movimientoService,
+                     Long perfilFinancieroId,
+                     Long usuarioId) {
         super("SOFP - Sistema Operativo Financiero Personal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 700);
         setLocationRelativeTo(null);
 
+        if (cuentaService == null) {
+            if (movimientoService != null
+                    || perfilFinancieroId != null
+                    || usuarioId != null) {
+                throw new IllegalArgumentException(
+                        "El CuentaService es obligatorio cuando se informa el contexto de usuario"
+                );
+            }
+            this.cuentasPanel = new CuentasPanel();
+            this.movimientoService = null;
+            this.usuarioId = null;
+        } else {
+            this.cuentasPanel = new CuentasPanel(
+                    cuentaService,
+                    Objects.requireNonNull(
+                            perfilFinancieroId,
+                            "El id del perfil financiero es obligatorio"
+                    ),
+                    Objects.requireNonNull(
+                            usuarioId,
+                            "El id del usuario es obligatorio"
+                    )
+            );
+            this.movimientoService = movimientoService;
+            this.usuarioId = usuarioId;
+        }
+
         cardLayout = new CardLayout();
         areaCentral = new JPanel(cardLayout);
         areaCentral.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
         areaCentral.add(new InicioPanel(), INICIO);
+        areaCentral.add(cuentasPanel, CUENTAS);
 
-        if (cuentaService == null) {
-            if (perfilFinancieroId != null || usuarioId != null) {
-                throw new IllegalArgumentException(
-                        "El CuentaService es obligatorio cuando se informa el contexto de cuentas"
-                );
-            }
-            areaCentral.add(new CuentasPanel(), CUENTAS);
-        } else {
-            areaCentral.add(
-                    new CuentasPanel(
-                            cuentaService,
-                            Objects.requireNonNull(
-                                    perfilFinancieroId,
-                                    "El id del perfil financiero es obligatorio"
-                            ),
-                            Objects.requireNonNull(
-                                    usuarioId,
-                                    "El id del usuario es obligatorio"
-                            )
-                    ),
-                    CUENTAS
-            );
-        }
-
-        areaCentral.add(new MovimientosPanel(), MOVIMIENTOS);
+        movimientosPanel = new MovimientosPanel();
+        areaCentral.add(movimientosPanel, MOVIMIENTOS);
         areaCentral.add(new InversionesPanel(), INVERSIONES);
 
         JPanel content = new JPanel(new BorderLayout());
@@ -79,6 +101,30 @@ public class MainFrame extends JFrame {
     }
 
     private void navegar(ActionEvent evento) {
+        if (MOVIMIENTOS.equals(evento.getActionCommand())) {
+            mostrarMovimientosDeCuentaSeleccionada();
+            return;
+        }
+
         cardLayout.show(areaCentral, evento.getActionCommand());
+    }
+
+    private void mostrarMovimientosDeCuentaSeleccionada() {
+        if (movimientoService != null) {
+            Cuenta cuenta = cuentasPanel.getCuentaSeleccionada();
+            if (cuenta != null) {
+                areaCentral.remove(movimientosPanel);
+                movimientosPanel = new MovimientosPanel(
+                        movimientoService,
+                        cuenta.getId(),
+                        usuarioId
+                );
+                areaCentral.add(movimientosPanel, MOVIMIENTOS);
+                areaCentral.revalidate();
+                areaCentral.repaint();
+            }
+        }
+
+        cardLayout.show(areaCentral, MOVIMIENTOS);
     }
 }
