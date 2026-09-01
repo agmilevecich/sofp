@@ -19,7 +19,7 @@ public class SidebarPanel extends JPanel {
         add(crearBoton("Cuentas", "cuentas", navigationListener));
         add(crearBoton("Movimientos", "movimientos", navigationListener));
         add(crearBoton("Inversiones", "inversiones", navigationListener));
-        add(new JButton("Reportes"));
+        add(crearBoton("Reportes", "reportes", navigationListener));
     }
 
     private JButton crearBoton(String texto, String comando, ActionListener listener) {
