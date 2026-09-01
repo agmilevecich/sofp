@@ -2,42 +2,56 @@
 
 ## 2026-08-31 — Cierre de seguridad y aislamiento de datos
 
-La feature `feature/seguridad-aislamiento-datos` completó la revisión transversal de seguridad y aislamiento de recursos por usuario/perfil.
+La feature `feature/seguridad-aislamiento-datos` completó la revisión transversal de seguridad y aislamiento de recursos por usuario/perfil y fue integrada en `main` mediante fast-forward.
 
-Correcciones principales:
-
-- `85a4e86` — autorización de operaciones financieras por usuario;
-- `b0e6377` — cobertura de aislamiento por usuario;
-- `b2484a8` — protección de lecturas de cuenta;
-- `a214d16` — protección de lecturas de categoría;
-- `5b7de3a` — protección de lecturas y alta de movimientos;
-- `d62dbb9` — protección de lecturas de perfil y cartera;
-- `2381ea5` — protección del alta de perfil financiero;
-- `a28f902` — cierre del bypass interno de registro de movimiento;
-- `8f5c07f` — corrección de datos de prueba de aislamiento.
-
-Se agregó `AislamientoDatosServiceTest` para cubrir lectura propia/ajena, altas con recursos ajenos y aislamiento de perfil, posición y cartera.
-
-Validación final local:
+Validación final de seguridad:
 
 - `AislamientoDatosServiceTest`: **7/7 en verde**;
 - suite general: **512/512 tests en verde**;
 - Failures: 0;
 - Errors: 0;
 - Skipped: 0;
-- `BUILD SUCCESS`;
-- duración: **15:25 min**.
+- `BUILD SUCCESS`.
 
-El primer intento del test específico tuvo 7 fallos por un código de moneda de prueba de longitud superior a `VARCHAR(10)`. Se corrigió el fixture y la segunda ejecución quedó 7/7 en verde.
+## 2026-08-31 / 2026-09-01 — Fase 8: shell Swing
 
-La feature fue integrada en `main` mediante fast-forward y publicada en GitHub y Bitbucket.
+La rama `feature/swing-shell` desarrolló el primer bloque funcional de interfaz Swing sobre la base estable de seguridad.
+
+Se incorporaron y conectaron progresivamente:
+
+- `MainFrame`;
+- `HeaderPanel`;
+- `SidebarPanel`;
+- `InicioPanel`;
+- `CuentasPanel`;
+- `MovimientosPanel`;
+- `InversionesPanel`;
+- `StatusBarPanel`;
+- `ui.Main` como punto de entrada.
+
+La integración mantiene las reglas de negocio en los servicios existentes y pasa el contexto de usuario/perfil a la UI.
+
+También se agregó cobertura para estructura, layout, navegación, cuentas, movimientos e inversiones.
+
+## Validación final del bloque Swing
+
+Suite general ejecutada localmente el **01/09/2026** después de limpiar artefactos compilados obsoletos:
+
+- Tests run: **525**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **32:12 min**.
+
+La ejecución previa había fallado únicamente por un `SwingApplicationTest` compilado en `target` que ya no formaba parte de los tests versionados. La limpieza de Maven eliminó el artefacto obsoleto y la suite completa quedó verde sin cambios adicionales de código.
 
 ## Estado actual
 
-**Fases 1 a 7: cerradas.**
+`main` permanece como rama estable.
 
-`main` es ahora la base estable del proyecto y contiene el cierre de seguridad.
+`feature/swing-shell` es la rama activa y se encuentra **46 commits por delante de `main` y 0 por detrás**.
 
-**Siguiente etapa: Fase 8 — Interfaz de usuario Swing.**
+Último commit: `ca70f28` — `fix: conservar entrada Swing existente en ui`.
 
-La implementación de Swing todavía no comenzó. El trabajo deberá partir del código real existente y mantener separadas la interfaz y la lógica de negocio.
+El bloque actual de shell Swing queda validado dentro de su alcance. El siguiente avance corresponde a un nuevo bloque funcional de Fase 8.

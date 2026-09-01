@@ -1,9 +1,11 @@
 # SOFP — Pendientes
 
-## Estado — 31/08/2026
+## Estado — 01/09/2026
 
 **Rama estable:** `main`.  
-**Último commit integrado:** `75d0a18`.
+**Último commit integrado:** `96f3d99`.  
+**Rama de trabajo:** `feature/swing-shell`.  
+**Comparación:** 46 commits por delante de `main`, 0 por detrás.
 
 ## Seguridad
 
@@ -18,27 +20,35 @@ Se completaron:
 5. cierre de caminos internos que podían saltar validaciones públicas;
 6. cobertura específica de recursos propios y ajenos.
 
+## Fase 8 — Interfaz de usuario Swing
+
+El bloque actual de `feature/swing-shell` está implementado y validado dentro de su alcance:
+
+- shell principal `MainFrame`;
+- header, sidebar y barra de estado;
+- navegación por tarjetas;
+- cuentas contextualizadas por perfil/usuario;
+- movimientos contextualizados por cuenta/usuario;
+- inversiones contextualizadas por perfil/usuario;
+- punto de entrada `ui.Main`;
+- cobertura específica de los paneles e integraciones principales.
+
 ## Validación final
 
-La auditoría fue validada localmente:
+Suite general ejecutada localmente el **01/09/2026**:
 
-- `AislamientoDatosServiceTest`: **7/7 en verde**;
-- suite general: **512/512 en verde**;
+- `525/525` tests en verde;
 - `Failures: 0`;
 - `Errors: 0`;
 - `Skipped: 0`;
 - `BUILD SUCCESS`;
-- duración: **15:25 min**.
+- duración: **32:12 min**.
 
-El primer intento del test específico tuvo 7 fallos por un dato de prueba inválido: el código de moneda generado excedía `VARCHAR(10)`. Se corrigió el fixture y la segunda ejecución quedó 7/7 en verde.
+La ejecución se realizó después de limpiar artefactos compilados obsoletos que habían provocado un fallo ajeno al código versionado.
 
-## Próximo bloque pendiente
+## Próximo bloque
 
-**Fase 8 — Interfaz de usuario Swing.**
-
-Antes de implementar UI se debe revisar desde `main` la estructura real de `src/main/java`, las clases y servicios disponibles, los tests y las convenciones existentes.
-
-Primer objetivo previsto: definir e implementar el shell principal de Swing sin duplicar lógica de negocio ni crear abstracciones no justificadas por el código actual.
+No queda pendiente un arreglo dentro del alcance actual del shell Swing. El próximo trabajo debe definirse como un **nuevo bloque funcional de Fase 8**, a partir del código real de la rama y sin introducir funcionalidades especulativas.
 
 ## Criterio de continuidad
 
