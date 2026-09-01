@@ -11,14 +11,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 /** Panel del módulo de cuentas. */
 public class CuentasPanel extends JPanel {
 
-    private final DefaultListModel<Cuenta> modeloCuentas;
-    private final JList<Cuenta> listaCuentas;
+    private final DefaultListModel<String> modeloCuentas;
+    private final JList<String> listaCuentas;
+    private final List<Cuenta> cuentas;
 
     /**
      * Constructor del shell sin contexto de usuario.
@@ -27,9 +29,7 @@ public class CuentasPanel extends JPanel {
     public CuentasPanel() {
         modeloCuentas = new DefaultListModel<>();
         listaCuentas = new JList<>(modeloCuentas);
-        listaCuentas.setCellRenderer((lista, cuenta, indice, seleccionado, conFoco) ->
-                new JLabel(cuenta.getNombre())
-        );
+        cuentas = new ArrayList<>();
         setLayout(new BorderLayout());
         add(new JLabel("Cuentas", SwingConstants.CENTER), BorderLayout.CENTER);
     }
@@ -48,9 +48,7 @@ public class CuentasPanel extends JPanel {
 
         modeloCuentas = new DefaultListModel<>();
         listaCuentas = new JList<>(modeloCuentas);
-        listaCuentas.setCellRenderer((lista, cuenta, indice, seleccionado, conFoco) ->
-                new JLabel(cuenta.getNombre())
-        );
+        cuentas = new ArrayList<>();
 
         setLayout(new BorderLayout(8, 8));
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -66,12 +64,17 @@ public class CuentasPanel extends JPanel {
 
     /** Devuelve la cuenta actualmente seleccionada, o null si no hay selección. */
     public Cuenta getCuentaSeleccionada() {
-        return listaCuentas.getSelectedValue();
+        int indice = listaCuentas.getSelectedIndex();
+        if (indice < 0 || indice >= cuentas.size()) {
+            return null;
+        }
+        return cuentas.get(indice);
     }
 
     private void cargarCuentas(List<Cuenta> cuentas) {
+        this.cuentas.addAll(cuentas);
         for (Cuenta cuenta : cuentas) {
-            modeloCuentas.addElement(cuenta);
+            modeloCuentas.addElement(cuenta.getNombre());
         }
     }
 }
