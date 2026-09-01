@@ -145,11 +145,11 @@ public class RegistrarMovimientoPanel extends JPanel {
 
     private void registrar() {
         try {
-            Categoria categoria = Objects.requireNonNull(
+            Categoria categoria = (Categoria) Objects.requireNonNull(
                     categoriaComboBox.getSelectedItem(),
                     "La categoría es obligatoria"
             );
-            TipoMovimiento tipoMovimiento = Objects.requireNonNull(
+            TipoMovimiento tipoMovimiento = (TipoMovimiento) Objects.requireNonNull(
                     tipoMovimientoComboBox.getSelectedItem(),
                     "El tipo de movimiento es obligatorio"
             );
