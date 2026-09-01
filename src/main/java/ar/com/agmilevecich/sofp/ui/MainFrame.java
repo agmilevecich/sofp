@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
+import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 
@@ -27,35 +28,29 @@ public class MainFrame extends JFrame {
     private final JPanel areaCentral;
     private final CuentasPanel cuentasPanel;
     private final MovimientoService movimientoService;
+    private final CategoriaService categoriaService;
     private final CarteraActivoService carteraActivoService;
     private final PerfilFinanciero perfilFinanciero;
     private final Long usuarioId;
     private MovimientosPanel movimientosPanel;
 
     public MainFrame() {
-        this(null, null, null, null, null);
+        this(null, null, null, null, null, null);
     }
 
-    /**
-     * Constructor para ejecutar el shell con el contexto del usuario actual.
-     * La UI recibe el servicio ya construido; no crea repositorios ni duplica
-     * reglas de negocio.
-     */
+    /** Constructor para ejecutar el shell con el contexto del usuario actual. */
     public MainFrame(CuentaService cuentaService,
                      Long perfilFinancieroId,
                      Long usuarioId) {
-        this(cuentaService, null, null, null, perfilFinancieroId, usuarioId);
+        this(cuentaService, null, null, null, null, perfilFinancieroId, usuarioId);
     }
 
-    /**
-     * Constructor para ejecutar el shell con cuentas y movimientos del usuario
-     * actual. Mantiene la firma utilizada por la integración de movimientos.
-     */
+    /** Constructor para ejecutar el shell con cuentas y movimientos del usuario actual. */
     public MainFrame(CuentaService cuentaService,
                      MovimientoService movimientoService,
                      Long perfilFinancieroId,
                      Long usuarioId) {
-        this(cuentaService, movimientoService, null, null,
+        this(cuentaService, movimientoService, null, null, null,
                 perfilFinancieroId, usuarioId);
     }
 
@@ -68,15 +63,27 @@ public class MainFrame extends JFrame {
                      CarteraActivoService carteraActivoService,
                      PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
-        this(cuentaService, movimientoService, carteraActivoService,
+        this(cuentaService, movimientoService, null, carteraActivoService,
                 perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
     }
 
     /**
-     * Constructor interno completo para mantener el contexto ya resuelto.
+     * Constructor para ejecutar el shell con alta de movimientos, cuentas e inversiones.
      */
+    public MainFrame(CuentaService cuentaService,
+                     MovimientoService movimientoService,
+                     CategoriaService categoriaService,
+                     CarteraActivoService carteraActivoService,
+                     PerfilFinanciero perfilFinanciero,
+                     Long usuarioId) {
+        this(cuentaService, movimientoService, categoriaService, carteraActivoService,
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+    }
+
+    /** Constructor interno completo para mantener el contexto ya resuelto. */
     private MainFrame(CuentaService cuentaService,
                       MovimientoService movimientoService,
+                      CategoriaService categoriaService,
                       CarteraActivoService carteraActivoService,
                       PerfilFinanciero perfilFinanciero,
                       Long perfilFinancieroId,
@@ -88,6 +95,7 @@ public class MainFrame extends JFrame {
 
         if (cuentaService == null) {
             if (movimientoService != null
+                    || categoriaService != null
                     || carteraActivoService != null
                     || perfilFinanciero != null
                     || perfilFinancieroId != null
@@ -98,6 +106,7 @@ public class MainFrame extends JFrame {
             }
             this.cuentasPanel = new CuentasPanel();
             this.movimientoService = null;
+            this.categoriaService = null;
             this.carteraActivoService = null;
             this.perfilFinanciero = null;
             this.usuarioId = null;
@@ -114,6 +123,7 @@ public class MainFrame extends JFrame {
                     )
             );
             this.movimientoService = movimientoService;
+            this.categoriaService = categoriaService;
             this.carteraActivoService = carteraActivoService;
             this.perfilFinanciero = perfilFinanciero;
             this.usuarioId = usuarioId;
@@ -124,7 +134,6 @@ public class MainFrame extends JFrame {
         areaCentral.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
         areaCentral.add(new InicioPanel(), INICIO);
         areaCentral.add(cuentasPanel, CUENTAS);
-
         movimientosPanel = new MovimientosPanel();
         areaCentral.add(movimientosPanel, MOVIMIENTOS);
 
@@ -166,11 +175,20 @@ public class MainFrame extends JFrame {
             Cuenta cuenta = cuentasPanel.getCuentaSeleccionada();
             if (cuenta != null) {
                 areaCentral.remove(movimientosPanel);
-                movimientosPanel = new MovimientosPanel(
-                        movimientoService,
-                        cuenta.getId(),
-                        usuarioId
-                );
+                if (categoriaService != null) {
+                    movimientosPanel = new MovimientosPanel(
+                            movimientoService,
+                            categoriaService,
+                            cuenta,
+                            usuarioId
+                    );
+                } else {
+                    movimientosPanel = new MovimientosPanel(
+                            movimientoService,
+                            cuenta.getId(),
+                            usuarioId
+                    );
+                }
                 areaCentral.add(movimientosPanel, MOVIMIENTOS);
                 areaCentral.revalidate();
                 areaCentral.repaint();
