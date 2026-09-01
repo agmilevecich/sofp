@@ -35,7 +35,7 @@ public class MainFrame extends JFrame {
     private MovimientosPanel movimientosPanel;
 
     public MainFrame() {
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     /** Constructor para ejecutar el shell con el contexto del usuario actual. */
@@ -67,9 +67,7 @@ public class MainFrame extends JFrame {
                 perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
     }
 
-    /**
-     * Constructor para ejecutar el shell con alta de movimientos, cuentas e inversiones.
-     */
+    /** Constructor para ejecutar el shell con alta de movimientos, cuentas e inversiones. */
     public MainFrame(CuentaService cuentaService,
                      MovimientoService movimientoService,
                      CategoriaService categoriaService,
