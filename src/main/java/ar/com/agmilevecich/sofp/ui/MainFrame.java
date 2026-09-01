@@ -47,6 +47,18 @@ public class MainFrame extends JFrame {
     }
 
     /**
+     * Constructor para ejecutar el shell con cuentas y movimientos del usuario
+     * actual. Mantiene la firma utilizada por la integración de movimientos.
+     */
+    public MainFrame(CuentaService cuentaService,
+                     MovimientoService movimientoService,
+                     Long perfilFinancieroId,
+                     Long usuarioId) {
+        this(cuentaService, movimientoService, null, null,
+                perfilFinancieroId, usuarioId);
+    }
+
+    /**
      * Constructor para ejecutar el shell con cuentas, movimientos e inversiones
      * del usuario actual.
      */
