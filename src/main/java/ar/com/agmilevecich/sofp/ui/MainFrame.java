@@ -21,6 +21,7 @@ public class MainFrame extends JFrame {
     private static final String CUENTAS = "cuentas";
     private static final String MOVIMIENTOS = "movimientos";
     private static final String INVERSIONES = "inversiones";
+    private static final String REPORTES = "reportes";
 
     private final CardLayout cardLayout;
     private final JPanel areaCentral;
@@ -133,8 +134,14 @@ public class MainFrame extends JFrame {
                     perfilFinanciero,
                     usuarioId
             ), INVERSIONES);
+            areaCentral.add(new ReportesPanel(
+                    carteraActivoService,
+                    perfilFinanciero,
+                    usuarioId
+            ), REPORTES);
         } else {
             areaCentral.add(new InversionesPanel(), INVERSIONES);
+            areaCentral.add(new ReportesPanel(), REPORTES);
         }
 
         JPanel content = new JPanel(new BorderLayout());
