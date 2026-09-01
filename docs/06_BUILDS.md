@@ -57,13 +57,9 @@ Luego se ejecutó la suite general:
 - `BUILD SUCCESS`
 - Duración: **15:25 min**
 
-La validación global de seguridad fue **512/512 tests en verde**.
-
-Durante la primera ejecución del test específico hubo 7 fallos por un fixture que generaba un código de moneda de 17 caracteres para una columna de máximo 10. Se corrigió el fixture sin alterar código de negocio y la segunda ejecución quedó completamente verde.
-
 ## Fase 8 — Interfaz de usuario Swing
 
-La primera etapa del shell Swing quedó implementada y validada sobre la rama `feature/swing-shell`.
+El bloque inicial del shell Swing quedó implementado sobre `feature/swing-shell` y posteriormente se completó su integración con cuentas, movimientos e inversiones.
 
 Se incorporaron:
 
@@ -73,27 +69,34 @@ Se incorporaron:
 - área central con tarjetas para Inicio, Cuentas, Movimientos e Inversiones;
 - `StatusBarPanel`;
 - punto de entrada `ui.Main`;
-- pruebas de estructura, layout y navegación.
+- integración de cuentas por perfil/usuario;
+- integración de movimientos por cuenta/usuario;
+- integración de posiciones de inversión por perfil/usuario;
+- pruebas de paneles, estructura, layout, navegación e integración.
 
-Suite general ejecutada localmente el **31/08/2026**:
+## Validación final del shell Swing
 
-- Tests run: **515**
+Suite general ejecutada localmente el **01/09/2026** después de limpiar artefactos compilados obsoletos:
+
+- Tests run: **525**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **22:17 min**
+- Duración: **32:12 min**
 
-La validación global vigente es **515/515 tests en verde**.
+La validación global vigente es **525/525 tests en verde**.
+
+La ejecución inmediatamente anterior había detectado un `NoClassDefFoundError` de `SwingApplicationTest` debido a una clase compilada obsoleta en `target`. Se ejecutó una limpieza de Maven y la suite completa quedó verde. No fue necesario modificar código ni tests para resolver ese problema de entorno de compilación.
 
 ## Estado actual
 
 La seguridad transversal está cerrada e integrada en `main`.
 
-La rama `feature/swing-shell` contiene el shell inicial de Swing y está sincronizada con GitHub y Bitbucket. Su último commit funcional es `0c41a50` — `feat: agregar punto de entrada para shell Swing`.
+La rama `feature/swing-shell` contiene el shell Swing integrado con los servicios existentes y está **46 commits por delante de `main` y 0 por detrás**.
 
-La documentación se actualiza ahora para reflejar la validación real de la rama.
+Último commit de la rama: `ca70f28` — `fix: conservar entrada Swing existente en ui`.
 
 ## Próximo paso
 
-Continuar la Fase 8 con el siguiente bloque funcional de la interfaz, manteniendo cambios pequeños, tests específicos y sin duplicar lógica de negocio.
+La feature `feature/swing-shell` queda validada dentro de su alcance actual. El siguiente trabajo de Fase 8 debe comenzar como un nuevo bloque funcional, sin merge automático a `main` y manteniendo cambios pequeños, tests específicos y sin duplicar lógica de negocio.

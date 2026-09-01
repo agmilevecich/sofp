@@ -2,34 +2,31 @@
 
 > Documento de continuidad. El código y los tests actuales son la fuente de verdad técnica.
 
-## Estado verificado — 31/08/2026
+## Estado verificado — 01/09/2026
 
 **Rama estable:** `main`  
-**Último commit integrado:** `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`  
-**Feature integrada:** `feature/seguridad-aislamiento-datos` mediante fast-forward.  
+**Último commit integrado:** `96f3d99` — `docs: cerrar historial de build de seguridad`  
+**Feature integrada:** `feature/seguridad-aislamiento-datos` mediante fast-forward.
 
 **Rama de trabajo:** `feature/swing-shell`  
-**Último commit:** `c6923eb` — `docs: documentar validacion del shell Swing`  
-**Último commit funcional previo:** `0c41a50` — `feat: agregar punto de entrada para shell Swing`.
+**Último commit:** `ca70f28` — `fix: conservar entrada Swing existente en ui`.
 
-La rama de trabajo está sincronizada con GitHub y Bitbucket.
+La rama de trabajo está **46 commits por delante de `main` y 0 commits por detrás**.
 
 ## Validación actual
 
-Suite general ejecutada localmente el **31/08/2026**:
+Suite general ejecutada localmente el **01/09/2026** después de limpiar artefactos compilados obsoletos:
 
-- Tests run: **515**
+- Tests run: **525**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **22:17 min**
+- Duración: **32:12 min**
 
-La validación global vigente es **515/515 tests en verde**.
+La validación global vigente es **525/525 tests en verde**.
 
-`AislamientoDatosServiceTest`: **7/7 en verde**.
-
-La primera ejecución de ese test tuvo 7 fallos por datos de prueba inválidos: el código de moneda generado excedía `VARCHAR(10)`. Se corrigió el fixture; la segunda ejecución quedó 7/7 en verde.
+La ejecución previa había mostrado un único fallo de `SwingApplicationTest` por una clase compilada obsoleta en `target`. La limpieza de Maven eliminó ese artefacto y la suite completa quedó completamente verde, sin modificar código ni tests por ese motivo.
 
 ## Seguridad implementada
 
@@ -43,9 +40,9 @@ La primera ejecución de ese test tuvo 7 fallos por datos de prueba inválidos: 
 - Se cerraron caminos internos que podían permitir saltar validaciones públicas.
 - `AislamientoDatosServiceTest` cubre recursos propios y ajenos y los principales caminos de lectura/creación.
 
-## Estado de la interfaz — Fase 8
+## Estado de la interfaz — Fase 8 / `feature/swing-shell`
 
-La primera etapa del shell Swing quedó implementada en `feature/swing-shell`.
+El bloque de shell Swing quedó implementado y validado.
 
 Componentes actuales:
 
@@ -57,14 +54,27 @@ Componentes actuales:
 - `StatusBarPanel`;
 - punto de entrada `ar.com.agmilevecich.sofp.ui.Main`.
 
-Tests específicos:
+La UI ya integra el contexto existente para:
 
+- listar cuentas del perfil/usuario;
+- conservar la cuenta seleccionada;
+- listar movimientos de la cuenta seleccionada con autorización por usuario;
+- mostrar posiciones de inversión del perfil con autorización por usuario;
+- navegar entre las tarjetas desde el shell principal.
+
+Tests específicos de UI:
+
+- `CuentasPanelTest`;
+- `MovimientosPanelTest`;
 - `MainFrameTest`;
 - `MainFrameLayoutTest`;
-- `MainFrameNavigationTest`.
+- `MainFrameNavigationTest`;
+- `MainFrameMovimientosTest`;
+- `InversionesPanelTest`;
+- `MainFrameInversionesTest`.
 
-El shell fue probado manualmente y la ventana principal abre correctamente con navegación lateral y estado inicial visible.
+## Criterio de cierre de la feature
 
-## Próximo paso
+La implementación actual de `feature/swing-shell` está funcionalmente cubierta por tests y la suite general está en verde. No se realiza merge automático a `main`.
 
-Continuar la Fase 8 con el siguiente bloque funcional de la interfaz, partiendo del shell ya validado y conectando progresivamente la UI con los servicios existentes, sin duplicar lógica de negocio.
+El siguiente trabajo de Fase 8 deberá definirse como un nuevo bloque funcional, manteniendo el mismo criterio: partir del código existente, cambios pequeños, tests específicos y sin duplicar lógica de negocio.
