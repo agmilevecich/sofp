@@ -39,14 +39,21 @@ public class CuentaService {
         Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
         validarPropietario(usuarioId, cuenta);
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean transactionIniciadaPorElServicio = !transaction.isActive();
         try {
-            transaction.begin();
+            if (transactionIniciadaPorElServicio) {
+                transaction.begin();
+            }
             Cuenta registrada = cuentaRepository.guardar(cuenta);
             entityManager.flush();
-            transaction.commit();
+            if (transactionIniciadaPorElServicio) {
+                transaction.commit();
+            }
             return registrada;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
+            if (transactionIniciadaPorElServicio && transaction.isActive()) {
+                transaction.rollback();
+            }
             throw e;
         }
     }
