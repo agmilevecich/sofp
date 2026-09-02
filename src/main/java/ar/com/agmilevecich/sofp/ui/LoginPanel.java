@@ -56,7 +56,7 @@ public class LoginPanel extends JPanel {
     }
 
     private void agregar(JLabel label,
-                         JPanel field,
+                         JTextField field,
                          GridBagConstraints constraints,
                          int row) {
         constraints.gridx = 0;
