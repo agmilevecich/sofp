@@ -38,7 +38,17 @@ public class CuentaService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
         validarPropietario(usuarioId, cuenta);
-        return cuentaRepository.guardar(cuenta);
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            Cuenta registrada = cuentaRepository.guardar(cuenta);
+            entityManager.flush();
+            transaction.commit();
+            return registrada;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
     }
 
     public Optional<Cuenta> buscarPorId(Long id, Long usuarioId) {
