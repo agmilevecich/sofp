@@ -144,6 +144,97 @@ class MovimientosPanelTest {
     }
 
     @Test
+    void deberiaActualizarLaListaAlRecargarLosMovimientos() throws Exception {
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Test",
+                "ariel.movimientos.panel.refresh." + System.nanoTime(),
+                "hash"
+        );
+        PerfilFinanciero perfil = new PerfilFinanciero(
+                "Perfil principal",
+                usuario
+        );
+        usuario.agregarPerfilFinanciero(perfil);
+
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Test",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Moneda moneda = new Moneda(
+                "ARS",
+                "Peso argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+        Cuenta cuenta = new Cuenta(
+                "Cuenta principal",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucion,
+                moneda
+        );
+        Categoria categoria = new Categoria(
+                "Supermercado",
+                perfil
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria);
+        entityManager.getTransaction().commit();
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("500000"),
+                LocalDateTime.now(),
+                "Sueldo",
+                usuario.getId()
+        );
+
+        AtomicReference<MovimientosPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new MovimientosPanel(
+                        movimientoService,
+                        cuenta.getId(),
+                        usuario.getId()
+                )
+        ));
+
+        MovimientosPanel panel = panelRef.get();
+        JList<String> lista = panel.getListaMovimientos();
+        assertEquals(1, lista.getModel().getSize());
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("200000"),
+                LocalDateTime.now(),
+                "Alquiler",
+                usuario.getId()
+        );
+
+        SwingUtilities.invokeAndWait(panel::actualizarMovimientos);
+
+        assertEquals(2, lista.getModel().getSize());
+        assertEquals(
+                "INGRESO - Sueldo - 500000",
+                lista.getModel().getElementAt(0)
+        );
+        assertEquals(
+                "EGRESO - Alquiler - 200000",
+                lista.getModel().getElementAt(1)
+        );
+    }
+
+    @Test
     void deberiaRechazarUnaCuentaDeOtroUsuario() {
         Usuario usuarioPropietario = new Usuario(
                 "Propietario",
