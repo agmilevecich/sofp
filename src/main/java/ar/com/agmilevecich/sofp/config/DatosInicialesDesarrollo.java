@@ -21,7 +21,7 @@ public final class DatosInicialesDesarrollo {
         Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
 
         UsuarioRepository usuarioRepository = new UsuarioRepository(entityManager);
-        if (!usuarioRepository.listarTodos().isEmpty()) {
+        if (usuarioRepository.buscarPorEmail(EMAIL).isPresent()) {
             return;
         }
 
