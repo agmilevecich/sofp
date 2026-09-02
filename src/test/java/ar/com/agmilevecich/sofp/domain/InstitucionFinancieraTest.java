@@ -62,4 +62,15 @@ class InstitucionFinancieraTest {
                 institucion.getNombre());
     }
 
+    @Test
+    void deberiaMostrarNombreEnToString() {
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Santander",
+                        TipoInstitucionFinanciera.BANCO);
+
+        assertEquals("Banco Santander", institucion.toString());
+    }
+
 }
