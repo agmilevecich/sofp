@@ -1,72 +1,73 @@
 # SOFP — Pendientes
 
-## Estado — 01/09/2026
+## Estado — 02/09/2026
 
 **Rama estable:** `main`.  
-**Último commit integrado:** `96f3d99` — `docs: cerrar historial de build de seguridad`.  
+**Último commit integrado conocido:** `a4be859` — `docs: crear contexto de continuidad actualizado`.  
 **Rama de trabajo:** `feature/swing-shell`.  
-**Comparación actual:** **52 commits por delante de `main`, 0 commits por detrás**.
+**Último commit funcional:** `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
+
+La rama de trabajo continúa separada de `main` y la comparación actual es **73 commits por delante y 2 commits por detrás**. Los commits que están por delante de la feature en `main` corresponden a documentación posterior y no se incorporan automáticamente.
 
 ## Seguridad
 
 La etapa de seguridad y aislamiento de datos está **cerrada e integrada en `main`**.
 
-Se completaron:
-
-1. autorización de `OperacionFinancieraService`;
-2. lecturas por ID y listados de recursos propios;
-3. caminos alternativos de creación de cuentas, categorías, movimientos y perfiles;
-4. aislamiento de posición y cartera por perfil/usuario;
-5. cierre de caminos internos que podían saltar validaciones públicas;
-6. cobertura específica de recursos propios y ajenos mediante `AislamientoDatosServiceTest`.
+Se completaron autorizaciones por usuario/propietario para perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, además del cierre de caminos internos que podían saltar las validaciones públicas.
 
 ## Fase 8 — Interfaz de usuario Swing
 
-El bloque actual de `feature/swing-shell` está implementado y validado dentro de su alcance:
+El shell Swing está implementado en `feature/swing-shell` con:
 
-- shell principal `MainFrame`;
+- `MainFrame`;
 - `HeaderPanel`;
-- `SidebarPanel` con Inicio, Cuentas, Movimientos, Inversiones y Reportes;
-- área central con `CardLayout`;
-- tarjetas para Inicio, Cuentas, Movimientos, Inversiones y Reportes;
+- `SidebarPanel`;
+- `InicioPanel`;
+- `CuentasPanel`;
+- `MovimientosPanel`;
+- `InversionesPanel`;
+- `ReportesPanel`;
 - `StatusBarPanel`;
-- punto de entrada `ui.Main`;
-- cuentas contextualizadas por perfil/usuario;
-- movimientos contextualizados por cuenta/usuario;
-- inversiones contextualizadas por perfil/usuario;
-- reportes de inversiones conectados a `CarteraActivoService`.
+- `ui.Main`.
 
-La UI utiliza los servicios existentes y mantiene las reglas de negocio fuera de la interfaz.
+La interfaz usa los servicios existentes y mantiene las reglas de negocio fuera de la UI.
 
-## Validación final
+## Bloque cerrado — Alta de movimientos
 
-Suite general ejecutada localmente el **01/09/2026**:
+El formulario `RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada utilizando categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`.
 
-- **529/529** tests en verde;
-- `Failures: 0`;
-- `Errors: 0`;
-- `Skipped: 0`;
-- `BUILD SUCCESS`;
-- duración: **14:25 min**;
-- finalización: **19:25:53 -03:00**.
+El alta se delega a `MovimientoService.registrar(...)`. Después de una registración exitosa, `MovimientosPanel` recibe una notificación y refresca el listado.
 
-Validación específica de reportes:
+Este bloque está **implementado y cerrado dentro de su alcance**.
 
-- `ReportesPanelTest`: **3/3**;
-- `MainFrameReportesTest`: **1/1**;
-- total reportes: **4/4**;
-- suite relacionada de UI: **13/13**.
+## Validación
 
-## Pendientes
+Suite específica ejecutada localmente el **02/09/2026**:
 
-No queda pendiente un arreglo dentro del alcance actual del shell Swing.
+- Tests run: **10**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **04:38 min**
+- Finalización: **12:26:39 -03:00**
 
-El próximo trabajo debe definirse como un **nuevo bloque funcional de Fase 8**, partiendo del código real de `feature/swing-shell` y revisando nuevamente clases relacionadas, servicios, repositorios y tests antes de proponer cambios.
+La última suite general disponible sigue siendo la del **01/09/2026**, con **529/529 tests en verde**, `BUILD SUCCESS`, 0 failures, 0 errors y 0 skipped.
 
-No se deben introducir funcionalidades especulativas ni duplicar reglas de negocio en la UI.
+## Pendientes funcionales
+
+No queda pendiente un arreglo dentro del bloque de alta de movimientos.
+
+El próximo trabajo debe definirse como un **nuevo bloque funcional de Fase 8**. No se debe asumir cuál será la funcionalidad siguiente hasta revisar el estado real de la rama, las clases relacionadas, servicios, repositorios, reglas de negocio y tests.
+
+## Pendientes de validación futura
+
+Cuando se complete un nuevo bloque funcional importante, corresponde ejecutar los tests específicos, tests relacionados y la suite general cuando resulte apropiado, además de revisar `git diff`, `git diff --check` y `git status`.
 
 ## Criterio de continuidad
 
-No asumir que una conversación anterior refleja el estado actual. Ante una nueva sesión de SOFP, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
-
 No hacer merge automático a `main`.
+
+No crear nuevas ramas para continuar este trabajo; seguir sobre `feature/swing-shell`.
+
+Ante una nueva sesión, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
