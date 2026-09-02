@@ -160,32 +160,7 @@ public class RegistrarMovimientoPanel extends JPanel {
 
     private void registrar() {
         try {
-            Categoria categoria = (Categoria) Objects.requireNonNull(
-                    categoriaComboBox.getSelectedItem(),
-                    "La categoría es obligatoria"
-            );
-            TipoMovimiento tipoMovimiento = (TipoMovimiento) Objects.requireNonNull(
-                    tipoMovimientoComboBox.getSelectedItem(),
-                    "El tipo de movimiento es obligatorio"
-            );
-            BigDecimal importe = new BigDecimal(importeField.getText().trim());
-            LocalDateTime fechaHora = LocalDateTime.parse(fechaHoraField.getText().trim());
-            String descripcion = descripcionField.getText().trim();
-
-            movimientoService.registrar(
-                    cuenta,
-                    categoria,
-                    tipoMovimiento,
-                    importe,
-                    fechaHora,
-                    descripcion,
-                    usuarioId
-            );
-
-            if (onMovimientoRegistrado != null) {
-                onMovimientoRegistrado.run();
-            }
-
+            registrarMovimiento();
             JOptionPane.showMessageDialog(
                     this,
                     "Movimiento registrado correctamente",
@@ -200,6 +175,35 @@ public class RegistrarMovimientoPanel extends JPanel {
                     "No se pudo registrar el movimiento",
                     JOptionPane.ERROR_MESSAGE
             );
+        }
+    }
+
+    /** Ejecuta el alta sin abrir diálogos, para permitir su prueba desde la UI. */
+    void registrarMovimiento() {
+        Categoria categoria = (Categoria) Objects.requireNonNull(
+                categoriaComboBox.getSelectedItem(),
+                "La categoría es obligatoria"
+        );
+        TipoMovimiento tipoMovimiento = (TipoMovimiento) Objects.requireNonNull(
+                tipoMovimientoComboBox.getSelectedItem(),
+                "El tipo de movimiento es obligatorio"
+        );
+        BigDecimal importe = new BigDecimal(importeField.getText().trim());
+        LocalDateTime fechaHora = LocalDateTime.parse(fechaHoraField.getText().trim());
+        String descripcion = descripcionField.getText().trim();
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                tipoMovimiento,
+                importe,
+                fechaHora,
+                descripcion,
+                usuarioId
+        );
+
+        if (onMovimientoRegistrado != null) {
+            onMovimientoRegistrado.run();
         }
     }
 
