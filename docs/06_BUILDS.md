@@ -29,24 +29,13 @@ Se incorporaron y validaron identificación por símbolo, cartera de activos, co
 
 ## Etapa — Seguridad y aislamiento por usuario
 
-La rama `feature/seguridad-aislamiento-datos` completó la auditoría transversal y posteriormente fue integrada en `main` mediante fast-forward.
+La rama `feature/seguridad-aislamiento-datos` completó la auditoría transversal y fue integrada en `main` mediante fast-forward.
 
-Se implementaron y validaron:
-
-- autorización de operaciones mutables de `CuentaService`;
-- autorización de operaciones mutables de `CategoriaService`;
-- autorización de operaciones mutables de `MovimientoService`;
-- autorización de `OperacionFinancieraService` por usuario solicitante;
-- lecturas por ID y listados protegidos por propietario;
-- cálculo de saldo y evolución contextualizados por usuario;
-- altas de cuentas, categorías, movimientos y perfiles con validación de propietario;
-- aislamiento de posiciones y cartera por usuario/perfil;
-- cierre de caminos internos que podían saltar las validaciones públicas;
-- cobertura transversal mediante `AislamientoDatosServiceTest`.
+Se implementaron y validaron autorizaciones por usuario/propietario para perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, incluyendo cobertura transversal mediante `AislamientoDatosServiceTest`.
 
 ## Validación final de seguridad
 
-El **31/08/2026** se ejecutó primero `AislamientoDatosServiceTest`: **7/7 tests en verde**.
+El **31/08/2026** se ejecutó `AislamientoDatosServiceTest`: **7/7 tests en verde**.
 
 Luego se ejecutó la suite general:
 
@@ -59,33 +48,76 @@ Luego se ejecutó la suite general:
 
 ## Fase 8 — Interfaz de usuario Swing
 
-El bloque inicial del shell Swing quedó implementado sobre `feature/swing-shell` y posteriormente se completó su integración con cuentas, movimientos, inversiones y reportes.
+La rama `feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, movimientos, inversiones y reportes.
 
-Se incorporaron:
+Se incorporaron y conectaron:
 
-- `MainFrame` como ventana principal;
+- `MainFrame`;
 - `HeaderPanel`;
-- `SidebarPanel` con navegación por Inicio, Cuentas, Movimientos, Inversiones y Reportes;
-- área central con `CardLayout`;
-- tarjetas para Inicio, Cuentas, Movimientos, Inversiones y Reportes;
+- `SidebarPanel`;
+- `InicioPanel`;
+- `CuentasPanel`;
+- `MovimientosPanel`;
+- `InversionesPanel`;
+- `ReportesPanel`;
 - `StatusBarPanel`;
-- punto de entrada `ui.Main`;
-- integración de cuentas por perfil/usuario;
-- integración de movimientos por cuenta/usuario;
-- integración de posiciones de inversión por perfil/usuario;
-- integración del panel de reportes de inversiones mediante `CarteraActivoService`;
+- `ui.Main` como punto de entrada;
+- integración contextual por usuario/perfil;
 - pruebas de paneles, estructura, layout, navegación e integración.
 
-## Validación específica de reportes
+## Bloque de reportes de inversiones
 
-- `ReportesPanelTest`: **3/3 tests en verde**.
-- `MainFrameReportesTest`: **1/1 test en verde**.
-- Total de pruebas específicas de reportes: **4/4 en verde**.
-- Suite relacionada de UI: **13/13 tests en verde**.
+`ReportesPanel` utiliza la funcionalidad de reporte existente en `CarteraActivoService`. Fue integrado al `MainFrame` y la navegación quedó conectada a la tarjeta `REPORTES`, sin duplicar lógica de negocio.
 
-## Validación general final del shell Swing
+Validación específica:
 
-Suite general ejecutada localmente el **01/09/2026**:
+- `ReportesPanelTest`: **3/3 tests en verde**;
+- `MainFrameReportesTest`: **1/1 test en verde**;
+- total: **4/4 tests en verde**;
+- suite relacionada de UI: **13/13 tests en verde**.
+
+## Bloque de alta de movimientos desde Swing
+
+Se agregó `RegistrarMovimientoPanel` al flujo de movimientos de una cuenta.
+
+El formulario permite seleccionar categoría autorizada y activa, tipo de movimiento, importe, fecha/hora y descripción. La operación se delega a `MovimientoService.registrar(...)` utilizando el `usuarioId` de contexto.
+
+`MovimientosPanel` recibe un callback después de un alta exitosa y actualiza el listado de movimientos de la cuenta.
+
+Se separó la operación de alta sin diálogos en `registrarMovimiento()` para permitir probar la interacción real sin bloquear la prueba con `JOptionPane`.
+
+Commits principales del bloque:
+
+- `39d96be` — `feat: agregar formulario de alta de movimientos`;
+- `62b8e2a` — `fix: corregir tipos del formulario de movimientos`;
+- `76389ca` — `feat: integrar alta de movimientos`;
+- `1757b60` — `fix: conservar alta de movimientos sin depender del listado`;
+- `978288f` — `feat: conectar alta de movimientos al shell`;
+- `7b67880` — `fix: corregir constructor base del shell`;
+- `deaae7d` — `refactor: separar alta de movimientos de dialogos`;
+- `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
+
+## Validación específica del bloque de alta
+
+Suite ejecutada localmente el **02/09/2026**:
+
+`mvn -Dtest=RegistrarMovimientoPanelTest,MovimientosPanelTest,MainFrameMovimientosTest,MainFrameNavigationTest test`
+
+Resultado:
+
+- Tests run: **10**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **04:38 min**
+- Finalización: **12:26:39 -03:00**
+
+`RegistrarMovimientoPanelTest`: **4/4 tests en verde**. La prueba nueva confirma alta real, persistencia en H2 y notificación al contenedor para refrescar el listado.
+
+## Validación general vigente
+
+La última suite general sigue siendo la ejecutada el **01/09/2026**:
 
 - Tests run: **529**
 - Failures: **0**
@@ -95,22 +127,16 @@ Suite general ejecutada localmente el **01/09/2026**:
 - Duración: **14:25 min**
 - Finalización: **19:25:53 -03:00**
 
-La validación global vigente es **529/529 tests en verde**.
+Por lo tanto, **529/529** es la última validación global disponible. Los 10/10 del 02/09 validan específicamente el bloque de alta de movimientos posterior a esa suite general.
 
-La suite se ejecutó después de limpiar artefactos compilados obsoletos que habían provocado un fallo anterior de `SwingApplicationTest`. La limpieza eliminó el artefacto obsoleto y la suite completa quedó verde sin modificar código ni tests por ese motivo.
-
-Durante las ejecuciones de tests de UI Surefire mostró el mensaje de que esperaba más de 30 segundos después de `System.exit(0)`, pero las ejecuciones finalizaron con `BUILD SUCCESS` y sin failures ni errors. No se realizó ningún cambio especulativo por ese mensaje.
+Durante las ejecuciones de UI Surefire mostró un mensaje de espera posterior a `System.exit(0)`, pero las ejecuciones terminaron con `BUILD SUCCESS`, sin failures ni errors. No se realizó ningún cambio especulativo por ese mensaje.
 
 ## Estado actual
 
-La seguridad transversal está cerrada e integrada en `main`.
+`main` permanece como rama estable.
 
-La rama `feature/swing-shell` contiene el shell Swing integrado con los servicios existentes y está **52 commits por delante de `main` y 0 commits por detrás**.
-
-Último commit funcional previo a la documentación: `6621615` — `test: cubrir navegacion de reportes`.
-
-La documentación de continuidad se actualiza ahora como un bloque documental posterior a la validación general.
+`feature/swing-shell` es la rama activa. El último commit funcional es `e8c9c50`; la documentación se actualiza ahora para reflejarlo.
 
 ## Próximo paso
 
-La feature `feature/swing-shell` queda validada dentro de su alcance actual. El siguiente trabajo de Fase 8 debe comenzar como un nuevo bloque funcional, sin merge automático a `main`, manteniendo cambios pequeños, tests específicos y sin duplicar lógica de negocio.
+El bloque de alta de movimientos queda cerrado dentro de su alcance. El siguiente trabajo de Fase 8 debe definirse como un nuevo bloque funcional, sin merge automático a `main`, sin crear ramas nuevas y manteniendo cambios pequeños, tests específicos y reglas de negocio fuera de la UI.
