@@ -99,4 +99,9 @@ public class Moneda extends EntidadAuditable {
                 "La cantidad de decimales es obligatoria"
         );
     }
+
+    @Override
+    public String toString() {
+        return codigo + " - " + nombre;
+    }
 }
