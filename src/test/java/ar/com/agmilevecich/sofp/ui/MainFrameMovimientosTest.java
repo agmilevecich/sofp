@@ -13,9 +13,13 @@ import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
+import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
+import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
+import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
+import ar.com.agmilevecich.sofp.service.MonedaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -41,6 +45,8 @@ class MainFrameMovimientosTest {
     private CuentaService cuentaService;
     private MovimientoService movimientoService;
     private CategoriaService categoriaService;
+    private InstitucionFinancieraService institucionFinancieraService;
+    private MonedaService monedaService;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +64,10 @@ class MainFrameMovimientosTest {
                 entityManager,
                 new CategoriaRepository(entityManager)
         );
+        institucionFinancieraService = new InstitucionFinancieraService(
+                new InstitucionFinancieraRepository(entityManager)
+        );
+        monedaService = new MonedaService(new MonedaRepository(entityManager));
     }
 
     @AfterEach
@@ -225,6 +235,8 @@ class MainFrameMovimientosTest {
                         movimientoService,
                         categoriaService,
                         null,
+                        null,
+                        null,
                         perfil,
                         usuario.getId()
                 )
@@ -250,6 +262,65 @@ class MainFrameMovimientosTest {
                 buscarFormulario(mainFrame.getContentPane());
         assertNotNull(formulario);
         assertEquals(1, formulario.getCategoriaComboBox().getItemCount());
+        assertTrue(formulario.getRegistrarButton().isEnabled());
+
+        mainFrame.dispose();
+    }
+
+    @Test
+    void deberiaMostrarElFormularioDeAltaDeCuentas() throws Exception {
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Test",
+                "ariel.mainframe.cuentas." + System.nanoTime(),
+                "hash"
+        );
+        PerfilFinanciero perfil = new PerfilFinanciero(
+                "Perfil principal",
+                usuario
+        );
+        usuario.agregarPerfilFinanciero(perfil);
+
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Test",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Moneda moneda = new Moneda(
+                "ARS",
+                "Peso argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        entityManager.getTransaction().commit();
+
+        AtomicReference<MainFrame> frameRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> frameRef.set(
+                new MainFrame(
+                        cuentaService,
+                        null,
+                        null,
+                        institucionFinancieraService,
+                        monedaService,
+                        null,
+                        perfil,
+                        usuario.getId()
+                )
+        ));
+
+        MainFrame mainFrame = frameRef.get();
+        assertNotNull(mainFrame);
+
+        RegistrarCuentaPanel formulario =
+                buscarFormularioCuenta(mainFrame.getContentPane());
+        assertNotNull(formulario);
+        assertEquals(1, formulario.getInstitucionComboBox().getItemCount());
+        assertEquals(1, formulario.getMonedaComboBox().getItemCount());
         assertTrue(formulario.getRegistrarButton().isEnabled());
 
         mainFrame.dispose();
@@ -299,6 +370,23 @@ class MainFrameMovimientosTest {
 
             if (component instanceof Container hijo) {
                 RegistrarMovimientoPanel encontrado = buscarFormulario(hijo);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private RegistrarCuentaPanel buscarFormularioCuenta(Container container) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof RegistrarCuentaPanel formulario) {
+                return formulario;
+            }
+
+            if (component instanceof Container hijo) {
+                RegistrarCuentaPanel encontrado = buscarFormularioCuenta(hijo);
                 if (encontrado != null) {
                     return encontrado;
                 }
