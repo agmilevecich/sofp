@@ -2,20 +2,20 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código y los tests actuales; `docs/` es documentación auxiliar.
 
-## Estado verificado — 01/09/2026
+## Estado verificado — 02/09/2026
 
 **Rama estable:** `main`  
-**Último commit integrado:** `96f3d99` — `docs: cerrar historial de build de seguridad`  
+**Último commit integrado conocido:** `a4be859` — `docs: crear contexto de continuidad actualizado`  
 **Feature integrada:** `feature/seguridad-aislamiento-datos` mediante fast-forward.
 
 **Rama de trabajo:** `feature/swing-shell`  
-**Último commit:** `6621615` — `test: cubrir navegacion de reportes`.
+**Último commit:** `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
 
-La rama de trabajo está **52 commits por delante de `main` y 0 commits por detrás**.
+La rama de trabajo continúa separada de `main`; la comparación actual es **73 commits por delante y 2 commits por detrás**. Los 2 commits de diferencia de `main` corresponden a documentación posterior y no se incorporan automáticamente a la feature.
 
-## Validación actual
+## Validación vigente
 
-Suite general ejecutada localmente el **01/09/2026**, después de limpiar artefactos compilados obsoletos:
+La última suite general ejecutada localmente fue el **01/09/2026**:
 
 - Tests run: **529**
 - Failures: **0**
@@ -27,31 +27,43 @@ Suite general ejecutada localmente el **01/09/2026**, después de limpiar artefa
 
 La validación global vigente es **529/529 tests en verde**.
 
-La ejecución anterior había mostrado un fallo de `SwingApplicationTest` provocado por artefactos compilados obsoletos en `target`. La limpieza de Maven eliminó ese artefacto y la suite completa volvió a quedar verde, sin modificar código ni tests por ese motivo.
+Posteriormente se ejecutó la suite específica del bloque de alta de movimientos desde Swing el **02/09/2026**:
+
+- `RegistrarMovimientoPanelTest`: **4/4**
+- `MovimientosPanelTest`: incluido en la suite relacionada
+- `MainFrameMovimientosTest`: incluido en la suite relacionada
+- `MainFrameNavigationTest`: incluido en la suite relacionada
+- Total: **10/10 tests en verde**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **04:38 min**
+- Finalización: **12:26:39 -03:00**
+
+La validación específica confirmó el alta real, persistencia y notificación para refrescar el listado.
 
 ## Seguridad implementada
 
-- `PerfilFinancieroService`: lecturas y alta protegidas por usuario propietario.
-- `CuentaService`: lecturas por ID, listados por perfil, saldo, evolución y alta protegidos por usuario.
-- `CategoriaService`: lectura por ID, listado por perfil y alta protegidos por usuario.
-- `MovimientoService`: lectura por ID, listados por cuenta/categoría y alta protegidos por usuario.
-- `PosicionActivoService`: consulta pública protegida por propietario del perfil.
-- `CarteraActivoService`: posiciones, valorizaciones, reporte, composición y movimientos protegidos por propietario del perfil.
-- `OperacionFinancieraService`: transferencia, compra y venta exigen usuario y validan propiedad de los recursos involucrados.
-- Se cerraron caminos internos que podían permitir saltar validaciones públicas.
-- `AislamientoDatosServiceTest` cubre recursos propios y ajenos y los principales caminos de lectura/creación.
+La auditoría transversal de seguridad y aislamiento de datos quedó completada e integrada en `main`.
+
+Se mantienen protegidos por propietario/usuario los recursos y operaciones de perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras. Los caminos internos relevantes fueron cerrados para evitar saltar las validaciones públicas.
 
 ## Estado de la interfaz — Fase 8 / `feature/swing-shell`
 
-El bloque actual del shell Swing está implementado y validado dentro de su alcance.
+El shell Swing está implementado e integrado con los servicios existentes.
 
 Componentes actuales:
 
-- `MainFrame` como ventana principal;
+- `MainFrame`;
 - `HeaderPanel`;
-- `SidebarPanel` con cinco botones: Inicio, Cuentas, Movimientos, Inversiones y Reportes;
+- `SidebarPanel` con Inicio, Cuentas, Movimientos, Inversiones y Reportes;
 - área central basada en `CardLayout`;
-- tarjetas para Inicio, Cuentas, Movimientos, Inversiones y Reportes;
+- `InicioPanel`;
+- `CuentasPanel`;
+- `MovimientosPanel`;
+- `InversionesPanel`;
+- `ReportesPanel`;
 - `StatusBarPanel`;
 - punto de entrada `ar.com.agmilevecich.sofp.ui.Main`.
 
@@ -60,39 +72,28 @@ La UI integra el contexto existente para:
 - listar cuentas del perfil/usuario;
 - conservar la cuenta seleccionada;
 - listar movimientos de la cuenta seleccionada con autorización por usuario;
+- registrar movimientos desde Swing mediante `MovimientoService.registrar(...)`;
+- refrescar automáticamente el listado después de un alta exitosa;
 - mostrar posiciones de inversión del perfil con autorización por usuario;
 - mostrar el reporte de movimientos de inversión mediante `CarteraActivoService`;
-- navegar entre Inicio, Cuentas, Movimientos, Inversiones y Reportes desde el shell principal.
+- navegar entre Inicio, Cuentas, Movimientos, Inversiones y Reportes.
 
 La UI utiliza los servicios existentes y no duplica reglas de negocio.
 
-## Tests específicos de UI
+## Alta de movimientos desde Swing
 
-La cobertura del shell incluye:
+El bloque incorporado en `feature/swing-shell` agrega `RegistrarMovimientoPanel` al flujo de movimientos de una cuenta.
 
-- `CuentasPanelTest`;
-- `MovimientosPanelTest`;
-- `MainFrameTest`;
-- `MainFrameLayoutTest`;
-- `MainFrameNavigationTest`;
-- `MainFrameMovimientosTest`;
-- `InversionesPanelTest`;
-- `MainFrameInversionesTest`;
-- `ReportesPanelTest`;
-- `MainFrameReportesTest`.
+El formulario utiliza categoría autorizada y activa, tipo de movimiento, importe, fecha y hora, descripción y usuario propietario de la cuenta. El alta se delega a `MovimientoService` y `MovimientosPanel` recibe un callback para actualizar el listado después de una registración exitosa.
 
-Validación específica más reciente de reportes:
+La prueba `deberiaRegistrarMovimientoYNotificarAlContenedor` verifica alta real en H2, persistencia, datos principales del movimiento y notificación al contenedor.
 
-- `ReportesPanelTest`: **3/3**;
-- `MainFrameReportesTest`: **1/1**;
-- total: **4/4 tests en verde**.
+## Criterio de cierre del bloque actual
 
-La suite relacionada de UI posterior quedó en **13/13 tests en verde**.
+El bloque de alta de movimientos desde Swing queda **implementado y validado dentro de su alcance**, con **10/10 tests relacionados en verde**.
 
-## Criterio de cierre de la feature
+No se realiza merge automático a `main` y no se crean ramas nuevas para continuar.
 
-El alcance actual de `feature/swing-shell` está implementado y cubierto por tests. La suite general está en **529/529 verde**.
+## Próximo paso
 
-No se realiza merge automático a `main`.
-
-El siguiente trabajo de Fase 8 deberá definirse como un nuevo bloque funcional, partiendo nuevamente del código real de la rama, manteniendo cambios pequeños, tests específicos y sin duplicar lógica de negocio.
+Definir un nuevo bloque funcional de Fase 8 partiendo del código real de `feature/swing-shell`, revisando nuevamente clases relacionadas, servicios, repositorios, reglas de negocio y tests antes de modificar código.
