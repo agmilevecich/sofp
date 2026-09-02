@@ -1,5 +1,6 @@
 package ar.com.agmilevecich.sofp.ui;
 
+import ar.com.agmilevecich.sofp.config.DatosInicialesDesarrollo;
 import ar.com.agmilevecich.sofp.config.JpaManager;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Usuario;
@@ -44,6 +45,10 @@ public class Main {
         PerfilFinancieroService perfilFinancieroService = new PerfilFinancieroService(
                 new PerfilFinancieroRepository(entityManager)
         );
+
+        if (Boolean.getBoolean("sofp.dev")) {
+            DatosInicialesDesarrollo.crearSiNoExisten(entityManager);
+        }
 
         JFrame loginFrame = new JFrame("SOFP - Ingreso");
         LoginPanel loginPanel = new LoginPanel(
