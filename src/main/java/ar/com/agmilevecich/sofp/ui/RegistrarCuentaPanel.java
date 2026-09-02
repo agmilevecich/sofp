@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -100,11 +102,26 @@ public class RegistrarCuentaPanel extends JPanel {
         cargarInstituciones(institucionFinancieraService.listarTodas());
         cargarMonedas(monedaService.listarTodas());
         construirFormulario();
-        registrarButton.setEnabled(
-                institucionComboBox.getItemCount() > 0
-                        && monedaComboBox.getItemCount() > 0
-        );
+        actualizarEstadoBoton();
         registrarButton.addActionListener(evento -> registrar());
+        nombreField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent evento) {
+                actualizarEstadoBoton();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent evento) {
+                actualizarEstadoBoton();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent evento) {
+                actualizarEstadoBoton();
+            }
+        });
+        institucionComboBox.addActionListener(evento -> actualizarEstadoBoton());
+        monedaComboBox.addActionListener(evento -> actualizarEstadoBoton());
     }
 
     public JTextField getNombreField() {
@@ -174,6 +191,14 @@ public class RegistrarCuentaPanel extends JPanel {
         for (Moneda moneda : monedas) {
             monedaComboBox.addItem(moneda);
         }
+    }
+
+    private void actualizarEstadoBoton() {
+        registrarButton.setEnabled(
+                !nombreField.getText().trim().isEmpty()
+                        && institucionComboBox.getSelectedItem() != null
+                        && monedaComboBox.getSelectedItem() != null
+        );
     }
 
     private void registrar() {
