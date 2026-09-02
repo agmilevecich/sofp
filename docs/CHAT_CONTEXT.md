@@ -5,13 +5,12 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 ## Estado — 02/09/2026
 
 **Rama estable:** `main`.  
-Último commit integrado conocido: `a4be859` — `docs: crear contexto de continuidad actualizado`.  
-La rama `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward.
+Último commit integrado: `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`.
 
 **Rama de trabajo:** `feature/swing-shell`.  
-**Último commit funcional:** `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
+**Último commit actual:** `0d7769e` — `fix: conservar listado de cuentas con perfil id`.
 
-La rama de trabajo continúa separada de `main` y está **73 commits por delante y 2 commits por detrás**. Los 2 commits que están por delante en `main` corresponden a documentación posterior y no se incorporan automáticamente.
+La comparación verificada es **90 commits por delante y 2 commits por detrás de `main`**. La feature permanece separada de `main` y los commits de documentación de `main` no se incorporan automáticamente.
 
 No se crean ramas nuevas para continuar este trabajo.
 
@@ -19,7 +18,7 @@ No se crean ramas nuevas para continuar este trabajo.
 
 La auditoría transversal de seguridad y aislamiento de datos quedó completada e integrada en `main`.
 
-Implementado:
+Implementado y validado:
 
 - autorización de operaciones financieras;
 - aislamiento de cuentas, categorías y movimientos;
@@ -31,30 +30,25 @@ Implementado:
 
 ## Shell Swing — Fase 8
 
-El shell Swing está implementado en `feature/swing-shell` con:
-
-- `MainFrame`;
-- `HeaderPanel`;
-- `SidebarPanel`;
-- `InicioPanel`;
-- `CuentasPanel`;
-- `MovimientosPanel`;
-- `InversionesPanel`;
-- `ReportesPanel`;
-- `StatusBarPanel`;
-- `ui.Main`.
+El shell Swing está implementado en `feature/swing-shell` con `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
 
 `MainFrame` utiliza `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes respetando el contexto de usuario/perfil y no duplica reglas de negocio.
 
-## Bloque cerrado — Alta de movimientos
+## Bloques funcionales cerrados
 
-`RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada utilizando categoría autorizada y activa, tipo de movimiento, importe, fecha/hora, descripción y `usuarioId`.
+### Alta de movimientos
 
-El alta se delega a `MovimientoService.registrar(...)`. Después de una registración exitosa, `MovimientosPanel` recibe un callback y actualiza el listado.
+`RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. `MovimientosPanel` refresca el listado mediante callback después de un alta exitosa.
 
-Se separó `registrarMovimiento()` para probar el alta real sin abrir diálogos Swing, manteniendo la interacción visual en `registrar()`.
+Validación específica: **10/10 tests en verde**.
 
-La prueba `deberiaRegistrarMovimientoYNotificarAlContenedor` confirma persistencia en H2, datos principales y notificación al contenedor.
+### Alta de cuentas
+
+`RegistrarCuentaPanel` permite registrar una cuenta con tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`.
+
+`CuentasPanel` refresca el listado mediante callback. `MainFrame` conserva el constructor histórico basado en `perfilFinancieroId` y dispone de un constructor contextual completo con `PerfilFinanciero`, `InstitucionFinancieraService` y `MonedaService`.
+
+`CuentaService` soporta llamadas con o sin una transacción activa.
 
 ## Tests
 
@@ -68,23 +62,29 @@ La prueba `deberiaRegistrarMovimientoYNotificarAlContenedor` confirma persistenc
 - duración: **14:25 min**;
 - finalización: **19:25:53 -03:00**.
 
-Suite específica del bloque de alta, ejecutada el **02/09/2026**:
+Última suite específica, ejecutada el **02/09/2026**:
 
-`mvn -Dtest=RegistrarMovimientoPanelTest,MovimientosPanelTest,MainFrameMovimientosTest,MainFrameNavigationTest test`
+`mvn -Dtest=RegistrarCuentaPanelTest,CuentasPanelTest,MainFrameMovimientosTest test`
 
-- **10/10 tests en verde**;
+- **11/11 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **04:38 min**;
-- finalización: **12:26:39 -03:00**.
+- duración: **05:24 min**;
+- finalización: **14:05:26 -03:00**.
 
-`RegistrarMovimientoPanelTest`: **4/4**.
+Detalle: `RegistrarCuentaPanelTest` **5/5**, `CuentasPanelTest` **3/3**, `MainFrameMovimientosTest` **3/3**.
 
-Surefire mostró el mensaje conocido de espera posterior a `System.exit(0)`, pero la ejecución terminó correctamente. No se modificó código especulativamente por ese mensaje.
+La ejecución específica confirmó alta real de cuentas, persistencia, callback de refresco y compatibilidad del constructor histórico de `MainFrame`.
 
-## Continuidad
+## Incidentes conocidos
+
+Una ejecución anterior falló por un `SwingApplicationTest` obsoleto presente en `target`; la limpieza de Maven eliminó el artefacto sin modificar código ni tests para hacer pasar la suite.
+
+Durante las ejecuciones de UI Surefire mostró un mensaje de espera posterior a `System.exit(0)`. Las ejecuciones terminaron con `BUILD SUCCESS`, sin failures ni errors, por lo que no se realizó un cambio especulativo.
+
+## Reglas de continuidad
 
 - No hacer merge automático a `main`.
 - No crear nuevas ramas; continuar sobre `feature/swing-shell`.
@@ -92,8 +92,8 @@ Surefire mostró el mensaje conocido de espera posterior a `System.exit(0)`, per
 - Mantener cambios pequeños y descriptivos.
 - No duplicar lógica de negocio en la UI.
 - Después de cambios importantes: tests específicos, tests relacionados y suite completa cuando corresponda; revisar `git diff`, `git diff --check` y `git status`.
-- Ante una nueva sesión de SOFP, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
+- Ante una nueva sesión, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
 
 ## Próximo paso
 
-El bloque de alta de movimientos está cerrado dentro de su alcance. El próximo trabajo debe definirse como un nuevo bloque funcional de Fase 8, partiendo del estado real de `feature/swing-shell`.
+Definir el próximo bloque funcional de Fase 8 únicamente a partir del estado real de `feature/swing-shell`, sin asumir funcionalidades no implementadas.
