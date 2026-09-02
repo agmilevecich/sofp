@@ -3,7 +3,6 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.config.JpaManager;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Usuario;
-import ar.com.agmilevecich.sofp.persistence.CarteraActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
