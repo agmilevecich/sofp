@@ -3,11 +3,11 @@
 ## Estado — 02/09/2026
 
 **Rama estable:** `main`.  
-**Último commit integrado conocido:** `a4be859` — `docs: crear contexto de continuidad actualizado`.  
+**Último commit integrado:** `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`.  
 **Rama de trabajo:** `feature/swing-shell`.  
-**Último commit funcional:** `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
+**Último commit actual:** `0d7769e` — `fix: conservar listado de cuentas con perfil id`.
 
-La rama de trabajo continúa separada de `main` y la comparación actual es **73 commits por delante y 2 commits por detrás**. Los commits que están por delante de la feature en `main` corresponden a documentación posterior y no se incorporan automáticamente.
+La comparación verificada es **90 commits por delante y 2 commits por detrás de `main`**. La feature permanece separada y no se sincronizan automáticamente los commits de documentación de `main`.
 
 ## Seguridad
 
@@ -17,52 +17,55 @@ Se completaron autorizaciones por usuario/propietario para perfiles, cuentas, ca
 
 ## Fase 8 — Interfaz de usuario Swing
 
-El shell Swing está implementado en `feature/swing-shell` con:
+El shell Swing está implementado en `feature/swing-shell` con `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
 
-- `MainFrame`;
-- `HeaderPanel`;
-- `SidebarPanel`;
-- `InicioPanel`;
-- `CuentasPanel`;
-- `MovimientosPanel`;
-- `InversionesPanel`;
-- `ReportesPanel`;
-- `StatusBarPanel`;
-- `ui.Main`.
-
-La interfaz usa los servicios existentes y mantiene las reglas de negocio fuera de la UI.
+La interfaz utiliza los servicios existentes y mantiene las reglas de negocio fuera de la UI.
 
 ## Bloque cerrado — Alta de movimientos
 
-El formulario `RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada utilizando categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`.
+`RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada utilizando categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`.
 
-El alta se delega a `MovimientoService.registrar(...)`. Después de una registración exitosa, `MovimientosPanel` recibe una notificación y refresca el listado.
+El alta se delega a `MovimientoService.registrar(...)`. Después de una registración exitosa, `MovimientosPanel` recibe un callback y refresca el listado.
 
-Este bloque está **implementado y cerrado dentro de su alcance**.
+Validación específica histórica: **10/10 tests en verde**.
 
-## Validación
+## Bloque cerrado — Alta de cuentas
 
-Suite específica ejecutada localmente el **02/09/2026**:
+`RegistrarCuentaPanel` permite registrar una cuenta seleccionando tipo, institución financiera, moneda e identificador externo. El alta se delega a `CuentaService.registrar(cuenta, usuarioId)`.
 
-- Tests run: **10**
+`CuentasPanel` actualiza el listado mediante callback después de un alta exitosa.
+
+`MainFrame` conserva el constructor histórico basado en `perfilFinancieroId` y el constructor contextual completo con `PerfilFinanciero`, `InstitucionFinancieraService` y `MonedaService`.
+
+`CuentaService` soporta el alta con o sin una transacción ya activa.
+
+## Validación más reciente
+
+Suite ejecutada localmente el **02/09/2026**:
+
+`mvn -Dtest=RegistrarCuentaPanelTest,CuentasPanelTest,MainFrameMovimientosTest test`
+
+- Tests run: **11**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **04:38 min**
-- Finalización: **12:26:39 -03:00**
+- Duración: **05:24 min**
+- Finalización: **14:05:26 -03:00**
 
-La última suite general disponible sigue siendo la del **01/09/2026**, con **529/529 tests en verde**, `BUILD SUCCESS`, 0 failures, 0 errors y 0 skipped.
+Detalle: `RegistrarCuentaPanelTest` **5/5**, `CuentasPanelTest` **3/3**, `MainFrameMovimientosTest` **3/3**.
 
 ## Pendientes funcionales
 
-No queda pendiente un arreglo dentro del bloque de alta de movimientos.
+No queda pendiente un arreglo dentro de los bloques de alta de movimientos o alta de cuentas que fueron validados.
 
-El próximo trabajo debe definirse como un **nuevo bloque funcional de Fase 8**. No se debe asumir cuál será la funcionalidad siguiente hasta revisar el estado real de la rama, las clases relacionadas, servicios, repositorios, reglas de negocio y tests.
+El próximo trabajo debe definirse como un **nuevo bloque funcional de Fase 8**, sin asumir la funcionalidad siguiente hasta revisar el código actual, clases relacionadas, servicios, repositorios, reglas de negocio y tests.
 
 ## Pendientes de validación futura
 
-Cuando se complete un nuevo bloque funcional importante, corresponde ejecutar los tests específicos, tests relacionados y la suite general cuando resulte apropiado, además de revisar `git diff`, `git diff --check` y `git status`.
+La suite general debe volver a ejecutarse cuando se cierre un nuevo bloque importante o cuando corresponda por alcance. La última suite general disponible sigue siendo **529/529 tests en verde**, ejecutada el 01/09/2026.
+
+Después de cambios importantes también corresponde revisar `git diff`, `git diff --check` y `git status`.
 
 ## Criterio de continuidad
 
