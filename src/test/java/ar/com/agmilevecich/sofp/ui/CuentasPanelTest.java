@@ -10,8 +10,12 @@ import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
+import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
+import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.service.CuentaService;
+import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
+import ar.com.agmilevecich.sofp.service.MonedaService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +35,8 @@ class CuentasPanelTest {
 
     private EntityManager entityManager;
     private CuentaService cuentaService;
+    private InstitucionFinancieraService institucionFinancieraService;
+    private MonedaService monedaService;
 
     @BeforeEach
     void setUp() {
@@ -40,6 +46,10 @@ class CuentasPanelTest {
                 new MovimientoRepository(entityManager),
                 entityManager
         );
+        institucionFinancieraService = new InstitucionFinancieraService(
+                new InstitucionFinancieraRepository(entityManager)
+        );
+        monedaService = new MonedaService(new MonedaRepository(entityManager));
     }
 
     @AfterEach
@@ -118,6 +128,68 @@ class CuentasPanelTest {
     }
 
     @Test
+    void deberiaMostrarElFormularioYActualizarLaListaDespuesDeRegistrar() throws Exception {
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Test",
+                "ariel.cuentas.panel.alta." + System.nanoTime(),
+                "hash"
+        );
+        PerfilFinanciero perfil = new PerfilFinanciero(
+                "Perfil principal",
+                usuario
+        );
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Test",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Moneda moneda = new Moneda(
+                "ARS",
+                "Peso argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        entityManager.getTransaction().commit();
+
+        AtomicReference<CuentasPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new CuentasPanel(
+                        cuentaService,
+                        institucionFinancieraService,
+                        monedaService,
+                        perfil,
+                        usuario.getId()
+                )
+        ));
+
+        CuentasPanel panel = panelRef.get();
+        RegistrarCuentaPanel formulario = buscarFormulario(panel);
+
+        assertNotNull(formulario);
+        assertEquals(1, formulario.getInstitucionComboBox().getItemCount());
+        assertEquals(1, formulario.getMonedaComboBox().getItemCount());
+        assertEquals(0, buscarLista(panel).getModel().getSize());
+
+        formulario.getNombreField().setText("Cuenta nueva");
+        SwingUtilities.invokeAndWait(formulario::registrarCuenta);
+
+        JList<?> lista = buscarLista(panel);
+        assertEquals(1, lista.getModel().getSize());
+        assertEquals("Cuenta nueva", lista.getModel().getElementAt(0));
+        assertEquals(1, cuentaService.listarPorPerfilFinanciero(
+                perfil.getId(),
+                usuario.getId()
+        ).size());
+    }
+
+    @Test
     void deberiaRechazarUnPerfilDeOtroUsuario() {
         Usuario usuarioPropietario = new Usuario(
                 "Propietario",
@@ -169,6 +241,23 @@ class CuentasPanelTest {
                 JList<?> encontrada = buscarLista(hijo);
                 if (encontrada != null) {
                     return encontrada;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private RegistrarCuentaPanel buscarFormulario(Container container) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof RegistrarCuentaPanel formulario) {
+                return formulario;
+            }
+
+            if (component instanceof Container hijo) {
+                RegistrarCuentaPanel encontrado = buscarFormulario(hijo);
+                if (encontrado != null) {
+                    return encontrado;
                 }
             }
         }
