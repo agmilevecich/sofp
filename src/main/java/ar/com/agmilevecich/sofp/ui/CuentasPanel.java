@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
@@ -26,6 +27,7 @@ public class CuentasPanel extends JPanel {
     private final CuentaService cuentaService;
     private final InstitucionFinancieraService institucionFinancieraService;
     private final MonedaService monedaService;
+    private final PerfilFinanciero perfilFinanciero;
     private final Long perfilFinancieroId;
     private final Long usuarioId;
 
@@ -37,6 +39,7 @@ public class CuentasPanel extends JPanel {
         cuentaService = null;
         institucionFinancieraService = null;
         monedaService = null;
+        perfilFinanciero = null;
         perfilFinancieroId = null;
         usuarioId = null;
         setLayout(new BorderLayout());
@@ -50,25 +53,26 @@ public class CuentasPanel extends JPanel {
     public CuentasPanel(CuentaService cuentaService,
                         Long perfilFinancieroId,
                         Long usuarioId) {
-        this(cuentaService, null, null, perfilFinancieroId, usuarioId, null);
+        this(cuentaService, null, null, null, perfilFinancieroId, usuarioId);
     }
 
     /** Constructor para listar cuentas y permitir su alta desde Swing. */
     public CuentasPanel(CuentaService cuentaService,
                         InstitucionFinancieraService institucionFinancieraService,
                         MonedaService monedaService,
-                        Long perfilFinancieroId,
+                        PerfilFinanciero perfilFinanciero,
                         Long usuarioId) {
         this(cuentaService, institucionFinancieraService, monedaService,
-                perfilFinancieroId, usuarioId, null);
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null,
+                usuarioId);
     }
 
     private CuentasPanel(CuentaService cuentaService,
                          InstitucionFinancieraService institucionFinancieraService,
                          MonedaService monedaService,
+                         PerfilFinanciero perfilFinanciero,
                          Long perfilFinancieroId,
-                         Long usuarioId,
-                         Runnable onCuentaRegistrada) {
+                         Long usuarioId) {
         this.cuentaService = Objects.requireNonNull(cuentaService, "El CuentaService es obligatorio");
         this.perfilFinancieroId = Objects.requireNonNull(
                 perfilFinancieroId,
@@ -77,10 +81,12 @@ public class CuentasPanel extends JPanel {
         this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         this.institucionFinancieraService = institucionFinancieraService;
         this.monedaService = monedaService;
+        this.perfilFinanciero = perfilFinanciero;
 
-        if ((institucionFinancieraService == null) != (monedaService == null)) {
+        if ((institucionFinancieraService == null) != (monedaService == null)
+                || (institucionFinancieraService != null && perfilFinanciero == null)) {
             throw new IllegalArgumentException(
-                    "Los servicios de institución financiera y moneda deben informarse juntos"
+                    "Los servicios de alta requieren institución financiera, moneda y perfil financiero"
             );
         }
 
@@ -99,9 +105,9 @@ public class CuentasPanel extends JPanel {
                     cuentaService,
                     institucionFinancieraService,
                     monedaService,
-                    obtenerPerfilFinanciero(),
+                    perfilFinanciero,
                     usuarioId,
-                    onCuentaRegistrada != null ? onCuentaRegistrada : this::actualizarCuentas
+                    this::actualizarCuentas
             ), BorderLayout.SOUTH);
         }
 
@@ -125,18 +131,6 @@ public class CuentasPanel extends JPanel {
                 perfilFinancieroId,
                 usuarioId
         ));
-    }
-
-    private ar.com.agmilevecich.sofp.domain.PerfilFinanciero obtenerPerfilFinanciero() {
-        return cuentaService.buscarPorId(
-                cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId).stream()
-                        .findFirst()
-                        .map(Cuenta::getId)
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "No se puede registrar una cuenta sin una cuenta existente para resolver el perfil"
-                        )),
-                usuarioId
-        ).orElseThrow().getPerfilFinanciero();
     }
 
     private void cargarCuentas(List<Cuenta> cuentas) {
