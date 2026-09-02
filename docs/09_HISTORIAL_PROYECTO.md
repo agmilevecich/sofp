@@ -15,9 +15,9 @@ Validación final de seguridad:
 
 ## 2026-08-31 / 2026-09-01 — Fase 8: shell Swing
 
-La rama `feature/swing-shell` desarrolló el primer bloque funcional de interfaz Swing sobre la base estable de seguridad.
+La rama `feature/swing-shell` desarrolló el shell Swing sobre la base estable de seguridad.
 
-Se incorporaron y conectaron progresivamente:
+Se incorporaron y conectaron:
 
 - `MainFrame`;
 - `HeaderPanel`;
@@ -32,23 +32,18 @@ Se incorporaron y conectaron progresivamente:
 
 La integración mantiene las reglas de negocio en los servicios existentes y pasa el contexto de usuario/perfil a la UI.
 
-También se agregó cobertura para estructura, layout, navegación, cuentas, movimientos, inversiones y reportes.
-
 ## Bloque de reportes de inversiones
 
-Se incorporó `ReportesPanel` utilizando la funcionalidad de reporte ya existente en `CarteraActivoService`. El panel fue integrado al `MainFrame` y la navegación del `SidebarPanel` quedó conectada a la tarjeta `REPORTES`.
-
-No se agregó lógica de negocio nueva al panel: la UI utiliza los servicios existentes y conserva el aislamiento por usuario/perfil.
+`ReportesPanel` utiliza la funcionalidad de reporte existente en `CarteraActivoService`. Fue integrado al `MainFrame` y la navegación quedó conectada a la tarjeta `REPORTES`, sin agregar lógica de negocio duplicada.
 
 Validación específica:
 
 - `ReportesPanelTest`: **3/3 tests en verde**;
 - `MainFrameReportesTest`: **1/1 test en verde**;
-- total: **4/4 tests en verde**.
+- total: **4/4 tests en verde**;
+- suite relacionada de UI: **13/13 tests en verde**.
 
-La suite relacionada de UI quedó en **13/13 tests en verde**.
-
-## Validación general final del bloque Swing
+## Validación general del shell Swing
 
 Suite general ejecutada localmente el **01/09/2026**:
 
@@ -62,22 +57,63 @@ Suite general ejecutada localmente el **01/09/2026**:
 
 La validación global vigente es **529/529 tests en verde**.
 
-La ejecución anterior había fallado por un `SwingApplicationTest` compilado previamente en `target`, que ya no formaba parte de los tests versionados. La limpieza de Maven eliminó el artefacto obsoleto y permitió ejecutar la suite completa correctamente, sin cambios adicionales de código ni tests por ese motivo.
+Una ejecución anterior había fallado por un `SwingApplicationTest` compilado previamente en `target`. La limpieza de Maven eliminó el artefacto obsoleto y permitió ejecutar la suite correctamente, sin modificar código ni tests por ese motivo.
 
-Durante ejecuciones de tests de UI Surefire mostró un mensaje indicando que esperaba más de 30 segundos después de `System.exit(0)`. Las ejecuciones terminaron con `BUILD SUCCESS`, sin failures ni errors. No se realizó ningún cambio especulativo por ese mensaje.
+## 2026-09-02 — Fase 8: alta de movimientos desde Swing
 
-## Estado actual
+Se completó el bloque de alta de movimientos desde la interfaz Swing.
+
+Se incorporó `RegistrarMovimientoPanel` al flujo de movimientos de la cuenta seleccionada. El formulario permite seleccionar categoría autorizada y activa, tipo de movimiento, importe, fecha/hora y descripción, y utiliza el `usuarioId` del contexto.
+
+La operación se delega a `MovimientoService.registrar(...)`. Después de un alta exitosa, `MovimientosPanel` recibe un callback y refresca el listado.
+
+Para permitir la prueba de la operación real sin bloquearla con diálogos Swing, se separó la operación en `registrarMovimiento()`, manteniendo `registrar()` como coordinador de la interacción visual y los mensajes al usuario.
+
+Commits principales del bloque:
+
+- `39d96be` — `feat: agregar formulario de alta de movimientos`;
+- `62b8e2a` — `fix: corregir tipos del formulario de movimientos`;
+- `76389ca` — `feat: integrar alta de movimientos`;
+- `1757b60` — `fix: conservar alta de movimientos sin depender del listado`;
+- `978288f` — `feat: conectar alta de movimientos al shell`;
+- `7b67880` — `fix: corregir constructor base del shell`;
+- `deaae7d` — `refactor: separar alta de movimientos de dialogos`;
+- `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
+
+## Validación del bloque de alta
+
+Suite ejecutada localmente el **02/09/2026**:
+
+`mvn -Dtest=RegistrarMovimientoPanelTest,MovimientosPanelTest,MainFrameMovimientosTest,MainFrameNavigationTest test`
+
+Resultado:
+
+- Tests run: **10**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **04:38 min**
+- Finalización: **12:26:39 -03:00**.
+
+`RegistrarMovimientoPanelTest`: **4/4 tests en verde**.
+
+La prueba nueva confirma registración real, persistencia en H2, importe, fecha/hora, descripción y notificación al contenedor. La cobertura de `MovimientosPanel` verifica la actualización del listado.
+
+Durante la ejecución apareció el mensaje conocido de Surefire sobre la espera posterior a `System.exit(0)`, pero la ejecución terminó con `BUILD SUCCESS`, sin failures ni errors.
+
+## Estado actual — 02/09/2026
 
 `main` permanece como rama estable.
 
-`feature/swing-shell` es la rama activa y se encuentra **52 commits por delante de `main` y 0 commits por detrás** según la comparación actual con GitHub.
+`feature/swing-shell` es la rama activa y su último commit funcional es `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
 
-Último commit funcional antes del bloque documental: `6621615` — `test: cubrir navegacion de reportes`.
+La rama se encuentra actualmente **73 commits por delante y 2 commits por detrás de `main`**. Los 2 commits de diferencia de `main` corresponden a documentación posterior y no se incorporan automáticamente a la feature.
 
-La documentación de continuidad se actualiza mediante commits separados posteriores a la validación general.
+La documentación de continuidad se mantiene en la rama de trabajo para reflejar el estado real sin modificar `main`.
 
 ## Próximo avance
 
-El bloque actual de `feature/swing-shell` queda validado dentro de su alcance. El siguiente avance corresponde a un nuevo bloque funcional de Fase 8.
+El bloque de alta de movimientos queda cerrado dentro de su alcance. El siguiente avance debe definirse como un nuevo bloque funcional de Fase 8, partiendo nuevamente del código real de `feature/swing-shell`.
 
-No se realiza merge automático a `main`.
+No se realiza merge automático a `main` y no se crean ramas nuevas para continuar.
