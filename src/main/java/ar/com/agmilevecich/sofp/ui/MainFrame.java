@@ -137,13 +137,21 @@ public class MainFrame extends JFrame {
             this.carteraActivoService = carteraActivoService;
             this.perfilFinanciero = perfilFinanciero;
             this.usuarioId = Objects.requireNonNull(usuarioId, "usuarioId");
-            this.cuentasPanel = new CuentasPanel(
-                    cuentaService,
-                    institucionFinancieraService,
-                    monedaService,
-                    perfilFinanciero,
-                    usuarioId
-            );
+            if (institucionFinancieraService == null && monedaService == null && perfilFinanciero == null) {
+                this.cuentasPanel = new CuentasPanel(
+                        cuentaService,
+                        perfilFinancieroId,
+                        usuarioId
+                );
+            } else {
+                this.cuentasPanel = new CuentasPanel(
+                        cuentaService,
+                        institucionFinancieraService,
+                        monedaService,
+                        perfilFinanciero,
+                        usuarioId
+                );
+            }
         }
 
         cardLayout = new CardLayout();
