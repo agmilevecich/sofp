@@ -66,8 +66,8 @@ public class MainFrame extends JFrame {
                      CarteraActivoService carteraActivoService,
                      PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
-        this(cuentaService, movimientoService, null, null, carteraActivoService,
-                null, null, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+        this(cuentaService, movimientoService, null, null, null, carteraActivoService,
+                null, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
     }
 
     /** Constructor para ejecutar el shell con alta de movimientos, cuentas e inversiones. */
@@ -78,7 +78,7 @@ public class MainFrame extends JFrame {
                      PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
         this(cuentaService, movimientoService, categoriaService,
-                null, carteraActivoService, null, null,
+                null, null, carteraActivoService, null,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
     }
 
@@ -132,110 +132,68 @@ public class MainFrame extends JFrame {
             this.perfilFinanciero = null;
             this.usuarioId = null;
         } else {
-            Long idPerfil = Objects.requireNonNull(
-                    perfilFinancieroId,
-                    "El id del perfil financiero es obligatorio"
-            );
-            Long idUsuario = Objects.requireNonNull(
-                    usuarioId,
-                    "El id del usuario es obligatorio"
-            );
-
-            if ((institucionFinancieraService == null) != (monedaService == null)
-                    || (institucionFinancieraService != null && perfilFinanciero == null)) {
-                throw new IllegalArgumentException(
-                        "Los servicios de alta de cuentas requieren institución financiera, moneda y perfil financiero"
-                );
-            }
-
-            if (institucionFinancieraService != null) {
-                this.cuentasPanel = new CuentasPanel(
-                        cuentaService,
-                        institucionFinancieraService,
-                        monedaService,
-                        perfilFinanciero,
-                        idUsuario
-                );
-            } else {
-                this.cuentasPanel = new CuentasPanel(
-                        cuentaService,
-                        idPerfil,
-                        idUsuario
-                );
-            }
             this.movimientoService = movimientoService;
             this.categoriaService = categoriaService;
             this.carteraActivoService = carteraActivoService;
             this.perfilFinanciero = perfilFinanciero;
-            this.usuarioId = idUsuario;
+            this.usuarioId = Objects.requireNonNull(usuarioId, "usuarioId");
+            this.cuentasPanel = new CuentasPanel(
+                    cuentaService,
+                    institucionFinancieraService,
+                    monedaService,
+                    perfilFinanciero,
+                    usuarioId
+            );
         }
 
         cardLayout = new CardLayout();
         areaCentral = new JPanel(cardLayout);
-        areaCentral.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        areaCentral.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
         areaCentral.add(new InicioPanel(), INICIO);
         areaCentral.add(cuentasPanel, CUENTAS);
-        movimientosPanel = new MovimientosPanel();
-        areaCentral.add(movimientosPanel, MOVIMIENTOS);
+        areaCentral.add(new JPanel(), MOVIMIENTOS);
+        areaCentral.add(new InversionesPanel(), INVERSIONES);
+        areaCentral.add(new ReportesPanel(), REPORTES);
 
-        if (carteraActivoService != null && perfilFinanciero != null) {
-            areaCentral.add(new InversionesPanel(
-                    carteraActivoService,
-                    perfilFinanciero,
-                    usuarioId
-            ), INVERSIONES);
-            areaCentral.add(new ReportesPanel(
-                    carteraActivoService,
-                    perfilFinanciero,
-                    usuarioId
-            ), REPORTES);
-        } else {
-            areaCentral.add(new InversionesPanel(), INVERSIONES);
-            areaCentral.add(new ReportesPanel(), REPORTES);
-        }
+        HeaderPanel headerPanel = new HeaderPanel();
+        SidebarPanel sidebarPanel = new SidebarPanel(this::navegar);
+        StatusBarPanel statusBarPanel = new StatusBarPanel();
 
-        JPanel content = new JPanel(new BorderLayout());
-        content.add(new HeaderPanel(), BorderLayout.NORTH);
-        content.add(new SidebarPanel(this::navegar), BorderLayout.WEST);
-        content.add(areaCentral, BorderLayout.CENTER);
-        content.add(new StatusBarPanel(), BorderLayout.SOUTH);
-        setContentPane(content);
+        setLayout(new BorderLayout());
+        add(headerPanel, BorderLayout.NORTH);
+        add(sidebarPanel, BorderLayout.WEST);
+        add(areaCentral, BorderLayout.CENTER);
+        add(statusBarPanel, BorderLayout.SOUTH);
     }
 
-    private void navegar(ActionEvent evento) {
-        if (MOVIMIENTOS.equals(evento.getActionCommand())) {
-            mostrarMovimientosDeCuentaSeleccionada();
+    private void navegar(ActionEvent event) {
+        String destino = event.getActionCommand();
+        if (MOVIMIENTOS.equals(destino)) {
+            mostrarMovimientos();
+            return;
+        }
+        cardLayout.show(areaCentral, destino);
+    }
+
+    private void mostrarMovimientos() {
+        if (movimientoService == null) {
+            cardLayout.show(areaCentral, MOVIMIENTOS);
             return;
         }
 
-        cardLayout.show(areaCentral, evento.getActionCommand());
-    }
-
-    private void mostrarMovimientosDeCuentaSeleccionada() {
-        if (movimientoService != null) {
-            Cuenta cuenta = cuentasPanel.getCuentaSeleccionada();
-            if (cuenta != null) {
-                areaCentral.remove(movimientosPanel);
-                if (categoriaService != null) {
-                    movimientosPanel = new MovimientosPanel(
-                            movimientoService,
-                            categoriaService,
-                            cuenta,
-                            usuarioId
-                    );
-                } else {
-                    movimientosPanel = new MovimientosPanel(
-                            movimientoService,
-                            cuenta.getId(),
-                            usuarioId
-                    );
-                }
-                areaCentral.add(movimientosPanel, MOVIMIENTOS);
-                areaCentral.revalidate();
-                areaCentral.repaint();
-            }
+        Cuenta cuentaSeleccionada = cuentasPanel.getCuentaSeleccionada();
+        if (cuentaSeleccionada == null) {
+            return;
         }
 
+        movimientosPanel = new MovimientosPanel(
+                movimientoService,
+                categoriaService,
+                cuentaSeleccionada,
+                usuarioId
+        );
+        areaCentral.add(movimientosPanel, MOVIMIENTOS);
         cardLayout.show(areaCentral, MOVIMIENTOS);
     }
 }
