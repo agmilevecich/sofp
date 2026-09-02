@@ -5,6 +5,8 @@ import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
+import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
+import ar.com.agmilevecich.sofp.service.MonedaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 
 import javax.swing.BorderFactory;
@@ -35,14 +37,15 @@ public class MainFrame extends JFrame {
     private MovimientosPanel movimientosPanel;
 
     public MainFrame() {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null);
     }
 
     /** Constructor para ejecutar el shell con el contexto del usuario actual. */
     public MainFrame(CuentaService cuentaService,
                      Long perfilFinancieroId,
                      Long usuarioId) {
-        this(cuentaService, null, null, null, null, perfilFinancieroId, usuarioId);
+        this(cuentaService, null, null, null, null, null, null,
+                perfilFinancieroId, usuarioId);
     }
 
     /** Constructor para ejecutar el shell con cuentas y movimientos del usuario actual. */
@@ -50,7 +53,7 @@ public class MainFrame extends JFrame {
                      MovimientoService movimientoService,
                      Long perfilFinancieroId,
                      Long usuarioId) {
-        this(cuentaService, movimientoService, null, null, null,
+        this(cuentaService, movimientoService, null, null, null, null, null,
                 perfilFinancieroId, usuarioId);
     }
 
@@ -63,8 +66,8 @@ public class MainFrame extends JFrame {
                      CarteraActivoService carteraActivoService,
                      PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
-        this(cuentaService, movimientoService, null, carteraActivoService,
-                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+        this(cuentaService, movimientoService, null, null, carteraActivoService,
+                null, null, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
     }
 
     /** Constructor para ejecutar el shell con alta de movimientos, cuentas e inversiones. */
@@ -74,14 +77,32 @@ public class MainFrame extends JFrame {
                      CarteraActivoService carteraActivoService,
                      PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
-        this(cuentaService, movimientoService, categoriaService, carteraActivoService,
-                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+        this(cuentaService, movimientoService, categoriaService,
+                null, carteraActivoService, null, null,
+                perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+    }
+
+    /** Constructor para ejecutar el shell con alta de cuentas y movimientos. */
+    public MainFrame(CuentaService cuentaService,
+                     MovimientoService movimientoService,
+                     CategoriaService categoriaService,
+                     InstitucionFinancieraService institucionFinancieraService,
+                     MonedaService monedaService,
+                     CarteraActivoService carteraActivoService,
+                     PerfilFinanciero perfilFinanciero,
+                     Long usuarioId) {
+        this(cuentaService, movimientoService, categoriaService,
+                institucionFinancieraService, monedaService, carteraActivoService,
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null,
+                usuarioId);
     }
 
     /** Constructor interno completo para mantener el contexto ya resuelto. */
     private MainFrame(CuentaService cuentaService,
                       MovimientoService movimientoService,
                       CategoriaService categoriaService,
+                      InstitucionFinancieraService institucionFinancieraService,
+                      MonedaService monedaService,
                       CarteraActivoService carteraActivoService,
                       PerfilFinanciero perfilFinanciero,
                       Long perfilFinancieroId,
@@ -94,6 +115,8 @@ public class MainFrame extends JFrame {
         if (cuentaService == null) {
             if (movimientoService != null
                     || categoriaService != null
+                    || institucionFinancieraService != null
+                    || monedaService != null
                     || carteraActivoService != null
                     || perfilFinanciero != null
                     || perfilFinancieroId != null
@@ -109,22 +132,42 @@ public class MainFrame extends JFrame {
             this.perfilFinanciero = null;
             this.usuarioId = null;
         } else {
-            this.cuentasPanel = new CuentasPanel(
-                    cuentaService,
-                    Objects.requireNonNull(
-                            perfilFinancieroId,
-                            "El id del perfil financiero es obligatorio"
-                    ),
-                    Objects.requireNonNull(
-                            usuarioId,
-                            "El id del usuario es obligatorio"
-                    )
+            Long idPerfil = Objects.requireNonNull(
+                    perfilFinancieroId,
+                    "El id del perfil financiero es obligatorio"
             );
+            Long idUsuario = Objects.requireNonNull(
+                    usuarioId,
+                    "El id del usuario es obligatorio"
+            );
+
+            if ((institucionFinancieraService == null) != (monedaService == null)
+                    || (institucionFinancieraService != null && perfilFinanciero == null)) {
+                throw new IllegalArgumentException(
+                        "Los servicios de alta de cuentas requieren institución financiera, moneda y perfil financiero"
+                );
+            }
+
+            if (institucionFinancieraService != null) {
+                this.cuentasPanel = new CuentasPanel(
+                        cuentaService,
+                        institucionFinancieraService,
+                        monedaService,
+                        perfilFinanciero,
+                        idUsuario
+                );
+            } else {
+                this.cuentasPanel = new CuentasPanel(
+                        cuentaService,
+                        idPerfil,
+                        idUsuario
+                );
+            }
             this.movimientoService = movimientoService;
             this.categoriaService = categoriaService;
             this.carteraActivoService = carteraActivoService;
             this.perfilFinanciero = perfilFinanciero;
-            this.usuarioId = usuarioId;
+            this.usuarioId = idUsuario;
         }
 
         cardLayout = new CardLayout();
