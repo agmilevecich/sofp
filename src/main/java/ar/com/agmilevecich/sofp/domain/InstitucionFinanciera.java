@@ -121,10 +121,6 @@ public class InstitucionFinanciera extends EntidadAuditable {
 
     @Override
     public String toString() {
-        return "InstitucionFinanciera{" +
-                "nombre='" + nombre + '\'' +
-                ", tipo=" + tipo +
-                ", activa=" + activa +
-                '}';
+        return nombre;
     }
 }
