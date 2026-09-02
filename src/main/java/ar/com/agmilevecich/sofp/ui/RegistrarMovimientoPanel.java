@@ -28,6 +28,7 @@ public class RegistrarMovimientoPanel extends JPanel {
     private final MovimientoService movimientoService;
     private final Cuenta cuenta;
     private final Long usuarioId;
+    private final Runnable onMovimientoRegistrado;
     private final JComboBox<Categoria> categoriaComboBox;
     private final JComboBox<TipoMovimiento> tipoMovimientoComboBox;
     private final JTextField importeField;
@@ -40,6 +41,7 @@ public class RegistrarMovimientoPanel extends JPanel {
         movimientoService = null;
         cuenta = null;
         usuarioId = null;
+        onMovimientoRegistrado = null;
         categoriaComboBox = new JComboBox<>();
         tipoMovimientoComboBox = new JComboBox<>(TipoMovimiento.values());
         importeField = new JTextField(16);
@@ -58,6 +60,18 @@ public class RegistrarMovimientoPanel extends JPanel {
                                     CategoriaService categoriaService,
                                     Cuenta cuenta,
                                     Long usuarioId) {
+        this(movimientoService, categoriaService, cuenta, usuarioId, null);
+    }
+
+    /**
+     * Constructor para registrar movimientos y notificar a la pantalla contenedora
+     * cuando el alta se completa correctamente.
+     */
+    public RegistrarMovimientoPanel(MovimientoService movimientoService,
+                                    CategoriaService categoriaService,
+                                    Cuenta cuenta,
+                                    Long usuarioId,
+                                    Runnable onMovimientoRegistrado) {
         this.movimientoService = Objects.requireNonNull(
                 movimientoService,
                 "El MovimientoService es obligatorio"
@@ -65,6 +79,7 @@ public class RegistrarMovimientoPanel extends JPanel {
         Objects.requireNonNull(categoriaService, "El CategoriaService es obligatorio");
         this.cuenta = Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
         this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        this.onMovimientoRegistrado = onMovimientoRegistrado;
         categoriaComboBox = new JComboBox<>();
         tipoMovimientoComboBox = new JComboBox<>(TipoMovimiento.values());
         importeField = new JTextField(16);
@@ -166,6 +181,10 @@ public class RegistrarMovimientoPanel extends JPanel {
                     descripcion,
                     usuarioId
             );
+
+            if (onMovimientoRegistrado != null) {
+                onMovimientoRegistrado.run();
+            }
 
             JOptionPane.showMessageDialog(
                     this,
