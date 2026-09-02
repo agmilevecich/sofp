@@ -1,16 +1,19 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar.
+La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
-## Estado — 01/09/2026
+## Estado — 02/09/2026
 
-Rama estable: `main`.
-Último commit integrado: `96f3d99` — `docs: cerrar historial de build de seguridad`.
+**Rama estable:** `main`.  
+Último commit integrado conocido: `a4be859` — `docs: crear contexto de continuidad actualizado`.  
 La rama `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward.
 
-Rama de trabajo: `feature/swing-shell`.
-Último commit: `ca70f28` — `fix: conservar entrada Swing existente en ui`.
-La rama está 46 commits por delante de `main` y 0 por detrás.
+**Rama de trabajo:** `feature/swing-shell`.  
+**Último commit funcional:** `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
+
+La rama de trabajo continúa separada de `main` y está **73 commits por delante y 2 commits por detrás**. Los 2 commits que están por delante en `main` corresponden a documentación posterior y no se incorporan automáticamente.
+
+No se crean ramas nuevas para continuar este trabajo.
 
 ## Seguridad
 
@@ -26,11 +29,9 @@ Implementado:
 - cierre de caminos internos que podían saltar validaciones públicas;
 - cobertura transversal en `AislamientoDatosServiceTest`.
 
-## Shell Swing
+## Shell Swing — Fase 8
 
-El bloque actual de Fase 8 está implementado en `feature/swing-shell`.
-
-Componentes principales:
+El shell Swing está implementado en `feature/swing-shell` con:
 
 - `MainFrame`;
 - `HeaderPanel`;
@@ -39,32 +40,60 @@ Componentes principales:
 - `CuentasPanel`;
 - `MovimientosPanel`;
 - `InversionesPanel`;
+- `ReportesPanel`;
 - `StatusBarPanel`;
 - `ui.Main`.
 
-La UI integra los servicios existentes respetando el contexto de usuario/perfil. Cuentas, movimientos e inversiones se muestran mediante los servicios autorizados, sin duplicar reglas de negocio en la interfaz.
+`MainFrame` utiliza `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes respetando el contexto de usuario/perfil y no duplica reglas de negocio.
+
+## Bloque cerrado — Alta de movimientos
+
+`RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada utilizando categoría autorizada y activa, tipo de movimiento, importe, fecha/hora, descripción y `usuarioId`.
+
+El alta se delega a `MovimientoService.registrar(...)`. Después de una registración exitosa, `MovimientosPanel` recibe un callback y actualiza el listado.
+
+Se separó `registrarMovimiento()` para probar el alta real sin abrir diálogos Swing, manteniendo la interacción visual en `registrar()`.
+
+La prueba `deberiaRegistrarMovimientoYNotificarAlContenedor` confirma persistencia en H2, datos principales y notificación al contenedor.
 
 ## Tests
 
-Suite general ejecutada localmente el **01/09/2026** después de limpiar artefactos compilados obsoletos:
+Última suite general disponible, ejecutada el **01/09/2026**:
 
-- Tests run: **525**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **32:12 min**.
+- **529/529 tests en verde**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **14:25 min**;
+- finalización: **19:25:53 -03:00**.
 
-Tests específicos del shell cubren paneles, estructura, layout, navegación e integración de cuentas, movimientos e inversiones.
+Suite específica del bloque de alta, ejecutada el **02/09/2026**:
 
-## Incidente resuelto
+`mvn -Dtest=RegistrarMovimientoPanelTest,MovimientosPanelTest,MainFrameMovimientosTest,MainFrameNavigationTest test`
 
-Una ejecución previa intentó ejecutar `SwingApplicationTest` desde `target` aunque el test ya no estaba versionado en la rama, produciendo `NoClassDefFoundError` para `ar.com.agmilevecich.sofp.app.SwingApplication`.
+- **10/10 tests en verde**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **04:38 min**;
+- finalización: **12:26:39 -03:00**.
 
-Se limpió el proyecto con Maven y se volvió a ejecutar la suite. El resultado definitivo fue **525/525 tests en verde**.
+`RegistrarMovimientoPanelTest`: **4/4**.
+
+Surefire mostró el mensaje conocido de espera posterior a `System.exit(0)`, pero la ejecución terminó correctamente. No se modificó código especulativamente por ese mensaje.
 
 ## Continuidad
 
-No hacer merge automático a `main`.
+- No hacer merge automático a `main`.
+- No crear nuevas ramas; continuar sobre `feature/swing-shell`.
+- Antes de modificar una clase, revisar implementación actual, clases relacionadas, servicios, repositorios, tests y reglas de negocio.
+- Mantener cambios pequeños y descriptivos.
+- No duplicar lógica de negocio en la UI.
+- Después de cambios importantes: tests específicos, tests relacionados y suite completa cuando corresponda; revisar `git diff`, `git diff --check` y `git status`.
+- Ante una nueva sesión de SOFP, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
 
-El bloque actual de `feature/swing-shell` está validado dentro de su alcance. El siguiente trabajo debe definirse como un nuevo bloque funcional de Fase 8 y reconstruirse desde GitHub antes de modificar código.
+## Próximo paso
+
+El bloque de alta de movimientos está cerrado dentro de su alcance. El próximo trabajo debe definirse como un nuevo bloque funcional de Fase 8, partiendo del estado real de `feature/swing-shell`.
