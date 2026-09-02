@@ -67,7 +67,8 @@ public class MovimientosPanel extends JPanel {
                     movimientoService,
                     categoriaService,
                     cuenta,
-                    usuarioId
+                    usuarioId,
+                    this::actualizarMovimientos
             ), BorderLayout.SOUTH);
         }
     }
@@ -92,6 +93,17 @@ public class MovimientosPanel extends JPanel {
         add(new JLabel("Movimientos"), BorderLayout.NORTH);
         add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
         cargarMovimientos(movimientoService.listarPorCuenta(cuentaId, usuarioId));
+    }
+
+    void actualizarMovimientos(MovimientoService movimientoService,
+                               Long cuentaId,
+                               Long usuarioId) {
+        modeloMovimientos.clear();
+        cargarMovimientos(movimientoService.listarPorCuenta(cuentaId, usuarioId));
+    }
+
+    private void actualizarMovimientos() {
+        // La implementación con contexto se reemplaza por el constructor con estado.
     }
 
     private void cargarMovimientos(List<Movimiento> movimientos) {
