@@ -80,4 +80,18 @@ class MonedaTest {
                 moneda.getCantidadDecimales()
         );
     }
+
+    @Test
+    void deberiaMostrarCodigoYNombreEnToString() {
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        assertEquals("ARS - Peso argentino", moneda.toString());
+    }
 }
