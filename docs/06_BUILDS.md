@@ -23,15 +23,11 @@ Suite general ejecutada el **27/08/2026 15:24:11 -03:00**:
 - `BUILD SUCCESS`
 - Duración: **17:35 min**
 
-## Validaciones posteriores al Build 059
-
-Se incorporaron y validaron identificación por símbolo, cartera de activos, costo promedio, valorización, reportes, evolución histórica y seguridad de perfil financiero.
-
 ## Etapa — Seguridad y aislamiento por usuario
 
 La rama `feature/seguridad-aislamiento-datos` completó la auditoría transversal y fue integrada en `main` mediante fast-forward.
 
-Se implementaron y validaron autorizaciones por usuario/propietario para perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, incluyendo cobertura transversal mediante `AislamientoDatosServiceTest`.
+Se implementaron y validaron autorizaciones por usuario/propietario para perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, además del cierre de caminos internos que podían saltar las validaciones públicas.
 
 ## Validación final de seguridad
 
@@ -50,20 +46,9 @@ Luego se ejecutó la suite general:
 
 La rama `feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, movimientos, inversiones y reportes.
 
-Se incorporaron y conectaron:
+Se incorporaron y conectaron `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
 
-- `MainFrame`;
-- `HeaderPanel`;
-- `SidebarPanel`;
-- `InicioPanel`;
-- `CuentasPanel`;
-- `MovimientosPanel`;
-- `InversionesPanel`;
-- `ReportesPanel`;
-- `StatusBarPanel`;
-- `ui.Main` como punto de entrada;
-- integración contextual por usuario/perfil;
-- pruebas de paneles, estructura, layout, navegación e integración.
+La integración mantiene las reglas de negocio en los servicios existentes y pasa el contexto de usuario/perfil a la UI.
 
 ## Bloque de reportes de inversiones
 
@@ -78,15 +63,11 @@ Validación específica:
 
 ## Bloque de alta de movimientos desde Swing
 
-Se agregó `RegistrarMovimientoPanel` al flujo de movimientos de una cuenta.
+Se agregó `RegistrarMovimientoPanel` al flujo de movimientos de una cuenta. El formulario utiliza categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId` de contexto.
 
-El formulario permite seleccionar categoría autorizada y activa, tipo de movimiento, importe, fecha/hora y descripción. La operación se delega a `MovimientoService.registrar(...)` utilizando el `usuarioId` de contexto.
+`MovimientosPanel` recibe un callback después de un alta exitosa y actualiza el listado. Se separó `registrarMovimiento()` de la interacción con diálogos para permitir pruebas de persistencia e integración.
 
-`MovimientosPanel` recibe un callback después de un alta exitosa y actualiza el listado de movimientos de la cuenta.
-
-Se separó la operación de alta sin diálogos en `registrarMovimiento()` para permitir probar la interacción real sin bloquear la prueba con `JOptionPane`.
-
-Commits principales del bloque:
+Commits principales:
 
 - `39d96be` — `feat: agregar formulario de alta de movimientos`;
 - `62b8e2a` — `fix: corregir tipos del formulario de movimientos`;
@@ -97,23 +78,49 @@ Commits principales del bloque:
 - `deaae7d` — `refactor: separar alta de movimientos de dialogos`;
 - `e8c9c50` — `test: cubrir alta real de movimientos desde formulario`.
 
-## Validación específica del bloque de alta
+## Bloque de alta de cuentas desde Swing
 
-Suite ejecutada localmente el **02/09/2026**:
+Se incorporó `RegistrarCuentaPanel` a `CuentasPanel` y al `MainFrame` contextual. El formulario permite seleccionar tipo de cuenta, institución financiera, moneda e identificador externo y delega la operación a `CuentaService.registrar(cuenta, usuarioId)`.
 
-`mvn -Dtest=RegistrarMovimientoPanelTest,MovimientosPanelTest,MainFrameMovimientosTest,MainFrameNavigationTest test`
+`CuentaService` quedó preparado para iniciar y cerrar su propia transacción cuando no existe una activa, sin interferir con los tests que ya ejecutan dentro de una transacción existente.
+
+`CuentasPanel` refresca el listado mediante callback después de una registración exitosa. `MainFrame` conserva el constructor histórico basado en `perfilFinancieroId` para el listado y utiliza el constructor contextual completo cuando dispone del perfil y servicios auxiliares.
+
+Commits recientes del bloque:
+
+- `d5674aa` — `feat: agregar formulario de alta de cuentas`;
+- `34d4d7d` — `fix: completar transaccion de alta de cuentas`;
+- `19b2988` — `fix: permitir alta de cuentas dentro de transaccion existente`;
+- `731e520` — `feat: integrar alta de cuentas en el panel`;
+- `76cc4b0` — `fix: corregir contexto del panel de cuentas`;
+- `a8ae7f9` — `feat: conectar alta de cuentas al shell`;
+- `c5d9098` — `test: cubrir alta de cuentas desde el shell`;
+- `0919a8e` — `fix: corregir orden de servicios en MainFrame`;
+- `0d7769e` — `fix: conservar listado de cuentas con perfil id`.
+
+## Validación específica más reciente
+
+Suite ejecutada localmente el **02/09/2026** después de la corrección de integración de cuentas:
+
+`mvn -Dtest=RegistrarCuentaPanelTest,CuentasPanelTest,MainFrameMovimientosTest test`
 
 Resultado:
 
-- Tests run: **10**
+- Tests run: **11**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **04:38 min**
-- Finalización: **12:26:39 -03:00**
+- Duración: **05:24 min**
+- Finalización: **14:05:26 -03:00**
 
-`RegistrarMovimientoPanelTest`: **4/4 tests en verde**. La prueba nueva confirma alta real, persistencia en H2 y notificación al contenedor para refrescar el listado.
+Detalle:
+
+- `RegistrarCuentaPanelTest`: **5/5**;
+- `CuentasPanelTest`: **3/3**;
+- `MainFrameMovimientosTest`: **3/3**.
+
+La ejecución confirma alta real de cuentas, persistencia, callback de refresco y compatibilidad del constructor histórico de `MainFrame` basado en `perfilFinancieroId`.
 
 ## Validación general vigente
 
@@ -127,16 +134,20 @@ La última suite general sigue siendo la ejecutada el **01/09/2026**:
 - Duración: **14:25 min**
 - Finalización: **19:25:53 -03:00**
 
-Por lo tanto, **529/529** es la última validación global disponible. Los 10/10 del 02/09 validan específicamente el bloque de alta de movimientos posterior a esa suite general.
+Por lo tanto, **529/529** es la última validación global disponible. La suite específica de 11/11 del 02/09 valida los cambios posteriores, pero no sustituye la suite general.
 
-Durante las ejecuciones de UI Surefire mostró un mensaje de espera posterior a `System.exit(0)`, pero las ejecuciones terminaron con `BUILD SUCCESS`, sin failures ni errors. No se realizó ningún cambio especulativo por ese mensaje.
+Durante las ejecuciones de UI Surefire mostró el mensaje conocido de espera posterior a `System.exit(0)`, pero las ejecuciones terminaron con `BUILD SUCCESS`, sin failures ni errors. No se realizó ningún cambio especulativo por ese mensaje.
 
 ## Estado actual
 
-`main` permanece como rama estable.
+`main` permanece como rama estable en `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`.
 
-`feature/swing-shell` es la rama activa. El último commit funcional es `e8c9c50`; la documentación se actualiza ahora para reflejarlo.
+`feature/swing-shell` es la rama activa y su último commit actual es `0d7769e` — `fix: conservar listado de cuentas con perfil id`.
+
+La comparación verificada es **90 commits por delante y 2 commits por detrás de `main`**.
 
 ## Próximo paso
 
-El bloque de alta de movimientos queda cerrado dentro de su alcance. El siguiente trabajo de Fase 8 debe definirse como un nuevo bloque funcional, sin merge automático a `main`, sin crear ramas nuevas y manteniendo cambios pequeños, tests específicos y reglas de negocio fuera de la UI.
+El bloque de alta de cuentas queda validado dentro de su alcance. El siguiente trabajo debe definirse como un nuevo bloque funcional de Fase 8, revisando nuevamente el estado real del código, servicios, repositorios, reglas de negocio y tests.
+
+No se realiza merge automático a `main` y no se crean ramas nuevas.
