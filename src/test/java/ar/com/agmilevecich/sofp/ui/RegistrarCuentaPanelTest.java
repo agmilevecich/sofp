@@ -76,6 +76,42 @@ class RegistrarCuentaPanelTest {
     }
 
     @Test
+    void deberiaMantenerElRegistroDeshabilitadoMientrasElNombreEsteVacio() throws Exception {
+        Usuario usuario = crearUsuario();
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Activo",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+
+        persistir(usuario, perfil, institucion, moneda);
+
+        AtomicReference<RegistrarCuentaPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new RegistrarCuentaPanel(
+                        cuentaService,
+                        institucionFinancieraService,
+                        monedaService,
+                        perfil,
+                        usuario.getId()
+                )
+        ));
+
+        RegistrarCuentaPanel panel = panelRef.get();
+        assertFalse(panel.getRegistrarButton().isEnabled());
+
+        SwingUtilities.invokeAndWait(() -> panel.getNombreField().setText("Cuenta principal"));
+
+        assertTrue(panel.getRegistrarButton().isEnabled());
+
+        SwingUtilities.invokeAndWait(() -> panel.getNombreField().setText("   "));
+
+        assertFalse(panel.getRegistrarButton().isEnabled());
+    }
+
+    @Test
     void deberiaMostrarSoloInstitucionesActivasYLasMonedasDisponibles() throws Exception {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
@@ -110,7 +146,7 @@ class RegistrarCuentaPanelTest {
         assertEquals(1, panel.getInstitucionComboBox().getItemCount());
         assertEquals(activa, panel.getInstitucionComboBox().getItemAt(0));
         assertEquals(2, panel.getMonedaComboBox().getItemCount());
-        assertTrue(panel.getRegistrarButton().isEnabled());
+        assertFalse(panel.getRegistrarButton().isEnabled());
     }
 
     @Test
