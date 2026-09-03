@@ -130,7 +130,9 @@ public class RegistrarMovimientoPanel extends JPanel {
         dateSettings.setFirstDayOfWeek(DayOfWeek.SUNDAY);
         dateSettings.setFormatForDatesCommonEra("dd/MM/uuuu");
         dateSettings.setFormatForDatesBeforeCommonEra("dd/MM/uuuu");
-        return new DatePicker(dateSettings);
+        DatePicker datePicker = new DatePicker(dateSettings);
+        datePicker.setDate(LocalDate.now());
+        return datePicker;
     }
 
     private void construirFormulario() {
