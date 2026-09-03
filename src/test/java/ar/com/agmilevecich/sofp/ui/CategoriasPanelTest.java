@@ -1,0 +1,135 @@
+package ar.com.agmilevecich.sofp.ui;
+
+import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
+import ar.com.agmilevecich.sofp.service.CategoriaService;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.swing.SwingUtilities;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class CategoriasPanelTest {
+
+    private EntityManager entityManager;
+    private CategoriaService categoriaService;
+    private Usuario usuario;
+    private PerfilFinanciero perfil;
+
+    @BeforeEach
+    void setUp() {
+        entityManager = JpaTestManager.createEntityManager();
+        categoriaService = new CategoriaService(
+                entityManager,
+                new CategoriaRepository(entityManager)
+        );
+
+        usuario = new Usuario(
+                "Ariel",
+                "Test",
+                "ariel.categorias.panel." + System.nanoTime(),
+                "hash"
+        );
+        perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.getTransaction().commit();
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (entityManager != null && entityManager.isOpen()) {
+            entityManager.close();
+        }
+        JpaTestManager.close();
+    }
+
+    @Test
+    void deberiaMostrarCategoriasYRegistrarUnaNueva() throws Exception {
+        Categoria existente = new Categoria("Supermercado", perfil);
+        existente.cambiarDescripcion("Compras del hogar");
+        categoriaService.registrar(existente, usuario.getId());
+
+        AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new CategoriasPanel(categoriaService, perfil, usuario.getId())
+        ));
+
+        CategoriasPanel panel = panelRef.get();
+        assertNotNull(panel);
+        assertEquals(1, panel.getListaCategorias().getModel().getSize());
+
+        SwingUtilities.invokeAndWait(() -> {
+            panel.getNombreField().setText("Servicios");
+            panel.getDescripcionArea().setText("Luz, gas e internet");
+            panel.getRegistrarButton().doClick();
+        });
+
+        assertEquals(2, panel.getListaCategorias().getModel().getSize());
+        assertEquals(2, categoriaService.listarPorPerfilFinanciero(
+                perfil.getId(),
+                usuario.getId()
+        ).size());
+    }
+
+    @Test
+    void deberiaModificarCambiarEstadoYEliminarLaCategoriaSeleccionada() throws Exception {
+        Categoria categoria = new Categoria("Transporte", perfil);
+        categoria.cambiarDescripcion("Viajes");
+        categoriaService.registrar(categoria, usuario.getId());
+
+        AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new CategoriasPanel(categoriaService, perfil, usuario.getId())
+        ));
+        CategoriasPanel panel = panelRef.get();
+
+        SwingUtilities.invokeAndWait(() -> {
+            panel.getListaCategorias().setSelectedIndex(0);
+            panel.getNombreField().setText("Movilidad");
+            panel.getDescripcionArea().setText("Transporte personal");
+            panel.getModificarButton().doClick();
+        });
+
+        Categoria modificada = categoriaService
+                .listarPorPerfilFinanciero(perfil.getId(), usuario.getId())
+                .get(0);
+        assertEquals("Movilidad", modificada.getNombre());
+        assertEquals("Transporte personal", modificada.getDescripcion());
+        assertTrue(modificada.isActiva());
+
+        SwingUtilities.invokeAndWait(() -> {
+            panel.getListaCategorias().setSelectedIndex(0);
+            panel.getEstadoButton().doClick();
+        });
+
+        Categoria inactiva = categoriaService
+                .listarPorPerfilFinanciero(perfil.getId(), usuario.getId())
+                .get(0);
+        assertFalse(inactiva.isActiva());
+
+        SwingUtilities.invokeAndWait(() -> {
+            panel.getListaCategorias().setSelectedIndex(0);
+            panel.getEliminarButton().doClick();
+        });
+
+        assertTrue(categoriaService.listarPorPerfilFinanciero(
+                perfil.getId(),
+                usuario.getId()
+        ).isEmpty());
+        assertEquals(0, panel.getListaCategorias().getModel().getSize());
+    }
+}
