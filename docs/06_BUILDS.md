@@ -24,7 +24,11 @@ Se incorporaron y conectaron `MainFrame`, `HeaderPanel`, `SidebarPanel`, `Inicio
 
 `RegistrarMovimientoPanel` se integró al flujo de movimientos. Usa categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`; delega a `MovimientoService.registrar(...)`; y `MovimientosPanel` refresca mediante callback.
 
+El selector de fecha fue migrado a **LGoodDatePicker (`DatePicker`)**, con calendario iniciado en domingo y fecha inicial igual a la fecha del sistema. La hora se obtiene automáticamente mediante `LocalTime.now()` al registrar, sin ComboBox de hora.
+
 Validación histórica del bloque: **10/10 tests en verde**.
+
+Validación específica más reciente del selector: **4/4 tests en verde**, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
 
 ## Bloque — Alta de cuentas
 
@@ -32,24 +36,22 @@ Validación histórica del bloque: **10/10 tests en verde**.
 
 `CuentaService` soporta alta con o sin transacción activa. `CuentasPanel` refresca mediante callback. `MainFrame` conserva el constructor histórico basado en `perfilFinancieroId` y el constructor contextual completo.
 
-Commits principales del bloque:
-
-- `d5674aa` — `feat: agregar formulario de alta de cuentas`;
-- `34d4d7d` — `fix: completar transaccion de alta de cuentas`;
-- `19b2988` — `fix: permitir alta de cuentas dentro de transaccion existente`;
-- `731e520` — `feat: integrar alta de cuentas en el panel`;
-- `76cc4b0` — `fix: corregir contexto del panel de cuentas`;
-- `a8ae7f9` — `feat: conectar alta de cuentas al shell`;
-- `c5d9098` — `test: cubrir alta de cuentas desde el shell`;
-- `0919a8e` — `fix: corregir orden de servicios en MainFrame`;
-- `0d7769e` — `fix: conservar listado de cuentas con perfil id`;
-- `7ac8f99` — `fix: integrar inversiones y reportes en MainFrame`;
-- `c7cca8f` — `fix: conservar perfil en constructores de MainFrame`;
-- `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
-
 ## Inversiones y reportes
 
 `InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` utiliza `CarteraActivoService` para reportes de movimientos. Ambos quedaron integrados y navegables desde `MainFrame`.
+
+## Commits recientes — fecha y hora de movimientos
+
+- `bd436d4` — `feat: agregar dependencia LGoodDatePicker`;
+- `418c8f4` — `feat: incorporar selector de fecha y hora en movimientos`;
+- `fcf5f69` — `test: cubrir selector de fecha y hora de movimientos`;
+- `bdd03b3` — `test: ajustar prueba del selector de fecha y hora`;
+- `688d8b0` — `feat: registrar hora del sistema en movimientos`;
+- `53f138c` — `test: validar hora del sistema en movimientos`;
+- `0fc7309` — `test: ajustar tolerancia de hora del sistema`;
+- `1363c0a` — `test: corregir comparacion de hora del sistema`;
+- `f820dff` — `feat: mostrar fecha del sistema en selector de movimientos`;
+- `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
 
 ## Validación relacionada — 03/09/2026
 
@@ -57,31 +59,15 @@ Comando:
 
 `mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
 
-Resultado:
+Resultado: **20/20 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 09:43 min, finalización 10:55:56 -03:00.
 
-- **20/20 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- Duración: **09:43 min**;
-- Finalización: **10:55:56 -03:00**.
-
-Validación individual adicional: `MainFrameMovimientosTest` **3/3**, `BUILD SUCCESS`, finalización **10:45:01 -03:00**.
+Validación individual adicional: `MainFrameMovimientosTest` **3/3**, `BUILD SUCCESS`, finalización 10:45:01 -03:00.
 
 ## Validación general
 
-La última suite general conocida sigue siendo la ejecutada el **01/09/2026**:
+La última suite general conocida sigue siendo la ejecutada el **01/09/2026**: **529/529 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
 
-- **529/529 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- Duración: **14:25 min**;
-- Finalización: **19:25:53 -03:00**.
-
-Los 20/20 del 03/09 corresponden a la batería relacionada de Swing y no sustituyen la suite general.
+Los 20/20 del 03/09 y los 4/4 de `RegistrarMovimientoPanelTest` son validaciones específicas/relacionadas y no sustituyen la suite general.
 
 ## Incidentes conocidos
 
@@ -93,9 +79,9 @@ Una ejecución anterior involucró un `SwingApplicationTest` obsoleto presente e
 
 `main`: `a4be859` — `docs: crear contexto de continuidad actualizado`.
 
-`feature/swing-shell`: `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
+`feature/swing-shell`: `e873832` — `test: verificar fecha del sistema en selector de movimientos` antes de esta actualización documental.
 
-Comparación: **122 commits adelante y 2 atrás**, estado `diverged`; merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales (`39badd1` y `a4be859`).
+Comparación: **139 commits adelante y 2 atrás**, estado `diverged`; merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales (`39badd1` y `a4be859`).
 
 ## Próximo paso
 
