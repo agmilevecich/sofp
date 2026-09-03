@@ -1,0 +1,35 @@
+# SOFP — Historial del proyecto
+
+## 2026-09-03 — Actualización de continuidad
+
+El proyecto continúa en `feature/swing-shell`. La seguridad y el aislamiento por usuario están cerrados e integrados en `main`. La Fase 8 tiene implementados e integrados los paneles de Inicio, Cuentas, Movimientos, Inversiones y Reportes.
+
+### Selector de fecha y hora de movimientos
+
+Se incorporó **LGoodDatePicker** en `RegistrarMovimientoPanel`. El calendario usa `es-AR`, comienza en domingo, muestra inicialmente la fecha del sistema y presenta la fecha con formato `dd/MM/uuuu`.
+
+La hora dejó de ingresarse mediante ComboBox. Al registrar se utiliza `LocalTime.now()` y se combina con la fecha seleccionada.
+
+Commits: `bd436d4`, `418c8f4`, `fcf5f69`, `bdd03b3`, `688d8b0`, `53f138c`, `0fc7309`, `1363c0a`, `f820dff`, `e873832`.
+
+Validación final: `RegistrarMovimientoPanelTest` **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
+
+### Validaciones anteriores
+
+Batería relacionada Swing del 03/09/2026: **20/20**, `BUILD SUCCESS`, 09:43 min, finalización 10:55:56 -03:00.
+
+Suite general conocida del 01/09/2026: **529/529**, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
+
+### Estado Git
+
+`feature/swing-shell` quedó sincronizada y limpia según `git syncsofp` y `git status` informados por el usuario.
+
+Último commit de código/test: `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
+
+`main`: `a4be859` — `docs: crear contexto de continuidad actualizado`.
+
+Comparación: `feature/swing-shell` está **139 commits adelante y 2 atrás** de `main`, con merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales.
+
+### Próximo avance
+
+Definir el próximo bloque funcional de Fase 8 desde el código real. No crear ramas nuevas ni hacer merge automático a `main`. Antes de cambios, revisar código, clases relacionadas, servicios, repositorios, reglas de negocio y tests.
