@@ -12,11 +12,17 @@ Validación final: `AislamientoDatosServiceTest` **7/7** y suite general **512/5
 
 `MainFrame` usa `CardLayout` para Inicio, Cuentas, Movimientos, Inversiones y Reportes, integrando los servicios existentes y manteniendo las reglas de negocio fuera de la UI.
 
-## Bloque — Alta de movimientos
+## 2026-09-03 — Selector de fecha y hora de movimientos
 
-`RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. `MovimientosPanel` refresca mediante callback después de un alta exitosa.
+Se incorporó **LGoodDatePicker** y se reemplazó el ingreso manual de fecha por `DatePicker` en `RegistrarMovimientoPanel`.
 
-Validación histórica: **10/10 tests en verde**.
+El selector usa configuración regional `es-AR`, comienza la semana en domingo, muestra inicialmente la fecha del sistema y utiliza formato visual `dd/MM/uuuu`.
+
+Se eliminó el ingreso de hora mediante ComboBox. Al registrar un movimiento, la hora se obtiene automáticamente con `LocalTime.now()` y se combina con la fecha seleccionada.
+
+Commits del bloque: `bd436d4`, `418c8f4`, `fcf5f69`, `bdd03b3`, `688d8b0`, `53f138c`, `0fc7309`, `1363c0a`, `f820dff`, `e873832`.
+
+Validación final del bloque: `RegistrarMovimientoPanelTest` **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
 
 ## Bloque — Alta de cuentas
 
@@ -34,31 +40,27 @@ Validación histórica: **10/10 tests en verde**.
 
 No se modificó código de producción.
 
-## Validación — 2026-09-03
+## Validaciones — 2026-09-03
 
-Se ejecutó:
+Batería relacionada de Swing: **20/20 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 09:43 min, finalización 10:55:56 -03:00.
 
-`mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
+`MainFrameMovimientosTest`: **3/3**, `BUILD SUCCESS`, finalización 10:45:01 -03:00.
 
-Resultado: **20/20 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, **09:43 min**, finalización **10:55:56 -03:00**.
+`RegistrarMovimientoPanelTest`: **4/4**, `BUILD SUCCESS`, finalización 12:39:51 -03:00.
 
-Validación individual adicional: `MainFrameMovimientosTest` **3/3**, `BUILD SUCCESS`, finalización **10:45:01 -03:00**.
+La última suite general sigue siendo la del 01/09/2026: **529/529**, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
 
-La última suite general sigue siendo la del 01/09/2026: **529/529**, `BUILD SUCCESS`, 14:25 min.
-
-Durante las pruebas Swing Surefire mostró el mensaje de espera posterior a `System.exit(0)`, pero no produjo fallos ni errores y las ejecuciones terminaron correctamente.
+Durante las pruebas Swing Surefire mostró el mensaje posterior a `System.exit(0)`, pero no produjo fallos ni errores.
 
 ## Estado Git — 2026-09-03
 
-`feature/swing-shell` estaba sincronizada con GitHub y el árbol local estaba limpio antes de esta actualización documental.
+El usuario confirmó mediante `git syncsofp` que `feature/swing-shell` estaba sincronizada con GitHub y `git status` informó `nothing to commit, working tree clean`.
 
-Último commit de código/test antes de documentar: `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
-
-La documentación de continuidad se actualizó posteriormente en esta rama para registrar el estado real del 03/09/2026.
+Último commit de código/test antes de esta actualización documental: `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
 
 `main` apunta a `a4be859` — `docs: crear contexto de continuidad actualizado`.
 
-Comparación: **122 commits adelante y 2 atrás**, estado `diverged`, merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
+Comparación: **139 commits adelante y 2 atrás**, estado `diverged`, merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
 
 ## Próximo avance
 
