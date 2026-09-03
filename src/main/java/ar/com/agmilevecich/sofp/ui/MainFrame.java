@@ -161,8 +161,20 @@ public class MainFrame extends JFrame {
         areaCentral.add(new InicioPanel(), INICIO);
         areaCentral.add(cuentasPanel, CUENTAS);
         areaCentral.add(new JPanel(), MOVIMIENTOS);
-        areaCentral.add(new InversionesPanel(), INVERSIONES);
-        areaCentral.add(new ReportesPanel(), REPORTES);
+
+        if (carteraActivoService != null && perfilFinanciero != null && usuarioId != null) {
+            areaCentral.add(
+                    new InversionesPanel(carteraActivoService, perfilFinanciero, usuarioId),
+                    INVERSIONES
+            );
+            areaCentral.add(
+                    new ReportesPanel(carteraActivoService, perfilFinanciero, usuarioId),
+                    REPORTES
+            );
+        } else {
+            areaCentral.add(new InversionesPanel(), INVERSIONES);
+            areaCentral.add(new ReportesPanel(), REPORTES);
+        }
 
         HeaderPanel headerPanel = new HeaderPanel();
         SidebarPanel sidebarPanel = new SidebarPanel(this::navegar);
