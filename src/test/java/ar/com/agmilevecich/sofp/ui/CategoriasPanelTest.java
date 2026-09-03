@@ -61,7 +61,10 @@ class CategoriasPanelTest {
     void deberiaMostrarCategoriasYRegistrarUnaNueva() throws Exception {
         Categoria existente = new Categoria("Supermercado", perfil);
         existente.cambiarDescripcion("Compras del hogar");
+
+        entityManager.getTransaction().begin();
         categoriaService.registrar(existente, usuario.getId());
+        entityManager.getTransaction().commit();
 
         AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> panelRef.set(
@@ -89,7 +92,10 @@ class CategoriasPanelTest {
     void deberiaModificarCambiarEstadoYEliminarLaCategoriaSeleccionada() throws Exception {
         Categoria categoria = new Categoria("Transporte", perfil);
         categoria.cambiarDescripcion("Viajes");
+
+        entityManager.getTransaction().begin();
         categoriaService.registrar(categoria, usuario.getId());
+        entityManager.getTransaction().commit();
 
         AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> panelRef.set(
@@ -127,8 +133,7 @@ class CategoriasPanelTest {
         });
 
         assertTrue(categoriaService.listarPorPerfilFinanciero(
-                perfil.getId(),
-                usuario.getId()
+                perfil.getId(), usuario.getId()
         ).isEmpty());
         assertEquals(0, panel.getListaCategorias().getModel().getSize());
     }
