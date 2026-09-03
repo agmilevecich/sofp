@@ -2,10 +2,10 @@
 
 ## Estado — 03/09/2026
 
-**Rama estable:** `main` → `a4be859` (`docs: crear contexto de continuidad actualizado`).  
-**Rama de trabajo:** `feature/swing-shell` → `29b5e11` (`test: corregir expectativa de habilitacion del alta de cuentas`).
+**Rama estable:** `main` → `a4be859` (`docs: crear contexto de continuidad actualizado`).
+**Rama de trabajo:** `feature/swing-shell` → `e873832` (`test: verificar fecha del sistema en selector de movimientos`) antes de esta actualización documental.
 
-Comparación: **122 commits por delante y 2 commits por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`.
+Comparación actual: **139 commits por delante y 2 commits por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`.
 
 Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
 
@@ -23,9 +23,11 @@ Implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `Cuent
 
 ### Alta de movimientos
 
-Formulario integrado con `MovimientoService.registrar(...)`, categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. Refresco del listado mediante callback.
+Formulario integrado con `MovimientoService.registrar(...)`, categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. El listado se refresca mediante callback.
 
-Validación histórica: **10/10 tests en verde**.
+El campo de fecha utiliza **LGoodDatePicker**, con domingo como primer día y fecha inicial igual a la fecha del sistema. La hora ya no se ingresa manualmente: se toma de `LocalTime.now()` al registrar el movimiento.
+
+Validación específica más reciente: **4/4 tests en verde**, `BUILD SUCCESS`.
 
 ### Alta de cuentas
 
@@ -35,31 +37,25 @@ Validación histórica: **10/10 tests en verde**.
 
 `InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` usa `CarteraActivoService` para reportes de movimientos. Ambos están integrados en `MainFrame`.
 
-## Última validación
-
-El **03/09/2026**:
-
-`mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
-
-Resultado: **20/20**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, **09:43 min**, finalización **10:55:56 -03:00**.
-
-`MainFrameMovimientosTest` también fue ejecutado individualmente: **3/3**, `BUILD SUCCESS`, finalización **10:45:01 -03:00**.
-
-La última suite general conocida continúa siendo **529/529**, ejecutada el 01/09/2026, `BUILD SUCCESS`, 14:25 min.
-
 ## Pendientes funcionales
 
 No queda pendiente un arreglo dentro de los bloques validados de movimientos, cuentas, inversiones o reportes.
 
 El próximo trabajo debe definirse como un nuevo bloque funcional de Fase 8, revisando antes el código actual, clases relacionadas, servicios, repositorios, reglas de negocio y tests.
 
-## Pendientes de integración
-
-No hacer merge automático a `main`. Antes de una eventual integración, revisar explícitamente los dos commits documentales exclusivos de `main`.
-
 ## Pendientes de validación
 
-Cuando corresponda por alcance: tests específicos → tests relacionados → suite general → `git diff` → `git diff --check` → `git status`.
+La última suite general conocida continúa siendo **529/529**, ejecutada el 01/09/2026. Antes de cerrar un nuevo bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
+
+## Pendientes de integración
+
+No hacer merge a `main` automáticamente. Antes de una eventual integración, revisar explícitamente los dos commits documentales exclusivos de `main`.
+
+## Incidentes conocidos
+
+Surefire muestra un mensaje posterior a `System.exit(0)` durante algunas pruebas Swing, pero las ejecuciones registradas terminan con `BUILD SUCCESS`. No se considera un fallo ni se modifica código especulativamente por ese mensaje.
+
+Durante una prueba manual hubo una modificación accidental de `RegistrarMovimientoPanel.java` al escribir sobre el código. El archivo fue corregido y el posterior `git syncsofp` confirmó árbol limpio y sincronizado.
 
 ## Continuidad
 
