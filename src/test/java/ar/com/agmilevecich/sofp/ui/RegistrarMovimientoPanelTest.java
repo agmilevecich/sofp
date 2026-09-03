@@ -26,7 +26,6 @@ import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -184,15 +183,20 @@ class RegistrarMovimientoPanelTest {
             panelRef.set(panel);
         });
 
-        LocalDateTime antes = LocalDateTime.now();
+        LocalTime antes = LocalTime.now();
         SwingUtilities.invokeAndWait(() -> panelRef.get().registrarMovimiento());
-        LocalDateTime despues = LocalDateTime.now();
+        LocalTime despues = LocalTime.now();
 
         assertTrue(notificado.get());
         assertEquals(1, movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId()).size());
-        LocalDateTime fechaHoraRegistrada = movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId())
+        LocalDate fechaRegistrada = movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId())
                 .get(0)
-                .getFechaHora();
+                .getFechaHora()
+                .toLocalDate();
+        LocalTime horaRegistrada = movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId())
+                .get(0)
+                .getFechaHora()
+                .toLocalTime();
         assertEquals(
                 "Sueldo",
                 movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId())
@@ -205,9 +209,9 @@ class RegistrarMovimientoPanelTest {
                         .get(0)
                         .getImporte()
         );
-        assertEquals(fechaSeleccionada, fechaHoraRegistrada.toLocalDate());
-        assertTrue(!fechaHoraRegistrada.isBefore(antes.minusSeconds(5)));
-        assertTrue(!fechaHoraRegistrada.isAfter(despues));
+        assertEquals(fechaSeleccionada, fechaRegistrada);
+        assertTrue(!horaRegistrada.isBefore(antes.minusSeconds(5)));
+        assertTrue(!horaRegistrada.isAfter(despues));
     }
 
     @Test
