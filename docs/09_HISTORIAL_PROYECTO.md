@@ -2,109 +2,64 @@
 
 ## 2026-08-31 — Cierre de seguridad y aislamiento de datos
 
-La feature `feature/seguridad-aislamiento-datos` completó la revisión transversal de seguridad y aislamiento de recursos por usuario/perfil y fue integrada en `main` mediante fast-forward.
+`feature/seguridad-aislamiento-datos` completó la revisión transversal de seguridad y fue integrada en `main` mediante fast-forward.
 
-Validación final de seguridad:
-
-- `AislamientoDatosServiceTest`: **7/7 en verde**;
-- suite general: **512/512 tests en verde**;
-- Failures: 0;
-- Errors: 0;
-- Skipped: 0;
-- `BUILD SUCCESS`.
+Validación final: `AislamientoDatosServiceTest` **7/7** y suite general **512/512**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
 ## 2026-08-31 / 2026-09-01 — Fase 8: shell Swing
 
-La rama `feature/swing-shell` desarrolló el shell Swing sobre la base estable de seguridad.
+`feature/swing-shell` desarrolló el shell Swing y conectó `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
 
-Se incorporaron y conectaron `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
+`MainFrame` usa `CardLayout` para Inicio, Cuentas, Movimientos, Inversiones y Reportes, integrando los servicios existentes y manteniendo las reglas de negocio fuera de la UI.
 
-La integración mantiene las reglas de negocio en los servicios existentes y pasa el contexto de usuario/perfil a la UI.
+## Bloque — Alta de movimientos
 
-## Bloque de reportes de inversiones
+`RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. `MovimientosPanel` refresca mediante callback después de un alta exitosa.
 
-`ReportesPanel` utiliza la funcionalidad de reporte existente en `CarteraActivoService`. Fue integrado al `MainFrame` y la navegación quedó conectada a la tarjeta `REPORTES`, sin agregar lógica de negocio duplicada.
+Validación histórica: **10/10 tests en verde**.
 
-Validación específica: `ReportesPanelTest` **3/3**, `MainFrameReportesTest` **1/1**, total **4/4** y suite relacionada anterior de UI **13/13**.
+## Bloque — Alta de cuentas
 
-## Validación general — 01/09/2026
+`RegistrarCuentaPanel` permite seleccionar tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`. `CuentaService` soporta llamadas con o sin transacción activa. `CuentasPanel` refresca mediante callback. `MainFrame` conserva el constructor histórico por `perfilFinancieroId` y el contextual completo.
 
-La suite general ejecutada el **01/09/2026** produjo:
+## Bloque — Inversiones y reportes
 
-- Tests run: **529**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **14:25 min**
-- Finalización: **19:25:53 -03:00**.
+`InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` utiliza `CarteraActivoService` para reportes de movimientos. Ambos quedaron integrados en `MainFrame`.
 
-La validación global disponible sigue siendo **529/529 tests en verde**.
+`7ac8f99` integró inversiones y reportes. `c7cca8f` corrigió los constructores de `MainFrame` para conservar el `PerfilFinanciero` y permitir la carga contextual real.
 
-Una ejecución anterior había fallado por un `SwingApplicationTest` compilado previamente en `target`; la limpieza de Maven eliminó el artefacto obsoleto sin modificar código ni tests por ese motivo.
+## 2026-09-03 — Corrección de expectativa de test
 
-## 2026-09-02 — Alta de movimientos desde Swing
+`MainFrameMovimientosTest` tenía una expectativa incompatible con la regla del formulario: esperaba el botón habilitado con el nombre vacío. El test fue corregido en `29b5e11` para completar un nombre válido antes de comprobar la habilitación.
 
-Se completó el bloque de alta de movimientos desde la interfaz Swing. `RegistrarMovimientoPanel` permite seleccionar categoría autorizada y activa, tipo, importe, fecha/hora y descripción y utiliza el `usuarioId` del contexto.
+No se modificó código de producción.
 
-La operación se delega a `MovimientoService.registrar(...)`. Después de un alta exitosa, `MovimientosPanel` recibe un callback y refresca el listado.
-
-Se separó `registrarMovimiento()` de la interacción visual para permitir probar el alta real sin bloquearla con diálogos Swing.
-
-Validación histórica del bloque: **10/10 tests en verde**.
-
-## 2026-09-02 — Alta de cuentas desde Swing
-
-Se incorporó `RegistrarCuentaPanel` al flujo de cuentas. El formulario permite seleccionar tipo de cuenta, institución financiera, moneda e identificador externo y delega el alta a `CuentaService.registrar(cuenta, usuarioId)`.
-
-`CuentasPanel` refresca el listado mediante callback después de una registración exitosa. `MainFrame` conserva el constructor histórico basado en `perfilFinancieroId` y utiliza el constructor contextual completo cuando dispone de `PerfilFinanciero` y servicios auxiliares.
-
-`CuentaService` fue ajustado para soportar el alta cuando no existe una transacción activa y también cuando la llamada ya se encuentra dentro de una transacción existente.
-
-Commits principales del bloque:
-
-- `d5674aa` — `feat: agregar formulario de alta de cuentas`;
-- `34d4d7d` — `fix: completar transaccion de alta de cuentas`;
-- `19b2988` — `fix: permitir alta de cuentas dentro de transaccion existente`;
-- `731e520` — `feat: integrar alta de cuentas en el panel`;
-- `76cc4b0` — `fix: corregir contexto del panel de cuentas`;
-- `a8ae7f9` — `feat: conectar alta de cuentas al shell`;
-- `c5d9098` — `test: cubrir alta de cuentas desde el shell`;
-- `0919a8e` — `fix: corregir orden de servicios en MainFrame`;
-- `0d7769e` — `fix: conservar listado de cuentas con perfil id`.
-
-## Validación más reciente — 02/09/2026
+## Validación — 2026-09-03
 
 Se ejecutó:
 
-`mvn -Dtest=RegistrarCuentaPanelTest,CuentasPanelTest,MainFrameMovimientosTest test`
+`mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
 
-Resultado:
+Resultado: **20/20 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, **09:43 min**, finalización **10:55:56 -03:00**.
 
-- Tests run: **11**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **05:24 min**
-- Finalización: **14:05:26 -03:00**.
+Validación individual adicional: `MainFrameMovimientosTest` **3/3**, `BUILD SUCCESS`, finalización **10:45:01 -03:00**.
 
-Detalle: `RegistrarCuentaPanelTest` **5/5**, `CuentasPanelTest` **3/3**, `MainFrameMovimientosTest` **3/3**.
+La última suite general sigue siendo la del 01/09/2026: **529/529**, `BUILD SUCCESS`, 14:25 min.
 
-La ejecución confirma alta real de cuentas, persistencia, callback de refresco y compatibilidad del constructor histórico de `MainFrame` basado en `perfilFinancieroId`.
+Durante las pruebas Swing Surefire mostró el mensaje de espera posterior a `System.exit(0)`, pero no produjo fallos ni errores y las ejecuciones terminaron correctamente.
 
-Durante las ejecuciones de UI Surefire mostró el mensaje conocido de espera posterior a `System.exit(0)`, pero las ejecuciones terminaron con `BUILD SUCCESS`, sin failures ni errors.
+## Estado Git — 2026-09-03
 
-## Estado actual — 02/09/2026
+`feature/swing-shell` estaba sincronizada con GitHub y el árbol local estaba limpio antes de esta actualización documental.
 
-`main` permanece como rama estable en `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`.
+Último commit de código/test antes de documentar: `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
 
-`feature/swing-shell` es la rama activa y su último commit actual es `0d7769e` — `fix: conservar listado de cuentas con perfil id`.
+La documentación de continuidad se actualizó posteriormente en esta rama para registrar el estado real del 03/09/2026.
 
-La comparación verificada es **90 commits por delante y 2 commits por detrás de `main`**.
+`main` apunta a `a4be859` — `docs: crear contexto de continuidad actualizado`.
+
+Comparación: **122 commits adelante y 2 atrás**, estado `diverged`, merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
 
 ## Próximo avance
 
-Los bloques de alta de movimientos y cuentas quedan cerrados dentro de sus alcances validados. El siguiente avance debe definirse como un nuevo bloque funcional de Fase 8, partiendo nuevamente del código real de `feature/swing-shell`.
-
-No se realiza merge automático a `main` y no se crean ramas nuevas para continuar.
+Definir el siguiente bloque funcional de Fase 8 a partir del código actual. No hacer merge automático a `main` ni crear ramas nuevas. Antes de una eventual integración, revisar explícitamente los dos commits documentales exclusivos de `main`.
