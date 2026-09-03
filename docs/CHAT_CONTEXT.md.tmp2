@@ -1,0 +1,46 @@
+# SOFP — Contexto para continuar con ChatGPT
+
+La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
+
+## Estado verificado — 03/09/2026
+
+**Rama estable:** `main` → `a4be859`.
+**Rama de trabajo:** `feature/swing-shell` → `e873832` antes de la actualización documental.
+
+La rama de trabajo está **139 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` son documentales.
+
+El usuario confirmó `git syncsofp`: `Already up to date`, `Everything up-to-date`, y `git status`: `nothing to commit, working tree clean`.
+
+## Seguridad
+
+La auditoría transversal de seguridad y aislamiento por usuario está completada e integrada en `main`. Se mantienen protegidos perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, además de los caminos internos relevantes.
+
+## Fase 8 — Swing
+
+Implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ar.com.agmilevecich.sofp.ui.Main`.
+
+`MainFrame` usa `CardLayout` para Inicio, Cuentas, Movimientos, Inversiones y Reportes.
+
+### Movimientos
+
+`RegistrarMovimientoPanel` usa **LGoodDatePicker (`DatePicker`)** con configuración `es-AR`, domingo como primer día, fecha inicial `LocalDate.now()` y formato `dd/MM/uuuu`.
+
+La hora ya no se ingresa mediante ComboBox. Al registrar se obtiene con `LocalTime.now()` y se combina con la fecha seleccionada.
+
+`RegistrarMovimientoPanelTest`: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
+
+### Cuentas, inversiones y reportes
+
+Los bloques de alta de cuentas, inversiones y reportes están implementados e integrados. La batería relacionada Swing del 03/09 fue **20/20**, `BUILD SUCCESS`.
+
+## Validación general
+
+Última suite general conocida: **529/529**, ejecutada el 01/09/2026, `BUILD SUCCESS`, 14:25 min.
+
+## Reglas de continuidad
+
+No hacer merge automático a `main`. No crear ramas nuevas; continuar sobre `feature/swing-shell`. Antes de modificar una clase, revisar implementación, clases relacionadas, servicios, repositorios, tests y reglas de negocio. Mantener cambios pequeños y no duplicar lógica de negocio en la UI. Validar con tests específicos, relacionados y suite general cuando corresponda; revisar `git diff`, `git diff --check` y `git status`.
+
+## Próximo paso
+
+Definir el próximo bloque funcional de Fase 8 desde el código real de `feature/swing-shell`.
