@@ -67,7 +67,7 @@ public class MainFrame extends JFrame {
                      PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
         this(cuentaService, movimientoService, null, null, null, carteraActivoService,
-                null, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
     }
 
     /** Constructor para ejecutar el shell con alta de movimientos, cuentas e inversiones. */
@@ -78,8 +78,9 @@ public class MainFrame extends JFrame {
                      PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
         this(cuentaService, movimientoService, categoriaService,
-                null, null, carteraActivoService, null,
-                perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId);
+                null, null, carteraActivoService,
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null,
+                usuarioId);
     }
 
     /** Constructor para ejecutar el shell con alta de cuentas y movimientos. */
