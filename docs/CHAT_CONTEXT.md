@@ -1,99 +1,84 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
+La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
-## Estado — 02/09/2026
+## Estado verificado — 03/09/2026
 
-**Rama estable:** `main`.  
-Último commit integrado: `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`.
+**Rama estable:** `main`. Último commit: `a4be859` — `docs: crear contexto de continuidad actualizado`.
 
-**Rama de trabajo:** `feature/swing-shell`.  
-**Último commit actual:** `0d7769e` — `fix: conservar listado de cuentas con perfil id`.
+**Rama de trabajo:** `feature/swing-shell`. Último commit de código/test antes de esta actualización documental: `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
 
-La comparación verificada es **90 commits por delante y 2 commits por detrás de `main`**. La feature permanece separada de `main` y los commits de documentación de `main` no se incorporan automáticamente.
+Comparación actual: **122 commits por delante y 2 commits por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales.
 
-No se crean ramas nuevas para continuar este trabajo.
+El estado local fue verificado el 03/09/2026: `git syncsofp` informó `Already up to date` / `Everything up-to-date` y `git status` informó `nothing to commit, working tree clean` antes de iniciar esta actualización documental.
 
 ## Seguridad
 
-La auditoría transversal de seguridad y aislamiento de datos quedó completada e integrada en `main`.
+La auditoría transversal de seguridad y aislamiento de datos está completada e integrada en `main`.
 
-Implementado y validado:
+Se mantienen protegidos por propietario/usuario perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras. También se cerraron caminos internos que podían saltar las validaciones públicas.
 
-- autorización de operaciones financieras;
-- aislamiento de cuentas, categorías y movimientos;
-- lecturas por ID y listados con usuario propietario;
-- altas protegidas de cuentas, categorías, movimientos y perfiles;
-- aislamiento de posiciones y cartera por usuario/perfil;
-- cierre de caminos internos que podían saltar validaciones públicas;
-- cobertura transversal en `AislamientoDatosServiceTest`.
+## Fase 8 — Shell Swing
 
-## Shell Swing — Fase 8
+Componentes implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ar.com.agmilevecich.sofp.ui.Main`.
 
-El shell Swing está implementado en `feature/swing-shell` con `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
+`MainFrame` usa `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI utiliza los servicios existentes y no duplica reglas de negocio.
 
-`MainFrame` utiliza `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes respetando el contexto de usuario/perfil y no duplica reglas de negocio.
-
-## Bloques funcionales cerrados
+## Bloques cerrados
 
 ### Alta de movimientos
 
-`RegistrarMovimientoPanel` permite registrar movimientos para la cuenta seleccionada con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. `MovimientosPanel` refresca el listado mediante callback después de un alta exitosa.
+`RegistrarMovimientoPanel` registra movimientos para la cuenta seleccionada con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. `MovimientosPanel` refresca el listado mediante callback.
 
-Validación específica: **10/10 tests en verde**.
+Validación histórica: **10/10 tests en verde**.
 
 ### Alta de cuentas
 
-`RegistrarCuentaPanel` permite registrar una cuenta con tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`.
+`RegistrarCuentaPanel` permite seleccionar tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`. `CuentaService` soporta alta con o sin transacción activa. `CuentasPanel` refresca mediante callback. `MainFrame` conserva el constructor histórico por `perfilFinancieroId` y el contextual completo.
 
-`CuentasPanel` refresca el listado mediante callback. `MainFrame` conserva el constructor histórico basado en `perfilFinancieroId` y dispone de un constructor contextual completo con `PerfilFinanciero`, `InstitucionFinancieraService` y `MonedaService`.
+### Inversiones y reportes
 
-`CuentaService` soporta llamadas con o sin una transacción activa.
+`InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` usa `CarteraActivoService` para el reporte de movimientos. Ambos están integrados en `MainFrame`.
 
-## Tests
+La integración fue corregida en `c7cca8f` para conservar el `PerfilFinanciero` al delegar desde los constructores públicos de `MainFrame`.
 
-Última suite general disponible, ejecutada el **01/09/2026**:
+## Última validación específica
 
-- **529/529 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **14:25 min**;
-- finalización: **19:25:53 -03:00**.
+El **03/09/2026** se ejecutó:
 
-Última suite específica, ejecutada el **02/09/2026**:
+`mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
 
-`mvn -Dtest=RegistrarCuentaPanelTest,CuentasPanelTest,MainFrameMovimientosTest test`
+Resultado: **20/20 tests en verde**, Failures **0**, Errors **0**, Skipped **0**, `BUILD SUCCESS`, duración **09:43 min**, finalización **10:55:56 -03:00**.
 
-- **11/11 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **05:24 min**;
-- finalización: **14:05:26 -03:00**.
+`MainFrameMovimientosTest` también fue ejecutado individualmente: **3/3**, `BUILD SUCCESS`, duración **02:12 min**, finalización **10:45:01 -03:00**.
 
-Detalle: `RegistrarCuentaPanelTest` **5/5**, `CuentasPanelTest` **3/3**, `MainFrameMovimientosTest` **3/3**.
+Última suite general: **529/529**, ejecutada el 01/09/2026, `BUILD SUCCESS`, 14:25 min.
 
-La ejecución específica confirmó alta real de cuentas, persistencia, callback de refresco y compatibilidad del constructor histórico de `MainFrame`.
+## Últimos cambios
+
+- `7ac8f99` — `fix: integrar inversiones y reportes en MainFrame`;
+- `c7cca8f` — `fix: conservar perfil en constructores de MainFrame`;
+- `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
+
+El último cambio de código/test fue exclusivamente de test: la prueba de alta de cuentas completa el nombre antes de comprobar que el botón se habilita, respetando la regla existente del formulario.
 
 ## Incidentes conocidos
 
-Una ejecución anterior falló por un `SwingApplicationTest` obsoleto presente en `target`; la limpieza de Maven eliminó el artefacto sin modificar código ni tests para hacer pasar la suite.
+Surefire muestra durante las pruebas Swing un mensaje de espera posterior a `System.exit(0)`. En las ejecuciones registradas terminó con `BUILD SUCCESS`, sin failures ni errors. No se realiza un cambio especulativo por ese mensaje.
 
-Durante las ejecuciones de UI Surefire mostró un mensaje de espera posterior a `System.exit(0)`. Las ejecuciones terminaron con `BUILD SUCCESS`, sin failures ni errors, por lo que no se realizó un cambio especulativo.
+Una ejecución anterior involucró un `SwingApplicationTest` obsoleto presente en `target`; se resolvió limpiando Maven, sin modificar código ni tests para ocultar el problema.
 
 ## Reglas de continuidad
 
 - No hacer merge automático a `main`.
 - No crear nuevas ramas; continuar sobre `feature/swing-shell`.
-- Antes de modificar una clase, revisar implementación actual, clases relacionadas, servicios, repositorios, tests y reglas de negocio.
+- Antes de modificar una clase, revisar implementación, clases relacionadas, servicios, repositorios, tests y reglas de negocio.
 - Mantener cambios pequeños y descriptivos.
 - No duplicar lógica de negocio en la UI.
-- Después de cambios importantes: tests específicos, tests relacionados y suite completa cuando corresponda; revisar `git diff`, `git diff --check` y `git status`.
-- Ante una nueva sesión, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
+- Validar con tests específicos, relacionados y suite general cuando corresponda.
+- Revisar `git diff`, `git diff --check` y `git status` después de cambios importantes.
+- Ante una nueva sesión: código → tests → commits → `main` → documentación.
 
 ## Próximo paso
 
-Definir el próximo bloque funcional de Fase 8 únicamente a partir del estado real de `feature/swing-shell`, sin asumir funcionalidades no implementadas.
+Definir el próximo bloque funcional de Fase 8 únicamente después de reconstruir el estado real de `feature/swing-shell`. Antes de una eventual integración, revisar explícitamente los dos commits documentales exclusivos de `main`.
