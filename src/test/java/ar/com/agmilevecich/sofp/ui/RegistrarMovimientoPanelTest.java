@@ -15,7 +15,7 @@ import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
-import com.github.lgooddatepicker.components.DateTimePicker;
+import com.github.lgooddatepicker.components.DatePicker;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,9 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -69,7 +71,7 @@ class RegistrarMovimientoPanelTest {
         assertNotNull(panel.getCategoriaComboBox());
         assertNotNull(panel.getTipoMovimientoComboBox());
         assertNotNull(panel.getImporteField());
-        assertNotNull(panel.getFechaHoraPicker());
+        assertNotNull(panel.getFechaField());
         assertFalse(panel.getRegistrarButton().isEnabled());
     }
 
@@ -130,7 +132,7 @@ class RegistrarMovimientoPanelTest {
     }
 
     @Test
-    void deberiaRegistrarMovimientoYNotificarAlContenedor() throws Exception {
+    void deberiaRegistrarMovimientoConLaHoraDelSistema() throws Exception {
         Usuario usuario = new Usuario(
                 "Ariel",
                 "Test",
@@ -163,6 +165,7 @@ class RegistrarMovimientoPanelTest {
         entityManager.persist(categoria);
         entityManager.getTransaction().commit();
 
+        LocalDate fechaSeleccionada = LocalDate.of(2026, 9, 2);
         AtomicBoolean notificado = new AtomicBoolean(false);
         AtomicReference<RegistrarMovimientoPanel> panelRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> {
@@ -176,15 +179,20 @@ class RegistrarMovimientoPanelTest {
             panel.getCategoriaComboBox().setSelectedItem(categoria);
             panel.getTipoMovimientoComboBox().setSelectedItem(TipoMovimiento.INGRESO);
             panel.getImporteField().setText("150000");
-            panel.getFechaHoraPicker().setDateTimeStrict(LocalDateTime.parse("2026-09-02T12:30"));
+            panel.getFechaField().setDate(fechaSeleccionada);
             panel.getDescripcionField().setText("Sueldo");
             panelRef.set(panel);
         });
 
+        LocalDateTime antes = LocalDateTime.now();
         SwingUtilities.invokeAndWait(() -> panelRef.get().registrarMovimiento());
+        LocalDateTime despues = LocalDateTime.now();
 
         assertTrue(notificado.get());
         assertEquals(1, movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId()).size());
+        LocalDateTime fechaHoraRegistrada = movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId())
+                .get(0)
+                .getFechaHora();
         assertEquals(
                 "Sueldo",
                 movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId())
@@ -197,12 +205,8 @@ class RegistrarMovimientoPanelTest {
                         .get(0)
                         .getImporte()
         );
-        assertEquals(
-                LocalDateTime.parse("2026-09-02T12:30"),
-                movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId())
-                        .get(0)
-                        .getFechaHora()
-        );
+        assertEquals(fechaSeleccionada, fechaHoraRegistrada.toLocalDate());
+        assertTrue(!fechaHoraRegistrada.isBefore(antes) && !fechaHoraRegistrada.isAfter(despues));
     }
 
     @Test
