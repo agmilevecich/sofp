@@ -71,6 +71,7 @@ class RegistrarMovimientoPanelTest {
         assertNotNull(panel.getTipoMovimientoComboBox());
         assertNotNull(panel.getImporteField());
         assertNotNull(panel.getFechaField());
+        assertEquals(LocalDate.now(), panel.getFechaField().getDate());
         assertFalse(panel.getRegistrarButton().isEnabled());
     }
 
