@@ -17,6 +17,7 @@ public class SidebarPanel extends JPanel {
 
         add(crearBoton("Inicio", "inicio", navigationListener));
         add(crearBoton("Cuentas", "cuentas", navigationListener));
+        add(crearBoton("Categorías", "categorias", navigationListener));
         add(crearBoton("Movimientos", "movimientos", navigationListener));
         add(crearBoton("Inversiones", "inversiones", navigationListener));
         add(crearBoton("Reportes", "reportes", navigationListener));
