@@ -321,6 +321,8 @@ class MainFrameMovimientosTest {
         assertNotNull(formulario);
         assertEquals(1, formulario.getInstitucionComboBox().getItemCount());
         assertEquals(1, formulario.getMonedaComboBox().getItemCount());
+
+        formulario.getNombreField().setText("Cuenta nueva");
         assertTrue(formulario.getRegistrarButton().isEnabled());
 
         mainFrame.dispose();
