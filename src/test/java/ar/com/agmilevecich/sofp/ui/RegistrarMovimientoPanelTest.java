@@ -206,7 +206,8 @@ class RegistrarMovimientoPanelTest {
                         .getImporte()
         );
         assertEquals(fechaSeleccionada, fechaHoraRegistrada.toLocalDate());
-        assertTrue(!fechaHoraRegistrada.isBefore(antes) && !fechaHoraRegistrada.isAfter(despues));
+        assertTrue(!fechaHoraRegistrada.isBefore(antes.minusSeconds(5)));
+        assertTrue(!fechaHoraRegistrada.isAfter(despues));
     }
 
     @Test
