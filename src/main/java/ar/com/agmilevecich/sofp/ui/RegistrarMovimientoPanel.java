@@ -2,10 +2,12 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
-import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.components.DateTimePicker;
+import com.github.lgooddatepicker.components.TimePickerSettings;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -18,8 +20,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /** Formulario Swing para registrar un movimiento monetario. */
@@ -32,7 +36,7 @@ public class RegistrarMovimientoPanel extends JPanel {
     private final JComboBox<Categoria> categoriaComboBox;
     private final JComboBox<TipoMovimiento> tipoMovimientoComboBox;
     private final JTextField importeField;
-    private final JTextField fechaHoraField;
+    private final DateTimePicker fechaHoraPicker;
     private final JTextField descripcionField;
     private final JButton registrarButton;
 
@@ -45,7 +49,7 @@ public class RegistrarMovimientoPanel extends JPanel {
         categoriaComboBox = new JComboBox<>();
         tipoMovimientoComboBox = new JComboBox<>(TipoMovimiento.values());
         importeField = new JTextField(16);
-        fechaHoraField = new JTextField(16);
+        fechaHoraPicker = crearFechaHoraPicker();
         descripcionField = new JTextField(16);
         registrarButton = new JButton("Registrar");
         construirFormulario();
@@ -83,7 +87,7 @@ public class RegistrarMovimientoPanel extends JPanel {
         categoriaComboBox = new JComboBox<>();
         tipoMovimientoComboBox = new JComboBox<>(TipoMovimiento.values());
         importeField = new JTextField(16);
-        fechaHoraField = new JTextField(16);
+        fechaHoraPicker = crearFechaHoraPicker();
         descripcionField = new JTextField(16);
         registrarButton = new JButton("Registrar");
 
@@ -107,8 +111,8 @@ public class RegistrarMovimientoPanel extends JPanel {
         return importeField;
     }
 
-    public JTextField getFechaHoraField() {
-        return fechaHoraField;
+    public DateTimePicker getFechaHoraPicker() {
+        return fechaHoraPicker;
     }
 
     public JTextField getDescripcionField() {
@@ -117,6 +121,21 @@ public class RegistrarMovimientoPanel extends JPanel {
 
     public JButton getRegistrarButton() {
         return registrarButton;
+    }
+
+    private DateTimePicker crearFechaHoraPicker() {
+        DatePickerSettings dateSettings = new DatePickerSettings(new Locale("es", "AR"));
+        dateSettings.setAllowEmptyDates(true);
+        dateSettings.setFirstDayOfWeek(DayOfWeek.SUNDAY);
+        dateSettings.setFormatForDatesCommonEra("uuuu-MM-dd");
+        dateSettings.setFormatForDatesBeforeCommonEra("uuuu-MM-dd");
+
+        TimePickerSettings timeSettings = new TimePickerSettings(new Locale("es", "AR"));
+        timeSettings.setAllowEmptyTimes(true);
+        timeSettings.setFormatForDisplayTime("HH:mm");
+        timeSettings.setFormatForMenuTimes("HH:mm");
+
+        return new DateTimePicker(dateSettings, timeSettings);
     }
 
     private void construirFormulario() {
@@ -131,7 +150,7 @@ public class RegistrarMovimientoPanel extends JPanel {
         agregarCampo(new JLabel("Categoría"), categoriaComboBox, constraints, 0);
         agregarCampo(new JLabel("Tipo"), tipoMovimientoComboBox, constraints, 1);
         agregarCampo(new JLabel("Importe"), importeField, constraints, 2);
-        agregarCampo(new JLabel("Fecha y hora (AAAA-MM-DDTHH:MM)"), fechaHoraField, constraints, 3);
+        agregarCampo(new JLabel("Fecha y hora"), fechaHoraPicker, constraints, 3);
         agregarCampo(new JLabel("Descripción"), descripcionField, constraints, 4);
 
         constraints.gridx = 1;
@@ -189,7 +208,10 @@ public class RegistrarMovimientoPanel extends JPanel {
                 "El tipo de movimiento es obligatorio"
         );
         BigDecimal importe = new BigDecimal(importeField.getText().trim());
-        LocalDateTime fechaHora = LocalDateTime.parse(fechaHoraField.getText().trim());
+        LocalDateTime fechaHora = Objects.requireNonNull(
+                fechaHoraPicker.getDateTimeStrict(),
+                "La fecha y hora son obligatorias"
+        );
         String descripcion = descripcionField.getText().trim();
 
         movimientoService.registrar(
@@ -209,7 +231,7 @@ public class RegistrarMovimientoPanel extends JPanel {
 
     private void limpiarFormulario() {
         importeField.setText("");
-        fechaHoraField.setText("");
+        fechaHoraPicker.clear();
         descripcionField.setText("");
         categoriaComboBox.setSelectedIndex(categoriaComboBox.getItemCount() > 0 ? 0 : -1);
         tipoMovimientoComboBox.setSelectedIndex(0);
