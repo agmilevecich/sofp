@@ -15,6 +15,7 @@ import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
+import com.github.lgooddatepicker.components.DateTimePicker;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -68,8 +70,11 @@ class RegistrarMovimientoPanelTest {
         assertNotNull(panel.getCategoriaComboBox());
         assertNotNull(panel.getTipoMovimientoComboBox());
         assertNotNull(panel.getImporteField());
-        assertNotNull(panel.getFechaHoraField());
-        assertNotNull(panel.getDescripcionField());
+        assertNotNull(panel.getFechaHoraPicker());
+        assertEquals(DayOfWeek.SUNDAY, panel.getFechaHoraPicker()
+                .getDatePicker()
+                .getSettings()
+                .getFirstDayOfWeekSetting());
         assertFalse(panel.getRegistrarButton().isEnabled());
     }
 
@@ -176,7 +181,7 @@ class RegistrarMovimientoPanelTest {
             panel.getCategoriaComboBox().setSelectedItem(categoria);
             panel.getTipoMovimientoComboBox().setSelectedItem(TipoMovimiento.INGRESO);
             panel.getImporteField().setText("150000");
-            panel.getFechaHoraField().setText("2026-09-02T12:30");
+            panel.getFechaHoraPicker().setDateTimeStrict(LocalDateTime.parse("2026-09-02T12:30"));
             panel.getDescripcionField().setText("Sueldo");
             panelRef.set(panel);
         });
