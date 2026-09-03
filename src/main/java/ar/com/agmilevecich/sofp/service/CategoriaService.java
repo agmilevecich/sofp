@@ -23,7 +23,24 @@ public class CategoriaService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(categoria, "La categoría es obligatoria");
         validarPropietario(usuarioId, categoria);
-        return categoriaRepository.guardar(categoria);
+        EntityTransaction transaction = entityManager.getTransaction();
+        boolean transactionIniciadaPorElServicio = !transaction.isActive();
+        try {
+            if (transactionIniciadaPorElServicio) {
+                transaction.begin();
+            }
+            Categoria registrada = categoriaRepository.guardar(categoria);
+            entityManager.flush();
+            if (transactionIniciadaPorElServicio) {
+                transaction.commit();
+            }
+            return registrada;
+        } catch (RuntimeException e) {
+            if (transactionIniciadaPorElServicio && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     public Optional<Categoria> buscarPorId(Long id, Long usuarioId) {
