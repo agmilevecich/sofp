@@ -10,7 +10,7 @@ Validación final: `AislamientoDatosServiceTest` **7/7** y suite general **512/5
 
 `feature/swing-shell` desarrolló el shell Swing y conectó `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
 
-`MainFrame` usa `CardLayout` para Inicio, Cuentas, Movimientos, Inversiones y Reportes, integrando los servicios existentes y manteniendo las reglas de negocio fuera de la UI.
+`MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes, integrando los servicios existentes y manteniendo las reglas de negocio fuera de la UI.
 
 ## 2026-09-03 — Selector de fecha y hora de movimientos
 
@@ -22,46 +22,62 @@ Se eliminó el ingreso de hora mediante ComboBox. Al registrar un movimiento, la
 
 Commits del bloque: `bd436d4`, `418c8f4`, `fcf5f69`, `bdd03b3`, `688d8b0`, `53f138c`, `0fc7309`, `1363c0a`, `f820dff`, `e873832`.
 
-Validación final del bloque: `RegistrarMovimientoPanelTest` **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
+Validación individual del bloque: `RegistrarMovimientoPanelTest` **4/4**, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
 
-## Bloque — Alta de cuentas
+## 2026-09-03 — Gestión de categorías
 
-`RegistrarCuentaPanel` permite seleccionar tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`. `CuentaService` soporta llamadas con o sin transacción activa. `CuentasPanel` refresca mediante callback. `MainFrame` conserva el constructor histórico por `perfilFinancieroId` y el contextual completo.
+`CategoriasPanel` se integró en la navegación de `MainFrame` y permite gestionar las categorías del perfil del usuario mediante `CategoriaService`.
 
-## Bloque — Inversiones y reportes
+Durante la validación se detectó que el alta no hacía visible la persistencia esperada cuando el servicio no gestionaba la transacción. La corrección mínima quedó en `66b22f3` (`fix: gestionar transaccion al registrar categoria`), con gestión de transacción y `flush` cuando corresponde.
 
-`InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` utiliza `CarteraActivoService` para reportes de movimientos. Ambos quedaron integrados en `MainFrame`.
+Validaciones finales del bloque: UI/navegación **3/3** y servicio **22/22**; total **25/25 tests en verde**.
 
-`7ac8f99` integró inversiones y reportes. `c7cca8f` corrigió los constructores de `MainFrame` para conservar el `PerfilFinanciero` y permitir la carga contextual real.
+## 2026-09-03 — Validación de movimientos
 
-## 2026-09-03 — Corrección de expectativa de test
+`MainFrameMovimientosTest` + `RegistrarMovimientoPanelTest`: **7/7**, `BUILD SUCCESS`, 04:23 min, finalización 14:47:52 -03:00.
 
-`MainFrameMovimientosTest` tenía una expectativa incompatible con la regla del formulario: esperaba el botón habilitado con el nombre vacío. El test fue corregido en `29b5e11` para completar un nombre válido antes de comprobar la habilitación.
+`MovimientoServiceTest`: **50/50**, `BUILD SUCCESS`, 22:41 min, finalización 15:31:16 -03:00.
 
-No se modificó código de producción.
+Total conocido del bloque: **57/57 tests en verde**.
 
-## Validaciones — 2026-09-03
+## 2026-09-03 — Validación de inversiones y reportes
 
-Batería relacionada de Swing: **20/20 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 09:43 min, finalización 10:55:56 -03:00.
+`InversionesPanelTest` + `MainFrameInversionesTest` + `MainFrameReportesTest`: **5/5**, `BUILD SUCCESS`, 03:08 min, finalización 15:49:46 -03:00.
 
-`MainFrameMovimientosTest`: **3/3**, `BUILD SUCCESS`, finalización 10:45:01 -03:00.
+`CarteraActivoServiceTest` + `CarteraActivoServiceComposicionTest` + `CarteraActivoServiceMovimientosTest`: **16/16**, `BUILD SUCCESS`, 09:38 min, finalización 16:09:32 -03:00.
 
-`RegistrarMovimientoPanelTest`: **4/4**, `BUILD SUCCESS`, finalización 12:39:51 -03:00.
+Total del bloque: **21/21 tests en verde**.
 
-La última suite general sigue siendo la del 01/09/2026: **529/529**, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
+## 2026-09-03 — Validación relacionada de Swing
 
-Durante las pruebas Swing Surefire mostró el mensaje posterior a `System.exit(0)`, pero no produjo fallos ni errores.
+Durante la jornada se registraron baterías relacionadas de UI y formularios. La batería previa de Swing fue **20/20**; las validaciones posteriores cubrieron específicamente categorías, movimientos, inversiones, reportes y servicios de cartera.
+
+No se suman los resultados de distintas ejecuciones como una única cifra de suite porque pueden compartir clases de prueba entre comandos.
 
 ## Estado Git — 2026-09-03
 
-El usuario confirmó mediante `git syncsofp` que `feature/swing-shell` estaba sincronizada con GitHub y `git status` informó `nothing to commit, working tree clean`.
+El usuario confirmó mediante `git syncsofp` que `feature/swing-shell` estaba sincronizada con GitHub. La validación final informó:
 
-Último commit de código/test antes de esta actualización documental: `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
+`git diff` → sin cambios.
+
+`git diff --check` → sin errores.
+
+`git status` → `On branch feature/swing-shell` / `nothing to commit, working tree clean`.
+
+Último commit de código/test antes de estas actualizaciones documentales: `66b22f3` — `fix: gestionar transaccion al registrar categoria`.
+
+Las actualizaciones de esta documentación generan commits posteriores de tipo `docs:` y no representan cambios funcionales.
 
 `main` apunta a `a4be859` — `docs: crear contexto de continuidad actualizado`.
 
-Comparación: **139 commits adelante y 2 atrás**, estado `diverged`, merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
+Comparación conocida antes de estas actualizaciones documentales: **139 commits adelante y 2 atrás**, estado `diverged`, merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
+
+## Incidentes
+
+Durante las pruebas Swing Surefire mostró el mensaje posterior a `System.exit(0)`, pero no produjo fallos ni errores en las ejecuciones registradas.
+
+Durante una prueba manual hubo una modificación accidental de `RegistrarMovimientoPanel.java`; el archivo fue corregido y el posterior `git syncsofp` confirmó árbol limpio y sincronizado.
 
 ## Próximo avance
 
-Definir el siguiente bloque funcional de Fase 8 a partir del código actual. No hacer merge automático a `main` ni crear ramas nuevas. Antes de una eventual integración, revisar explícitamente los dos commits documentales exclusivos de `main`.
+Definir el siguiente bloque funcional de Fase 8 a partir del código actual. No hacer merge automático a `main` ni crear ramas nuevas. Antes de una eventual integración, revisar explícitamente los commits documentales exclusivos de `main`.
