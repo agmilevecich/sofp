@@ -22,6 +22,7 @@ public class MainFrame extends JFrame {
 
     private static final String INICIO = "inicio";
     private static final String CUENTAS = "cuentas";
+    private static final String CATEGORIAS = "categorias";
     private static final String MOVIMIENTOS = "movimientos";
     private static final String INVERSIONES = "inversiones";
     private static final String REPORTES = "reportes";
@@ -161,6 +162,16 @@ public class MainFrame extends JFrame {
 
         areaCentral.add(new InicioPanel(), INICIO);
         areaCentral.add(cuentasPanel, CUENTAS);
+
+        if (categoriaService != null && perfilFinanciero != null && usuarioId != null) {
+            areaCentral.add(
+                    new CategoriasPanel(categoriaService, perfilFinanciero, usuarioId),
+                    CATEGORIAS
+            );
+        } else {
+            areaCentral.add(new CategoriasPanel(), CATEGORIAS);
+        }
+
         areaCentral.add(new JPanel(), MOVIMIENTOS);
 
         if (carteraActivoService != null && perfilFinanciero != null && usuarioId != null) {
