@@ -4,13 +4,13 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 ## Estado verificado — 03/09/2026
 
-**Rama estable:** `main`. Último commit: `a4be859` — `docs: crear contexto de continuidad actualizado`.
+**Rama estable:** `main`. Último commit funcional conocido: `a4be859` — `docs: crear contexto de continuidad actualizado`.
 
-**Rama de trabajo:** `feature/swing-shell`. Último commit de código/test antes de esta actualización documental: `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
+**Rama de trabajo:** `feature/swing-shell`. Último commit funcional antes de las actualizaciones documentales: `66b22f3` — `fix: gestionar transaccion al registrar categoria`.
 
-Comparación: **139 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales.
+La comparación conocida antes de las actualizaciones documentales era **139 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales.
 
-El usuario confirmó el 03/09/2026 que `git syncsofp` informó `Already up to date` / `Everything up-to-date` y `git status` informó `nothing to commit, working tree clean`.
+El usuario confirmó el 03/09/2026 que `git syncsofp` informó `Already up to date` / `Everything up-to-date` y que la validación final con `git diff`, `git diff --check` y `git status` terminó con `nothing to commit, working tree clean`.
 
 ## Seguridad
 
@@ -20,9 +20,9 @@ Se mantienen protegidos por propietario/usuario perfiles, cuentas, categorías, 
 
 ## Fase 8 — Shell Swing
 
-Componentes implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ar.com.agmilevecich.sofp.ui.Main`.
+Componentes implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ar.com.agmilevecich.sofp.ui.Main`.
 
-`MainFrame` usa `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI utiliza los servicios existentes y no duplica reglas de negocio.
+`MainFrame` usa `CardLayout` y navega entre Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes. La UI utiliza los servicios existentes y no duplica reglas de negocio.
 
 ## Bloques cerrados
 
@@ -34,36 +34,41 @@ El campo de fecha utiliza **LGoodDatePicker (`DatePicker`)**, con configuración
 
 La hora ya no se ingresa mediante ComboBox. Al registrar, se obtiene con `LocalTime.now()` y se combina con la fecha seleccionada.
 
-Validación final de `RegistrarMovimientoPanelTest`: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
+Validación conocida del bloque: **57/57 tests en verde**.
 
 ### Alta de cuentas
 
 `RegistrarCuentaPanel` permite seleccionar tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`. `CuentaService` soporta alta con o sin transacción activa. `CuentasPanel` refresca mediante callback. `MainFrame` conserva el constructor histórico por `perfilFinancieroId` y el contextual completo.
 
+### Gestión de categorías
+
+`CategoriasPanel` permite gestionar categorías del perfil del usuario mediante `CategoriaService`.
+
+Validación UI/navegación: **3/3**. Validación del servicio: **22/22**. Total: **25/25 tests en verde**.
+
+`66b22f3` corrigió la persistencia del alta gestionando la transacción y `flush` cuando corresponde, manteniendo la autorización en el servicio.
+
 ### Inversiones y reportes
 
 `InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` usa `CarteraActivoService` para el reporte de movimientos. Ambos están integrados en `MainFrame`.
 
+Validación UI: **5/5**. Validación de servicios: **16/16**. Total: **21/21 tests en verde**.
+
 ## Validaciones
 
-Batería relacionada Swing del 03/09/2026: **20/20**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 09:43 min, finalización 10:55:56 -03:00.
+- Categorías: **25/25** tests verdes.
+- Movimientos: **57/57** tests verdes.
+- Inversiones/reportes: **21/21** tests verdes.
+- `RegistrarMovimientoPanelTest`: **4/4** en validación individual del selector de fecha/hora.
+- Última suite general conocida: **529/529**, ejecutada el 01/09/2026, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
 
-`MainFrameMovimientosTest`: **3/3**, `BUILD SUCCESS`, finalización 10:45:01 -03:00.
+Las validaciones específicas del 03/09/2026 no sustituyen todavía una nueva suite general.
 
-Última suite general conocida: **529/529**, ejecutada el 01/09/2026, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
+## Último cambio funcional
 
-## Últimos cambios del selector de fecha/hora
+`66b22f3` — `fix: gestionar transaccion al registrar categoria`.
 
-- `bd436d4` — `feat: agregar dependencia LGoodDatePicker`;
-- `418c8f4` — `feat: incorporar selector de fecha y hora en movimientos`;
-- `fcf5f69` — `test: cubrir selector de fecha y hora de movimientos`;
-- `bdd03b3` — `test: ajustar prueba del selector de fecha y hora`;
-- `688d8b0` — `feat: registrar hora del sistema en movimientos`;
-- `53f138c` — `test: validar hora del sistema en movimientos`;
-- `0fc7309` — `test: ajustar tolerancia de hora del sistema`;
-- `1363c0a` — `test: corregir comparacion de hora del sistema`;
-- `f820dff` — `feat: mostrar fecha del sistema en selector de movimientos`;
-- `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
+Los commits documentales posteriores solo actualizan continuidad y no cambian funcionalidad.
 
 ## Incidentes conocidos
 
@@ -84,4 +89,4 @@ Durante una prueba manual hubo una modificación accidental de `RegistrarMovimie
 
 ## Próximo paso
 
-Definir el próximo bloque funcional de Fase 8 únicamente después de reconstruir el estado real de `feature/swing-shell`.
+Definir el próximo bloque funcional de Fase 8 únicamente después de reconstruir el estado real de `feature/swing-shell`. No asumir que `LoginPanel` es el próximo bloque sin revisar previamente su integración, servicios relacionados y tests.
