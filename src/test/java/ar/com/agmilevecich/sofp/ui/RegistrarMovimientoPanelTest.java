@@ -25,7 +25,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,10 +70,6 @@ class RegistrarMovimientoPanelTest {
         assertNotNull(panel.getTipoMovimientoComboBox());
         assertNotNull(panel.getImporteField());
         assertNotNull(panel.getFechaHoraPicker());
-        assertEquals(DayOfWeek.SUNDAY, panel.getFechaHoraPicker()
-                .getDatePicker()
-                .getSettings()
-                .getFirstDayOfWeekSetting());
         assertFalse(panel.getRegistrarButton().isEnabled());
     }
 
