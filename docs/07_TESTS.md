@@ -2,37 +2,49 @@
 
 ## Estado de validación — 03/09/2026
 
-La última batería relacionada de Swing fue ejecutada localmente el **03/09/2026**:
+### Selector de fecha y hora de movimientos
 
-`mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
+`RegistrarMovimientoPanelTest` fue ejecutado individualmente:
+
+`mvn -Dtest=RegistrarMovimientoPanelTest test`
 
 Resultado:
 
-- **20/20 tests en verde**;
+- **4/4 tests en verde**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- Duración: **09:43 min**;
-- Finalización: **10:55:56 -03:00**.
+- Duración: **03:27 min**;
+- Finalización: **12:39:51 -03:00**.
 
-La batería cubrió inversiones, reportes, navegación e integración en `MainFrame`, movimientos y alta de cuentas.
+La cobertura verifica la construcción del formulario, la fecha inicial igual a `LocalDate.now()`, el uso del selector de fecha y el registro de la hora del sistema junto con la fecha seleccionada.
 
-Validación individual adicional del mismo día: `MainFrameMovimientosTest` **3/3**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración 2:12 min, finalización **10:45:01 -03:00**.
+El selector utiliza LGoodDatePicker, con domingo como primer día de la semana. La hora ya no se introduce mediante ComboBox.
+
+### Batería relacionada de Swing
+
+Se ejecutó:
+
+`mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
+
+Resultado: **20/20 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración 09:43 min, finalización 10:55:56 -03:00.
+
+`MainFrameMovimientosTest` también fue ejecutado individualmente: **3/3**, `BUILD SUCCESS`, finalización 10:45:01 -03:00.
 
 ## Última suite general
 
 La última suite general conocida fue ejecutada el **01/09/2026**:
 
 - **529/529 tests en verde**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
+- Failures: 0;
+- Errors: 0;
+- Skipped: 0;
 - `BUILD SUCCESS`;
-- Duración: **14:25 min**;
-- Finalización: **19:25:53 -03:00**.
+- Duración: 14:25 min;
+- Finalización: 19:25:53 -03:00.
 
-Los **20/20** del 03/09 corresponden a la batería relacionada de Swing y no sustituyen la suite general.
+Los 4/4 y 20/20 del 03/09 son validaciones específicas/relacionadas y no sustituyen la suite general.
 
 ## Cobertura de seguridad
 
@@ -57,7 +69,7 @@ Tests relacionados:
 - `RegistrarCuentaPanelTest`;
 - `RegistrarMovimientoPanelTest`.
 
-La cobertura incluye layout, navegación, contexto usuario/perfil, cuentas, movimientos, inversiones, reportes, persistencia y callbacks de actualización.
+La cobertura incluye layout, navegación, contexto usuario/perfil, cuentas, movimientos, inversiones, reportes, persistencia, callbacks de actualización y selector de fecha/hora.
 
 ## Alta de cuentas
 
@@ -67,13 +79,13 @@ La cobertura incluye layout, navegación, contexto usuario/perfil, cuentas, movi
 
 `MainFrameMovimientosTest` cubre la compatibilidad del constructor histórico por `perfilFinancieroId` y la integración contextual de cuentas.
 
-El 02/09 una expectativa incorrecta comprobaba que el botón estuviera habilitado con el nombre vacío. Se corrigió en `29b5e11` para introducir un nombre válido antes de verificar la habilitación. El 03/09 la batería relacionada pasó **20/20**.
+La expectativa incorrecta sobre la habilitación del alta de cuentas fue corregida en `29b5e11`, sin modificar producción.
 
 ## Inversiones y reportes
 
 `InversionesPanelTest`, `MainFrameInversionesTest`, `ReportesPanelTest` y `MainFrameReportesTest` forman parte de la batería de 20 tests verdes.
 
-La integración de `MainFrame` fue corregida en `c7cca8f` para conservar el `PerfilFinanciero` al delegar desde los constructores públicos. Esto permitió que los paneles contextuales consultaran posiciones y movimientos del perfil correcto.
+La integración de `MainFrame` fue corregida en `c7cca8f` para conservar el `PerfilFinanciero` al delegar desde los constructores públicos.
 
 ## Incidentes de entorno
 
