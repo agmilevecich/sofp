@@ -6,11 +6,11 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 **Rama estable:** `main`. Último commit: `a4be859` — `docs: crear contexto de continuidad actualizado`.
 
-**Rama de trabajo:** `feature/swing-shell`. Último commit de código/test antes de esta actualización documental: `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
+**Rama de trabajo:** `feature/swing-shell`. Último commit de código/test antes de esta actualización documental: `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
 
-Comparación actual: **122 commits por delante y 2 commits por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales.
+Comparación: **139 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales.
 
-El estado local fue verificado el 03/09/2026: `git syncsofp` informó `Already up to date` / `Everything up-to-date` y `git status` informó `nothing to commit, working tree clean` antes de iniciar esta actualización documental.
+El usuario confirmó el 03/09/2026 que `git syncsofp` informó `Already up to date` / `Everything up-to-date` y `git status` informó `nothing to commit, working tree clean`.
 
 ## Seguridad
 
@@ -30,7 +30,11 @@ Componentes implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPa
 
 `RegistrarMovimientoPanel` registra movimientos para la cuenta seleccionada con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. `MovimientosPanel` refresca el listado mediante callback.
 
-Validación histórica: **10/10 tests en verde**.
+El campo de fecha utiliza **LGoodDatePicker (`DatePicker`)**, con configuración `es-AR`, domingo como primer día, fecha inicial igual a `LocalDate.now()` y formato `dd/MM/uuuu`.
+
+La hora ya no se ingresa mediante ComboBox. Al registrar, se obtiene con `LocalTime.now()` y se combina con la fecha seleccionada.
+
+Validación final de `RegistrarMovimientoPanelTest`: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
 
 ### Alta de cuentas
 
@@ -40,33 +44,32 @@ Validación histórica: **10/10 tests en verde**.
 
 `InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` usa `CarteraActivoService` para el reporte de movimientos. Ambos están integrados en `MainFrame`.
 
-La integración fue corregida en `c7cca8f` para conservar el `PerfilFinanciero` al delegar desde los constructores públicos de `MainFrame`.
+## Validaciones
 
-## Última validación específica
+Batería relacionada Swing del 03/09/2026: **20/20**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 09:43 min, finalización 10:55:56 -03:00.
 
-El **03/09/2026** se ejecutó:
+`MainFrameMovimientosTest`: **3/3**, `BUILD SUCCESS`, finalización 10:45:01 -03:00.
 
-`mvn -Dtest=InversionesPanelTest,ReportesPanelTest,MainFrameInversionesTest,MainFrameReportesTest,MainFrameMovimientosTest,CuentasPanelTest,RegistrarCuentaPanelTest test`
+Última suite general conocida: **529/529**, ejecutada el 01/09/2026, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
 
-Resultado: **20/20 tests en verde**, Failures **0**, Errors **0**, Skipped **0**, `BUILD SUCCESS`, duración **09:43 min**, finalización **10:55:56 -03:00**.
+## Últimos cambios del selector de fecha/hora
 
-`MainFrameMovimientosTest` también fue ejecutado individualmente: **3/3**, `BUILD SUCCESS`, duración **02:12 min**, finalización **10:45:01 -03:00**.
-
-Última suite general: **529/529**, ejecutada el 01/09/2026, `BUILD SUCCESS`, 14:25 min.
-
-## Últimos cambios
-
-- `7ac8f99` — `fix: integrar inversiones y reportes en MainFrame`;
-- `c7cca8f` — `fix: conservar perfil en constructores de MainFrame`;
-- `29b5e11` — `test: corregir expectativa de habilitacion del alta de cuentas`.
-
-El último cambio de código/test fue exclusivamente de test: la prueba de alta de cuentas completa el nombre antes de comprobar que el botón se habilita, respetando la regla existente del formulario.
+- `bd436d4` — `feat: agregar dependencia LGoodDatePicker`;
+- `418c8f4` — `feat: incorporar selector de fecha y hora en movimientos`;
+- `fcf5f69` — `test: cubrir selector de fecha y hora de movimientos`;
+- `bdd03b3` — `test: ajustar prueba del selector de fecha y hora`;
+- `688d8b0` — `feat: registrar hora del sistema en movimientos`;
+- `53f138c` — `test: validar hora del sistema en movimientos`;
+- `0fc7309` — `test: ajustar tolerancia de hora del sistema`;
+- `1363c0a` — `test: corregir comparacion de hora del sistema`;
+- `f820dff` — `feat: mostrar fecha del sistema en selector de movimientos`;
+- `e873832` — `test: verificar fecha del sistema en selector de movimientos`.
 
 ## Incidentes conocidos
 
-Surefire muestra durante las pruebas Swing un mensaje de espera posterior a `System.exit(0)`. En las ejecuciones registradas terminó con `BUILD SUCCESS`, sin failures ni errors. No se realiza un cambio especulativo por ese mensaje.
+Surefire muestra durante algunas pruebas Swing el mensaje `Surefire is going to kill self fork JVM. The exit has elapsed 30 seconds after System.exit(0)`. En las ejecuciones registradas terminó con `BUILD SUCCESS`, sin failures ni errors. No se realiza un cambio especulativo por ese mensaje.
 
-Una ejecución anterior involucró un `SwingApplicationTest` obsoleto presente en `target`; se resolvió limpiando Maven, sin modificar código ni tests para ocultar el problema.
+Durante una prueba manual hubo una modificación accidental de `RegistrarMovimientoPanel.java` al escribir sobre el código. El archivo fue corregido y el posterior `git syncsofp` confirmó árbol limpio y sincronizado.
 
 ## Reglas de continuidad
 
@@ -81,4 +84,4 @@ Una ejecución anterior involucró un `SwingApplicationTest` obsoleto presente e
 
 ## Próximo paso
 
-Definir el próximo bloque funcional de Fase 8 únicamente después de reconstruir el estado real de `feature/swing-shell`. Antes de una eventual integración, revisar explícitamente los dos commits documentales exclusivos de `main`.
+Definir el próximo bloque funcional de Fase 8 únicamente después de reconstruir el estado real de `feature/swing-shell`.
