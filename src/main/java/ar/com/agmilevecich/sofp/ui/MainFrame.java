@@ -172,7 +172,7 @@ public class MainFrame extends JFrame {
             areaCentral.add(new CategoriasPanel(), CATEGORIAS);
         }
 
-        areaCentral.add(new JPanel(), MOVIMIENTOS);
+        areaCentral.add(new MovimientosPanel(), MOVIMIENTOS);
 
         if (carteraActivoService != null && perfilFinanciero != null && usuarioId != null) {
             areaCentral.add(
