@@ -147,7 +147,7 @@ public class Main {
         mainFrame.setVisible(true);
     }
 
-    private static PerfilFinanciero seleccionarPerfil(
+    static PerfilFinanciero seleccionarPerfil(
             JFrame parent,
             List<PerfilFinanciero> perfiles) {
 
