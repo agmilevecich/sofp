@@ -4,80 +4,68 @@
 
 `feature/seguridad-aislamiento-datos` completó la revisión transversal de seguridad y fue integrada en `main` mediante fast-forward.
 
-Validación final: `AislamientoDatosServiceTest` **7/7** y suite general **512/512**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+Validación final registrada: `AislamientoDatosServiceTest` **7/7** y suite general **512/512**, `BUILD SUCCESS`.
 
-## 2026-08-31 / 2026-09-01 — Fase 8: shell Swing
+## 2026-08-31 / 2026-09-04 — Fase 8: shell Swing
 
-`feature/swing-shell` desarrolló el shell Swing y conectó `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
+`feature/swing-shell` desarrolló el shell Swing y conectó `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
 
 `MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes, integrando los servicios existentes y manteniendo las reglas de negocio fuera de la UI.
 
 ## 2026-09-03 — Selector de fecha y hora de movimientos
 
-Se incorporó **LGoodDatePicker** y se reemplazó el ingreso manual de fecha por `DatePicker` en `RegistrarMovimientoPanel`.
+Se incorporó LGoodDatePicker para la fecha de movimientos. La fecha inicial corresponde al día del sistema, con configuración regional `es-AR`, domingo como primer día y formato visual `dd/MM/uuuu`.
 
-El selector usa configuración regional `es-AR`, comienza la semana en domingo, muestra inicialmente la fecha del sistema y utiliza formato visual `dd/MM/uuuu`.
+La hora dejó de ingresarse mediante ComboBox y se obtiene automáticamente con `LocalTime.now()` al registrar.
 
-Se eliminó el ingreso de hora mediante ComboBox. Al registrar un movimiento, la hora se obtiene automáticamente con `LocalTime.now()` y se combina con la fecha seleccionada.
+Validación individual registrada: `RegistrarMovimientoPanelTest` **4/4**, `BUILD SUCCESS`.
 
-Commits del bloque: `bd436d4`, `418c8f4`, `fcf5f69`, `bdd03b3`, `688d8b0`, `53f138c`, `0fc7309`, `1363c0a`, `f820dff`, `e873832`.
+## 2026-09-03/04 — Gestión de categorías
 
-Validación individual del bloque: `RegistrarMovimientoPanelTest` **4/4**, `BUILD SUCCESS`, 03:27 min, finalización 12:39:51 -03:00.
+`CategoriasPanel` se integró en la navegación de `MainFrame` y permite gestionar categorías del perfil del usuario mediante `CategoriaService`.
 
-## 2026-09-03 — Gestión de categorías
+`66b22f3` corrigió la gestión de transacción y `flush` del alta cuando corresponde.
 
-`CategoriasPanel` se integró en la navegación de `MainFrame` y permite gestionar las categorías del perfil del usuario mediante `CategoriaService`.
+`6eefc36` corrigió el manejo del error al registrar categoría y `70c2455` agregó cobertura del registro sin nombre.
 
-Durante la validación se detectó que el alta no hacía visible la persistencia esperada cuando el servicio no gestionaba la transacción. La corrección mínima quedó en `66b22f3` (`fix: gestionar transaccion al registrar categoria`), con gestión de transacción y `flush` cuando corresponde.
+Última validación conocida: `CategoriasPanelTest` **3/3** en verde.
 
-Validaciones finales del bloque: UI/navegación **3/3** y servicio **22/22**; total **25/25 tests en verde**.
+## 2026-09-04 — Criterios funcionales derivados de ControlFinanzas
 
-## 2026-09-03 — Validación de movimientos
+Se definió que `agmilevecich/controlfinanzas` será utilizado como banco de ideas y referencia funcional, no como arquitectura para copiar.
 
-`MainFrameMovimientosTest` + `RegistrarMovimientoPanelTest`: **7/7**, `BUILD SUCCESS`, 04:23 min, finalización 14:47:52 -03:00.
+Se acordó mantener en SOFP el patrón:
 
-`MovimientoServiceTest`: **50/50**, `BUILD SUCCESS`, 22:41 min, finalización 15:31:16 -03:00.
+**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Total conocido del bloque: **57/57 tests en verde**.
+Los futuros paneles podrán especializarse en gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, convergiendo en el núcleo común.
 
-## 2026-09-03 — Validación de inversiones y reportes
+Se adoptó la distinción conceptual entre **Cuenta** y **Forma/Medio de pago**, contemplando tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo.
 
-`InversionesPanelTest` + `MainFrameInversionesTest` + `MainFrameReportesTest`: **5/5**, `BUILD SUCCESS`, 03:08 min, finalización 15:49:46 -03:00.
+Se reconoció que tarjeta de crédito requiere modelar una obligación/pasivo separada de la salida inmediata de fondos. También se definió que préstamos otorgados deben permanecer como derechos de cobro y que transferencias entre cuentas propias no son ingresos ni gastos.
 
-`CarteraActivoServiceTest` + `CarteraActivoServiceComposicionTest` + `CarteraActivoServiceMovimientosTest`: **16/16**, `BUILD SUCCESS`, 09:38 min, finalización 16:09:32 -03:00.
+El objetivo de largo plazo es representar activos, pasivos y patrimonio neto mediante `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`, además de liquidez, ingresos, gastos, inversiones y obligaciones.
 
-Total del bloque: **21/21 tests en verde**.
+Estos criterios quedan registrados como decisiones de diseño/roadmap y **no como funcionalidades implementadas**.
 
-## 2026-09-03 — Validación relacionada de Swing
+## 2026-09-04 — Reglas de negocio detectadas
 
-Durante la jornada se registraron baterías relacionadas de UI y formularios. La batería previa de Swing fue **20/20**; las validaciones posteriores cubrieron específicamente categorías, movimientos, inversiones, reportes y servicios de cartera.
+Se identificó la necesidad de impedir un `EGRESO` que supere el saldo disponible de la cuenta. El egreso igual al saldo debe permitirse y dejar saldo cero. La regla debe vivir en el servicio/dominio y contemplar también modificaciones de movimientos.
 
-No se suman los resultados de distintas ejecuciones como una única cifra de suite porque pueden compartir clases de prueba entre comandos.
+También se identificó que una categoría con movimientos asociados no debe eliminarse físicamente, para no romper el historial. Debe evaluarse su desactivación y una respuesta amigable de la UI ante el intento de eliminación.
 
-## Estado Git — 2026-09-03
+## Estado Git — 2026-09-04
 
-El usuario confirmó mediante `git syncsofp` que `feature/swing-shell` estaba sincronizada con GitHub. La validación final informó:
+La rama activa continúa siendo `feature/swing-shell` y su último commit funcional/test conocido es `70c2455`.
 
-`git diff` → sin cambios.
+La documentación de continuidad se actualizó para reflejar el estado real y las nuevas decisiones de diseño. Estas actualizaciones son commits `docs:` y no representan cambios funcionales.
 
-`git diff --check` → sin errores.
+No se realizó merge a `main` ni se crean ramas nuevas.
 
-`git status` → `On branch feature/swing-shell` / `nothing to commit, working tree clean`.
+## Validación general conocida
 
-Último commit de código/test antes de estas actualizaciones documentales: `66b22f3` — `fix: gestionar transaccion al registrar categoria`.
-
-Las actualizaciones de esta documentación generan commits posteriores de tipo `docs:` y no representan cambios funcionales.
-
-`main` apunta a `a4be859` — `docs: crear contexto de continuidad actualizado`.
-
-Comparación conocida antes de estas actualizaciones documentales: **139 commits adelante y 2 atrás**, estado `diverged`, merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
-
-## Incidentes
-
-Durante las pruebas Swing Surefire mostró el mensaje posterior a `System.exit(0)`, pero no produjo fallos ni errores en las ejecuciones registradas.
-
-Durante una prueba manual hubo una modificación accidental de `RegistrarMovimientoPanel.java`; el archivo fue corregido y el posterior `git syncsofp` confirmó árbol limpio y sincronizado.
+La última suite general conocida continúa siendo **568/568 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
 ## Próximo avance
 
-Definir el siguiente bloque funcional de Fase 8 a partir del código actual. No hacer merge automático a `main` ni crear ramas nuevas. Antes de una eventual integración, revisar explícitamente los commits documentales exclusivos de `main`.
+Implementar los próximos bloques solamente después de revisar código, servicios, repositorios, reglas y tests relacionados. Prioridad funcional prevista: fondos insuficientes, categorías con movimientos, `FormaPago` y luego evolución progresiva hacia operaciones financieras especializadas, pasivos/patrimonio y análisis.
