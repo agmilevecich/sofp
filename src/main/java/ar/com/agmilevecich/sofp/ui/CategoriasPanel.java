@@ -9,6 +9,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -147,6 +148,19 @@ public class CategoriasPanel extends JPanel {
     }
 
     private void registrarCategoria(ActionEvent event) {
+        try {
+            registrarCategoria();
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "No se pudo registrar la categoría",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    void registrarCategoria() {
         Categoria categoria = new Categoria(nombreField.getText(), perfilFinanciero);
         categoria.cambiarDescripcion(descripcionArea.getText().isBlank()
                 ? null
