@@ -204,9 +204,19 @@ class CategoriasPanelTest {
         entityManager.persist(movimiento);
         entityManager.getTransaction().commit();
 
+        AtomicReference<String> mensajeRef = new AtomicReference<>();
+        AtomicReference<String> tituloRef = new AtomicReference<>();
+        AtomicReference<Integer> tipoMensajeRef = new AtomicReference<>();
         AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> panelRef.set(
-                new CategoriasPanel(categoriaService, perfil, usuario.getId())
+                new CategoriasPanel(categoriaService, perfil, usuario.getId()) {
+                    @Override
+                    void mostrarMensaje(String mensaje, String titulo, int tipoMensaje) {
+                        mensajeRef.set(mensaje);
+                        tituloRef.set(titulo);
+                        tipoMensajeRef.set(tipoMensaje);
+                    }
+                }
         ));
         CategoriasPanel panel = panelRef.get();
 
@@ -223,6 +233,12 @@ class CategoriasPanelTest {
         assertEquals(1, categorias.size());
         assertFalse(categorias.get(0).isActiva());
         assertEquals("Alimentación (inactiva)", panel.getListaCategorias().getModel().getElementAt(0));
+        assertEquals(
+                "La categoría tiene movimientos asociados y no puede eliminarse. Se desactivó para conservar el historial.",
+                mensajeRef.get()
+        );
+        assertEquals("Categoría desactivada", tituloRef.get());
+        assertEquals(javax.swing.JOptionPane.INFORMATION_MESSAGE, tipoMensajeRef.get());
 
         entityManager.clear();
         Categoria conservada = categoriaService
