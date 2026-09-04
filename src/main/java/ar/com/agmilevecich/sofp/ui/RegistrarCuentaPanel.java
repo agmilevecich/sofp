@@ -227,11 +227,7 @@ public class RegistrarCuentaPanel extends JPanel {
     }
 
     private void actualizarEstadoBoton() {
-        registrarButton.setEnabled(
-                !nombreField.getText().trim().isEmpty()
-                        && institucionComboBox.getSelectedItem() != null
-                        && monedaComboBox.getSelectedItem() != null
-        );
+        registrarButton.setEnabled(!nombreField.getText().trim().isEmpty());
     }
 
     private void registrar() {
