@@ -10,17 +10,14 @@ import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JList;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -48,12 +45,9 @@ public class RegistrarCuentaPanel extends JPanel {
         usuarioId = null;
         onCuentaRegistrada = null;
         nombreField = new JTextField(16);
-        tipoCuentaComboBox = new JComboBox<>();
-        institucionComboBox = new JComboBox<>();
-        monedaComboBox = new JComboBox<>();
-        configurarComboBox(tipoCuentaComboBox);
-        configurarComboBox(institucionComboBox);
-        configurarComboBox(monedaComboBox);
+        tipoCuentaComboBox = new ComboBoxConSeleccione<>();
+        institucionComboBox = new ComboBoxConSeleccione<>();
+        monedaComboBox = new ComboBoxConSeleccione<>();
         agregarTiposCuenta();
         identificadorExternoField = new JTextField(16);
         registrarButton = new JButton("Registrar");
@@ -100,12 +94,9 @@ public class RegistrarCuentaPanel extends JPanel {
         );
         this.onCuentaRegistrada = onCuentaRegistrada;
         nombreField = new JTextField(16);
-        tipoCuentaComboBox = new JComboBox<>();
-        institucionComboBox = new JComboBox<>();
-        monedaComboBox = new JComboBox<>();
-        configurarComboBox(tipoCuentaComboBox);
-        configurarComboBox(institucionComboBox);
-        configurarComboBox(monedaComboBox);
+        tipoCuentaComboBox = new ComboBoxConSeleccione<>();
+        institucionComboBox = new ComboBoxConSeleccione<>();
+        monedaComboBox = new ComboBoxConSeleccione<>();
         agregarTiposCuenta();
         identificadorExternoField = new JTextField(16);
         registrarButton = new JButton("Registrar");
@@ -188,22 +179,6 @@ public class RegistrarCuentaPanel extends JPanel {
         add(etiqueta, constraints);
         constraints.gridx = 1;
         add(campo, constraints);
-    }
-
-    private <T> void configurarComboBox(JComboBox<T> comboBox) {
-        comboBox.addItem(null);
-        comboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list,
-                                                           Object value,
-                                                           int index,
-                                                           boolean isSelected,
-                                                           boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                setText(value == null ? "Seleccione..." : value.toString());
-                return this;
-            }
-        });
     }
 
     private void agregarTiposCuenta() {
