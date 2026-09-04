@@ -2,95 +2,75 @@
 
 ## Build 059 — Suite general posterior a venta y posición
 
-**Estado: COMPLETADO Y VALIDADO.**
-
-Suite general del 27/08/2026: **433/433**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 17:35 min.
+**Completado y validado:** 433/433, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
 ## Etapa — Seguridad y aislamiento por usuario
 
-La rama `feature/seguridad-aislamiento-datos` completó la auditoría transversal y fue integrada en `main` mediante fast-forward.
+`feature/seguridad-aislamiento-datos` completó la auditoría transversal y fue integrada en `main` mediante fast-forward.
 
-Validación del 31/08/2026: `AislamientoDatosServiceTest` **7/7**. Suite general posterior: **512/512**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 15:25 min.
+Validación final registrada: `AislamientoDatosServiceTest` **7/7** y suite general **512/512**, `BUILD SUCCESS`.
 
 ## Fase 8 — Interfaz Swing
 
-La rama `feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, categorías, movimientos, inversiones y reportes.
+`feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, categorías, movimientos, inversiones y reportes.
 
-Se incorporaron y conectaron `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
+Componentes conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
 
-`MainFrame` utiliza `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes. La integración mantiene las reglas de negocio en los servicios existentes y pasa el contexto de usuario/perfil a la UI.
+`MainFrame` utiliza `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes.
 
-## Bloque — Alta de movimientos
+## Bloques validados
 
-`RegistrarMovimientoPanel` se integró al flujo de movimientos. Usa categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`; delega a `MovimientoService.registrar(...)`; y `MovimientosPanel` refresca mediante callback.
+### Movimientos
 
-El selector de fecha fue migrado a **LGoodDatePicker (`DatePicker`)**, con calendario iniciado en domingo y fecha inicial igual a la fecha del sistema. La hora se obtiene automáticamente mediante `LocalTime.now()` al registrar, sin ComboBox de hora.
+`RegistrarMovimientoPanel` se integró al flujo de movimientos con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. La fecha utiliza LGoodDatePicker y la hora se obtiene automáticamente con `LocalTime.now()`.
 
-Validación específica: `RegistrarMovimientoPanelTest` **4/4**, `BUILD SUCCESS`.
+Validación conocida: **57/57 tests en verde**.
 
-Validación de integración: `MainFrameMovimientosTest` y `RegistrarMovimientoPanelTest` **7/7**, `BUILD SUCCESS`.
+### Cuentas
 
-Validación del servicio: `MovimientoServiceTest` **50/50**, `BUILD SUCCESS`. Total conocido del bloque: **57/57 tests en verde**.
+`RegistrarCuentaPanel` permite tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`. `CuentasPanel` refresca mediante callback.
 
-## Bloque — Alta de cuentas
+### Categorías
 
-`RegistrarCuentaPanel` permite seleccionar tipo de cuenta, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`.
+`CategoriasPanel` permite registrar, modificar, activar/desactivar y eliminar categorías delegando reglas a `CategoriaService`.
 
-`CuentaService` soporta alta con o sin transacción activa. `CuentasPanel` refresca mediante callback. `MainFrame` conserva el constructor histórico basado en `perfilFinancieroId` y el constructor contextual completo.
+Las validaciones conocidas incluyen `CategoriaServiceTest` **22/22** y pruebas UI/navegación. `70c2455` agregó cobertura del rechazo de una categoría sin nombre.
 
-## Bloque — Gestión de categorías
+### Inversiones y reportes
 
-`CategoriasPanel` permite registrar, modificar, activar/desactivar y eliminar categorías del perfil del usuario, delegando las reglas a `CategoriaService`.
+`InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` utiliza `CarteraActivoService` para reportes de movimientos.
 
-La persistencia del alta se corrigió en `66b22f3` mediante gestión de transacción y `flush` cuando corresponde, manteniendo la validación de propietario en el servicio.
+Validación conocida: **21/21 tests en verde** para UI/servicios del bloque.
 
-Validación UI y navegación: **3/3 tests**, `BUILD SUCCESS`, 02:24 min, finalización 13:40:32 -03:00.
+## Criterios funcionales derivados de ControlFinanzas
 
-Validación del servicio: **22/22 tests**, `BUILD SUCCESS`, 10:33 min, finalización 13:53:50 -03:00.
+ControlFinanzas se está utilizando como referencia de funcionalidades y soluciones, no como arquitectura para copiar.
 
-Total del bloque: **25/25 tests en verde**.
+El criterio acordado para SOFP es mantener un núcleo financiero basado en `Movimiento`, alimentado por paneles especializados y servicios específicos. Los futuros paneles podrán cubrir gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard.
 
-## Bloque — Inversiones y reportes
+También se acordó distinguir **Cuenta** de **Forma/Medio de pago**. Se prevén tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo. La tarjeta de crédito deberá poder representar una obligación sin salida inmediata de fondos de una cuenta bancaria.
 
-`InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` utiliza `CarteraActivoService` para reportes de movimientos. Ambos quedaron integrados y navegables desde `MainFrame`.
+Se prevé evolucionar el modelo para representar activos, pasivos y patrimonio neto, incluyendo préstamos otorgados como derechos de cobro y transferencias propias sin impacto en ingresos/gastos.
 
-Validación UI: `InversionesPanelTest`, `MainFrameInversionesTest` y `MainFrameReportesTest` **5/5**, `BUILD SUCCESS`, 03:08 min, finalización 15:49:46 -03:00.
+Estos criterios son de diseño y roadmap; no deben registrarse como funcionalidades implementadas hasta que existan código y tests.
 
-Validación de servicios: `CarteraActivoServiceTest`, `CarteraActivoServiceComposicionTest` y `CarteraActivoServiceMovimientosTest` **16/16**, `BUILD SUCCESS`, 09:38 min, finalización 16:09:32 -03:00.
+## Próximos bloques
 
-Total del bloque: **21/21 tests en verde**.
+- control de fondos insuficientes para `EGRESO`;
+- tratamiento de categorías con movimientos asociados, evitando borrado físico del historial;
+- integración de `FormaPago`;
+- especialización de paneles sobre el núcleo común de movimientos;
+- pasivos/obligaciones y patrimonio neto;
+- análisis mensual/histórico, evolución patrimonial, vencimientos y dashboard, adaptados a SOFP.
 
-## Validación relacionada — 03/09/2026
+## Validación general conocida
 
-Se registraron además las baterías específicas de Swing ejecutadas durante la jornada, sin sustituir la suite general.
+Última suite general conocida: **568/568 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
-- `MainFrameMovimientosTest` + `RegistrarMovimientoPanelTest`: **7/7**.
-- `MovimientoServiceTest`: **50/50**.
-- `CategoriasPanelTest` + `MainFrameCategoriasTest`: **3/3**.
-- `CategoriaServiceTest`: **22/22**.
-- `InversionesPanelTest` + `MainFrameInversionesTest` + `MainFrameReportesTest`: **5/5**.
-- `CarteraActivoServiceTest` + `CarteraActivoServiceComposicionTest` + `CarteraActivoServiceMovimientosTest`: **16/16**.
+No atribuir una nueva ejecución general sin resultado informado por el usuario.
 
-No se suman estos resultados como una única cifra porque algunas baterías pueden compartir clases de prueba con ejecuciones anteriores.
+## Estado Git
 
-## Validación general
+`feature/swing-shell` continúa siendo la rama de trabajo. No se modifica ni se integra `main` automáticamente. No se crean ramas nuevas.
 
-La última suite general conocida sigue siendo la ejecutada el **01/09/2026**: **529/529 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
-
-## Incidentes conocidos
-
-Durante las ejecuciones de UI Surefire muestra un mensaje de espera posterior a `System.exit(0)`. En las ejecuciones registradas el proceso terminó con `BUILD SUCCESS`, sin failures ni errors. No se realizó ningún cambio especulativo.
-
-Una ejecución anterior involucró un `SwingApplicationTest` obsoleto presente en `target`; se resolvió mediante limpieza de Maven, sin modificar código ni tests para ocultar el problema.
-
-## Estado actual
-
-`main`: `a4be859` — `docs: crear contexto de continuidad actualizado`.
-
-`feature/swing-shell`: `66b22f3` — `fix: gestionar transaccion al registrar categoria` antes de esta actualización documental.
-
-Comparación: **139 commits adelante y 2 atrás**, estado `diverged`; merge base `96f3d999`. Los dos commits exclusivos de `main` son documentales (`39badd1` y `a4be859`).
-
-## Próximo paso
-
-Definir el próximo bloque funcional de Fase 8 a partir del código real. No hacer merge automático a `main` ni crear ramas nuevas. Antes de una eventual integración, revisar explícitamente los dos commits documentales exclusivos de `main`.
+Antes de cerrar un bloque: tests específicos, relacionados y suite general cuando corresponda; luego `git diff`, `git diff --check` y `git status`.
