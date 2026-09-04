@@ -69,6 +69,14 @@ class RegistrarMovimientoPanelTest {
 
         assertNotNull(panel.getCategoriaComboBox());
         assertNotNull(panel.getTipoMovimientoComboBox());
+        assertEquals(1, panel.getCategoriaComboBox().getItemCount());
+        assertEquals(4, panel.getTipoMovimientoComboBox().getItemCount());
+        assertEquals(0, panel.getCategoriaComboBox().getSelectedIndex());
+        assertEquals(0, panel.getTipoMovimientoComboBox().getSelectedIndex());
+        assertEquals("Seleccione...", panel.getCategoriaComboBox().getRenderer()
+                .getListCellRendererComponent(
+                        new javax.swing.JList<>(), null, 0, false, false
+                ).toString().contains("Seleccione...") ? "Seleccione..." : "");
         assertNotNull(panel.getImporteField());
         assertNotNull(panel.getFechaField());
         assertEquals(LocalDate.now(), panel.getFechaField().getDate());
@@ -126,9 +134,64 @@ class RegistrarMovimientoPanelTest {
         JComboBox<?> categorias = panel.getCategoriaComboBox();
         JButton registrar = panel.getRegistrarButton();
 
-        assertEquals(1, categorias.getItemCount());
-        assertEquals(activa, categorias.getItemAt(0));
+        assertEquals(2, categorias.getItemCount());
+        assertEquals(null, categorias.getItemAt(0));
+        assertEquals(activa, categorias.getItemAt(1));
+        assertEquals(0, categorias.getSelectedIndex());
         assertTrue(registrar.isEnabled());
+    }
+
+    @Test
+    void deberiaRechazarRegistroSiNoSeSeleccionaCategoriaOTipo() throws Exception {
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Test",
+                "ariel.registro.movimiento.validacion." + System.nanoTime(),
+                "hash"
+        );
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Test",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta(
+                "Cuenta principal",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucion,
+                moneda
+        );
+        Categoria categoria = new Categoria("Supermercado", perfil);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria);
+        entityManager.getTransaction().commit();
+
+        RegistrarMovimientoPanel panel = new RegistrarMovimientoPanel(
+                movimientoService,
+                categoriaService,
+                cuenta,
+                usuario.getId()
+        );
+        panel.getImporteField().setText("1000");
+
+        assertThrows(
+                NullPointerException.class,
+                panel::registrarMovimiento
+        );
+
+        panel.getCategoriaComboBox().setSelectedItem(categoria);
+        assertThrows(
+                NullPointerException.class,
+                panel::registrarMovimiento
+        );
     }
 
     @Test
