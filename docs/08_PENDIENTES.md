@@ -1,74 +1,69 @@
 # SOFP — Pendientes
 
-## Estado — 03/09/2026
+## Estado — 04/09/2026
 
-**Rama estable:** `main` → `a4be859` (`docs: crear contexto de continuidad actualizado`).
-**Rama de trabajo:** `feature/swing-shell` → `66b22f3` (`fix: gestionar transaccion al registrar categoria`) antes de esta actualización documental.
+**Rama estable:** `main` → `a4be859`.
+**Rama de trabajo:** `feature/swing-shell` → `70c2455` (`test: cubrir registro de categoria sin nombre`).
 
-Comparación actual conocida: **139 commits por delante y 2 commits por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`.
+Comparación: **186 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` son documentales.
 
-Los dos commits exclusivos de `main` son documentales: `39badd1` y `a4be859`.
+## Criterio funcional adoptado a partir de ControlFinanzas
 
-## Seguridad — CERRADA
+ControlFinanzas se utiliza como banco de ideas y referencia, no como arquitectura para copiar.
 
-La etapa de seguridad y aislamiento por usuario está cerrada e integrada en `main`. Se completaron autorizaciones por propietario para perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, además del cierre de caminos internos relevantes.
+El criterio acordado para SOFP es:
 
-## Fase 8 — Swing
+**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
+Los futuros paneles podrán especializarse en gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, pero todos deben alimentar el mismo núcleo financiero.
 
-`MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes y no duplica reglas de negocio.
+También se distingue **Cuenta** de **Forma/Medio de pago**. Se prevén: tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo. La tarjeta de crédito deberá poder representar una obligación/pasivo sin exigir una salida inmediata de fondos de la cuenta bancaria.
 
-## Bloques cerrados
+Objetivo de patrimonio: `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`.
 
-### Alta de movimientos
+Un préstamo otorgado debe disminuir liquidez pero permanecer como derecho de cobro. Una transferencia entre cuentas propias no debe computarse como ingreso ni gasto.
 
-Formulario integrado con `MovimientoService.registrar(...)`, categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. El listado se refresca mediante callback.
+Estos son **criterios de diseño pendientes de implementación**, no funcionalidades que deban darse por terminadas.
 
-El campo de fecha utiliza **LGoodDatePicker**, con domingo como primer día y fecha inicial igual a la fecha del sistema. La hora se toma de `LocalTime.now()` al registrar el movimiento.
+## Reglas de negocio pendientes
 
-Validación conocida: **57/57 tests verdes** en el bloque de integración/servicio.
+### Fondos insuficientes
 
-### Alta de cuentas
+`EGRESO` debe rechazarse cuando el importe sea mayor que el saldo disponible de la cuenta. Si el importe coincide con el saldo, debe permitirse y quedar en cero.
 
-`RegistrarCuentaPanel` permite tipo, institución, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`. Soporta alta con o sin transacción activa. `CuentasPanel` refresca mediante callback. `MainFrame` conserva el constructor histórico por `perfilFinancieroId` y el contextual.
+La regla debe estar en el servicio/dominio y cubrir también modificaciones de movimientos que puedan generar un saldo inválido.
 
-### Gestión de categorías
+### Categorías con movimientos
 
-`CategoriasPanel` permite gestionar categorías del perfil del usuario y delega las reglas a `CategoriaService`.
+Una categoría que ya tenga movimientos no debe eliminarse físicamente. Debe conservarse el historial y, según el diseño definitivo, impedir su eliminación y permitir su desactivación. La UI debe mostrar un mensaje comprensible en lugar de propagar una excepción de Hibernate.
 
-Validación UI/navegación: **3/3**. Validación de servicio: **22/22**. Total: **25/25 tests verdes**.
+## Bloques Swing cerrados
 
-`66b22f3` corrigió la persistencia del alta gestionando la transacción y `flush` cuando corresponde, sin duplicar las reglas de autorización.
+Están implementados e integrados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
 
-### Inversiones y reportes
+Los bloques ya validados de movimientos, cuentas, categorías, inversiones y reportes permanecen cerrados dentro de sus alcances actuales.
 
-`InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` usa `CarteraActivoService` para reportes de movimientos. Ambos están integrados en `MainFrame`.
+La gestión de categorías continúa recibiendo cobertura incremental. `70c2455` agregó el caso de registro sin nombre.
 
-Validación UI: **5/5**. Validación de servicios: **16/16**. Total: **21/21 tests verdes**.
+## Próximos bloques funcionales candidatos
 
-## Pendientes funcionales
+1. Fortalecer las reglas financieras del núcleo de movimientos, empezando por fondos insuficientes.
+2. Resolver correctamente la eliminación/desactivación de categorías con movimientos asociados.
+3. Definir e incorporar `FormaPago` sin confundirla con `Cuenta`.
+4. Evolucionar movimientos especializados para gastos, ingresos y transferencias manteniendo el núcleo común.
+5. Incorporar progresivamente pasivos/obligaciones y patrimonio neto.
+6. Llevar a SOFP, adaptadas a su arquitectura, las capacidades de análisis que resultaron valiosas en ControlFinanzas: resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
 
-No queda pendiente un arreglo dentro de los bloques validados de movimientos, cuentas, categorías, inversiones o reportes.
+El orden definitivo debe decidirse después de revisar el código y tests actuales del bloque elegido.
 
-El próximo trabajo debe definirse como un nuevo bloque funcional de Fase 8, revisando antes el código actual, clases relacionadas, servicios, repositorios, reglas de negocio y tests.
+## Validación
 
-No asumir que `LoginPanel` constituye por sí mismo el próximo bloque: debe analizarse su integración real y la cobertura existente antes de decidir.
+`CategoriasPanelTest`: **3/3** en verde en la última ejecución conocida.
 
-## Pendientes de validación
+Última suite general conocida: **568/568 tests en verde**, `BUILD SUCCESS`. No atribuir una nueva suite general sin resultado informado por el usuario.
 
-La última suite general conocida continúa siendo **529/529**, ejecutada el 01/09/2026. Antes de cerrar un nuevo bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
+Antes de cerrar cada bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
 
-## Pendientes de integración
+## Integración
 
-No hacer merge a `main` automáticamente. Antes de considerar una integración, revisar los commits actuales, comparar nuevamente con `main` y tratar explícitamente los dos commits documentales exclusivos de `main`.
-
-## Incidentes conocidos
-
-Surefire muestra un mensaje posterior a `System.exit(0)` durante algunas pruebas Swing, pero las ejecuciones registradas terminan con `BUILD SUCCESS`. No se considera un fallo ni se modifica código especulativamente por ese mensaje.
-
-Durante una prueba manual hubo una modificación accidental de `RegistrarMovimientoPanel.java` al escribir sobre el código. El archivo fue corregido y el posterior `git syncsofp` confirmó árbol limpio y sincronizado.
-
-## Continuidad
-
-`feature/swing-shell` sigue siendo la rama activa. No crear ramas nuevas. En una nueva sesión reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
+No hacer merge a `main` automáticamente. No crear ramas nuevas. Antes de una eventual integración, revisar commits, comparación con `main`, tests, diff, diff-check, status y documentación.
