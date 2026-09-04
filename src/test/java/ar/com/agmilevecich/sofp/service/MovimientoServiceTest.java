@@ -562,6 +562,21 @@ class MovimientoServiceTest {
     @Test
     void deberiaModificarTipoMovimiento() {
 
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(
+                        2026,
+                        8,
+                        14,
+                        9,
+                        0
+                ),
+                "Saldo inicial"
+        );
+
         Movimiento movimiento =
                 movimientoService.registrar(
                         cuenta,
