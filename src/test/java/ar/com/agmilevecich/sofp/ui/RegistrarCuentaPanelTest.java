@@ -21,6 +21,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,6 +73,14 @@ class RegistrarCuentaPanelTest {
         assertNotNull(panel.getTipoCuentaComboBox());
         assertNotNull(panel.getInstitucionComboBox());
         assertNotNull(panel.getMonedaComboBox());
+        assertEquals(0, panel.getTipoCuentaComboBox().getSelectedIndex());
+        assertEquals(0, panel.getInstitucionComboBox().getSelectedIndex());
+        assertEquals(0, panel.getMonedaComboBox().getSelectedIndex());
+        JLabel renderer = (JLabel) panel.getTipoCuentaComboBox().getRenderer()
+                .getListCellRendererComponent(
+                        new javax.swing.JList<>(), null, 0, false, false
+                );
+        assertEquals("Seleccione...", renderer.getText());
         assertNotNull(panel.getIdentificadorExternoField());
         assertFalse(panel.getRegistrarButton().isEnabled());
     }
@@ -143,9 +153,11 @@ class RegistrarCuentaPanelTest {
         ));
 
         RegistrarCuentaPanel panel = panelRef.get();
-        assertEquals(1, panel.getInstitucionComboBox().getItemCount());
-        assertEquals(activa, panel.getInstitucionComboBox().getItemAt(0));
-        assertEquals(2, panel.getMonedaComboBox().getItemCount());
+        assertEquals(2, panel.getInstitucionComboBox().getItemCount());
+        assertNull(panel.getInstitucionComboBox().getItemAt(0));
+        assertEquals(activa, panel.getInstitucionComboBox().getItemAt(1));
+        assertEquals(3, panel.getMonedaComboBox().getItemCount());
+        assertNull(panel.getMonedaComboBox().getItemAt(0));
         assertFalse(panel.getRegistrarButton().isEnabled());
     }
 
@@ -220,6 +232,9 @@ class RegistrarCuentaPanelTest {
                 usuario.getId()
         );
         panel.getNombreField().setText("Cuenta sin identificador");
+        panel.getTipoCuentaComboBox().setSelectedItem(TipoCuenta.CAJA_AHORRO);
+        panel.getInstitucionComboBox().setSelectedItem(institucion);
+        panel.getMonedaComboBox().setSelectedItem(moneda);
         panel.registrarCuenta();
 
         entityManager.clear();
