@@ -2,9 +2,18 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
+import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.TipoMoneda;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
+import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -12,6 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.SwingUtilities;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -153,5 +165,72 @@ class CategoriasPanelTest {
                 perfil.getId(), usuario.getId()
         ).isEmpty());
         assertEquals(0, panel.getListaCategorias().getModel().getSize());
+    }
+
+    @Test
+    void deberiaDesactivarCategoriaConMovimientosDesdeLaInterfazYConservarElHistorial() throws Exception {
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco de Prueba",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Moneda moneda = new Moneda(
+                "ARS",
+                "Peso argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+        Cuenta cuenta = new Cuenta(
+                "Cuenta principal",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucion,
+                moneda
+        );
+        Categoria categoria = new Categoria("Alimentación", perfil);
+        Movimiento movimiento = new Movimiento(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("1000.00"),
+                LocalDateTime.of(2026, 9, 4, 10, 0),
+                "Movimiento histórico"
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria);
+        entityManager.persist(movimiento);
+        entityManager.getTransaction().commit();
+
+        AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new CategoriasPanel(categoriaService, perfil, usuario.getId())
+        ));
+        CategoriasPanel panel = panelRef.get();
+
+        assertEquals(1, panel.getListaCategorias().getModel().getSize());
+
+        SwingUtilities.invokeAndWait(() -> {
+            panel.getListaCategorias().setSelectedIndex(0);
+            panel.getEliminarButton().doClick();
+        });
+
+        List<Categoria> categorias = categoriaService.listarPorPerfilFinanciero(
+                perfil.getId(), usuario.getId()
+        );
+        assertEquals(1, categorias.size());
+        assertFalse(categorias.get(0).isActiva());
+        assertEquals("Alimentación (inactiva)", panel.getListaCategorias().getModel().getElementAt(0));
+
+        entityManager.clear();
+        Categoria conservada = categoriaService.buscarPorId(categoria.getId()).orElseThrow();
+        assertFalse(conservada.isActiva());
+
+        List<Movimiento> movimientos = new MovimientoRepository(entityManager)
+                .listarPorCategoria(categoria.getId());
+        assertEquals(1, movimientos.size());
+        assertEquals(movimiento.getId(), movimientos.get(0).getId());
     }
 }
