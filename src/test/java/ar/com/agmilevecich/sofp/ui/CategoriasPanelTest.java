@@ -225,7 +225,10 @@ class CategoriasPanelTest {
         assertEquals("Alimentación (inactiva)", panel.getListaCategorias().getModel().getElementAt(0));
 
         entityManager.clear();
-        Categoria conservada = categoriaService.buscarPorId(categoria.getId()).orElseThrow();
+        Categoria conservada = categoriaService
+                .listarPorPerfilFinanciero(perfil.getId(), usuario.getId())
+                .get(0);
+        assertEquals(categoria.getId(), conservada.getId());
         assertFalse(conservada.isActiva());
 
         List<Movimiento> movimientos = new MovimientoRepository(entityManager)
