@@ -12,6 +12,7 @@ import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -99,13 +100,15 @@ class MovimientoFondosInsuficientesTest {
 
         registrarEgreso("100000.00");
 
+        CuentaService cuentaService = new CuentaService(
+                new CuentaRepository(entityManager),
+                new MovimientoRepository(entityManager),
+                entityManager
+        );
+
         assertEquals(
                 BigDecimal.ZERO,
-                new CuentaService(
-                        new ar.com.agmilevecich.sofp.persistence.CuentaRepository(entityManager),
-                        new MovimientoRepository(entityManager),
-                        entityManager
-                ).calcularSaldo(cuenta.getId(), usuario.getId())
+                cuentaService.calcularSaldo(cuenta.getId(), usuario.getId())
         );
     }
 
@@ -156,6 +159,15 @@ class MovimientoFondosInsuficientesTest {
     @Test
     void deberiaRechazarCambiarIngresoAEgresoSinFondosSuficientes() {
         Movimiento ingreso = registrarIngreso("100000.00");
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("60000.00"),
+                LocalDateTime.of(2026, 9, 4, 11, 0),
+                "Egreso de prueba",
+                usuario.getId()
+        );
 
         assertThrows(
                 IllegalArgumentException.class,
