@@ -9,15 +9,12 @@ import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JList;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -50,10 +47,8 @@ public class RegistrarMovimientoPanel extends JPanel {
         cuenta = null;
         usuarioId = null;
         onMovimientoRegistrado = null;
-        categoriaComboBox = new JComboBox<>();
-        tipoMovimientoComboBox = new JComboBox<>();
-        configurarComboBox(categoriaComboBox);
-        configurarComboBox(tipoMovimientoComboBox);
+        categoriaComboBox = new ComboBoxConSeleccione<>();
+        tipoMovimientoComboBox = new ComboBoxConSeleccione<>();
         agregarTiposMovimiento();
         importeField = new JTextField(16);
         fechaField = crearFechaPicker();
@@ -91,10 +86,8 @@ public class RegistrarMovimientoPanel extends JPanel {
         this.cuenta = Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
         this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         this.onMovimientoRegistrado = onMovimientoRegistrado;
-        categoriaComboBox = new JComboBox<>();
-        tipoMovimientoComboBox = new JComboBox<>();
-        configurarComboBox(categoriaComboBox);
-        configurarComboBox(tipoMovimientoComboBox);
+        categoriaComboBox = new ComboBoxConSeleccione<>();
+        tipoMovimientoComboBox = new ComboBoxConSeleccione<>();
         agregarTiposMovimiento();
         importeField = new JTextField(16);
         fechaField = crearFechaPicker();
@@ -173,22 +166,6 @@ public class RegistrarMovimientoPanel extends JPanel {
         add(etiqueta, constraints);
         constraints.gridx = 1;
         add(campo, constraints);
-    }
-
-    private <T> void configurarComboBox(JComboBox<T> comboBox) {
-        comboBox.addItem(null);
-        comboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list,
-                                                           Object value,
-                                                           int index,
-                                                           boolean isSelected,
-                                                           boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                setText(value == null ? "Seleccione..." : value.toString());
-                return this;
-            }
-        });
     }
 
     private void agregarTiposMovimiento() {
@@ -281,7 +258,7 @@ public class RegistrarMovimientoPanel extends JPanel {
         importeField.setText("");
         fechaField.clear();
         descripcionField.setText("");
-        categoriaComboBox.setSelectedIndex(categoriaComboBox.getItemCount() > 0 ? 0 : -1);
+        categoriaComboBox.setSelectedIndex(0);
         tipoMovimientoComboBox.setSelectedIndex(0);
     }
 }
