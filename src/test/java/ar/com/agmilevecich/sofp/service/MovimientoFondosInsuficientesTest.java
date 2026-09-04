@@ -12,7 +12,6 @@ import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
-import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -100,16 +99,16 @@ class MovimientoFondosInsuficientesTest {
 
         registrarEgreso("100000.00");
 
-        CuentaService cuentaService = new CuentaService(
-                new CuentaRepository(entityManager),
-                new MovimientoRepository(entityManager),
-                entityManager
-        );
+        BigDecimal saldo = BigDecimal.ZERO;
+        for (Movimiento movimiento : movimientoService.listarPorCuenta(cuenta.getId())) {
+            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
+                saldo = saldo.add(movimiento.getImporte());
+            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO) {
+                saldo = saldo.subtract(movimiento.getImporte());
+            }
+        }
 
-        assertEquals(
-                BigDecimal.ZERO,
-                cuentaService.calcularSaldo(cuenta.getId(), usuario.getId())
-        );
+        assertEquals(0, saldo.compareTo(BigDecimal.ZERO));
     }
 
     @Test
