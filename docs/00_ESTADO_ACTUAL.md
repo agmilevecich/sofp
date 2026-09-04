@@ -4,14 +4,14 @@
 
 ## Estado verificado — 04/09/2026
 
-**Rama estable:** `main` → `a4be859` (`docs: crear contexto de continuidad actualizado`).
-**Rama de trabajo:** `feature/swing-shell` → `70c2455` (`test: cubrir registro de categoria sin nombre`).
+**Rama estable:** `main` → `a4be859`.
+**Rama de trabajo:** `feature/swing-shell` → `2b2bf3e` como último commit funcional/test, seguido por actualizaciones documentales de continuidad.
 
-La rama de trabajo está **186 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales y no se incorporan automáticamente.
+La rama de trabajo continúa divergida respecto de `main`. Los commits exclusivos de `main` conocidos son documentales y no se incorporan automáticamente.
 
 ## Estado funcional
 
-La Fase 8 continúa sobre el shell Swing integrado con cuentas, categorías, movimientos, inversiones y reportes. Los cambios conceptuales derivados del análisis de `ControlFinanzas` se adoptaron como **criterios de diseño para los próximos bloques**, no como funcionalidades ya implementadas.
+La Fase 8 continúa sobre el shell Swing integrado con cuentas, categorías, movimientos, inversiones y reportes. Los cambios conceptuales derivados del análisis de `ControlFinanzas` se adoptaron como criterios de diseño para los próximos bloques, no como funcionalidades ya implementadas.
 
 Criterio central acordado:
 
@@ -19,7 +19,7 @@ Criterio central acordado:
 
 Los paneles pueden representar gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, pero deben converger en el mismo núcleo financiero sin duplicar reglas de negocio.
 
-Se adoptó además el criterio de distinguir **cuenta** de **medio/forma de pago**. Las formas previstas son tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo. `FormaPago` deberá integrarse al modelo cuando corresponda, sin confundirlo con la cuenta afectada.
+Se adoptó además el criterio de distinguir **Cuenta** de **medio/forma de pago**. Las formas previstas son tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo. `FormaPago` deberá integrarse al modelo cuando corresponda, sin confundirlo con la cuenta afectada.
 
 La tarjeta de crédito requiere tratamiento diferenciado: una compra puede generar una obligación/pasivo sin producir inmediatamente una salida de fondos de una cuenta bancaria.
 
@@ -29,17 +29,17 @@ Los préstamos otorgados deben representar un derecho de cobro: disminuyen la li
 
 Las transferencias entre cuentas propias no deben contabilizarse como ingreso ni gasto.
 
-## Reglas de negocio pendientes detectadas
+## Regla implementada — Fondos insuficientes
 
-### Fondos insuficientes
+**Estado: completada y validada.**
 
-Un `EGRESO` no debe poder registrarse si supera el saldo disponible de la cuenta. El importe igual al saldo disponible debe permitirse y dejar saldo cero. La validación corresponde al servicio/dominio financiero, no solamente a Swing.
+Un `EGRESO` no puede superar el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible está permitido y deja saldo cero.
 
-También deberá revisarse la modificación de movimientos para impedir que cambiar importe o tipo de un movimiento produzca un saldo inválido.
+La regla está implementada en `MovimientoService` y se aplica al registro público de movimientos y a las modificaciones de importe y tipo que puedan producir un saldo inválido. Al modificar un movimiento, el cálculo excluye correctamente el movimiento actual.
 
-### Categorías con movimientos
+Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
-No debe eliminarse físicamente una categoría que ya esté referenciada por movimientos. La alternativa prevista es impedir la eliminación y mantener/desactivar la categoría para conservar el historial financiero, mostrando un mensaje amigable en la UI.
+Cobertura específica: `MovimientoFondosInsuficientesTest` **6/6**.
 
 ## Estado Swing
 
@@ -49,30 +49,46 @@ Implementados y conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioP
 
 El formulario de movimientos utiliza LGoodDatePicker para la fecha y obtiene automáticamente la hora mediante `LocalTime.now()` al registrar.
 
-## Validación reciente
+## Validaciones recientes
 
-`CategoriasPanelTest`: **3/3 tests en verde**, `BUILD SUCCESS` (04/09/2026).
+Pruebas relacionadas con movimientos después de implementar fondos insuficientes:
 
-El último test agregado cubre el rechazo de registro de una categoría sin nombre mediante `IllegalArgumentException`; el cambio está en `70c2455`. citeturn59file0
+- `MovimientoFondosInsuficientesTest`: **6/6**;
+- `MovimientoServiceTest`: **57/57**;
+- `RegistrarMovimientoPanelTest`: **4/4**.
 
-La última suite general conocida continúa siendo **568/568 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`. No se debe atribuir una nueva ejecución general a la jornada actual sin que sea informada.
+Suite general más reciente: **577/577 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+
+Comando: `mvn clean test`.
+
+Duración: **11:16 min**.
+
+Finalización: **04/09/2026 18:54:20 -03:00**.
+
+El fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` fue adaptado agregando un ingreso previo independiente, manteniendo la intención del test bajo la nueva regla de fondos disponibles. Commit: `2b2bf3e`.
 
 ## Últimos cambios funcionales/test
 
-- `70c2455` — `test: cubrir registro de categoria sin nombre`;
-- `6eefc36` — `fix: manejar error al registrar categoria`;
-- `b284368` — `test: cubrir representacion de categoria`;
-- `22f0e81` — `feat: mostrar nombre de categoria en combobox`;
-- `22920c6` — `fix: mostrar nombre al seleccionar perfil`;
-- `1e6f851` — `feat: separar seleccion de perfil de dialogo Swing`;
-- `33e392c` — `fix: usar panel de movimientos en shell`.
+- `2b2bf3e` — `test: adaptar cambio de tipo a fondos disponibles`;
+- `805e9fa` — `test: corregir comparacion de saldo en movimiento`;
+- `8b44177` — `test: corregir cobertura de cambio de tipo con fondos insuficientes`;
+- `6fb37dc` — `test: cubrir validacion de fondos insuficientes`;
+- `5dd8372` — `fix: validar fondos disponibles en movimientos`;
+- `5ce00a2` — `docs: registrar decisiones funcionales de SOFP`;
+- `1838f1b` — `docs: actualizar contexto de continuidad`.
 
-## Incidentes conocidos
+## Reglas de negocio pendientes detectadas
 
-Durante las pruebas Swing Surefire puede mostrar el mensaje posterior a `System.exit(0)`. En las ejecuciones registradas que terminaron en `BUILD SUCCESS` no se considera un fallo funcional.
+### Categorías con movimientos
+
+No debe eliminarse físicamente una categoría que ya esté referenciada por movimientos. Debe conservarse el historial financiero y debe evaluarse la desactivación como comportamiento de negocio.
+
+La UI debe traducir la regla a un mensaje comprensible y no exponer directamente una excepción de integridad referencial de Hibernate.
 
 ## Próximo paso
 
-Antes de implementar los criterios derivados de ControlFinanzas, reconstruir nuevamente el código real y revisar `Movimiento`, `MovimientoService`, `CuentaService`, `CategoriaService`, repositorios, `FormaPago`/modelado relacionado y tests. El próximo bloque debe comenzar por una funcionalidad concreta y pequeña, con sus reglas de negocio y pruebas correspondientes.
+Antes de implementar el siguiente bloque, reconstruir nuevamente el código real y revisar `Categoria`, `CategoriaService`, repositorios, `Movimiento`, relaciones JPA y tests relacionados.
+
+El próximo bloque funcional previsto es resolver la eliminación/desactivación de categorías con movimientos asociados, evitando el borrado físico y preservando el historial.
 
 No se realizó merge a `main` y no se crean ramas nuevas.
