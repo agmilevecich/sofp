@@ -27,6 +27,7 @@ class CategoriaTest {
         );
 
         assertEquals("Supermercado", categoria.getNombre());
+        assertEquals("Supermercado", categoria.toString());
         assertTrue(categoria.isActiva());
         assertEquals(perfil, categoria.getPerfilFinanciero());
     }
