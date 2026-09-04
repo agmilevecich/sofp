@@ -2,21 +2,50 @@
 
 ## Estado de validación — 04/09/2026
 
-### Gestión de categorías
+### Suite general
 
-`CategoriasPanelTest`: **3/3 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+Última ejecución general registrada en `feature/swing-shell`:
 
-El último caso agregado verifica que registrar una categoría sin nombre sea rechazado con `IllegalArgumentException` y que no se agregue a la lista. citeturn59file0
+- comando: `mvn clean test`;
+- Tests run: **577**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **11:16 min**;
+- finalización: **04/09/2026 18:54:20 -03:00**.
+
+Esta es la validación general vigente. No asumir ejecuciones posteriores sin resultado informado por el usuario.
+
+### Fondos insuficientes
+
+`MovimientoFondosInsuficientesTest`: **6/6 tests en verde**.
+
+Casos cubiertos:
+
+1. egreso menor al saldo disponible;
+2. egreso igual al saldo disponible, dejando saldo cero;
+3. egreso mayor al saldo, rechazado;
+4. modificación de egreso dentro del saldo disponible;
+5. modificación que produciría saldo negativo, rechazada;
+6. cambio de `INGRESO` a `EGRESO` cuando no existen fondos suficientes, rechazado.
+
+La regla se valida en el servicio y contempla también modificaciones de movimientos.
 
 ### Movimientos
 
-Las baterías conocidas del bloque continúan validadas:
+Validación posterior a la incorporación de fondos insuficientes:
 
-- `RegistrarMovimientoPanelTest` + `MainFrameMovimientosTest`: **7/7**;
-- `MovimientoServiceTest`: **50/50**;
-- total conocido del bloque: **57/57**.
+- `MovimientoServiceTest`: **57/57**;
+- `RegistrarMovimientoPanelTest`: **4/4**.
 
-El selector de fecha utiliza LGoodDatePicker y la hora se obtiene mediante `LocalTime.now()` al registrar.
+El caso `MovimientoServiceTest.deberiaModificarTipoMovimiento` fue adaptado con un ingreso previo independiente para que la conversión de un movimiento de 50.000 a egreso sea válida bajo la nueva regla de fondos. El cambio está en `2b2bf3e` y conserva la intención del test.
+
+### Gestión de categorías
+
+`CategoriasPanelTest`: **3/3 tests en verde** en la validación conocida anterior.
+
+El caso agregado cubre el rechazo de registro de una categoría sin nombre mediante `IllegalArgumentException`.
 
 ### Inversiones y reportes
 
@@ -30,13 +59,23 @@ Las baterías conocidas continúan validadas:
 
 `RegistrarCuentaPanelTest` y `CuentasPanelTest` cubren construcción, dependencias, instituciones activas, monedas, alta, persistencia, identificador externo vacío, listado autorizado, refresco y rechazo de perfil ajeno.
 
-## Nuevas reglas que deberán cubrirse
+## Próxima cobertura necesaria
 
-Cuando se implemente el control de fondos insuficientes, los tests deberán contemplar como mínimo: egreso menor al saldo, egreso igual al saldo, egreso mayor al saldo, importe inválido/null cuando corresponda y modificaciones que puedan dejar saldo negativo.
+### Categorías con movimientos
 
-Cuando se resuelva la eliminación de categorías, deberán cubrirse categoría sin movimientos, categoría con movimientos y conservación del historial, además de la respuesta de la UI ante la regla de negocio.
+Cuando se resuelva la eliminación de categorías, deberán cubrirse como mínimo:
 
-Cuando se incorpore `FormaPago`, deberán cubrirse sus relaciones con el movimiento y la distinción entre cuenta afectada y medio de pago.
+- categoría sin movimientos;
+- categoría con movimientos;
+- conservación del historial;
+- rechazo del borrado físico cuando corresponda;
+- desactivación de la categoría;
+- respuesta amigable de la UI ante la regla de negocio;
+- comportamiento ante categoría inexistente y casos límite relevantes.
+
+### FormaPago
+
+Cuando se incorpore `FormaPago`, deberán cubrirse sus relaciones con el movimiento y la distinción entre cuenta afectada y medio de pago, incluyendo los casos particulares de tarjeta de crédito.
 
 ## Cobertura Swing
 
@@ -45,12 +84,6 @@ Tests relacionados: `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigation
 ## Seguridad
 
 `AislamientoDatosServiceTest`: **7/7** en verde. La seguridad cubre autorización por propietario en perfiles, cuentas, categorías, movimientos, operaciones financieras y posiciones/cartera.
-
-## Última suite general conocida
-
-**568/568 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-
-Esta cifra es la última conocida y no debe actualizarse con una ejecución no informada por el usuario.
 
 ## Criterio de validación
 
