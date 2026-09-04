@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CategoriasPanelTest {
@@ -86,6 +87,22 @@ class CategoriasPanelTest {
                 perfil.getId(),
                 usuario.getId()
         ).size());
+    }
+
+    @Test
+    void deberiaRechazarRegistroSinNombre() throws Exception {
+        AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new CategoriasPanel(categoriaService, perfil, usuario.getId())
+        ));
+        CategoriasPanel panel = panelRef.get();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                panel::registrarCategoria
+        );
+
+        assertEquals(0, panel.getListaCategorias().getModel().getSize());
     }
 
     @Test
