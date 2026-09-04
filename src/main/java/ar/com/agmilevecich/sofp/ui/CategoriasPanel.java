@@ -175,17 +175,26 @@ public class CategoriasPanel extends JPanel {
         if (categoria == null) {
             return;
         }
-        categoriaService.modificarNombre(
-                categoria.getId(),
-                usuarioId,
-                nombreField.getText()
-        );
-        categoriaService.modificarDescripcion(
-                categoria.getId(),
-                usuarioId,
-                descripcionArea.getText().isBlank() ? null : descripcionArea.getText()
-        );
-        actualizarCategorias();
+        try {
+            categoriaService.modificarNombre(
+                    categoria.getId(),
+                    usuarioId,
+                    nombreField.getText()
+            );
+            categoriaService.modificarDescripcion(
+                    categoria.getId(),
+                    usuarioId,
+                    descripcionArea.getText().isBlank() ? null : descripcionArea.getText()
+            );
+            actualizarCategorias();
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "No se pudo modificar la categoría",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void cambiarEstado(ActionEvent event) {
@@ -193,12 +202,21 @@ public class CategoriasPanel extends JPanel {
         if (categoria == null) {
             return;
         }
-        if (categoria.isActiva()) {
-            categoriaService.desactivar(categoria.getId(), usuarioId);
-        } else {
-            categoriaService.activar(categoria.getId(), usuarioId);
+        try {
+            if (categoria.isActiva()) {
+                categoriaService.desactivar(categoria.getId(), usuarioId);
+            } else {
+                categoriaService.activar(categoria.getId(), usuarioId);
+            }
+            actualizarCategorias();
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "No se pudo cambiar el estado de la categoría",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
-        actualizarCategorias();
     }
 
     private void eliminarCategoria(ActionEvent event) {
@@ -206,9 +224,27 @@ public class CategoriasPanel extends JPanel {
         if (categoria == null) {
             return;
         }
-        categoriaService.eliminar(categoria.getId(), usuarioId);
-        actualizarCategorias();
-        limpiarFormulario();
+        try {
+            boolean eliminada = categoriaService.eliminar(categoria.getId(), usuarioId);
+            actualizarCategorias();
+            if (eliminada) {
+                limpiarFormulario();
+                return;
+            }
+            JOptionPane.showMessageDialog(
+                    this,
+                    "La categoría tiene movimientos asociados y no puede eliminarse. Se desactivó para conservar el historial.",
+                    "Categoría desactivada",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "No se pudo eliminar la categoría",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     void actualizarCategorias() {
