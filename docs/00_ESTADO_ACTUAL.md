@@ -5,15 +5,15 @@
 ## Estado verificado — 03/09/2026
 
 **Rama estable:** `main` → `a4be859` (`docs: crear contexto de continuidad actualizado`).
-**Rama de trabajo:** `feature/swing-shell` → `66b22f3` (`fix: gestionar transaccion al registrar categoria`).
+**Rama de trabajo:** `feature/swing-shell` → `33e392c` (`fix: usar panel de movimientos en shell`).
 
-La rama de trabajo está **139 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales y no se incorporan automáticamente.
+La rama de trabajo está **175 commits por delante y 2 por detrás de `main`**, estado `diverged`. Merge base: `96f3d999`. Los dos commits exclusivos de `main` (`39badd1` y `a4be859`) son documentales y no se incorporan automáticamente.
 
 ## Estado Git local verificado — 03/09/2026
 
-El usuario ejecutó `git syncsofp` y obtuvo `Already up to date` / `Everything up-to-date`.
+El usuario ejecutó `git syncsofp` y posteriormente `git status`, `git diff` y `git diff --check`.
 
-Posteriormente `git status` informó `On branch feature/swing-shell` y `nothing to commit, working tree clean`. La validación final incluyó `git diff` y `git diff --check`, sin cambios ni errores.
+Resultado: `On branch feature/swing-shell` y `nothing to commit, working tree clean`. `git diff` no mostró cambios y `git diff --check` no informó errores.
 
 ## Validación vigente
 
@@ -61,14 +61,32 @@ Implementados y conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioP
 
 `MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes y no duplica reglas de negocio.
 
-## Validación general conocida
+### Corrección de navegación de Movimientos
 
-La última suite general conocida continúa siendo la ejecutada el **01/09/2026**: **529/529 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, 14:25 min, finalización 19:25:53 -03:00.
+En `33e392c` se reemplazó el `JPanel` genérico utilizado como tarjeta de Movimientos por el `MovimientosPanel` existente. El cambio fue mínimo y corrigió el fallo de `MainFrameNavigationTest` sin modificar el test.
 
-Las validaciones específicas del 03/09/2026 no sustituyen todavía una nueva suite general.
+## Validación general
+
+Suite completa ejecutada el **03/09/2026**:
+
+- **567/567 tests en verde**;
+- Failures: 0;
+- Errors: 0;
+- Skipped: 0;
+- `BUILD SUCCESS`;
+- Duración: **19:25 min**;
+- Finalización: **21:01:44 -03:00**.
+
+Validaciones inmediatamente relacionadas con la corrección:
+
+- `MainFrameNavigationTest`: **1/1** en verde.
+- `MainFrameLayoutTest` + `MainFrameMovimientosTest`: **4/4** en verde.
+
+El mensaje de Surefire posterior a `System.exit(0)` apareció durante las pruebas, pero la suite terminó con `BUILD SUCCESS`, sin failures ni errors.
 
 ## Últimos cambios de código/test
 
+- `33e392c` — `fix: usar panel de movimientos en shell`;
 - `66b22f3` — `fix: gestionar transaccion al registrar categoria`;
 - `e873832` — `test: verificar fecha del sistema en selector de movimientos`;
 - `f820dff` — `feat: mostrar fecha del sistema en selector de movimientos`;
@@ -85,7 +103,7 @@ Durante una prueba manual hubo una modificación accidental de `RegistrarMovimie
 
 ## Criterio de estado
 
-Los bloques de alta de movimientos, alta de cuentas, gestión de categorías, inversiones y reportes están cerrados dentro de sus alcances validados. El selector de fecha/hora de movimientos también está validado individualmente.
+Los bloques de alta de movimientos, alta de cuentas, gestión de categorías, inversiones y reportes están cerrados dentro de sus alcances validados. El selector de fecha/hora de movimientos también está validado individualmente. La navegación del shell Swing queda validada tras la corrección de `MainFrame`.
 
 No se realizó merge a `main` y no se crean ramas nuevas.
 
