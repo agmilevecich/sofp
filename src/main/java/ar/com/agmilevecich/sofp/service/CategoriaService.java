@@ -187,20 +187,21 @@ public class CategoriaService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
     }
 
-    public Categoria eliminar(Long categoriaId, Long usuarioId) {
+    public boolean eliminar(Long categoriaId, Long usuarioId) {
         validarIds(categoriaId, usuarioId);
         Categoria categoria = obtenerCategoriaAutorizada(categoriaId, usuarioId);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            if (!movimientoRepository.listarPorCategoria(categoriaId).isEmpty()) {
-                categoria.desactivar();
-            } else {
+            boolean eliminada = movimientoRepository.listarPorCategoria(categoriaId).isEmpty();
+            if (eliminada) {
                 categoriaRepository.eliminar(categoria);
+            } else {
+                categoria.desactivar();
             }
             entityManager.flush();
             transaction.commit();
-            return categoria;
+            return eliminada;
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
