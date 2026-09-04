@@ -167,7 +167,7 @@ class CategoriaServiceTest {
         Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
         Long categoriaId = categoria.getId();
 
-        categoriaService.eliminar(categoriaId, usuario.getId());
+        assertTrue(categoriaService.eliminar(categoriaId, usuario.getId()));
 
         assertTrue(categoriaService.buscarPorId(categoriaId).isEmpty());
     }
@@ -213,7 +213,7 @@ class CategoriaServiceTest {
         entityManager.persist(movimiento);
         entityManager.getTransaction().commit();
 
-        categoriaService.eliminar(categoria.getId(), usuario.getId());
+        assertFalse(categoriaService.eliminar(categoria.getId(), usuario.getId()));
         entityManager.clear();
 
         Categoria conservada = categoriaService.buscarPorId(categoria.getId()).orElseThrow();
