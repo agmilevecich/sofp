@@ -20,6 +20,6 @@ class MainTest {
         );
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
 
-        assertSame(perfil, Main.seleccionarPerfil(List.of(perfil)));
+        assertSame(perfil, Main.seleccionarPerfil(null, List.of(perfil)));
     }
 }
