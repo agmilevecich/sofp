@@ -33,7 +33,7 @@ public class ComboBoxConSeleccione<T> extends JComboBox<T> {
     }
 
     private boolean esPlaceholder(Object value) {
-        return value == PLACEHOLDER;
+        return value == null || value == PLACEHOLDER;
     }
 
     @Override
