@@ -151,8 +151,7 @@ public class CategoriasPanel extends JPanel {
         try {
             registrarCategoria();
         } catch (RuntimeException e) {
-            JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensaje(
                     e.getMessage(),
                     "No se pudo registrar la categoría",
                     JOptionPane.ERROR_MESSAGE
@@ -188,8 +187,7 @@ public class CategoriasPanel extends JPanel {
             );
             actualizarCategorias();
         } catch (RuntimeException e) {
-            JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensaje(
                     e.getMessage(),
                     "No se pudo modificar la categoría",
                     JOptionPane.ERROR_MESSAGE
@@ -210,8 +208,7 @@ public class CategoriasPanel extends JPanel {
             }
             actualizarCategorias();
         } catch (RuntimeException e) {
-            JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensaje(
                     e.getMessage(),
                     "No se pudo cambiar el estado de la categoría",
                     JOptionPane.ERROR_MESSAGE
@@ -231,20 +228,22 @@ public class CategoriasPanel extends JPanel {
                 limpiarFormulario();
                 return;
             }
-            JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensaje(
                     "La categoría tiene movimientos asociados y no puede eliminarse. Se desactivó para conservar el historial.",
                     "Categoría desactivada",
                     JOptionPane.INFORMATION_MESSAGE
             );
         } catch (RuntimeException e) {
-            JOptionPane.showMessageDialog(
-                    this,
+            mostrarMensaje(
                     e.getMessage(),
                     "No se pudo eliminar la categoría",
                     JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    void mostrarMensaje(String mensaje, String titulo, int tipoMensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, titulo, tipoMensaje);
     }
 
     void actualizarCategorias() {
