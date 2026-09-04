@@ -28,7 +28,7 @@ Validación individual registrada: `RegistrarMovimientoPanelTest` **4/4**, `BUIL
 
 `6eefc36` corrigió el manejo del error al registrar categoría y `70c2455` agregó cobertura del registro sin nombre.
 
-Última validación conocida: `CategoriasPanelTest` **3/3** en verde.
+Última validación conocida anterior al bloque de fondos: `CategoriasPanelTest` **3/3** en verde.
 
 ## 2026-09-04 — Criterios funcionales derivados de ControlFinanzas
 
@@ -48,24 +48,42 @@ El objetivo de largo plazo es representar activos, pasivos y patrimonio neto med
 
 Estos criterios quedan registrados como decisiones de diseño/roadmap y **no como funcionalidades implementadas**.
 
-## 2026-09-04 — Reglas de negocio detectadas
+## 2026-09-04 — Fondos insuficientes: implementación y validación
 
-Se identificó la necesidad de impedir un `EGRESO` que supere el saldo disponible de la cuenta. El egreso igual al saldo debe permitirse y dejar saldo cero. La regla debe vivir en el servicio/dominio y contemplar también modificaciones de movimientos.
+Se implementó en `MovimientoService` la regla que rechaza un `EGRESO` cuando supera el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible se permite y deja saldo cero.
 
-También se identificó que una categoría con movimientos asociados no debe eliminarse físicamente, para no romper el historial. Debe evaluarse su desactivación y una respuesta amigable de la UI ante el intento de eliminación.
+La validación también cubre modificaciones de importe y tipo de movimiento cuando pueden producir saldo negativo, excluyendo correctamente el movimiento actual del cálculo de fondos disponibles.
+
+Commit de producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
+
+Cobertura específica: `MovimientoFondosInsuficientesTest` **6/6**.
+
+Cobertura relacionada: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
+
+Se ajustó el fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` mediante un ingreso previo independiente para que la conversión de 50.000 a egreso sea válida bajo la nueva regla, sin cambiar la intención del test. Commit: `2b2bf3e`.
+
+## 2026-09-04 — Suite general posterior al bloque financiero
+
+Se ejecutó `mvn clean test` sobre `feature/swing-shell`.
+
+Resultado: **577/577 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+
+Duración: **11:16 min**.
+
+Finalización: **04/09/2026 18:54:20 -03:00**.
+
+Este es el último resultado de suite general conocido y queda como referencia vigente para la continuidad.
 
 ## Estado Git — 2026-09-04
 
-La rama activa continúa siendo `feature/swing-shell` y su último commit funcional/test conocido es `70c2455`.
+La rama activa continúa siendo `feature/swing-shell`, actualmente en `2b2bf3e` antes de las nuevas actualizaciones documentales.
 
-La documentación de continuidad se actualizó para reflejar el estado real y las nuevas decisiones de diseño. Estas actualizaciones son commits `docs:` y no representan cambios funcionales.
+La rama no se integró a `main`. No se crean ramas nuevas.
 
-No se realizó merge a `main` ni se crean ramas nuevas.
-
-## Validación general conocida
-
-La última suite general conocida continúa siendo **568/568 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+Las actualizaciones documentales de esta etapa se realizan sobre la rama de trabajo y no representan cambios funcionales.
 
 ## Próximo avance
 
-Implementar los próximos bloques solamente después de revisar código, servicios, repositorios, reglas y tests relacionados. Prioridad funcional prevista: fondos insuficientes, categorías con movimientos, `FormaPago` y luego evolución progresiva hacia operaciones financieras especializadas, pasivos/patrimonio y análisis.
+El próximo bloque funcional previsto es resolver la eliminación/desactivación de categorías con movimientos asociados, evitando el borrado físico del historial y la exposición directa de excepciones de integridad referencial en la UI.
+
+Antes de modificar código se debe reconstruir el estado actual y revisar `Categoria`, `CategoriaService`, repositorios, `Movimiento`, relaciones JPA y tests/UI relacionados.
