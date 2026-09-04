@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
+import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
@@ -13,10 +14,22 @@ public class CategoriaService {
 
     private final EntityManager entityManager;
     private final CategoriaRepository categoriaRepository;
+    private final MovimientoRepository movimientoRepository;
 
     public CategoriaService(EntityManager entityManager, CategoriaRepository categoriaRepository) {
+        this(
+                entityManager,
+                categoriaRepository,
+                new MovimientoRepository(entityManager)
+        );
+    }
+
+    public CategoriaService(EntityManager entityManager,
+                            CategoriaRepository categoriaRepository,
+                            MovimientoRepository movimientoRepository) {
         this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
         this.categoriaRepository = Objects.requireNonNull(categoriaRepository, "El CategoriaRepository es obligatorio");
+        this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El MovimientoRepository es obligatorio");
     }
 
     public Categoria registrar(Categoria categoria, Long usuarioId) {
@@ -174,15 +187,20 @@ public class CategoriaService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
     }
 
-    public void eliminar(Long categoriaId, Long usuarioId) {
+    public Categoria eliminar(Long categoriaId, Long usuarioId) {
         validarIds(categoriaId, usuarioId);
         Categoria categoria = obtenerCategoriaAutorizada(categoriaId, usuarioId);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            categoriaRepository.eliminar(categoria);
+            if (!movimientoRepository.listarPorCategoria(categoriaId).isEmpty()) {
+                categoria.desactivar();
+            } else {
+                categoriaRepository.eliminar(categoria);
+            }
             entityManager.flush();
             transaction.commit();
+            return categoria;
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
