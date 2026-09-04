@@ -79,13 +79,21 @@ Los préstamos otorgados deben mantenerse como derechos de cobro. Las transferen
 
 Un `EGRESO` no debe superar el saldo disponible de la cuenta. Un egreso igual al saldo disponible es válido y deja saldo cero.
 
-La regla debe implementarse en el servicio/dominio y no solamente en la interfaz. También debe contemplarse al modificar movimientos existentes.
+La regla se implementó en `MovimientoService` y se validó mediante pruebas específicas y suite general. También se contempla al modificar importe o tipo de movimientos existentes para evitar saldos inválidos.
+
+Implementación: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
+
+Validación específica: `MovimientoFondosInsuficientesTest` **6/6**.
+
+Suite general posterior: **577/577**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
 ## D-015 — No eliminar físicamente categorías con movimientos
 
 Una categoría que ya esté referenciada por movimientos debe conservarse para proteger el historial financiero. El comportamiento previsto es impedir el borrado físico y permitir su desactivación cuando corresponda.
 
 La interfaz debe traducir esta regla a un mensaje comprensible y no exponer una excepción de integridad referencial de Hibernate.
+
+Esta decisión continúa pendiente de implementación.
 
 ## D-016 — Criterios de ControlFinanzas son roadmap hasta su implementación
 
