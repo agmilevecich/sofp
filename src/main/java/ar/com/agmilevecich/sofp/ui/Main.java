@@ -172,20 +172,31 @@ public class Main {
             JFrame parent,
             List<PerfilFinanciero> perfiles) {
 
+        PerfilFinanciero[] opciones = perfiles.toArray(new PerfilFinanciero[0]);
+        String[] nombres = perfiles.stream()
+                .map(PerfilFinanciero::getNombre)
+                .toArray(String[]::new);
+
         Object seleccion = JOptionPane.showInputDialog(
                 parent,
                 "Seleccioná el perfil financiero con el que querés trabajar:",
                 "SOFP - Perfil financiero",
                 JOptionPane.QUESTION_MESSAGE,
                 null,
-                perfiles.toArray(),
-                perfiles.get(0)
+                nombres,
+                nombres[0]
         );
 
         if (seleccion == null) {
             return null;
         }
 
-        return (PerfilFinanciero) seleccion;
+        for (int i = 0; i < nombres.length; i++) {
+            if (nombres[i].equals(seleccion)) {
+                return opciones[i];
+            }
+        }
+
+        return null;
     }
 }
