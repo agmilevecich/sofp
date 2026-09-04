@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
+import java.util.function.Function;
 
 public class Main {
 
@@ -150,10 +151,26 @@ public class Main {
     static PerfilFinanciero seleccionarPerfil(
             JFrame parent,
             List<PerfilFinanciero> perfiles) {
+        return seleccionarPerfil(
+                perfiles,
+                opciones -> mostrarDialogoSeleccionPerfil(parent, opciones)
+        );
+    }
+
+    static PerfilFinanciero seleccionarPerfil(
+            List<PerfilFinanciero> perfiles,
+            Function<List<PerfilFinanciero>, PerfilFinanciero> selector) {
 
         if (perfiles.size() == 1) {
             return perfiles.get(0);
         }
+
+        return selector.apply(perfiles);
+    }
+
+    private static PerfilFinanciero mostrarDialogoSeleccionPerfil(
+            JFrame parent,
+            List<PerfilFinanciero> perfiles) {
 
         Object seleccion = JOptionPane.showInputDialog(
                 parent,
