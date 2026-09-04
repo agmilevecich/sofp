@@ -41,25 +41,54 @@ Una transferencia entre cuentas se considera una operación financiera que produ
 - un movimiento de tipo `EGRESO` en la cuenta origen;
 - un movimiento de tipo `INGRESO` en la cuenta destino.
 
-Por lo tanto, `TRANSFERENCIA` **no debe incorporarse al enum `TipoMovimiento`**. El enum representa el efecto individual de un movimiento sobre una cuenta y mantiene inicialmente los valores `INGRESO` y `EGRESO`.
+Por lo tanto, `TRANSFERENCIA` no debe incorporarse al enum `TipoMovimiento`. El enum representa el efecto individual de un movimiento sobre una cuenta.
 
-La transferencia se modela mediante `OperacionFinanciera`, que agrupa y relaciona los movimientos que representan sus efectos. Esto permite conservar la trazabilidad de que el egreso y el ingreso pertenecen al mismo hecho de negocio.
+La transferencia se modela mediante `OperacionFinanciera`, que agrupa y relaciona los movimientos que representan sus efectos.
 
-La relación persistente se implementa mediante:
+## D-010 — ControlFinanzas como banco de ideas
 
-- `Movimiento.operacionFinanciera` con `@ManyToOne` y columna `operacion_financiera_id`;
-- `OperacionFinanciera.movimientos` con `@OneToMany(mappedBy = "operacionFinanciera")`.
+`agmilevecich/controlfinanzas` se utilizará como referencia funcional para descubrir capacidades, reglas y soluciones útiles. No se copiará su arquitectura automáticamente. Cada idea deberá contrastarse con el dominio, persistencia, seguridad y arquitectura actuales de SOFP.
 
-Una `OperacionFinanciera` admite como máximo dos movimientos y un `Movimiento` no puede quedar asociado a dos operaciones financieras diferentes. La asociación se realiza desde `OperacionFinanciera.agregarMovimiento(...)`, que mantiene ambos lados de la relación y rechaza movimientos nulos, repetidos o ya asociados a otra operación.
+## D-011 — Paneles especializados sobre un núcleo financiero común
 
-Ejemplo conceptual:
+SOFP seguirá el patrón:
 
-```text
-OperacionFinanciera: TRANSFERENCIA $100.000
-        |
-        +-- Movimiento EGRESO  -> Cuenta origen     -$100.000
-        |
-        +-- Movimiento INGRESO -> Cuenta destino    +$100.000
-```
+**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Esta decisión queda establecida como criterio arquitectónico para las futuras implementaciones de transferencias, `OperacionFinanciera`, `MovimientoCuenta` y movimientos relacionados con otros hechos financieros.
+Los paneles pueden especializarse en gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, pero no deben crear núcleos financieros paralelos.
+
+## D-012 — Cuenta y Forma de Pago son conceptos distintos
+
+Una `Cuenta` identifica dónde se produce el efecto financiero. La `FormaPago` identifica cómo se realizó la operación.
+
+Las formas previstas incluyen tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo.
+
+No debe asumirse que toda forma de pago implica una salida inmediata de una cuenta. En particular, una compra con tarjeta de crédito puede generar una obligación/pasivo cuyo pago se producirá posteriormente.
+
+## D-013 — El núcleo debe representar activos, pasivos y patrimonio
+
+El objetivo funcional de largo plazo es que SOFP pueda responder cuánto dinero disponible existe, dónde está, cuánto valen las inversiones, qué se debe, qué se debe cobrar y cuál es el patrimonio neto.
+
+Regla conceptual:
+
+`TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`
+
+Los préstamos otorgados deben mantenerse como derechos de cobro. Las transferencias entre cuentas propias no deben contabilizarse como ingreso ni gasto.
+
+## D-014 — Egresos sujetos a fondos disponibles
+
+Un `EGRESO` no debe superar el saldo disponible de la cuenta. Un egreso igual al saldo disponible es válido y deja saldo cero.
+
+La regla debe implementarse en el servicio/dominio y no solamente en la interfaz. También debe contemplarse al modificar movimientos existentes.
+
+## D-015 — No eliminar físicamente categorías con movimientos
+
+Una categoría que ya esté referenciada por movimientos debe conservarse para proteger el historial financiero. El comportamiento previsto es impedir el borrado físico y permitir su desactivación cuando corresponda.
+
+La interfaz debe traducir esta regla a un mensaje comprensible y no exponer una excepción de integridad referencial de Hibernate.
+
+## D-016 — Criterios de ControlFinanzas son roadmap hasta su implementación
+
+Los resúmenes mensuales/históricos, rankings por categoría, evolución patrimonial, vencimientos, gráficos, dashboard y otras capacidades detectadas en ControlFinanzas quedan como candidatos de evolución de SOFP.
+
+Una capacidad no se considerará implementada por estar documentada: requiere código, reglas de negocio, persistencia cuando corresponda y tests.
