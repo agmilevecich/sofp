@@ -15,7 +15,6 @@ import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
-import com.github.lgooddatepicker.components.DatePicker;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -70,13 +70,14 @@ class RegistrarMovimientoPanelTest {
         assertNotNull(panel.getCategoriaComboBox());
         assertNotNull(panel.getTipoMovimientoComboBox());
         assertEquals(1, panel.getCategoriaComboBox().getItemCount());
-        assertEquals(4, panel.getTipoMovimientoComboBox().getItemCount());
+        assertEquals(3, panel.getTipoMovimientoComboBox().getItemCount());
         assertEquals(0, panel.getCategoriaComboBox().getSelectedIndex());
         assertEquals(0, panel.getTipoMovimientoComboBox().getSelectedIndex());
-        assertEquals("Seleccione...", panel.getCategoriaComboBox().getRenderer()
+        JLabel renderer = (JLabel) panel.getCategoriaComboBox().getRenderer()
                 .getListCellRendererComponent(
                         new javax.swing.JList<>(), null, 0, false, false
-                ).toString().contains("Seleccione...") ? "Seleccione..." : "");
+                );
+        assertEquals("Seleccione...", renderer.getText());
         assertNotNull(panel.getImporteField());
         assertNotNull(panel.getFechaField());
         assertEquals(LocalDate.now(), panel.getFechaField().getDate());
