@@ -84,4 +84,9 @@ public class Categoria extends EntidadAuditable {
     public void desactivar() {
         this.activa = false;
     }
+
+    @Override
+    public String toString() {
+        return nombre;
+    }
 }
