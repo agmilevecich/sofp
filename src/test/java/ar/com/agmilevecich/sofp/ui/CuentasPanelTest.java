@@ -178,6 +178,9 @@ class CuentasPanelTest {
         assertEquals(0, buscarLista(panel).getModel().getSize());
 
         formulario.getNombreField().setText("Cuenta nueva");
+        formulario.getTipoCuentaComboBox().setSelectedItem(TipoCuenta.CAJA_AHORRO);
+        formulario.getInstitucionComboBox().setSelectedItem(institucion);
+        formulario.getMonedaComboBox().setSelectedItem(moneda);
         SwingUtilities.invokeAndWait(formulario::registrarCuenta);
 
         JList<?> lista = buscarLista(panel);
