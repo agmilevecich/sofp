@@ -55,7 +55,7 @@ Cobertura relacionada: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoP
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y la categoría se desactiva. La UI informa la situación de forma amigable en lugar de exponer directamente la excepción de integridad referencial.
+Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y la categoría se desactiva. La UI informa la situación de forma amigable.
 
 `CategoriaServiceTest`: **23/23 tests en verde**.
 
@@ -77,7 +77,7 @@ Resultado:
 - Duración: **10:58 min**
 - Finalización: **05/09/2026 09:49:58 -03:00**
 
-Este es el resultado general vigente.
+Este es el resultado general vigente. No se debe atribuir esta ejecución a los commits posteriores de `FormaPago`.
 
 ## Bloques funcionales cerrados
 
@@ -103,35 +103,41 @@ La regla de categorías con movimientos está cerrada y validada con `CategoriaS
 
 Validación conocida: **21/21 tests en verde** para UI/servicios del bloque.
 
-## Criterios funcionales derivados de ControlFinanzas
+## Evolución funcional del Swing
 
 ControlFinanzas se utiliza como referencia funcional, no como arquitectura para copiar.
 
-El criterio acordado para SOFP es mantener un núcleo financiero basado en `Movimiento`, alimentado por paneles especializados y servicios específicos. Los futuros paneles podrán cubrir gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard.
+El criterio acordado para SOFP es mantener un núcleo financiero basado en `Movimiento`, alimentado por paneles especializados y servicios específicos.
 
-También se distingue **Cuenta** de **Forma/Medio de pago**. Se prevén tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo. La tarjeta de crédito deberá poder representar una obligación sin salida inmediata de fondos de una cuenta bancaria.
+La UX objetivo se concreta ahora en un panel **Gastos**, al estilo funcional de ControlFinanzas, donde el usuario pueda registrar compras, pagos de servicios y otros egresos. Esos registros deben terminar reflejados en la tabla/historial común de `Movimientos`.
 
-Se prevé evolucionar el modelo para representar activos, pasivos y patrimonio neto, incluyendo préstamos otorgados como derechos de cobro y transferencias propias sin impacto en ingresos/gastos.
+El flujo esperado es:
 
-Estos criterios son de diseño y roadmap; no deben registrarse como funcionalidades implementadas hasta que existan código y tests.
+**Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos` como historial consolidado.**
+
+Esto significa que `Movimientos` es la historia financiera consolidada, mientras que `Gastos` es una interfaz de carga especializada. No deben existir dos fuentes de verdad financieras.
+
+## FormaPago
+
+`FormaPago` fue definida mediante `927c66c` y su test mediante `4ae0a27`.
+
+El test `FormaPagoTest` todavía no tiene resultado de ejecución informado. Por eso la funcionalidad no se considera validada y su integración con `Movimiento` queda pendiente.
 
 ## Próximos bloques
 
-- integración de `FormaPago`;
-- especialización de paneles sobre el núcleo común de movimientos;
-- pasivos/obligaciones y patrimonio neto;
-- análisis mensual/histórico, evolución patrimonial, vencimientos y dashboard, adaptados a SOFP.
+1. Primer corte funcional de `GastosPanel` para registrar egresos de negocio y reflejarlos en `Movimientos`.
+2. Integración de `FormaPago` en el flujo de Gastos y en el modelo financiero cuando corresponda.
+3. Pasivos/obligaciones y patrimonio neto.
+4. Análisis mensual/histórico, evolución patrimonial, vencimientos y dashboard, adaptados a SOFP.
+
+Antes de cerrar un bloque: tests específicos, relacionados y suite general cuando corresponda; luego `git diff`, `git diff --check` y `git status`.
 
 ## Estado Git — 05/09/2026
 
-`feature/swing-shell` continúa como rama de trabajo.
+`feature/swing-shell` continúa como rama de trabajo y `main` permanece en `a4be859`. No se realizó merge a `main`.
 
-Último cambio funcional/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+Último commit de la rama: `4ae0a27` — `test: cubrir formas de pago`.
 
-Los commits posteriores corresponden a actualizaciones documentales de continuidad.
+Último cambio funcional/test previo: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
-`main` permanece en `a4be859`. No se realizó merge a `main`.
-
-Suite general vigente: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-
-Antes de cerrar un bloque: tests específicos, relacionados y suite general cuando corresponda; luego `git diff`, `git diff --check` y `git status`.
+No se debe considerar ejecutada `FormaPagoTest` hasta recibir un resultado explícito.
