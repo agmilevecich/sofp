@@ -261,7 +261,7 @@ class MainFrameMovimientosTest {
         RegistrarMovimientoPanel formulario =
                 buscarFormulario(mainFrame.getContentPane());
         assertNotNull(formulario);
-        assertEquals(1, formulario.getCategoriaComboBox().getItemCount());
+        assertEquals(2, formulario.getCategoriaComboBox().getItemCount());
         assertTrue(formulario.getRegistrarButton().isEnabled());
 
         mainFrame.dispose();
@@ -319,8 +319,8 @@ class MainFrameMovimientosTest {
         RegistrarCuentaPanel formulario =
                 buscarFormularioCuenta(mainFrame.getContentPane());
         assertNotNull(formulario);
-        assertEquals(1, formulario.getInstitucionComboBox().getItemCount());
-        assertEquals(1, formulario.getMonedaComboBox().getItemCount());
+        assertEquals(2, formulario.getInstitucionComboBox().getItemCount());
+        assertEquals(2, formulario.getMonedaComboBox().getItemCount());
 
         formulario.getNombreField().setText("Cuenta nueva");
         assertTrue(formulario.getRegistrarButton().isEnabled());
