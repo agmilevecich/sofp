@@ -4,18 +4,18 @@
 
 ### Suite general
 
-Última ejecución general registrada e informada por el usuario antes de los commits de `FormaPago`:
+Última ejecución general informada por el usuario:
 
-- comando: `mvn clean test`;
-- Tests run: **580**;
+- comando: `mvn test`;
+- Tests run: **586**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **10:58 min**;
-- finalización: **05/09/2026 09:49:58 -03:00**.
+- duración: **10:43 min**;
+- finalización: **05/09/2026 12:34:00 -03:00**.
 
-Esta es la validación general vigente. No asumir ejecuciones posteriores sin un nuevo resultado informado.
+La ejecución se realizó después del commit `98dead73`, que preparó saldo para el fixture de `GastosPanelTest`.
 
 ### Fondos insuficientes
 
@@ -45,6 +45,22 @@ La cobertura confirma que una categoría con movimientos asociados no se elimina
 
 Durante la suite se detectó un problema de aislamiento por reutilización del contexto de persistencia y moneda `ARS`. Se corrigió el `setUp()` de `CategoriaServiceTest` cerrando `JpaTestManager` antes de crear el `EntityManager`. Commit: `85b767c`.
 
+### Gastos
+
+`GastosPanelTest` cubre el primer corte funcional de Gastos:
+
+- construcción del panel;
+- dependencias obligatorias;
+- cuentas y categorías activas;
+- registro exitoso;
+- persistencia como `TipoMovimiento.EGRESO`;
+- importe, descripción y fecha;
+- reflejo del registro en el historial común de `Movimientos`.
+
+El fixture de registro exitoso incorpora un ingreso previo de $1.000 y registra un gasto de $100, respetando la regla real de fondos disponibles. El ajuste quedó en `98dead73` y no modifica producción.
+
+La suite general posterior quedó en **586/586**, sin fallos ni errores.
+
 ### Inversiones y reportes
 
 Las baterías conocidas continúan validadas:
@@ -63,17 +79,15 @@ Validación relacionada: `RegistrarCuentaPanelTest` **6/6**.
 
 `FormaPagoTest` fue agregado mediante el commit `4ae0a27` para cubrir la definición actual de cinco formas de pago.
 
-**Estado: pendiente de ejecución informada.**
-
-No se debe considerar `FormaPagoTest` en verde hasta que el usuario informe su resultado.
+Su integración con `Movimiento` permanece pendiente hasta incorporarla al flujo funcional de Gastos.
 
 ## Próximo bloque de tests
 
-El próximo desarrollo será `GastosPanel`. Su cobertura deberá verificar como mínimo la construcción del formulario, validaciones de datos obligatorios, selección de cuenta/categoría autorizadas y activas, registro del egreso mediante el servicio existente, persistencia y reflejo posterior en el historial de `Movimientos`, además de los casos límite relevantes.
+El primer corte de `GastosPanel` ya está validado. Los próximos tests deberán concentrarse en la integración de `FormaPago` cuando se incorpore al flujo, y posteriormente en obligaciones/pasivos y tarjetas de crédito cuando esas reglas de negocio estén implementadas.
 
 ## Cobertura Swing
 
-Tests relacionados: `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
+Tests relacionados: `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
 
 ## Seguridad
 
