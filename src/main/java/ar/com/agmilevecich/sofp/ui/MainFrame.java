@@ -57,7 +57,7 @@ public class MainFrame extends JFrame {
                      MovimientoService movimientoService,
                      Long perfilFinancieroId,
                      Long usuarioId) {
-        this(cuentaService, movimientoService, null, null, null, null,
+        this(cuentaService, movimientoService, null, null, null, null, null,
                 perfilFinancieroId, usuarioId);
     }
 
