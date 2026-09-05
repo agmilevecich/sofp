@@ -85,18 +85,26 @@ Implementación: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
 Validación específica: `MovimientoFondosInsuficientesTest` **6/6**.
 
-Suite general posterior: **577/577**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+Validación relacionada: `MovimientoServiceTest` **57/57**.
+
+Suite general vigente al 05/09/2026: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
 ## D-015 — No eliminar físicamente categorías con movimientos
 
-Una categoría que ya esté referenciada por movimientos debe conservarse para proteger el historial financiero. El comportamiento previsto es impedir el borrado físico y permitir su desactivación cuando corresponda.
+Una categoría que ya esté referenciada por movimientos debe conservarse para proteger el historial financiero. El comportamiento implementado es impedir el borrado físico y desactivar la categoría cuando tiene movimientos asociados.
 
-La interfaz debe traducir esta regla a un mensaje comprensible y no exponer una excepción de integridad referencial de Hibernate.
+La interfaz traduce la regla a un mensaje comprensible y no expone directamente la excepción de integridad referencial de Hibernate.
 
-Esta decisión continúa pendiente de implementación.
+Validación: `CategoriaServiceTest` **23/23**.
 
 ## D-016 — Criterios de ControlFinanzas son roadmap hasta su implementación
 
 Los resúmenes mensuales/históricos, rankings por categoría, evolución patrimonial, vencimientos, gráficos, dashboard y otras capacidades detectadas en ControlFinanzas quedan como candidatos de evolución de SOFP.
 
 Una capacidad no se considerará implementada por estar documentada: requiere código, reglas de negocio, persistencia cuando corresponda y tests.
+
+## Actualización — 05/09/2026
+
+La suite general de `feature/swing-shell` fue ejecutada mediante `mvn clean test` y quedó en **580/580 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`. La ejecución finalizó el 05/09/2026 a las 09:49:58 -03:00 y duró 10:58 min.
+
+El problema de aislamiento detectado en `CategoriaServiceTest` se resolvió cerrando `JpaTestManager` antes de crear el `EntityManager` de cada test. Commit: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
