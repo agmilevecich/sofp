@@ -4,9 +4,8 @@
 
 **Rama estable:** `main` → `a4be859`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit funcional:** `98dead73` — `test: preparar saldo para registro de gasto`.
 
-La rama de trabajo continúa divergida respecto de `main`: **260 commits por delante y 2 por detrás**. No se realizó merge.
+La rama de trabajo continúa sin merge a `main`.
 
 ## Bloques cerrados
 
@@ -14,7 +13,7 @@ La rama de trabajo continúa divergida respecto de `main`: **260 commits por del
 
 **Completado y validado.**
 
-`MovimientoService` rechaza `EGRESO` cuando supera el saldo disponible. Un egreso igual al saldo está permitido y deja saldo cero. La validación también contempla modificaciones de importe y tipo, excluyendo el movimiento actual del cálculo cuando corresponde.
+`MovimientoService` rechaza `EGRESO` cuando supera el saldo disponible. Un egreso igual al saldo está permitido y deja saldo cero. La regla también contempla modificaciones de importe y tipo.
 
 Pruebas específicas: `MovimientoFondosInsuficientesTest` **6/6**.
 Pruebas relacionadas: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
@@ -27,10 +26,6 @@ Una categoría que ya tiene movimientos no se elimina físicamente. Se conserva 
 
 `CategoriaServiceTest`: **23/23**.
 
-Se corrigió además el aislamiento del contexto de persistencia en el `setUp()` de `CategoriaServiceTest`, cerrando `JpaTestManager` antes de crear el `EntityManager`.
-
-Commit: `85b767c`.
-
 ### Gastos — primer corte funcional
 
 **Completado y validado.**
@@ -39,17 +34,32 @@ Commit: `85b767c`.
 
 El registro queda persistido en el historial común de `Movimientos`, manteniendo una única fuente de verdad financiera.
 
-La regla de fondos insuficientes se conserva: Gastos no bypassa las reglas del núcleo financiero.
+La suite general posterior a este bloque fue informada por el usuario como **586/586**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
-Cobertura específica en `GastosPanelTest` y suite general posterior: **586/586**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+## Bloque actual — Integración de FormaPago
 
-El fixture que registra un gasto fue ajustado en `98dead73` para disponer previamente de un ingreso de $1.000 antes de registrar un egreso de $100. El cambio fue exclusivamente de test.
+**Implementado en código; pendiente de ejecución y validación.**
 
-## FormaPago
+Se incorporó `FormaPago` al dominio de `Movimiento` como dato persistente y se propagó desde `GastosPanel` → `GastoService` → `MovimientoService`.
 
-`FormaPago` está definida con efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR.
+`GastosPanel` ahora permite seleccionar:
 
-La integración de `FormaPago` con `Movimiento` queda pendiente y deberá hacerse dentro del flujo funcional de Gastos, no como una pieza aislada.
+- efectivo;
+- transferencia;
+- tarjeta de débito;
+- tarjeta de crédito;
+- QR.
+
+La tarjeta de crédito está explícitamente rechazada por `GastoService` en este corte, porque todavía no existe el modelo de obligación/pasivo necesario para representar correctamente una compra a crédito sin simular una salida inmediata de fondos de la cuenta.
+
+Se agregó cobertura para:
+
+- selector de forma de pago en `GastosPanel`;
+- persistencia de la forma de pago en `Movimiento`;
+- cambio de forma de pago en el dominio;
+- rechazo de tarjeta de crédito hasta modelar la obligación.
+
+Todavía no se informó ejecución de estos nuevos tests.
 
 ## Criterio funcional adoptado a partir de ControlFinanzas
 
@@ -61,27 +71,31 @@ El criterio acordado para SOFP es:
 
 La experiencia Swing debe permitir registrar el hecho financiero desde un panel especializado y verlo luego en el historial consolidado.
 
-## Próximo bloque funcional
+## Próximo paso inmediato
 
-El primer corte de Gastos ya está cerrado. El próximo paso funcional es integrar `FormaPago` dentro del flujo de Gastos cuando el modelo financiero lo requiera.
+Sincronizar la rama y ejecutar primero los tests afectados por la integración de `FormaPago` y después la suite general.
 
-Después se podrá abordar correctamente el tratamiento de tarjetas de crédito, obligaciones/pasivos y patrimonio neto.
+Comandos sugeridos:
+
+`git syncsofp`
+
+`mvn test`
+
+Con el resultado se determinará si la integración queda cerrada o requiere una corrección.
 
 ## Próximos bloques posteriores
 
-1. Integrar `FormaPago` al flujo de Gastos y al modelo financiero cuando corresponda.
-2. Diferenciar correctamente compras con tarjeta de crédito y obligaciones/pasivos.
+1. Cerrar y validar la integración actual de `FormaPago`.
+2. Modelar correctamente obligaciones/pasivos para tarjeta de crédito.
 3. Evolucionar ingresos y transferencias mediante el mismo núcleo común.
 4. Incorporar progresivamente pasivos/obligaciones y patrimonio neto.
 5. Llevar a SOFP las capacidades de análisis valiosas de ControlFinanzas: resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
 
 ## Validación vigente
 
-Suite general más reciente informada: **586/586 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+La última suite general informada antes de los cambios actuales de `FormaPago` fue **586/586 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, mediante `mvn test`, finalizada el **05/09/2026 12:34:00 -03:00**.
 
-Comando: `mvn test`.
-Duración: **10:43 min**.
-Finalización: **05/09/2026 12:34:00 -03:00**.
+Los cambios actuales todavía no tienen resultado de ejecución informado.
 
 ## Integración
 
