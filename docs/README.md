@@ -1,119 +1,44 @@
-# SOFP - Documentación Técnica
+# SOFP — Documentación
 
-## Introducción
+La documentación acompaña al código, pero la fuente de verdad es siempre el estado actual de Git, el código y los tests.
 
-Esta carpeta contiene la documentación técnica oficial del proyecto **SOFP (Sistema Operativo Financiero Personal)**.
+## Continuidad actual
 
-El objetivo es documentar las decisiones de arquitectura, el modelo de dominio, la evolución funcional y los criterios de desarrollo del sistema.
+- `CONTINUIDAD_2026-09-05.md`: contexto consolidado para continuar el proyecto.
+- `CHAT_CONTEXT.md`: contexto específico para nuevas conversaciones con ChatGPT.
+- `00_ESTADO_ACTUAL.md`: estado funcional y técnico vigente.
+- `05_DECISIONES.md`: decisiones arquitectónicas y de negocio permanentes.
+- `06_BUILDS.md`: historial de Builds y validaciones.
+- `07_TESTS.md`: estado y cobertura de tests.
+- `08_PENDIENTES.md`: pendientes reales y próximos bloques.
+- `09_HISTORIAL_PROYECTO.md`: evolución e hitos del proyecto.
 
-La documentación forma parte del proyecto y debe mantenerse sincronizada con el código fuente.
+## Estado vigente — 05/09/2026
 
----
+Rama de trabajo: `feature/swing-shell`.
 
-# Organización
+`main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-## 00-arquitectura
+La comparación verificada indica que la rama de trabajo está **274 commits por delante y 2 por detrás** de `main`. No se realizó merge.
 
-Documentación de alto nivel sobre el diseño del sistema.
+La Fase 8 integra el shell Swing con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes.
 
-Incluye:
+La arquitectura funcional es:
 
-- principios de arquitectura;
-- decisiones de diseño;
-- modelo del dominio;
-- modelo JPA;
-- modelo de movimientos;
-- roadmap técnico.
+**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
----
+Gastos utiliza `GastosPanel → GastoService → MovimientoService → Movimiento` `EGRESO`.
 
-## 01-builds
+`FormaPago` está integrada y validada. Se ofrecen `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`. La tarjeta de crédito permanece temporalmente bloqueada hasta disponer del modelo de obligaciones/pasivos.
 
-Registro histórico de cada Build desarrollado.
+## Última validación
 
-Cada Build documenta:
+El usuario informó el **05/09/2026 13:04:09 -03:00**:
 
-- objetivo;
-- funcionalidades implementadas;
-- decisiones tomadas;
-- estado final.
+`mvn test` → **590 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **11:29 min**.
 
----
+## Regla para continuar
 
-## 02-dominio
+Antes de cualquier cambio reconstruir el estado desde GitHub: rama → commits → comparación con `main` → código → tests → documentación.
 
-Describe cada entidad del dominio.
-
-Cada documento explica:
-
-- propósito;
-- responsabilidades;
-- relaciones;
-- reglas de negocio.
-
----
-
-## 03-gui
-
-Documentación de la interfaz gráfica del sistema.
-
----
-
-## 04-base-de-datos
-
-Documentación relacionada con la persistencia.
-
-Incluye:
-
-- modelo relacional;
-- decisiones JPA;
-- estructura de tablas.
-
----
-
-## 05-testing
-
-Estrategia de pruebas.
-
-Incluye:
-
-- pruebas unitarias;
-- pruebas de integración;
-- pruebas JPA;
-- convenciones para nuevos tests.
-
----
-
-## 06-git
-
-Convenciones de trabajo con Git.
-
-Incluye:
-
-- estrategia de commits;
-- versionado;
-- ramas;
-- flujo de trabajo.
-
----
-
-## 07-roadmap
-
-Planificación de futuras versiones del sistema.
-
----
-
-# Principios
-
-La documentación debe cumplir los siguientes principios:
-
-- mantenerse sincronizada con el código;
-- reflejar únicamente funcionalidades implementadas o decisiones aprobadas;
-- ser clara, precisa y mantenible;
-- facilitar la incorporación de nuevos desarrolladores al proyecto.
-
----
-
-# Objetivo
-
-El objetivo es que cualquier desarrollador pueda comprender la arquitectura y evolución del SOFP consultando únicamente esta documentación.
+No modificar `main` ni crear nuevas ramas salvo indicación explícita.
