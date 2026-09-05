@@ -3,11 +3,11 @@
 ## Estado verificado
 
 Rama estable: `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-Rama de trabajo: `feature/swing-shell` → `11c189af1a4f8670f66e321cc033ab94e0139366`.
+Rama de trabajo: `feature/swing-shell` → `597982d4450f60b8e06083e71b5f364905bc79cf`.
 
 La rama de trabajo está divergida respecto de `main`: **274 commits por delante y 2 por detrás**. No se realizó merge a `main`.
 
-Último commit: `11c189af1a4f8670f66e321cc033ab94e0139366` — `docs: registrar integracion pendiente de forma de pago`.
+Último commit: `597982d4450f60b8e06083e71b5f364905bc79cf` — `docs: sincronizar estado actual con continuidad 2026-09-05`.
 
 ## Estado funcional actual
 
@@ -58,11 +58,10 @@ Esta ejecución valida la integración actual de `FormaPago` y mantiene en verde
 
 ## Próximos pasos
 
-1. Mantener cerrada la integración actual de `FormaPago`.
-2. Diseñar y modelar obligaciones/pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
-3. Evolucionar ingresos y transferencias mediante el núcleo común.
-4. Incorporar progresivamente pasivos y patrimonio neto.
-5. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard según el roadmap.
+1. Diseñar y modelar obligaciones/pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
+2. Evolucionar ingresos y transferencias mediante el núcleo común.
+3. Incorporar progresivamente pasivos y patrimonio neto.
+4. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard según el roadmap.
 
 ## Reglas de continuidad
 
