@@ -28,7 +28,7 @@ Validación individual registrada: `RegistrarMovimientoPanelTest` **4/4**, `BUIL
 
 `6eefc36` corrigió el manejo del error al registrar categoría y `70c2455` agregó cobertura del registro sin nombre.
 
-Última validación conocida anterior al bloque de fondos: `CategoriasPanelTest` **3/3** en verde.
+La regla de negocio posterior sobre categorías con movimientos quedó implementada y validada con `CategoriaServiceTest` **23/23**.
 
 ## 2026-09-04 — Criterios funcionales derivados de ControlFinanzas
 
@@ -60,30 +60,42 @@ Cobertura específica: `MovimientoFondosInsuficientesTest` **6/6**.
 
 Cobertura relacionada: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
 
-Se ajustó el fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` mediante un ingreso previo independiente para que la conversión de 50.000 a egreso sea válida bajo la nueva regla, sin cambiar la intención del test. Commit: `2b2bf3e`.
+Se ajustó el fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` mediante un ingreso previo independiente para que la conversión sea válida bajo la nueva regla, sin cambiar la intención del test. Commit: `2b2bf3e`.
 
-## 2026-09-04 — Suite general posterior al bloque financiero
+## 2026-09-05 — Categorías con movimientos: aislamiento de persistencia
 
-Se ejecutó `mvn clean test` sobre `feature/swing-shell`.
+La suite general reveló un conflicto de unicidad al intentar crear la moneda `ARS` desde `CategoriaServiceTest`. La causa se trató como problema de aislamiento del contexto de persistencia del test, no como motivo para alterar el fixture de negocio.
 
-Resultado: **577/577 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+Se modificó únicamente el `setUp()` de `CategoriaServiceTest` para cerrar `JpaTestManager` antes de crear el `EntityManager` de cada test.
 
-Duración: **11:16 min**.
+Commit: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
-Finalización: **04/09/2026 18:54:20 -03:00**.
+Validación específica posterior: `CategoriaServiceTest` **23/23**, `BUILD SUCCESS`.
 
-Este es el último resultado de suite general conocido y queda como referencia vigente para la continuidad.
+## 2026-09-05 — Suite general final
 
-## Estado Git — 2026-09-04
+Se ejecutó `mvn clean test` sobre `feature/swing-shell` después de corregir el aislamiento.
 
-La rama activa continúa siendo `feature/swing-shell`, actualmente en `2b2bf3e` antes de las nuevas actualizaciones documentales.
+Resultado: **580/580 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
-La rama no se integró a `main`. No se crean ramas nuevas.
+Duración: **10:58 min**.
 
-Las actualizaciones documentales de esta etapa se realizan sobre la rama de trabajo y no representan cambios funcionales.
+Finalización: **05/09/2026 09:49:58 -03:00**.
+
+Este es el resultado de suite general vigente.
+
+## Estado Git — 2026-09-05
+
+La rama activa continúa siendo `feature/swing-shell`.
+
+Último commit de la rama al cierre documental: `529e2ff` — `docs: actualizar pendientes del proyecto`.
+
+Último cambio funcional/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+
+La rama no se integró a `main`. `main` permanece en `a4be859`.
 
 ## Próximo avance
 
-El próximo bloque funcional previsto es resolver la eliminación/desactivación de categorías con movimientos asociados, evitando el borrado físico del historial y la exposición directa de excepciones de integridad referencial en la UI.
+El próximo bloque funcional candidato es definir e incorporar `FormaPago`, manteniendo la distinción entre `Cuenta` y medio de pago y el núcleo financiero común basado en `Movimiento`.
 
-Antes de modificar código se debe reconstruir el estado actual y revisar `Categoria`, `CategoriaService`, repositorios, `Movimiento`, relaciones JPA y tests/UI relacionados.
+Antes de modificar código se debe reconstruir el estado actual desde GitHub y revisar implementación, relaciones, servicios, repositorios y tests relacionados.
