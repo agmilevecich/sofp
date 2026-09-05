@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.GastoService;
@@ -37,6 +38,7 @@ public class GastosPanel extends JPanel {
     private final Runnable onGastoRegistrado;
     private final JComboBox<Cuenta> cuentaComboBox;
     private final JComboBox<Categoria> categoriaComboBox;
+    private final JComboBox<FormaPago> formaPagoComboBox;
     private final JTextField importeField;
     private final DatePicker fechaField;
     private final JTextField descripcionField;
@@ -52,6 +54,7 @@ public class GastosPanel extends JPanel {
         onGastoRegistrado = null;
         cuentaComboBox = new JComboBox<>();
         categoriaComboBox = new JComboBox<>();
+        formaPagoComboBox = new JComboBox<>();
         importeField = new JTextField(16);
         fechaField = crearFechaPicker();
         descripcionField = new JTextField(16);
@@ -87,6 +90,7 @@ public class GastosPanel extends JPanel {
 
         cuentaComboBox = new JComboBox<>();
         categoriaComboBox = new JComboBox<>();
+        formaPagoComboBox = new JComboBox<>();
         importeField = new JTextField(16);
         fechaField = crearFechaPicker();
         descripcionField = new JTextField(16);
@@ -95,6 +99,7 @@ public class GastosPanel extends JPanel {
         configurarRenderers();
         cargarCuentas();
         cargarCategorias();
+        cargarFormasPago();
         construirFormulario();
         registrarButton.addActionListener(evento -> registrar());
     }
@@ -105,6 +110,10 @@ public class GastosPanel extends JPanel {
 
     public JComboBox<Categoria> getCategoriaComboBox() {
         return categoriaComboBox;
+    }
+
+    public JComboBox<FormaPago> getFormaPagoComboBox() {
+        return formaPagoComboBox;
     }
 
     public JTextField getImporteField() {
@@ -161,6 +170,30 @@ public class GastosPanel extends JPanel {
                 return this;
             }
         });
+        formaPagoComboBox.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    javax.swing.JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setText(valorFormaPago((FormaPago) value));
+                return this;
+            }
+        });
+    }
+
+    private String valorFormaPago(FormaPago formaPago) {
+        if (formaPago == null) return "Seleccione una forma de pago";
+        return switch (formaPago) {
+            case EFECTIVO -> "Efectivo";
+            case TRANSFERENCIA -> "Transferencia";
+            case TARJETA_DEBITO -> "Tarjeta de débito";
+            case TARJETA_CREDITO -> "Tarjeta de crédito";
+            case QR -> "QR";
+        };
     }
 
     private void cargarCuentas() {
@@ -183,6 +216,13 @@ public class GastosPanel extends JPanel {
         categoriaComboBox.setSelectedItem(null);
     }
 
+    private void cargarFormasPago() {
+        for (FormaPago formaPago : FormaPago.values()) {
+            formaPagoComboBox.addItem(formaPago);
+        }
+        formaPagoComboBox.setSelectedItem(null);
+    }
+
     private void construirFormulario() {
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -200,12 +240,13 @@ public class GastosPanel extends JPanel {
 
         agregarCampo(new JLabel("Cuenta"), cuentaComboBox, constraints, 1);
         agregarCampo(new JLabel("Categoría"), categoriaComboBox, constraints, 2);
-        agregarCampo(new JLabel("Importe"), importeField, constraints, 3);
-        agregarCampo(new JLabel("Fecha"), fechaField, constraints, 4);
-        agregarCampo(new JLabel("Descripción"), descripcionField, constraints, 5);
+        agregarCampo(new JLabel("Forma de pago"), formaPagoComboBox, constraints, 3);
+        agregarCampo(new JLabel("Importe"), importeField, constraints, 4);
+        agregarCampo(new JLabel("Fecha"), fechaField, constraints, 5);
+        agregarCampo(new JLabel("Descripción"), descripcionField, constraints, 6);
 
         constraints.gridx = 1;
-        constraints.gridy = 6;
+        constraints.gridy = 7;
         add(registrarButton, constraints);
     }
 
@@ -250,6 +291,10 @@ public class GastosPanel extends JPanel {
                 categoriaComboBox.getSelectedItem(),
                 "La categoría es obligatoria"
         );
+        FormaPago formaPago = (FormaPago) Objects.requireNonNull(
+                formaPagoComboBox.getSelectedItem(),
+                "La forma de pago es obligatoria"
+        );
         java.math.BigDecimal importe = new java.math.BigDecimal(importeField.getText().trim());
         LocalDate fecha = Objects.requireNonNull(
                 fechaField.getDate(),
@@ -258,7 +303,7 @@ public class GastosPanel extends JPanel {
         LocalDateTime fechaHora = LocalDateTime.of(fecha, LocalTime.now());
         String descripcion = descripcionField.getText().trim();
 
-        gastoService.registrar(cuenta, categoria, importe, fechaHora, descripcion, usuarioId);
+        gastoService.registrar(cuenta, categoria, importe, fechaHora, descripcion, formaPago, usuarioId);
 
         if (onGastoRegistrado != null) {
             onGastoRegistrado.run();
@@ -271,5 +316,6 @@ public class GastosPanel extends JPanel {
         descripcionField.setText("");
         cuentaComboBox.setSelectedItem(null);
         categoriaComboBox.setSelectedItem(null);
+        formaPagoComboBox.setSelectedItem(null);
     }
 }
