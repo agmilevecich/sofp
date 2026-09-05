@@ -42,6 +42,21 @@ class MainFrameNavigationTest {
                     tarjetaVisible(mainFrame.getContentPane())
             );
 
+            JButton botonGastos = buscarBoton(sidebar, "Gastos");
+
+            if (botonGastos == null) {
+                throw new AssertionError(
+                        "No se encontró el botón: Gastos"
+                );
+            }
+
+            botonGastos.doClick();
+
+            assertEquals(
+                    "Gastos",
+                    tarjetaVisible(mainFrame.getContentPane())
+            );
+
             JButton botonMovimientos =
                     buscarBoton(sidebar, "Movimientos");
 
@@ -140,6 +155,10 @@ class MainFrameNavigationTest {
                 return etiquetaDelPanel(component);
             }
 
+            if (component instanceof GastosPanel) {
+                return etiquetaDelPanel(component);
+            }
+
             if (component instanceof MovimientosPanel) {
                 return etiquetaDelPanel(component);
             }
@@ -176,6 +195,7 @@ class MainFrameNavigationTest {
 
                 if ("Inicio".equals(texto)
                         || "Cuentas".equals(texto)
+                        || "Gastos".equals(texto)
                         || "Movimientos".equals(texto)
                         || "Inversiones".equals(texto)) {
 
@@ -189,6 +209,7 @@ class MainFrameNavigationTest {
                         etiquetaDelPanel(contenedor);
 
                 if (encontrado != null) {
+
                     return encontrado;
                 }
             }
