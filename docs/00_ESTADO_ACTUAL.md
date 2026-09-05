@@ -5,10 +5,10 @@
 ## Estado verificado — 05/09/2026
 
 **Rama estable:** `main` → `a4be859`.
-**Rama de trabajo:** `feature/swing-shell` → `a301276`.
+**Rama de trabajo:** `feature/swing-shell`.
 
-Último commit: `a301276` — `docs: consolidar continuidad del proyecto`.
-El último cambio funcional/test sigue siendo `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+Último cambio funcional/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+Los commits posteriores son exclusivamente documentales de continuidad.
 
 La rama de trabajo continúa divergida respecto de `main`. No se realizó merge a `main`.
 
@@ -42,6 +42,18 @@ La regla está implementada en `MovimientoService` y se aplica al registro públ
 
 Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
+## Regla implementada — Categorías con movimientos
+
+**Estado: completada y validada.**
+
+Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y se desactiva la categoría. La UI informa la situación de forma comprensible.
+
+`CategoriaServiceTest`: **23/23**.
+
+Se detectó un problema de aislamiento de persistencia por reutilización del contexto de pruebas y moneda `ARS`. Se resolvió cerrando `JpaTestManager` antes de crear el `EntityManager` en cada `setUp()` de `CategoriaServiceTest`.
+
+Producción/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+
 ## Estado Swing
 
 Implementados y conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
@@ -64,20 +76,6 @@ Pruebas relevantes:
 Comando de suite: `mvn clean test`.
 Duración: **10:58 min**.
 Finalización: **05/09/2026 09:49:58 -03:00**.
-
-## Últimos cambios funcionales/test
-
-- `85b767c` — `test: aislar persistencia en CategoriaServiceTest`;
-- `3cffeb9` — `test: completar datos requeridos en alta de cuenta`;
-- `2b2bf3e` — `test: adaptar cambio de tipo a fondos disponibles`;
-- `805e9fa` — `test: corregir comparacion de saldo en movimiento`;
-- `5dd8372` — `fix: validar fondos disponibles en movimientos`.
-
-## Regla de negocio — Categorías con movimientos
-
-No debe eliminarse físicamente una categoría que ya esté referenciada por movimientos. Debe conservarse el historial financiero mediante desactivación y la UI debe informar la situación de forma comprensible.
-
-La regla está implementada y validada en `CategoriaServiceTest`; la prueba relevante verifica que la categoría se desactiva y que el movimiento conserva su referencia.
 
 ## Próximo paso
 
