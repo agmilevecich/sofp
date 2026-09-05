@@ -1,111 +1,70 @@
 # SOFP — Historial del proyecto
 
-## 2026-08-31 — Cierre de seguridad y aislamiento de datos
+## Estado documental — 05/09/2026
 
-`feature/seguridad-aislamiento-datos` completó la revisión transversal de seguridad y fue integrada en `main` mediante fast-forward.
+Este documento conserva el punto de continuidad actual de la evolución del proyecto. Los estados técnicos deben verificarse siempre contra código, tests y Git.
 
-Validación final registrada: `AislamientoDatosServiceTest` **7/7** y suite general **512/512**, `BUILD SUCCESS`.
+## Hitos principales
 
-## 2026-08-31 / 2026-09-04 — Fase 8: shell Swing
+1. Construcción progresiva del dominio financiero con JPA/Hibernate y H2.
+2. Consolidación de `Movimiento` como núcleo financiero común.
+3. Implementación de operaciones financieras e inversiones.
+4. Auditoría transversal de seguridad y aislamiento por usuario/perfil, integrada en `main`.
+5. Construcción del shell Swing de la Fase 8.
+6. Integración de cuentas, categorías, movimientos, inversiones y reportes en el shell.
+7. Implementación del primer corte funcional de Gastos.
+8. Integración de `FormaPago` al flujo de Gastos.
 
-`feature/swing-shell` desarrolló el shell Swing y conectó `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
+## Gastos
 
-`MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes, integrando los servicios existentes y manteniendo las reglas de negocio fuera de la UI.
+El primer corte de Gastos quedó integrado mediante:
 
-## 2026-09-03 — Selector de fecha y hora de movimientos
+**`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-Se incorporó LGoodDatePicker para la fecha de movimientos. La fecha inicial corresponde al día del sistema, con configuración regional `es-AR`, domingo como primer día y formato visual `dd/MM/uuuu`.
+La arquitectura mantiene una única fuente de verdad financiera.
 
-La hora dejó de ingresarse mediante ComboBox y se obtiene automáticamente con `LocalTime.now()` al registrar.
+## FormaPago
 
-Validación individual registrada: `RegistrarMovimientoPanelTest` **4/4**, `BUILD SUCCESS`.
+Se incorporó `FormaPago` al dominio de `Movimiento` y al flujo de Gastos.
 
-## 2026-09-03/04 — Gestión de categorías
+Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-`CategoriasPanel` se integró en la navegación de `MainFrame` y permite gestionar categorías del perfil del usuario mediante `CategoriaService`.
+`GastoService` exige una forma de pago. `TARJETA_CREDITO` permanece bloqueada hasta disponer de un modelo correcto de obligaciones/pasivos.
 
-`66b22f3` corrigió la gestión de transacción y `flush` del alta cuando corresponde.
+## Validación
 
-`6eefc36` corrigió el manejo del error al registrar categoría y `70c2455` agregó cobertura del registro sin nombre.
+Suite general más reciente informada por el usuario el **05/09/2026 13:04:09 -03:00**:
 
-La regla de negocio posterior sobre categorías con movimientos quedó implementada y validada con `CategoriaServiceTest` **23/23**.
+**590 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
 
-## 2026-09-04 — Criterios funcionales derivados de ControlFinanzas
+Comando: `mvn test`.
+Duración: **11:29 min**.
 
-Se definió que `agmilevecich/controlfinanzas` será utilizado como banco de ideas y referencia funcional, no como arquitectura para copiar.
+## Estado Git
 
-Se acordó mantener en SOFP el patrón:
+`main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
+`feature/swing-shell`: los cambios funcionales y documentales continúan sin merge a `main`.
 
-Los futuros paneles podrán especializarse en gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, convergiendo en el núcleo común.
+Comparación verificada: **274 commits por delante y 2 por detrás**.
 
-Se adoptó la distinción conceptual entre **Cuenta** y **Forma/Medio de pago**, contemplando tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo.
+## Criterios permanentes
 
-Se reconoció que tarjeta de crédito requiere modelar una obligación/pasivo separada de la salida inmediata de fondos. También se definió que préstamos otorgados deben permanecer como derechos de cobro y que transferencias entre cuentas propias no son ingresos ni gastos.
+ControlFinanzas es referencia funcional, no arquitectura para copiar.
 
-El objetivo de largo plazo es representar activos, pasivos y patrimonio neto mediante `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`, además de liquidez, ingresos, gastos y obligaciones.
+La UI no duplica reglas de negocio.
 
-Estos criterios quedan registrados como decisiones de diseño/roadmap y no como funcionalidades implementadas hasta contar con código y tests.
+Los paneles especializados convergen en el núcleo financiero basado en `Movimiento`.
 
-## 2026-09-04 — Fondos insuficientes: implementación y validación
+Los tests son condición de cierre.
 
-Se implementó en `MovimientoService` la regla que rechaza un `EGRESO` cuando supera el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible se permite y deja saldo cero.
+No considerar implementada una funcionalidad solamente por estar documentada.
 
-La validación también cubre modificaciones de importe y tipo de movimiento cuando pueden producir saldo negativo, excluyendo correctamente el movimiento actual del cálculo de fondos disponibles.
+## Próximos hitos
 
-Commit de producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
+1. Obligaciones/pasivos para tarjeta de crédito.
+2. Ingresos y transferencias mediante el núcleo común.
+3. Pasivos y patrimonio neto.
+4. Análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
 
-Cobertura específica: `MovimientoFondosInsuficientesTest` **6/6**.
-
-Cobertura relacionada: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
-
-Se ajustó el fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` mediante un ingreso previo independiente para que la conversión sea válida bajo la nueva regla, sin cambiar la intención del test. Commit: `2b2bf3e`.
-
-## 2026-09-05 — Categorías con movimientos: aislamiento de persistencia
-
-La suite general reveló un conflicto de unicidad al intentar crear la moneda `ARS` desde `CategoriaServiceTest`. La causa se trató como problema de aislamiento del contexto de persistencia del test, no como motivo para alterar el fixture de negocio.
-
-Se modificó únicamente el `setUp()` de `CategoriaServiceTest` para cerrar `JpaTestManager` antes de crear el `EntityManager` de cada test.
-
-Commit: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
-
-Validación específica posterior: `CategoriaServiceTest` **23/23**, `BUILD SUCCESS`.
-
-## 2026-09-05 — Primer corte funcional de Gastos
-
-Se implementó `GastoService` y `GastosPanel` siguiendo el criterio acordado:
-
-**Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos` como historial consolidado.**
-
-`GastosPanel` permite seleccionar cuenta y categoría activas, importe, fecha y descripción. `GastoService` delega en `MovimientoService`, manteniendo las reglas financieras y una única fuente de verdad.
-
-La cobertura de `GastosPanelTest` valida el registro exitoso y su persistencia como `EGRESO` en el historial común.
-
-El commit `98dead73` corrigió únicamente el fixture de prueba agregando un ingreso previo de $1.000 para registrar un gasto de $100 respetando la regla de fondos disponibles.
-
-## 2026-09-05 — Suite general posterior a Gastos
-
-El usuario ejecutó `mvn test` después de sincronizar la rama.
-
-Resultado: **586/586 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-
-Duración: **10:43 min**.
-
-Finalización: **05/09/2026 12:34:00 -03:00**.
-
-Con este resultado, el primer corte funcional de Gastos queda validado.
-
-## Estado Git — 2026-09-05
-
-La rama activa continúa siendo `feature/swing-shell`.
-
-Último commit de código: `98dead73` — `test: preparar saldo para registro de gasto`.
-
-Luego se actualizaron los documentos de continuidad y builds para reflejar el cierre del primer corte de Gastos.
-
-La rama no se integró a `main`. `main` permanece en `a4be859`.
-
-## Próximo avance
-
-Integrar `FormaPago` dentro del flujo de Gastos cuando corresponda al modelo financiero y, posteriormente, abordar tarjetas de crédito, obligaciones/pasivos y patrimonio neto.
+No hacer merge a `main` automáticamente ni crear nuevas ramas salvo indicación explícita.
