@@ -4,11 +4,11 @@ Este documento registra decisiones que conviene conservar durante toda la vida d
 
 ## D-001 — El repositorio es la memoria permanente
 
-La continuidad del proyecto no dependerá de una única conversación de ChatGPT. El código, Git, tests y documentación dentro del repositorio constituyen la fuente permanente de verdad.
+La continuidad del proyecto no dependerá de una única conversación de ChatGPT. Código, Git, tests y documentación del repositorio forman la memoria permanente, con prioridad del código y tests sobre `docs/`.
 
 ## D-002 — Desarrollo incremental por Builds
 
-El proyecto se desarrolla en bloques pequeños y verificables. Cada Build debe tener un objetivo concreto y terminar con tests en verde y un commit identificable.
+El proyecto se desarrolla en bloques pequeños y verificables. Cada Build debe tener objetivo concreto, tests y commit identificable.
 
 ## D-003 — Persistencia con JPA/Hibernate
 
@@ -16,15 +16,15 @@ Se utiliza Jakarta Persistence con Hibernate como implementación ORM.
 
 ## D-004 — H2 como base de datos de desarrollo
 
-H2 se utiliza como base de datos para desarrollo y pruebas de persistencia.
+H2 se utiliza para desarrollo y pruebas de persistencia.
 
 ## D-005 — BigDecimal para importes
 
-Los valores monetarios se representan con `BigDecimal`, evitando `float`/`double` para cálculos financieros.
+Los valores monetarios se representan con `BigDecimal`, evitando `float`/`double`.
 
 ## D-006 — Dominio antes de interfaz
 
-El modelo de dominio, sus reglas y persistencia se construyen antes de avanzar fuertemente sobre la interfaz de usuario.
+El modelo de dominio, sus reglas y persistencia se construyen antes de avanzar fuertemente sobre la interfaz.
 
 ## D-007 — Tests como condición de avance
 
@@ -32,97 +32,68 @@ Una funcionalidad no se considera cerrada hasta verificar sus tests correspondie
 
 ## D-008 — Sistema de continuidad documental
 
-Se mantienen documentos específicos para estado actual, contexto de ChatGPT, decisiones, Builds, tests y pendientes. Esto permite continuar el proyecto en nuevas conversaciones o con otras herramientas sin perder contexto.
+Se mantienen documentos de estado, contexto, decisiones, Builds, tests y pendientes para poder continuar el proyecto sin depender de una conversación concreta.
 
 ## D-009 — Las transferencias no son un TipoMovimiento
 
-Una transferencia entre cuentas se considera una operación financiera que produce dos movimientos relacionados:
-
-- un movimiento de tipo `EGRESO` en la cuenta origen;
-- un movimiento de tipo `INGRESO` en la cuenta destino.
-
-Por lo tanto, `TRANSFERENCIA` no debe incorporarse al enum `TipoMovimiento`. El enum representa el efecto individual de un movimiento sobre una cuenta.
-
-La transferencia se modela mediante `OperacionFinanciera`, que agrupa y relaciona los movimientos que representan sus efectos.
+Una transferencia entre cuentas produce un `EGRESO` en origen y un `INGRESO` en destino. `TRANSFERENCIA` no pertenece a `TipoMovimiento`. La relación se modela mediante `OperacionFinanciera`.
 
 ## D-010 — ControlFinanzas como banco de ideas
 
-`agmilevecich/controlfinanzas` se utilizará como referencia funcional para descubrir capacidades, reglas y soluciones útiles. No se copiará su arquitectura automáticamente. Cada idea deberá contrastarse con el dominio, persistencia, seguridad y arquitectura actuales de SOFP.
+`agmilevecich/controlfinanzas` es referencia funcional, no arquitectura para copiar. Cada idea debe contrastarse con el dominio, persistencia, seguridad y arquitectura de SOFP.
 
 ## D-011 — Paneles especializados sobre un núcleo financiero común
 
-SOFP seguirá el patrón:
+SOFP sigue el patrón:
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Los paneles pueden especializarse en gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, pero no deben crear núcleos financieros paralelos.
+No se deben crear núcleos financieros paralelos.
 
 ## D-012 — Cuenta y Forma de Pago son conceptos distintos
 
-Una `Cuenta` identifica dónde se produce el efecto financiero. La `FormaPago` identifica cómo se realizó la operación.
-
-Las formas previstas incluyen tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo.
-
-No debe asumirse que toda forma de pago implica una salida inmediata de una cuenta. En particular, una compra con tarjeta de crédito puede generar una obligación/pasivo cuyo pago se producirá posteriormente.
+Una `Cuenta` identifica dónde se produce el efecto financiero. `FormaPago` identifica cómo se realizó la operación. No toda forma de pago implica una salida inmediata de una cuenta.
 
 ## D-013 — El núcleo debe representar activos, pasivos y patrimonio
 
-El objetivo funcional de largo plazo es que SOFP pueda responder cuánto dinero disponible existe, dónde está, cuánto valen las inversiones, qué se debe, qué se debe cobrar y cuál es el patrimonio neto.
-
-Regla conceptual:
+Objetivo de largo plazo: representar liquidez, inversiones, deudas, derechos de cobro y patrimonio neto.
 
 `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`
 
-Los préstamos otorgados deben mantenerse como derechos de cobro. Las transferencias entre cuentas propias no deben contabilizarse como ingreso ni gasto.
+Los préstamos otorgados representan derechos de cobro. Las transferencias propias no son ingresos ni gastos.
 
 ## D-014 — Egresos sujetos a fondos disponibles
 
-Un `EGRESO` no debe superar el saldo disponible de la cuenta. Un egreso igual al saldo disponible es válido y deja saldo cero.
-
-La regla se implementó en `MovimientoService` y se validó mediante pruebas específicas y suite general. También se contempla al modificar importe o tipo de movimientos existentes para evitar saldos inválidos.
-
-Implementación: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
-
-Validación específica: `MovimientoFondosInsuficientesTest` **6/6**.
-
-Validación relacionada: `MovimientoServiceTest` **57/57**.
+Un `EGRESO` mayor al saldo disponible se rechaza. Uno igual al saldo está permitido y deja saldo cero. La regla también se aplica a modificaciones de importe y tipo.
 
 ## D-015 — No eliminar físicamente categorías con movimientos
 
-Una categoría que ya esté referenciada por movimientos debe conservarse para proteger el historial financiero. El comportamiento implementado es impedir el borrado físico y desactivar la categoría cuando tiene movimientos asociados.
-
-La interfaz traduce la regla a un mensaje comprensible y no expone directamente la excepción de integridad referencial de Hibernate.
-
-Validación: `CategoriaServiceTest` **23/23**.
+Una categoría referenciada por movimientos se conserva y se desactiva. La interfaz comunica la situación sin exponer directamente la excepción de integridad referencial.
 
 ## D-016 — Criterios de ControlFinanzas son roadmap hasta su implementación
 
-Los resúmenes mensuales/históricos, rankings por categoría, evolución patrimonial, vencimientos, gráficos, dashboard y otras capacidades detectadas en ControlFinanzas quedan como candidatos de evolución de SOFP.
-
-Una capacidad no se considerará implementada por estar documentada: requiere código, reglas de negocio, persistencia cuando corresponda y tests.
+Resúmenes, rankings, evolución patrimonial, vencimientos, gráficos y dashboard son candidatos hasta que tengan código, reglas, persistencia cuando corresponda y tests.
 
 ## D-017 — Gastos como panel especializado de carga
 
-La experiencia Swing debe evolucionar hacia paneles orientados al hecho financiero que el usuario quiere registrar. El primer caso será **Gastos**, destinado a registrar compras, pagos de servicios y otros egresos.
+El flujo acordado es:
 
-El panel Gastos no tendrá una fuente de verdad financiera independiente. Su responsabilidad será capturar los datos del gasto y delegar la creación del movimiento al servicio correspondiente.
+**Gastos → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-El flujo conceptual acordado es:
+Gastos no tiene fuente de verdad independiente.
 
-**Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos` como historial consolidado.**
+## D-018 — FormaPago integrada al flujo de Gastos
 
-`Movimientos` seguirá siendo el historial común de las operaciones financieras y no una tabla paralela a los paneles especializados.
+La integración de `FormaPago` se realiza dentro del flujo funcional de Gastos. `Movimiento` conserva la forma de pago y `GastoService` la exige.
 
-## D-018 — FormaPago se integra después del primer flujo de Gastos
+## D-019 — Tarjeta de crédito requiere obligaciones/pasivos
 
-`FormaPago` ya está definida en el dominio mediante `927c66c` y cubierta por `FormaPagoTest` mediante `4ae0a27`, pero todavía no está integrada a `Movimiento`.
-
-La integración no debe hacerse de manera aislada si eso desvía el objetivo funcional del Swing. Se incorporará cuando su relación con el flujo de Gastos y el modelo financiero esté definida correctamente.
+`TARJETA_CREDITO` se rechaza actualmente en `GastoService`. No se debe simular un egreso inmediato sobre una cuenta cuando la compra genera una obligación que se pagará posteriormente. La habilitación queda condicionada a un modelo correcto de obligaciones/pasivos.
 
 ## Actualización — 05/09/2026
 
-La suite general vigente informada por el usuario es de **580/580 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, mediante `mvn clean test`, finalizada a las 09:49:58 -03:00.
+La integración de `FormaPago` quedó implementada y validada. `GastosPanel` ofrece las cinco formas actuales: efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR. La tarjeta de crédito continúa temporalmente bloqueada por la decisión D-019.
 
-La rama de trabajo actual continúa siendo `feature/swing-shell`. `main` permanece en `a4be859` y no se realizó merge.
+Suite general informada por el usuario: **590/590**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, `mvn test`, finalizada el **05/09/2026 13:04:09 -03:00**, duración **11:29 min**.
 
-Los commits `927c66c` y `4ae0a27` agregaron `FormaPago` y su test. No se ha informado todavía la ejecución de `FormaPagoTest`.
+La rama de trabajo sigue siendo `feature/swing-shell`; `main` permanece en `a4be859` y no se realizó merge.
