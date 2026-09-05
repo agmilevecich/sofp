@@ -44,9 +44,9 @@ Se adoptó la distinción conceptual entre **Cuenta** y **Forma/Medio de pago**,
 
 Se reconoció que tarjeta de crédito requiere modelar una obligación/pasivo separada de la salida inmediata de fondos. También se definió que préstamos otorgados deben permanecer como derechos de cobro y que transferencias entre cuentas propias no son ingresos ni gastos.
 
-El objetivo de largo plazo es representar activos, pasivos y patrimonio neto mediante `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`, además de liquidez, ingresos, gastos, inversiones y obligaciones.
+El objetivo de largo plazo es representar activos, pasivos y patrimonio neto mediante `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`, además de liquidez, ingresos, gastos y obligaciones.
 
-Estos criterios quedan registrados como decisiones de diseño/roadmap y **no como funcionalidades implementadas**.
+Estos criterios quedan registrados como decisiones de diseño/roadmap y no como funcionalidades implementadas hasta contar con código y tests.
 
 ## 2026-09-04 — Fondos insuficientes: implementación y validación
 
@@ -72,7 +72,7 @@ Commit: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
 Validación específica posterior: `CategoriaServiceTest` **23/23**, `BUILD SUCCESS`.
 
-## 2026-09-05 — Suite general final
+## 2026-09-05 — Suite general final conocida
 
 Se ejecutó `mvn clean test` sobre `feature/swing-shell` después de corregir el aislamiento.
 
@@ -82,20 +82,38 @@ Duración: **10:58 min**.
 
 Finalización: **05/09/2026 09:49:58 -03:00**.
 
-Este es el resultado de suite general vigente.
+Este es el último resultado de suite general informado y no debe atribuirse a los commits posteriores de `FormaPago`.
+
+## 2026-09-05 — Definición de FormaPago
+
+Se agregó `FormaPago` al dominio mediante `927c66c` con cinco valores: efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR.
+
+Se agregó `FormaPagoTest` mediante `4ae0a27`.
+
+La prueba todavía no tiene resultado de ejecución informado y, por lo tanto, la funcionalidad no se considera validada.
+
+## 2026-09-05 — Redefinición del próximo avance del Swing
+
+Se precisó el objetivo funcional del Swing a partir de la experiencia previa con ControlFinanzas.
+
+El usuario quiere una experiencia donde exista un panel especializado de **Gastos** para registrar compras, pagos de servicios y otros egresos, y que esos registros aparezcan posteriormente en la tabla/historial común de `Movimientos`.
+
+Se reafirmó que esto no implica crear una segunda fuente de verdad. El flujo será:
+
+**Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos` como historial consolidado.**
+
+Por esta razón, el próximo bloque funcional pasa a ser el primer corte de `GastosPanel`. La integración de `FormaPago` queda como paso posterior dentro de ese flujo, cuando su relación con el modelo financiero esté correctamente definida.
 
 ## Estado Git — 2026-09-05
 
 La rama activa continúa siendo `feature/swing-shell`.
 
-Último commit de la rama al cierre documental: `529e2ff` — `docs: actualizar pendientes del proyecto`.
+Último commit actual de la rama: `4ae0a27` — `test: cubrir formas de pago`.
 
-Último cambio funcional/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+Último cambio funcional/test previo: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
 La rama no se integró a `main`. `main` permanece en `a4be859`.
 
 ## Próximo avance
 
-El próximo bloque funcional candidato es definir e incorporar `FormaPago`, manteniendo la distinción entre `Cuenta` y medio de pago y el núcleo financiero común basado en `Movimiento`.
-
-Antes de modificar código se debe reconstruir el estado actual desde GitHub y revisar implementación, relaciones, servicios, repositorios y tests relacionados.
+Implementar el primer corte funcional de `GastosPanel`, revisando antes código Swing, `MovimientoService`, `Movimiento`, cuentas, categorías y tests relacionados.
