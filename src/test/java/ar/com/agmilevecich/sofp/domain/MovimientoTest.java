@@ -67,7 +67,7 @@ class MovimientoTest {
     }
 
     @Test
-    void deberiaCriarMovimientoConFormaDePago() {
+    void deberiaCrearMovimientoConFormaDePago() {
         Movimiento movimiento = crearMovimientoConFormaPago(FormaPago.EFECTIVO);
 
         assertEquals(FormaPago.EFECTIVO, movimiento.getFormaPago());
