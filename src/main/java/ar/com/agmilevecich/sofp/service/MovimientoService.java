@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
@@ -27,13 +28,19 @@ public class MovimientoService {
     public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
                                 BigDecimal importe, LocalDateTime fechaHora, String descripcion,
                                 Long usuarioId) {
+        return registrar(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion, null, usuarioId);
+    }
+
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
+                                BigDecimal importe, LocalDateTime fechaHora, String descripcion,
+                                FormaPago formaPago, Long usuarioId) {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         validarPropietario(usuarioId, cuenta);
         validarPropietario(usuarioId, categoria);
         validarPerfilFinanciero(cuenta, categoria);
         if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
         validarSaldoDisponible(cuenta, tipoMovimiento, importe, null);
-        return guardar(new Movimiento(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion));
+        return guardar(new Movimiento(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion, formaPago));
     }
 
     public Optional<Movimiento> buscarPorId(Long id, Long usuarioId) {
