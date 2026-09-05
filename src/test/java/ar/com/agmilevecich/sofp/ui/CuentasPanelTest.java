@@ -173,8 +173,8 @@ class CuentasPanelTest {
         RegistrarCuentaPanel formulario = buscarFormulario(panel);
 
         assertNotNull(formulario);
-        assertEquals(1, formulario.getInstitucionComboBox().getItemCount());
-        assertEquals(1, formulario.getMonedaComboBox().getItemCount());
+        assertEquals(2, formulario.getInstitucionComboBox().getItemCount());
+        assertEquals(2, formulario.getMonedaComboBox().getItemCount());
         assertEquals(0, buscarLista(panel).getModel().getSize());
 
         formulario.getNombreField().setText("Cuenta nueva");
