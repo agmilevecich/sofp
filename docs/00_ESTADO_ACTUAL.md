@@ -5,11 +5,11 @@
 ## Estado verificado — 05/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell`.
+**Rama de trabajo:** `feature/swing-shell` → `04ee8214736bf21cca669ad203c8fb9dc7a1ce39`.
 
-Último commit documental actual: `105686adf712db6d135c6bdafbba139b1bb99258` — `docs: actualizar continuidad completa 2026-09-05`.
+Último commit de la rama: `04ee8214736bf21cca669ad203c8fb9dc7a1ce39` — `docs: actualizar indice de continuidad 2026-09-05`.
 
-La rama de trabajo continúa divergida respecto de `main`: **274 commits por delante y 2 por detrás** en la comparación verificada antes de esta actualización documental. No se realizó merge a `main`.
+La comparación verificada antes de las actualizaciones documentales indica que `feature/swing-shell` está **274 commits por delante y 2 por detrás** de `main`. No se realizó merge a `main`.
 
 ## Estado funcional
 
@@ -33,7 +33,7 @@ El panel permite seleccionar cuenta, categoría, importe, fecha, descripción y 
 
 Integración completada y validada.
 
-`Movimiento` persiste una `FormaPago` opcional para conservar compatibilidad con movimientos existentes. `MovimientoService` dispone de un registro público que propaga la forma de pago y mantiene el registro anterior.
+`Movimiento` persiste una `FormaPago` opcional para conservar compatibilidad con movimientos existentes. `MovimientoService` dispone del registro público que propaga la forma de pago y mantiene el registro anterior.
 
 `GastoService` exige forma de pago y rechaza `TARJETA_CREDITO` hasta que exista un modelo de obligaciones/pasivos que permita representar correctamente la compra a crédito sin simular una salida inmediata de fondos.
 
