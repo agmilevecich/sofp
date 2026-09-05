@@ -5,24 +5,34 @@
 ## Estado verificado — 05/09/2026
 
 **Rama estable:** `main` → `a4be859`.
-**Rama de trabajo:** `feature/swing-shell`.
+**Rama de trabajo:** `feature/swing-shell` → `4ae0a27`.
 
-Último cambio funcional/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
-Los commits posteriores son exclusivamente documentales de continuidad.
+Último commit de la rama: `4ae0a27` — `test: cubrir formas de pago`.
+Último cambio funcional/test previo: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+
+Desde `85b767c` se definió `FormaPago` y se agregó su cobertura de dominio. No se ha informado todavía la ejecución de `FormaPagoTest`.
 
 La rama de trabajo continúa divergida respecto de `main`. No se realizó merge a `main`.
 
 ## Estado funcional
 
-La Fase 8 continúa sobre el shell Swing integrado con cuentas, categorías, movimientos, inversiones y reportes. Los cambios conceptuales derivados del análisis de `ControlFinanzas` se adoptaron como criterios de diseño para los próximos bloques, no como funcionalidades ya implementadas.
+La Fase 8 continúa sobre el shell Swing integrado con cuentas, categorías, movimientos, inversiones y reportes. Los cambios conceptuales derivados del análisis de `ControlFinanzas` se adoptan como criterios de diseño para la evolución del Swing.
 
 Criterio central acordado:
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Los paneles pueden representar gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, pero deben converger en el mismo núcleo financiero sin duplicar reglas de negocio.
+El objetivo de UX es que el usuario registre hechos financieros desde paneles orientados al negocio. En particular, el próximo bloque será un panel **Gastos**, inspirado funcionalmente en la experiencia de `ControlFinanzas`, para registrar compras, pagos de servicios y otros egresos.
 
-Se adoptó además el criterio de distinguir **Cuenta** de **medio/forma de pago**. Las formas previstas son tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo. `FormaPago` deberá integrarse al modelo cuando corresponda, sin confundirlo con la cuenta afectada.
+El flujo esperado es:
+
+**Gastos → servicio específico → `Movimiento` de tipo `EGRESO` → historial consolidado de `Movimientos`.**
+
+`Movimientos` debe funcionar como la historia financiera común y consolidada, no como una segunda fuente de verdad ni como una tabla paralela a los paneles especializados.
+
+Los paneles especializados no deben crear núcleos financieros paralelos. Deben converger en `Movimiento` y reutilizar las reglas de negocio existentes.
+
+Se adoptó además el criterio de distinguir **Cuenta** de **medio/forma de pago**. `FormaPago` ya está definida en el dominio con efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR, pero todavía no está integrada a `Movimiento`.
 
 La tarjeta de crédito requiere tratamiento diferenciado: una compra puede generar una obligación/pasivo sin producir inmediatamente una salida de fondos de una cuenta bancaria.
 
@@ -50,8 +60,6 @@ Una categoría referenciada por movimientos no se elimina físicamente. Se conse
 
 `CategoriaServiceTest`: **23/23**.
 
-Se detectó un problema de aislamiento de persistencia por reutilización del contexto de pruebas y moneda `ARS`. Se resolvió cerrando `JpaTestManager` antes de crear el `EntityManager` en cada `setUp()` de `CategoriaServiceTest`.
-
 Producción/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
 ## Estado Swing
@@ -60,11 +68,19 @@ Implementados y conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioP
 
 `MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes y no duplica reglas de negocio.
 
-El formulario de movimientos utiliza LGoodDatePicker para la fecha y obtiene automáticamente la hora mediante `LocalTime.now()` al registrar.
+El formulario actual `RegistrarMovimientoPanel` permite registrar directamente movimientos y utiliza LGoodDatePicker para la fecha y `LocalTime.now()` para la hora.
 
-## Validación vigente — 05/09/2026
+El próximo avance debe complementar ese formulario con una experiencia especializada de **Gastos**, sin duplicar el núcleo financiero.
 
-Pruebas relevantes:
+## FormaPago
+
+`FormaPago` fue definida en `src/main/java/ar/com/agmilevecich/sofp/domain/FormaPago.java` mediante `927c66c` y su test fue agregado mediante `4ae0a27`.
+
+El test `FormaPagoTest` todavía no tiene resultado de ejecución informado. Por lo tanto, no debe considerarse validado todavía.
+
+## Validación vigente
+
+Pruebas relevantes informadas por el usuario antes de los commits de `FormaPago`:
 
 - `MovimientoFondosInsuficientesTest`: 6/6;
 - `MovimientoServiceTest`: 57/57;
@@ -77,8 +93,12 @@ Comando de suite: `mvn clean test`.
 Duración: **10:58 min**.
 Finalización: **05/09/2026 09:49:58 -03:00**.
 
+No se deben asumir ejecuciones posteriores sin un nuevo resultado informado.
+
 ## Próximo paso
 
-Antes de implementar el siguiente bloque, reconstruir nuevamente el código real y revisar `FormaPago`, las relaciones con `Movimiento`, `Cuenta` y los servicios/tests relacionados.
+Implementar el primer corte funcional de **GastosPanel**, revisando previamente las clases Swing, `MovimientoService`, `Movimiento`, cuentas, categorías y tests relacionados.
+
+El primer corte debe permitir registrar un egreso de negocio y reflejarlo en el historial común de `Movimientos`. `FormaPago` podrá incorporarse al flujo cuando su integración con el modelo financiero esté definida correctamente.
 
 No se realizó merge a `main` y no se crean ramas nuevas salvo indicación explícita.
