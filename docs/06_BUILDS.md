@@ -41,7 +41,7 @@ Componentes conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se implementó en `MovimientoService` la regla financiera que impide registrar un `EGRESO` cuando el importe supera el saldo disponible de la cuenta. Un egreso exactamente igual al saldo está permitido y deja saldo cero.
+Se implementó en `MovimientoService` la regla financiera que impide registrar un `EGRESO` cuando el importe supera el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible está permitido y deja saldo cero.
 
 La validación también se aplica a modificaciones de importe y tipo de movimiento cuando pueden producir un saldo inválido. Para modificaciones se excluye correctamente el movimiento actual del cálculo de fondos disponibles.
 
@@ -49,11 +49,35 @@ Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
 Cobertura específica: `MovimientoFondosInsuficientesTest` **6/6**.
 
-Cobertura relacionada posterior al ajuste de fixture: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
+Cobertura relacionada: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
 
-Suite general posterior: `mvn clean test` — **577/577 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **11:16 min**, finalizada el **04/09/2026 18:54:20 -03:00**.
+## Bloque — Categorías con movimientos
 
-El último commit del bloque es `2b2bf3e` — `test: adaptar cambio de tipo a fondos disponibles`, que ajusta el fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` agregando un ingreso previo independiente. El ajuste mantiene la intención original del test y la hace compatible con la nueva regla de fondos disponibles.
+**Estado: COMPLETADO Y VALIDADO.**
+
+Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y la categoría se desactiva. La UI informa la situación de forma amigable en lugar de exponer directamente la excepción de integridad referencial.
+
+`CategoriaServiceTest`: **23/23 tests en verde**.
+
+Se detectó además un problema de aislamiento de persistencia en la suite general: el fixture podía encontrar una moneda `ARS` ya existente. Se corrigió cerrando `JpaTestManager` antes de crear el `EntityManager` de cada test de `CategoriaServiceTest`.
+
+Commit de corrección: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+
+## Suite general — 05/09/2026
+
+Se ejecutó `mvn clean test` sobre `feature/swing-shell` después de la corrección de aislamiento.
+
+Resultado:
+
+- Tests run: **580**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **10:58 min**
+- Finalización: **05/09/2026 09:49:58 -03:00**
+
+Este es el resultado general vigente.
 
 ## Bloques funcionales cerrados
 
@@ -71,7 +95,7 @@ Validación conocida: **57/57 tests en verde** en `MovimientoServiceTest` y **4/
 
 `CategoriasPanel` permite registrar, modificar, activar/desactivar y eliminar categorías delegando reglas a `CategoriaService`.
 
-Las validaciones conocidas incluyen `CategoriaServiceTest` **22/22** y pruebas UI/navegación. `70c2455` agregó el caso de rechazo de una categoría sin nombre.
+La regla de categorías con movimientos está cerrada y validada con `CategoriaServiceTest` **23/23**.
 
 ### Inversiones y reportes
 
@@ -93,16 +117,19 @@ Estos criterios son de diseño y roadmap; no deben registrarse como funcionalida
 
 ## Próximos bloques
 
-- tratamiento de categorías con movimientos asociados, evitando borrado físico del historial;
 - integración de `FormaPago`;
 - especialización de paneles sobre el núcleo común de movimientos;
 - pasivos/obligaciones y patrimonio neto;
 - análisis mensual/histórico, evolución patrimonial, vencimientos y dashboard, adaptados a SOFP.
 
-## Estado Git
+## Estado Git — 05/09/2026
 
-`feature/swing-shell` continúa siendo la rama de trabajo. Su último commit funcional/test conocido es `2b2bf3e`. No se modifica ni se integra `main` automáticamente. No se crean ramas nuevas.
+`feature/swing-shell` → `a301276`.
 
-La suite general más reciente conocida en esta rama es **577/577 en verde**. No asumir ejecuciones posteriores sin resultado informado.
+Último cambio funcional/test: `85b767c`.
+
+Último commit de documentación: `a301276` — `docs: consolidar continuidad del proyecto`.
+
+`main` permanece en `a4be859`. No se realizó merge a `main`.
 
 Antes de cerrar un bloque: tests específicos, relacionados y suite general cuando corresponda; luego `git diff`, `git diff --check` y `git status`.
