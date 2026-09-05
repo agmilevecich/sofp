@@ -4,7 +4,7 @@
 
 ### Suite general
 
-Última ejecución general registrada en `feature/swing-shell`:
+Última ejecución general registrada e informada por el usuario antes de los commits de `FormaPago`:
 
 - comando: `mvn clean test`;
 - Tests run: **580**;
@@ -15,7 +15,7 @@
 - duración: **10:58 min**;
 - finalización: **05/09/2026 09:49:58 -03:00**.
 
-Esta es la validación general vigente y fue informada por el usuario. No asumir ejecuciones posteriores sin un nuevo resultado informado.
+Esta es la validación general vigente. No asumir ejecuciones posteriores sin un nuevo resultado informado.
 
 ### Fondos insuficientes
 
@@ -58,6 +58,18 @@ Las baterías conocidas continúan validadas:
 `RegistrarCuentaPanelTest` y `CuentasPanelTest` cubren construcción, dependencias, instituciones activas, monedas, alta, persistencia, identificador externo vacío, listado autorizado, refresco y rechazo de perfil ajeno.
 
 Validación relacionada: `RegistrarCuentaPanelTest` **6/6**.
+
+## FormaPago
+
+`FormaPagoTest` fue agregado mediante el commit `4ae0a27` para cubrir la definición actual de cinco formas de pago.
+
+**Estado: pendiente de ejecución informada.**
+
+No se debe considerar `FormaPagoTest` en verde hasta que el usuario informe su resultado.
+
+## Próximo bloque de tests
+
+El próximo desarrollo será `GastosPanel`. Su cobertura deberá verificar como mínimo la construcción del formulario, validaciones de datos obligatorios, selección de cuenta/categoría autorizadas y activas, registro del egreso mediante el servicio existente, persistencia y reflejo posterior en el historial de `Movimientos`, además de los casos límite relevantes.
 
 ## Cobertura Swing
 
