@@ -37,6 +37,7 @@ class CategoriaServiceTest {
 
     @BeforeEach
     void setUp() {
+        JpaTestManager.close();
         entityManager = JpaTestManager.createEntityManager();
         categoriaRepository = new CategoriaRepository(entityManager);
         categoriaService = new CategoriaService(entityManager, categoriaRepository);
