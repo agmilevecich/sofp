@@ -27,16 +27,6 @@ public class GastoService {
                                 BigDecimal importe,
                                 LocalDateTime fechaHora,
                                 String descripcion,
-                                Long usuarioId) {
-        return registrar(cuenta, categoria, importe, fechaHora, descripcion,
-                null, usuarioId);
-    }
-
-    public Movimiento registrar(Cuenta cuenta,
-                                Categoria categoria,
-                                BigDecimal importe,
-                                LocalDateTime fechaHora,
-                                String descripcion,
                                 FormaPago formaPago,
                                 Long usuarioId) {
         Objects.requireNonNull(formaPago, "La forma de pago es obligatoria");
