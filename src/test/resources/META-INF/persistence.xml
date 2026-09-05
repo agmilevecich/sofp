@@ -20,6 +20,7 @@
         <class>ar.com.agmilevecich.sofp.domain.Activo</class>
         <class>ar.com.agmilevecich.sofp.domain.Bono</class>
         <class>ar.com.agmilevecich.sofp.domain.MovimientoActivo</class>
+        <class>ar.com.agmilevecich.sofp.domain.Obligacion</class>
 
         <properties>
 
