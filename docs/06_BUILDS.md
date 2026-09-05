@@ -31,11 +31,11 @@ Validación final registrada: `AislamientoDatosServiceTest` **7/7** y suite gene
 
 ## Fase 8 — Interfaz Swing
 
-`feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, categorías, movimientos, inversiones y reportes.
+`feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, categorías, movimientos, inversiones, reportes y gastos.
 
-Componentes conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
+Componentes conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `GastosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
 
-`MainFrame` utiliza `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes.
+`MainFrame` utiliza `CardLayout` para Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes.
 
 ## Bloque — Fondos insuficientes
 
@@ -63,21 +63,35 @@ Se detectó además un problema de aislamiento de persistencia en la suite gener
 
 Commit de corrección: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
+## Bloque — Gastos
+
+**Estado: COMPLETADO Y VALIDADO — primer corte funcional.**
+
+Se incorporó `GastoService` y `GastosPanel` con el flujo acordado:
+
+**Gastos → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
+
+El panel permite seleccionar cuenta y categoría activas, importe, fecha y descripción. El servicio especializado delega el registro al núcleo financiero existente, por lo que se mantiene una única fuente de verdad financiera.
+
+La regla de fondos insuficientes se mantiene vigente también para los gastos: el panel no bypassa la validación de `MovimientoService`.
+
+La cobertura de `GastosPanelTest` verifica construcción, dependencias, selección de datos activos y persistencia del gasto como `EGRESO` en el historial común.
+
 ## Suite general — 05/09/2026
 
-Se ejecutó `mvn clean test` sobre `feature/swing-shell` después de la corrección de aislamiento.
+Se ejecutó `mvn test` sobre `feature/swing-shell` después de preparar el saldo del fixture de `GastosPanelTest`.
 
-Resultado:
+Resultado informado por el usuario:
 
-- Tests run: **580**
+- Tests run: **586**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **10:58 min**
-- Finalización: **05/09/2026 09:49:58 -03:00**
+- Finalización: **05/09/2026 12:34:00 -03:00**
+- Duración: **10:43 min**
 
-Este es el resultado general vigente. No se debe atribuir esta ejecución a los commits posteriores de `FormaPago`.
+El commit `98dead73` ajustó únicamente el fixture de `GastosPanelTest`: agregó un ingreso previo de $1.000 para que el gasto de $100 se evalúe bajo la regla real de fondos disponibles.
 
 ## Bloques funcionales cerrados
 
@@ -97,6 +111,10 @@ Validación conocida: **57/57 tests en verde** en `MovimientoServiceTest` y **4/
 
 La regla de categorías con movimientos está cerrada y validada con `CategoriaServiceTest` **23/23**.
 
+### Gastos
+
+`GastosPanel` permite registrar el primer corte de gastos como `EGRESO` y delega la persistencia a `GastoService` y `MovimientoService`. Los registros quedan disponibles en el historial común de `Movimientos`.
+
 ### Inversiones y reportes
 
 `InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` utiliza `CarteraActivoService` para reportes de movimientos.
@@ -109,26 +127,17 @@ ControlFinanzas se utiliza como referencia funcional, no como arquitectura para 
 
 El criterio acordado para SOFP es mantener un núcleo financiero basado en `Movimiento`, alimentado por paneles especializados y servicios específicos.
 
-La UX objetivo se concreta ahora en un panel **Gastos**, al estilo funcional de ControlFinanzas, donde el usuario pueda registrar compras, pagos de servicios y otros egresos. Esos registros deben terminar reflejados en la tabla/historial común de `Movimientos`.
-
-El flujo esperado es:
-
-**Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos` como historial consolidado.**
-
-Esto significa que `Movimientos` es la historia financiera consolidada, mientras que `Gastos` es una interfaz de carga especializada. No deben existir dos fuentes de verdad financieras.
+El primer corte de **Gastos** ya está implementado y validado. `Movimientos` continúa siendo la historia financiera consolidada y `Gastos` una interfaz de carga especializada. No existen dos fuentes de verdad financieras.
 
 ## FormaPago
 
-`FormaPago` fue definida mediante `927c66c` y su test mediante `4ae0a27`.
-
-El test `FormaPagoTest` todavía no tiene resultado de ejecución informado. Por eso la funcionalidad no se considera validada y su integración con `Movimiento` queda pendiente.
+`FormaPago` fue definida mediante `927c66c` y su test mediante `4ae0a27`. La integración de `FormaPago` con `Movimiento` queda pendiente y deberá hacerse dentro del flujo funcional de Gastos cuando corresponda.
 
 ## Próximos bloques
 
-1. Primer corte funcional de `GastosPanel` para registrar egresos de negocio y reflejarlos en `Movimientos`.
-2. Integración de `FormaPago` en el flujo de Gastos y en el modelo financiero cuando corresponda.
-3. Pasivos/obligaciones y patrimonio neto.
-4. Análisis mensual/histórico, evolución patrimonial, vencimientos y dashboard, adaptados a SOFP.
+1. Integración de `FormaPago` al flujo de Gastos y al modelo financiero cuando corresponda.
+2. Pasivos/obligaciones y patrimonio neto.
+3. Análisis mensual/histórico, evolución patrimonial, vencimientos y dashboard, adaptados a SOFP.
 
 Antes de cerrar un bloque: tests específicos, relacionados y suite general cuando corresponda; luego `git diff`, `git diff --check` y `git status`.
 
@@ -136,8 +145,6 @@ Antes de cerrar un bloque: tests específicos, relacionados y suite general cuan
 
 `feature/swing-shell` continúa como rama de trabajo y `main` permanece en `a4be859`. No se realizó merge a `main`.
 
-Último commit de la rama: `4ae0a27` — `test: cubrir formas de pago`.
+Último commit de la rama: `98dead73` — `test: preparar saldo para registro de gasto`.
 
-Último cambio funcional/test previo: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
-
-No se debe considerar ejecutada `FormaPagoTest` hasta recibir un resultado explícito.
+El bloque Gastos quedó funcionalmente cerrado en su primer corte y la suite general conocida quedó en **586/586**.
