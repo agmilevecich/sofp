@@ -8,20 +8,13 @@ Se ejecutó la suite general después de completar la cobertura de venta de acti
 
 Pruebas específicas previas:
 
-- `OperacionFinancieraTest`: **17/17 tests en verde**.
-- `OperacionFinancieraServiceTest`: **22/22 tests en verde**.
-- `OperacionFinancieraCompraServiceTest`: **13/13 tests en verde**.
-- `OperacionFinancieraVentaServiceTest`: **13/13 tests en verde**.
-- `PosicionActivoServiceTest`: **4/4 tests en verde**.
+- `OperacionFinancieraTest`: **17/17**.
+- `OperacionFinancieraServiceTest`: **22/22**.
+- `OperacionFinancieraCompraServiceTest`: **13/13**.
+- `OperacionFinancieraVentaServiceTest`: **13/13**.
+- `PosicionActivoServiceTest`: **4/4**.
 
-Suite general ejecutada el **27/08/2026 15:24:11 -03:00**:
-
-- Tests run: **433**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **17:35 min**
+Suite general ejecutada el **27/08/2026 15:24:11 -03:00**: **433/433**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **17:35 min**.
 
 ## Etapa — Seguridad y aislamiento por usuario
 
@@ -41,110 +34,73 @@ Componentes conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se implementó en `MovimientoService` la regla financiera que impide registrar un `EGRESO` cuando el importe supera el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible está permitido y deja saldo cero.
-
-La validación también se aplica a modificaciones de importe y tipo de movimiento cuando pueden producir un saldo inválido. Para modificaciones se excluye correctamente el movimiento actual del cálculo de fondos disponibles.
+`MovimientoService` impide registrar un `EGRESO` superior al saldo disponible. Un egreso igual al saldo está permitido y deja saldo cero. La regla también se aplica a modificaciones de importe y tipo, excluyendo el movimiento actual cuando corresponde.
 
 Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
-Cobertura específica: `MovimientoFondosInsuficientesTest` **6/6**.
-
-Cobertura relacionada: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
+Cobertura: `MovimientoFondosInsuficientesTest` **6/6**, `MovimientoServiceTest` **57/57**, `RegistrarMovimientoPanelTest` **4/4**.
 
 ## Bloque — Categorías con movimientos
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y la categoría se desactiva. La UI informa la situación de forma amigable.
+Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y se desactiva. La UI informa la situación de forma amigable.
 
-`CategoriaServiceTest`: **23/23 tests en verde**.
+`CategoriaServiceTest`: **23/23**.
 
-Se detectó además un problema de aislamiento de persistencia en la suite general: el fixture podía encontrar una moneda `ARS` ya existente. Se corrigió cerrando `JpaTestManager` antes de crear el `EntityManager` de cada test de `CategoriaServiceTest`.
-
-Commit de corrección: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+La corrección de aislamiento de persistencia quedó registrada en `85b767c`.
 
 ## Bloque — Gastos
 
 **Estado: COMPLETADO Y VALIDADO — primer corte funcional.**
 
-Se incorporó `GastoService` y `GastosPanel` con el flujo acordado:
+Flujo:
 
 **Gastos → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-El panel permite seleccionar cuenta y categoría activas, importe, fecha y descripción. El servicio especializado delega el registro al núcleo financiero existente, por lo que se mantiene una única fuente de verdad financiera.
+El panel permite cuenta, categoría, importe, fecha, descripción y posteriormente forma de pago. El registro se conserva en el historial común y mantiene la regla de fondos disponibles.
 
-La regla de fondos insuficientes se mantiene vigente también para los gastos: el panel no bypassa la validación de `MovimientoService`.
+El fixture de prueba se ajustó en `98dead73` agregando un ingreso previo de $1.000 antes del gasto de $100.
 
-La cobertura de `GastosPanelTest` verifica construcción, dependencias, selección de datos activos y persistencia del gasto como `EGRESO` en el historial común.
+## Bloque — FormaPago
 
-## Suite general — 05/09/2026
+**Estado: COMPLETADO Y VALIDADO.**
 
-Se ejecutó `mvn test` sobre `feature/swing-shell` después de preparar el saldo del fixture de `GastosPanelTest`.
+`FormaPago` quedó integrada a `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`.
+
+Formas disponibles: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
+
+`GastoService` exige forma de pago. `TARJETA_CREDITO` se rechaza temporalmente porque requiere un modelo de obligaciones/pasivos y no debe simular una salida inmediata de fondos.
+
+Cobertura agregada en dominio y UI para selección, persistencia, modificación y rechazo de tarjeta de crédito.
+
+## Suite general — 05/09/2026 13:04:09
 
 Resultado informado por el usuario:
 
-- Tests run: **586**
+- Tests run: **590**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Finalización: **05/09/2026 12:34:00 -03:00**
-- Duración: **10:43 min**
+- Duración: **11:29 min**
+- Finalización: **05/09/2026 13:04:09 -03:00**
 
-El commit `98dead73` ajustó únicamente el fixture de `GastosPanelTest`: agregó un ingreso previo de $1.000 para que el gasto de $100 se evalúe bajo la regla real de fondos disponibles.
+Este es el último resultado de tests conocido y valida el estado actual de la rama `feature/swing-shell`.
 
-## Bloques funcionales cerrados
+## Estado Git vigente
 
-### Movimientos
+`main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-`RegistrarMovimientoPanel` se integró al flujo de movimientos con categoría autorizada y activa, tipo, importe, fecha/hora, descripción y `usuarioId`. La fecha utiliza LGoodDatePicker y la hora se obtiene automáticamente con `LocalTime.now()`.
+`feature/swing-shell` está en `11c189af1a4f8670f66e321cc033ab94e0139366` al inicio de esta actualización documental y continúa sin merge a `main`.
 
-Validación conocida: **57/57 tests en verde** en `MovimientoServiceTest` y **4/4** en `RegistrarMovimientoPanelTest`.
-
-### Cuentas
-
-`RegistrarCuentaPanel` permite tipo, institución financiera, moneda e identificador externo y delega a `CuentaService.registrar(cuenta, usuarioId)`. `CuentasPanel` refresca mediante callback.
-
-### Categorías
-
-`CategoriasPanel` permite registrar, modificar, activar/desactivar y eliminar categorías delegando reglas a `CategoriaService`.
-
-La regla de categorías con movimientos está cerrada y validada con `CategoriaServiceTest` **23/23**.
-
-### Gastos
-
-`GastosPanel` permite registrar el primer corte de gastos como `EGRESO` y delega la persistencia a `GastoService` y `MovimientoService`. Los registros quedan disponibles en el historial común de `Movimientos`.
-
-### Inversiones y reportes
-
-`InversionesPanel` muestra posiciones filtradas por usuario/perfil. `ReportesPanel` utiliza `CarteraActivoService` para reportes de movimientos.
-
-Validación conocida: **21/21 tests en verde** para UI/servicios del bloque.
-
-## Evolución funcional del Swing
-
-ControlFinanzas se utiliza como referencia funcional, no como arquitectura para copiar.
-
-El criterio acordado para SOFP es mantener un núcleo financiero basado en `Movimiento`, alimentado por paneles especializados y servicios específicos.
-
-El primer corte de **Gastos** ya está implementado y validado. `Movimientos` continúa siendo la historia financiera consolidada y `Gastos` una interfaz de carga especializada. No existen dos fuentes de verdad financieras.
-
-## FormaPago
-
-`FormaPago` fue definida mediante `927c66c` y su test mediante `4ae0a27`. La integración de `FormaPago` con `Movimiento` queda pendiente y deberá hacerse dentro del flujo funcional de Gastos cuando corresponda.
+La comparación verificada es **274 commits por delante y 2 por detrás**.
 
 ## Próximos bloques
 
-1. Integración de `FormaPago` al flujo de Gastos y al modelo financiero cuando corresponda.
-2. Pasivos/obligaciones y patrimonio neto.
-3. Análisis mensual/histórico, evolución patrimonial, vencimientos y dashboard, adaptados a SOFP.
+1. Modelar obligaciones/pasivos para tarjeta de crédito.
+2. Evolucionar ingresos y transferencias mediante el núcleo común.
+3. Incorporar progresivamente pasivos y patrimonio neto.
+4. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard.
 
-Antes de cerrar un bloque: tests específicos, relacionados y suite general cuando corresponda; luego `git diff`, `git diff --check` y `git status`.
-
-## Estado Git — 05/09/2026
-
-`feature/swing-shell` continúa como rama de trabajo y `main` permanece en `a4be859`. No se realizó merge a `main`.
-
-Último commit de la rama: `98dead73` — `test: preparar saldo para registro de gasto`.
-
-El bloque Gastos quedó funcionalmente cerrado en su primer corte y la suite general conocida quedó en **586/586**.
+Antes de cerrar cualquier bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
