@@ -2,10 +2,10 @@
 
 ## Estado — 05/09/2026
 
-**Rama estable:** `main` → `a4be859`.
+**Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-La rama de trabajo continúa sin merge a `main`.
+La comparación verificada antes de la actualización documental indica que `feature/swing-shell` está **274 commits por delante y 2 por detrás** de `main`. No se realizó merge.
 
 ## Bloques cerrados
 
@@ -13,16 +13,15 @@ La rama de trabajo continúa sin merge a `main`.
 
 **Completado y validado.**
 
-`MovimientoService` rechaza `EGRESO` cuando supera el saldo disponible. Un egreso igual al saldo está permitido y deja saldo cero. La regla también contempla modificaciones de importe y tipo.
+`MovimientoService` rechaza `EGRESO` superior al saldo disponible, permite el egreso igual al saldo y aplica la regla también a modificaciones de importe y tipo.
 
-Pruebas específicas: `MovimientoFondosInsuficientesTest` **6/6**.
-Pruebas relacionadas: `MovimientoServiceTest` **57/57** y `RegistrarMovimientoPanelTest` **4/4**.
+Pruebas: `MovimientoFondosInsuficientesTest` **6/6**, `MovimientoServiceTest` **57/57**, `RegistrarMovimientoPanelTest` **4/4**.
 
 ### Categorías con movimientos
 
 **Completado y validado.**
 
-Una categoría que ya tiene movimientos no se elimina físicamente. Se conserva el historial y se desactiva la categoría. La UI informa la situación de forma amigable.
+Las categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
 
 `CategoriaServiceTest`: **23/23**.
 
@@ -30,73 +29,72 @@ Una categoría que ya tiene movimientos no se elimina físicamente. Se conserva 
 
 **Completado y validado.**
 
-`GastosPanel` permite registrar compras, pagos de servicios y otros egresos básicos mediante `GastoService`, delegando finalmente en `MovimientoService` como `EGRESO`.
+`GastosPanel` registra compras, pagos de servicios y otros egresos básicos mediante `GastoService`, que delega finalmente en `MovimientoService` como `EGRESO`.
 
-El registro queda persistido en el historial común de `Movimientos`, manteniendo una única fuente de verdad financiera.
+El registro queda en el historial común de `Movimientos` y respeta la regla de fondos disponibles.
 
-La suite general posterior a este bloque fue informada por el usuario como **586/586**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+Suite posterior: **586/586**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
-## Bloque actual — Integración de FormaPago
+## FormaPago — completado y validado
 
-**Implementado en código; pendiente de ejecución y validación.**
+La integración quedó cerrada después de la ejecución de la suite general.
 
-Se incorporó `FormaPago` al dominio de `Movimiento` como dato persistente y se propagó desde `GastosPanel` → `GastoService` → `MovimientoService`.
+`FormaPago` está integrada a `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`.
 
-`GastosPanel` ahora permite seleccionar:
+Opciones actuales:
 
-- efectivo;
-- transferencia;
-- tarjeta de débito;
-- tarjeta de crédito;
-- QR.
+- `EFECTIVO`;
+- `TRANSFERENCIA`;
+- `TARJETA_DEBITO`;
+- `TARJETA_CREDITO`;
+- `QR`.
 
-La tarjeta de crédito está explícitamente rechazada por `GastoService` en este corte, porque todavía no existe el modelo de obligación/pasivo necesario para representar correctamente una compra a crédito sin simular una salida inmediata de fondos de la cuenta.
+`GastoService` exige forma de pago.
 
-Se agregó cobertura para:
+`TARJETA_CREDITO` se rechaza explícitamente por ahora porque no existe todavía el modelo de obligaciones/pasivos necesario para representar una compra a crédito sin simular una salida inmediata de fondos.
 
-- selector de forma de pago en `GastosPanel`;
-- persistencia de la forma de pago en `Movimiento`;
-- cambio de forma de pago en el dominio;
-- rechazo de tarjeta de crédito hasta modelar la obligación.
+La cobertura incluye selección en UI, persistencia, lectura y modificación en dominio y rechazo de tarjeta de crédito.
 
-Todavía no se informó ejecución de estos nuevos tests.
+## Validación vigente
+
+Última suite general informada por el usuario:
+
+- comando: `mvn test`;
+- Tests run: **590**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **11:29 min**;
+- finalización: **05/09/2026 13:04:09 -03:00**.
 
 ## Criterio funcional adoptado a partir de ControlFinanzas
 
-ControlFinanzas se utiliza como banco de ideas y referencia, no como arquitectura para copiar.
+ControlFinanzas se utiliza como banco de ideas y referencia funcional, no como arquitectura para copiar.
 
-El criterio acordado para SOFP es:
+El criterio de SOFP es:
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
 La experiencia Swing debe permitir registrar el hecho financiero desde un panel especializado y verlo luego en el historial consolidado.
 
-## Próximo paso inmediato
+## Próximos pasos
 
-Sincronizar la rama y ejecutar primero los tests afectados por la integración de `FormaPago` y después la suite general.
+1. Diseñar obligaciones/pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
+2. Evolucionar ingresos y transferencias mediante el núcleo común.
+3. Incorporar progresivamente pasivos y patrimonio neto.
+4. Evolucionar resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
 
-Comandos sugeridos:
-
-`git syncsofp`
-
-`mvn test`
-
-Con el resultado se determinará si la integración queda cerrada o requiere una corrección.
-
-## Próximos bloques posteriores
-
-1. Cerrar y validar la integración actual de `FormaPago`.
-2. Modelar correctamente obligaciones/pasivos para tarjeta de crédito.
-3. Evolucionar ingresos y transferencias mediante el mismo núcleo común.
-4. Incorporar progresivamente pasivos/obligaciones y patrimonio neto.
-5. Llevar a SOFP las capacidades de análisis valiosas de ControlFinanzas: resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
-
-## Validación vigente
-
-La última suite general informada antes de los cambios actuales de `FormaPago` fue **586/586 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, mediante `mvn test`, finalizada el **05/09/2026 12:34:00 -03:00**.
-
-Los cambios actuales todavía no tienen resultado de ejecución informado.
+Estos puntos son pendientes reales; no se consideran implementados por estar documentados.
 
 ## Integración
 
-No hacer merge a `main` automáticamente. No crear ramas nuevas salvo indicación explícita. Antes de una eventual integración, revisar commits, comparación con `main`, tests, diff, diff-check, status y documentación.
+No hacer merge a `main` automáticamente.
+
+No crear ramas nuevas salvo indicación explícita.
+
+Antes de una eventual integración revisar commits, comparación con `main`, tests, `git diff`, `git diff --check`, `git status` y documentación.
+
+## Continuidad
+
+Ante una nueva sesión reconstruir el estado desde GitHub priorizando código → tests → commits → `main` → documentación.
