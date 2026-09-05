@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 
@@ -27,6 +28,23 @@ public class GastoService {
                                 LocalDateTime fechaHora,
                                 String descripcion,
                                 Long usuarioId) {
+        return registrar(cuenta, categoria, importe, fechaHora, descripcion,
+                null, usuarioId);
+    }
+
+    public Movimiento registrar(Cuenta cuenta,
+                                Categoria categoria,
+                                BigDecimal importe,
+                                LocalDateTime fechaHora,
+                                String descripcion,
+                                FormaPago formaPago,
+                                Long usuarioId) {
+        Objects.requireNonNull(formaPago, "La forma de pago es obligatoria");
+        if (formaPago == FormaPago.TARJETA_CREDITO) {
+            throw new IllegalArgumentException(
+                    "La tarjeta de crédito requiere el modelo de obligaciones pendiente"
+            );
+        }
         return movimientoService.registrar(
                 cuenta,
                 categoria,
@@ -34,6 +52,7 @@ public class GastoService {
                 importe,
                 fechaHora,
                 descripcion,
+                formaPago,
                 usuarioId
         );
     }
