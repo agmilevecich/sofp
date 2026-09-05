@@ -3,11 +3,10 @@
 ## Estado — 05/09/2026
 
 **Rama estable:** `main` → `a4be859`.
-**Rama de trabajo:** `feature/swing-shell` → `4ae0a27`.
-**Último commit de la rama:** `4ae0a27` — `test: cubrir formas de pago`.
-**Último cambio funcional/test previo:** `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+**Rama de trabajo:** `feature/swing-shell`.
+**Último commit funcional:** `98dead73` — `test: preparar saldo para registro de gasto`.
 
-La rama de trabajo continúa divergida respecto de `main`. No se realizó merge.
+La rama de trabajo continúa divergida respecto de `main`: **260 commits por delante y 2 por detrás**. No se realizó merge.
 
 ## Bloques cerrados
 
@@ -32,13 +31,25 @@ Se corrigió además el aislamiento del contexto de persistencia en el `setUp()`
 
 Commit: `85b767c`.
 
+### Gastos — primer corte funcional
+
+**Completado y validado.**
+
+`GastosPanel` permite registrar compras, pagos de servicios y otros egresos básicos mediante `GastoService`, delegando finalmente en `MovimientoService` como `EGRESO`.
+
+El registro queda persistido en el historial común de `Movimientos`, manteniendo una única fuente de verdad financiera.
+
+La regla de fondos insuficientes se conserva: Gastos no bypassa las reglas del núcleo financiero.
+
+Cobertura específica en `GastosPanelTest` y suite general posterior: **586/586**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+
+El fixture que registra un gasto fue ajustado en `98dead73` para disponer previamente de un ingreso de $1.000 antes de registrar un egreso de $100. El cambio fue exclusivamente de test.
+
 ## FormaPago
 
-`FormaPago` fue definida mediante `927c66c` y su test mediante `4ae0a27`.
+`FormaPago` está definida con efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR.
 
-El test `FormaPagoTest` **todavía no fue ejecutado o, al menos, no existe un resultado informado**. No debe considerarse validado.
-
-La integración de `FormaPago` con `Movimiento` queda pendiente y deberá hacerse dentro del flujo funcional, no como una pieza aislada que desvíe el objetivo del Swing.
+La integración de `FormaPago` con `Movimiento` queda pendiente y deberá hacerse dentro del flujo funcional de Gastos, no como una pieza aislada.
 
 ## Criterio funcional adoptado a partir de ControlFinanzas
 
@@ -48,21 +59,13 @@ El criterio acordado para SOFP es:
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-La experiencia Swing buscada se aproxima funcionalmente a ControlFinanzas: el usuario debe poder registrar el hecho financiero desde un panel especializado y verlo luego en el historial consolidado.
+La experiencia Swing debe permitir registrar el hecho financiero desde un panel especializado y verlo luego en el historial consolidado.
 
-## Próximo bloque funcional — Gastos
+## Próximo bloque funcional
 
-**Prioridad actual: primer corte de `GastosPanel`.**
+El primer corte de Gastos ya está cerrado. El próximo paso funcional es integrar `FormaPago` dentro del flujo de Gastos cuando el modelo financiero lo requiera.
 
-El panel Gastos deberá permitir registrar inicialmente compras, pagos de servicios y otros egresos.
-
-El flujo conceptual es:
-
-**Gastos → servicio específico → `Movimiento` de tipo `EGRESO` → `Movimientos` como historial consolidado.**
-
-`Movimientos` debe continuar siendo la historia financiera común y consolidada. No debe existir una segunda fuente de verdad financiera para los gastos.
-
-El primer corte no necesita resolver todavía tarjetas de crédito, pasivos ni todas las variantes de `FormaPago`. Debe establecer correctamente el flujo básico de un gasto hasta `Movimiento` y su reflejo en `Movimientos`.
+Después se podrá abordar correctamente el tratamiento de tarjetas de crédito, obligaciones/pasivos y patrimonio neto.
 
 ## Próximos bloques posteriores
 
@@ -74,13 +77,11 @@ El primer corte no necesita resolver todavía tarjetas de crédito, pasivos ni t
 
 ## Validación vigente
 
-Suite general más reciente informada: **580/580 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+Suite general más reciente informada: **586/586 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
-Comando: `mvn clean test`.
-Duración: **10:58 min**.
-Finalización: **05/09/2026 09:49:58 -03:00**.
-
-No asumir ejecuciones posteriores sin resultado informado.
+Comando: `mvn test`.
+Duración: **10:43 min**.
+Finalización: **05/09/2026 12:34:00 -03:00**.
 
 ## Integración
 
