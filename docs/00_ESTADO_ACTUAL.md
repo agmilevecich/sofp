@@ -1,104 +1,79 @@
 # SOFP — Estado actual
 
-> Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar y puede quedar desactualizada.
+> Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
 ## Estado verificado — 05/09/2026
 
-**Rama estable:** `main` → `a4be859`.
-**Rama de trabajo:** `feature/swing-shell` → `4ae0a27`.
+**Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
+**Rama de trabajo:** `feature/swing-shell`.
 
-Último commit de la rama: `4ae0a27` — `test: cubrir formas de pago`.
-Último cambio funcional/test previo: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+Último commit documental actual: `105686adf712db6d135c6bdafbba139b1bb99258` — `docs: actualizar continuidad completa 2026-09-05`.
 
-Desde `85b767c` se definió `FormaPago` y se agregó su cobertura de dominio. No se ha informado todavía la ejecución de `FormaPagoTest`.
-
-La rama de trabajo continúa divergida respecto de `main`. No se realizó merge a `main`.
+La rama de trabajo continúa divergida respecto de `main`: **274 commits por delante y 2 por detrás** en la comparación verificada antes de esta actualización documental. No se realizó merge a `main`.
 
 ## Estado funcional
 
-La Fase 8 continúa sobre el shell Swing integrado con cuentas, categorías, movimientos, inversiones y reportes. Los cambios conceptuales derivados del análisis de `ControlFinanzas` se adoptan como criterios de diseño para la evolución del Swing.
+La Fase 8 continúa sobre el shell Swing integrado con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes.
 
-Criterio central acordado:
+Criterio central:
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-El objetivo de UX es que el usuario registre hechos financieros desde paneles orientados al negocio. En particular, el próximo bloque será un panel **Gastos**, inspirado funcionalmente en la experiencia de `ControlFinanzas`, para registrar compras, pagos de servicios y otros egresos.
+`Movimientos` es el historial financiero común y consolidado, no una segunda fuente de verdad.
 
-El flujo esperado es:
+## Gastos
 
-**Gastos → servicio específico → `Movimiento` de tipo `EGRESO` → historial consolidado de `Movimientos`.**
+Primer corte funcional completado y validado. El flujo es:
 
-`Movimientos` debe funcionar como la historia financiera común y consolidada, no como una segunda fuente de verdad ni como una tabla paralela a los paneles especializados.
+**`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-Los paneles especializados no deben crear núcleos financieros paralelos. Deben converger en `Movimiento` y reutilizar las reglas de negocio existentes.
-
-Se adoptó además el criterio de distinguir **Cuenta** de **medio/forma de pago**. `FormaPago` ya está definida en el dominio con efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR, pero todavía no está integrada a `Movimiento`.
-
-La tarjeta de crédito requiere tratamiento diferenciado: una compra puede generar una obligación/pasivo sin producir inmediatamente una salida de fondos de una cuenta bancaria.
-
-El objetivo funcional de largo plazo es que SOFP pueda representar activos, pasivos y patrimonio neto, además de liquidez, ingresos, gastos, inversiones, préstamos y transferencias. Regla conceptual: `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`.
-
-Los préstamos otorgados deben representar un derecho de cobro: disminuyen la liquidez disponible pero no desaparecen del patrimonio.
-
-Las transferencias entre cuentas propias no deben contabilizarse como ingreso ni gasto.
-
-## Regla implementada — Fondos insuficientes
-
-**Estado: completada y validada.**
-
-Un `EGRESO` no puede superar el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible está permitido y deja saldo cero.
-
-La regla está implementada en `MovimientoService` y se aplica al registro público de movimientos y a las modificaciones de importe y tipo que puedan producir un saldo inválido. Al modificar un movimiento, el cálculo excluye correctamente el movimiento actual.
-
-Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
-
-## Regla implementada — Categorías con movimientos
-
-**Estado: completada y validada.**
-
-Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y se desactiva la categoría. La UI informa la situación de forma comprensible.
-
-`CategoriaServiceTest`: **23/23**.
-
-Producción/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
-
-## Estado Swing
-
-Implementados y conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
-
-`MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes y no duplica reglas de negocio.
-
-El formulario actual `RegistrarMovimientoPanel` permite registrar directamente movimientos y utiliza LGoodDatePicker para la fecha y `LocalTime.now()` para la hora.
-
-El próximo avance debe complementar ese formulario con una experiencia especializada de **Gastos**, sin duplicar el núcleo financiero.
+El panel permite seleccionar cuenta, categoría, importe, fecha, descripción y forma de pago. El servicio especializado delega las reglas financieras al núcleo existente.
 
 ## FormaPago
 
-`FormaPago` fue definida en `src/main/java/ar/com/agmilevecich/sofp/domain/FormaPago.java` mediante `927c66c` y su test fue agregado mediante `4ae0a27`.
+Integración completada y validada.
 
-El test `FormaPagoTest` todavía no tiene resultado de ejecución informado. Por lo tanto, no debe considerarse validado todavía.
+`Movimiento` persiste una `FormaPago` opcional para conservar compatibilidad con movimientos existentes. `MovimientoService` dispone de un registro público que propaga la forma de pago y mantiene el registro anterior.
+
+`GastoService` exige forma de pago y rechaza `TARJETA_CREDITO` hasta que exista un modelo de obligaciones/pasivos que permita representar correctamente la compra a crédito sin simular una salida inmediata de fondos.
+
+Formas actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO`, `QR`.
+
+## Reglas financieras vigentes
+
+- Un `EGRESO` no puede superar el saldo disponible.
+- Un egreso igual al saldo disponible está permitido y deja saldo cero.
+- Las modificaciones de importe y tipo también respetan fondos disponibles.
+- Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
+- Cuenta y forma de pago son conceptos distintos.
+- Las transferencias entre cuentas propias no son ingresos ni gastos; se modelan como movimientos relacionados mediante `OperacionFinanciera`.
+- Los paneles especializados no deben duplicar el núcleo financiero.
+
+## Seguridad
+
+La auditoría transversal de aislamiento de datos quedó completada e integrada en `main`, cubriendo perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras con autorización por propietario.
 
 ## Validación vigente
 
-Pruebas relevantes informadas por el usuario antes de los commits de `FormaPago`:
+Suite general ejecutada localmente y reportada por el usuario el **05/09/2026 13:04:09 -03:00** mediante `mvn test`:
 
-- `MovimientoFondosInsuficientesTest`: 6/6;
-- `MovimientoServiceTest`: 57/57;
-- `RegistrarMovimientoPanelTest`: 4/4;
-- `RegistrarCuentaPanelTest`: 6/6;
-- `CategoriaServiceTest`: **23/23**;
-- suite general: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+- Tests run: **590**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **11:29 min**
 
-Comando de suite: `mvn clean test`.
-Duración: **10:58 min**.
-Finalización: **05/09/2026 09:49:58 -03:00**.
-
-No se deben asumir ejecuciones posteriores sin un nuevo resultado informado.
+Esta es la última ejecución conocida y valida el estado funcional actual de la rama.
 
 ## Próximo paso
 
-Implementar el primer corte funcional de **GastosPanel**, revisando previamente las clases Swing, `MovimientoService`, `Movimiento`, cuentas, categorías y tests relacionados.
+El siguiente bloque funcional debe partir de `feature/swing-shell` tal como está ahora. Prioridad inmediata: modelar obligaciones/pasivos si se decide habilitar compras con tarjeta de crédito. No crear un modelo paralelo ni alterar `main`.
 
-El primer corte debe permitir registrar un egreso de negocio y reflejarlo en el historial común de `Movimientos`. `FormaPago` podrá incorporarse al flujo cuando su integración con el modelo financiero esté definida correctamente.
+## Continuidad
 
-No se realizó merge a `main` y no se crean ramas nuevas salvo indicación explícita.
+Antes de cualquier cambio revisar código actual, clases relacionadas, servicios, repositorios, tests, reglas de negocio, últimos commits y comparación con `main`.
+
+Después de cambios importantes: tests específicos, relacionados y suite completa cuando corresponda; `git diff`, `git diff --check` y `git status`.
+
+No asumir ejecuciones de tests, sincronizaciones o merges que no hayan sido informados o verificados.
