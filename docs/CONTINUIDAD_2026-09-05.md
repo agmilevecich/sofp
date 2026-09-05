@@ -1,61 +1,75 @@
-# SOFP — Continuidad consolidada
+# SOFP — Continuidad 2026-09-05
 
-## Estado verificado — 05/09/2026
+## Estado verificado
 
-La fuente de verdad técnica es el código, los tests y los commits actuales de GitHub. `docs/` es documentación auxiliar.
+Rama estable: `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
+Rama de trabajo: `feature/swing-shell` → `11c189af1a4f8670f66e321cc033ab94e0139366`.
 
-- Rama estable: `main` → `a4be859`.
-- Rama de trabajo: `feature/swing-shell` → `98dead73`.
-- Último commit: `98dead73` — `test: preparar saldo para registro de gasto`.
-- Suite general más reciente informada: **586/586 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-- Comando: `mvn test`.
-- Duración: **10:43 min**.
-- Finalización informada: **05/09/2026 12:34:00 -03:00**.
+La rama de trabajo está divergida respecto de `main`: **274 commits por delante y 2 por detrás**. No se realizó merge a `main`.
 
-La rama está divergida respecto de `main`: **260 commits por delante y 2 por detrás**. No se realizó merge.
+Último commit: `11c189af1a4f8670f66e321cc033ab94e0139366` — `docs: registrar integracion pendiente de forma de pago`.
 
-## Últimos cambios
+## Estado funcional actual
 
-El bloque de Gastos incorporó `GastoService` y `GastosPanel`, conectados al núcleo financiero mediante `MovimientoService`.
+La Fase 8 continúa sobre el shell Swing integrado con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes.
 
-El flujo validado es:
+Arquitectura funcional acordada:
 
-**Gastos → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
+**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-El commit `98dead73` ajustó únicamente el fixture de `GastosPanelTest`: se agregó un ingreso previo de $1.000 para poder registrar un gasto de $100 respetando la regla de fondos disponibles.
+Gastos utiliza:
 
-## Estado funcional
+**`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-La Fase 8 — Swing continúa implementada e integrada con cuentas, categorías, movimientos, inversiones, reportes y gastos. La UI mantiene las reglas de negocio en los servicios.
+No existe una segunda fuente de verdad financiera para Gastos.
 
-La regla de fondos insuficientes está implementada: un `EGRESO` no puede superar el saldo disponible; un egreso igual al saldo es válido. También se valida al modificar importe o tipo cuando corresponde.
+## FormaPago — cerrado y validado
 
-La gestión de categorías con movimientos quedó implementada: no se elimina físicamente una categoría referenciada por movimientos; se conserva el historial mediante desactivación y la UI informa la situación de forma amigable.
+`FormaPago` está integrada al dominio de `Movimiento` y al flujo de Gastos. `GastosPanel` ofrece las cinco opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-El primer corte funcional de Gastos está implementado y validado. Los gastos aparecen como `EGRESO` en el historial común de `Movimientos`, sin crear una segunda fuente de verdad.
+La forma de pago se persiste en `Movimiento` y puede modificarse en el dominio.
 
-## FormaPago
+`GastoService` exige una forma de pago para registrar un gasto.
 
-`FormaPago` está definida con efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR.
+`TARJETA_CREDITO` se rechaza explícitamente por ahora porque todavía no existe el modelo de obligaciones/pasivos necesario para representar correctamente una compra a crédito sin simular una salida inmediata de fondos.
 
-La integración de `FormaPago` con `Movimiento` no debe hacerse de forma aislada: se incorporará dentro del flujo de Gastos cuando corresponda.
+## Validación más reciente
 
-La tarjeta de crédito requiere posteriormente representar obligaciones/pasivos sin asumir una salida inmediata de fondos de una cuenta bancaria.
+Suite general ejecutada y reportada por el usuario el **05/09/2026 13:04:09 -03:00** mediante `mvn test`:
 
-## Validación acumulada relevante
+- Tests run: **590**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **11:29 min**
 
-- `MovimientoFondosInsuficientesTest`: 6/6.
-- `MovimientoServiceTest`: 57/57.
-- `RegistrarMovimientoPanelTest`: 4/4.
-- `RegistrarCuentaPanelTest`: 6/6.
-- `CategoriaServiceTest`: 23/23.
-- `GastosPanelTest`: cobertura del primer corte funcional.
-- Suite general: **586/586**.
+Esta ejecución valida la integración actual de `FormaPago` y mantiene en verde la suite completa.
 
-## Próximo paso
+## Reglas financieras vigentes
 
-El primer corte de **GastosPanel** queda cerrado.
+- `EGRESO` mayor al saldo disponible: rechazado.
+- `EGRESO` igual al saldo disponible: permitido y deja saldo cero.
+- Las modificaciones de importe y tipo también respetan fondos disponibles.
+- Categorías con movimientos no se eliminan físicamente; se desactivan para conservar historial.
+- Cuenta y forma de pago son conceptos distintos.
+- Transferencias entre cuentas propias no son ingresos ni gastos; se representan como movimientos relacionados mediante `OperacionFinanciera`.
+- Los paneles especializados no deben duplicar el núcleo financiero.
 
-El próximo bloque funcional es integrar `FormaPago` al flujo de Gastos de forma coherente con el modelo financiero. Después se podrá avanzar hacia tarjetas de crédito, obligaciones/pasivos y patrimonio neto.
+## Próximos pasos
 
-No hacer merge automático a `main`. No crear ramas nuevas salvo indicación explícita.
+1. Mantener cerrada la integración actual de `FormaPago`.
+2. Diseñar y modelar obligaciones/pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
+3. Evolucionar ingresos y transferencias mediante el núcleo común.
+4. Incorporar progresivamente pasivos y patrimonio neto.
+5. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard según el roadmap.
+
+## Reglas de continuidad
+
+La fuente de verdad es siempre el código, tests y commits actuales. `docs/` es documentación auxiliar.
+
+Antes de cualquier cambio: revisar rama, últimos commits, comparación con `main`, implementación, clases relacionadas, servicios, repositorios, tests y reglas de negocio.
+
+No modificar `main`, no crear ramas nuevas salvo indicación explícita y no asumir tests ejecutados sin resultado informado.
+
+Después de cambios importantes: tests específicos, relacionados y suite completa cuando corresponda; `git diff`, `git diff --check` y `git status`.
