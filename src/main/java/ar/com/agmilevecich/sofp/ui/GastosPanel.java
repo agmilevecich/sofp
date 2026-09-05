@@ -192,14 +192,20 @@ public class GastosPanel extends JPanel {
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
 
-        agregarCampo(new JLabel("Cuenta"), cuentaComboBox, constraints, 0);
-        agregarCampo(new JLabel("Categoría"), categoriaComboBox, constraints, 1);
-        agregarCampo(new JLabel("Importe"), importeField, constraints, 2);
-        agregarCampo(new JLabel("Fecha"), fechaField, constraints, 3);
-        agregarCampo(new JLabel("Descripción"), descripcionField, constraints, 4);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 2;
+        add(new JLabel("Gastos"), constraints);
+        constraints.gridwidth = 1;
+
+        agregarCampo(new JLabel("Cuenta"), cuentaComboBox, constraints, 1);
+        agregarCampo(new JLabel("Categoría"), categoriaComboBox, constraints, 2);
+        agregarCampo(new JLabel("Importe"), importeField, constraints, 3);
+        agregarCampo(new JLabel("Fecha"), fechaField, constraints, 4);
+        agregarCampo(new JLabel("Descripción"), descripcionField, constraints, 5);
 
         constraints.gridx = 1;
-        constraints.gridy = 5;
+        constraints.gridy = 6;
         add(registrarButton, constraints);
     }
 
