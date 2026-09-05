@@ -87,8 +87,6 @@ Validación específica: `MovimientoFondosInsuficientesTest` **6/6**.
 
 Validación relacionada: `MovimientoServiceTest` **57/57**.
 
-Suite general vigente al 05/09/2026: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-
 ## D-015 — No eliminar físicamente categorías con movimientos
 
 Una categoría que ya esté referenciada por movimientos debe conservarse para proteger el historial financiero. El comportamiento implementado es impedir el borrado físico y desactivar la categoría cuando tiene movimientos asociados.
@@ -103,8 +101,28 @@ Los resúmenes mensuales/históricos, rankings por categoría, evolución patrim
 
 Una capacidad no se considerará implementada por estar documentada: requiere código, reglas de negocio, persistencia cuando corresponda y tests.
 
+## D-017 — Gastos como panel especializado de carga
+
+La experiencia Swing debe evolucionar hacia paneles orientados al hecho financiero que el usuario quiere registrar. El primer caso será **Gastos**, destinado a registrar compras, pagos de servicios y otros egresos.
+
+El panel Gastos no tendrá una fuente de verdad financiera independiente. Su responsabilidad será capturar los datos del gasto y delegar la creación del movimiento al servicio correspondiente.
+
+El flujo conceptual acordado es:
+
+**Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos` como historial consolidado.**
+
+`Movimientos` seguirá siendo el historial común de las operaciones financieras y no una tabla paralela a los paneles especializados.
+
+## D-018 — FormaPago se integra después del primer flujo de Gastos
+
+`FormaPago` ya está definida en el dominio mediante `927c66c` y cubierta por `FormaPagoTest` mediante `4ae0a27`, pero todavía no está integrada a `Movimiento`.
+
+La integración no debe hacerse de manera aislada si eso desvía el objetivo funcional del Swing. Se incorporará cuando su relación con el flujo de Gastos y el modelo financiero esté definida correctamente.
+
 ## Actualización — 05/09/2026
 
-La suite general de `feature/swing-shell` fue ejecutada mediante `mvn clean test` y quedó en **580/580 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`. La ejecución finalizó el 05/09/2026 a las 09:49:58 -03:00 y duró 10:58 min.
+La suite general vigente informada por el usuario es de **580/580 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, mediante `mvn clean test`, finalizada a las 09:49:58 -03:00.
 
-El problema de aislamiento detectado en `CategoriaServiceTest` se resolvió cerrando `JpaTestManager` antes de crear el `EntityManager` de cada test. Commit: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+La rama de trabajo actual continúa siendo `feature/swing-shell`. `main` permanece en `a4be859` y no se realizó merge.
+
+Los commits `927c66c` y `4ae0a27` agregaron `FormaPago` y su test. No se ha informado todavía la ejecución de `FormaPagoTest`.
