@@ -2,12 +2,15 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar y puede quedar desactualizada.
 
-## Estado verificado — 04/09/2026
+## Estado verificado — 05/09/2026
 
 **Rama estable:** `main` → `a4be859`.
-**Rama de trabajo:** `feature/swing-shell` → `2b2bf3e` como último commit funcional/test, seguido por actualizaciones documentales de continuidad.
+**Rama de trabajo:** `feature/swing-shell` → `a301276`.
 
-La rama de trabajo continúa divergida respecto de `main`. Los commits exclusivos de `main` conocidos son documentales y no se incorporan automáticamente.
+Último commit: `a301276` — `docs: consolidar continuidad del proyecto`.
+El último cambio funcional/test sigue siendo `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+
+La rama de trabajo continúa divergida respecto de `main`. No se realizó merge a `main`.
 
 ## Estado funcional
 
@@ -15,7 +18,7 @@ La Fase 8 continúa sobre el shell Swing integrado con cuentas, categorías, mov
 
 Criterio central acordado:
 
-**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`**.
+**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
 Los paneles pueden representar gastos, ingresos, transferencias, inversiones, préstamos/deudas, pagos de tarjeta, historial y dashboard, pero deben converger en el mismo núcleo financiero sin duplicar reglas de negocio.
 
@@ -39,8 +42,6 @@ La regla está implementada en `MovimientoService` y se aplica al registro públ
 
 Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
-Cobertura específica: `MovimientoFondosInsuficientesTest` **6/6**.
-
 ## Estado Swing
 
 Implementados y conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
@@ -49,46 +50,37 @@ Implementados y conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioP
 
 El formulario de movimientos utiliza LGoodDatePicker para la fecha y obtiene automáticamente la hora mediante `LocalTime.now()` al registrar.
 
-## Validaciones recientes
+## Validación vigente — 05/09/2026
 
-Pruebas relacionadas con movimientos después de implementar fondos insuficientes:
+Pruebas relevantes:
 
-- `MovimientoFondosInsuficientesTest`: **6/6**;
-- `MovimientoServiceTest`: **57/57**;
-- `RegistrarMovimientoPanelTest`: **4/4**.
+- `MovimientoFondosInsuficientesTest`: 6/6;
+- `MovimientoServiceTest`: 57/57;
+- `RegistrarMovimientoPanelTest`: 4/4;
+- `RegistrarCuentaPanelTest`: 6/6;
+- `CategoriaServiceTest`: **23/23**;
+- suite general: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
-Suite general más reciente: **577/577 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-
-Comando: `mvn clean test`.
-
-Duración: **11:16 min**.
-
-Finalización: **04/09/2026 18:54:20 -03:00**.
-
-El fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` fue adaptado agregando un ingreso previo independiente, manteniendo la intención del test bajo la nueva regla de fondos disponibles. Commit: `2b2bf3e`.
+Comando de suite: `mvn clean test`.
+Duración: **10:58 min**.
+Finalización: **05/09/2026 09:49:58 -03:00**.
 
 ## Últimos cambios funcionales/test
 
+- `85b767c` — `test: aislar persistencia en CategoriaServiceTest`;
+- `3cffeb9` — `test: completar datos requeridos en alta de cuenta`;
 - `2b2bf3e` — `test: adaptar cambio de tipo a fondos disponibles`;
 - `805e9fa` — `test: corregir comparacion de saldo en movimiento`;
-- `8b44177` — `test: corregir cobertura de cambio de tipo con fondos insuficientes`;
-- `6fb37dc` — `test: cubrir validacion de fondos insuficientes`;
-- `5dd8372` — `fix: validar fondos disponibles en movimientos`;
-- `5ce00a2` — `docs: registrar decisiones funcionales de SOFP`;
-- `1838f1b` — `docs: actualizar contexto de continuidad`.
+- `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
-## Reglas de negocio pendientes detectadas
+## Regla de negocio — Categorías con movimientos
 
-### Categorías con movimientos
+No debe eliminarse físicamente una categoría que ya esté referenciada por movimientos. Debe conservarse el historial financiero mediante desactivación y la UI debe informar la situación de forma comprensible.
 
-No debe eliminarse físicamente una categoría que ya esté referenciada por movimientos. Debe conservarse el historial financiero y debe evaluarse la desactivación como comportamiento de negocio.
-
-La UI debe traducir la regla a un mensaje comprensible y no exponer directamente una excepción de integridad referencial de Hibernate.
+La regla está implementada y validada en `CategoriaServiceTest`; la prueba relevante verifica que la categoría se desactiva y que el movimiento conserva su referencia.
 
 ## Próximo paso
 
-Antes de implementar el siguiente bloque, reconstruir nuevamente el código real y revisar `Categoria`, `CategoriaService`, repositorios, `Movimiento`, relaciones JPA y tests relacionados.
+Antes de implementar el siguiente bloque, reconstruir nuevamente el código real y revisar `FormaPago`, las relaciones con `Movimiento`, `Cuenta` y los servicios/tests relacionados.
 
-El próximo bloque funcional previsto es resolver la eliminación/desactivación de categorías con movimientos asociados, evitando el borrado físico y preservando el historial.
-
-No se realizó merge a `main` y no se crean ramas nuevas.
+No se realizó merge a `main` y no se crean ramas nuevas salvo indicación explícita.
