@@ -23,6 +23,10 @@ public class Movimiento extends EntidadAuditable {
     @Column(nullable = false, length = 20)
     private TipoMovimiento tipoMovimiento;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private FormaPago formaPago;
+
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal importe;
 
@@ -55,6 +59,20 @@ public class Movimiento extends EntidadAuditable {
             BigDecimal importe,
             LocalDateTime fechaHora,
             String descripcion) {
+        this(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion, null);
+    }
+
+    /**
+     * Constructor principal con forma de pago.
+     */
+    public Movimiento(
+            Cuenta cuenta,
+            Categoria categoria,
+            TipoMovimiento tipoMovimiento,
+            BigDecimal importe,
+            LocalDateTime fechaHora,
+            String descripcion,
+            FormaPago formaPago) {
 
         this.cuenta = Objects.requireNonNull(
                 cuenta,
@@ -85,6 +103,8 @@ public class Movimiento extends EntidadAuditable {
                 descripcion,
                 "La descripción es obligatoria"
         );
+
+        this.formaPago = formaPago;
     }
 
     public Cuenta getCuenta() {
@@ -97,6 +117,10 @@ public class Movimiento extends EntidadAuditable {
 
     public TipoMovimiento getTipoMovimiento() {
         return tipoMovimiento;
+    }
+
+    public FormaPago getFormaPago() {
+        return formaPago;
     }
 
     public BigDecimal getImporte() {
@@ -183,5 +207,9 @@ public class Movimiento extends EntidadAuditable {
                 categoria,
                 "La categoría es obligatoria"
         );
+    }
+
+    public void cambiarFormaPago(FormaPago formaPago) {
+        this.formaPago = formaPago;
     }
 }
