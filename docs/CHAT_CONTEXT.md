@@ -2,14 +2,14 @@
 
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
-## Estado verificado — 04/09/2026
+## Estado verificado — 05/09/2026
 
 **Rama estable:** `main` → `a4be859`.
-**Rama de trabajo:** `feature/swing-shell`.
+**Rama de trabajo:** `feature/swing-shell` → `fa46e02`.
 
-Último commit funcional/test: `2b2bf3e` — `test: adaptar cambio de tipo a fondos disponibles`.
+Último commit funcional/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
-Después de ese commit se realizaron únicamente actualizaciones documentales de continuidad en la misma rama. No se modificó `main` ni se crearon ramas nuevas.
+Después de ese commit se realizaron actualizaciones documentales de continuidad. La suite general fue ejecutada y quedó en **580/580**.
 
 ## Fase 8 — Shell Swing
 
@@ -41,48 +41,53 @@ Objetivo patrimonial de largo plazo: `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO
 
 Estos criterios son decisiones de diseño/roadmap; no deben considerarse funcionalidades implementadas hasta contar con código y tests.
 
-## Regla de negocio cerrada — Fondos insuficientes
+## Reglas de negocio cerradas
+
+### Fondos insuficientes
 
 Un `EGRESO` debe rechazarse si supera el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible está permitido y deja saldo cero.
 
-La regla está implementada en `MovimientoService` y se aplica al registro público de movimientos y a las modificaciones de importe y tipo cuando corresponda. Al modificar un movimiento, el cálculo excluye correctamente el movimiento actual.
-
-Se mantiene la separación deliberada del método interno de registro utilizado por fixtures/compatibilidad de paquetes; la validación de fondos se aplica al flujo público que registra movimientos para un usuario.
+La regla está implementada en `MovimientoService` y se aplica al registro público y a las modificaciones de importe y tipo cuando corresponde.
 
 Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
-## Tests y validación
-
-`MovimientoFondosInsuficientesTest`: **6/6 tests en verde**.
-
-`MovimientoServiceTest`: **57/57 tests en verde**.
-
-`RegistrarMovimientoPanelTest`: **4/4 tests en verde**.
-
-Suite general más reciente: **577/577 tests en verde**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-
-La suite general se ejecutó con `mvn clean test` y terminó el 04/09/2026 a las 18:54:20 -03:00, con una duración total de **11:16 min**.
-
-El fixture de `MovimientoServiceTest.deberiaModificarTipoMovimiento` fue adaptado para contar con un ingreso previo independiente, de modo que la conversión de un ingreso de 50.000 a egreso sea financieramente válida bajo la nueva regla. El cambio no altera la intención del test. Commit: `2b2bf3e`.
-
-## Últimos commits funcionales/test
-
-- `2b2bf3e` — `test: adaptar cambio de tipo a fondos disponibles`;
-- `805e9fa` — `test: corregir comparacion de saldo en movimiento`;
-- `8b44177` — `test: corregir cobertura de cambio de tipo con fondos insuficientes`;
-- `6fb37dc` — `test: cubrir validacion de fondos insuficientes`;
-- `5dd8372` — `fix: validar fondos disponibles en movimientos`.
-
-## Regla de negocio pendiente
-
 ### Categorías con movimientos
 
-Una categoría referenciada por movimientos no debe eliminarse físicamente. Debe conservarse el historial, probablemente mediante desactivación, y la UI debe mostrar un mensaje amigable ante el intento de eliminación.
+Una categoría referenciada por movimientos no debe eliminarse físicamente. Se conserva el historial y se desactiva la categoría. La UI informa la situación de forma amigable.
+
+`CategoriaServiceTest`: **23/23**.
+
+El aislamiento de persistencia del test se corrigió mediante `JpaTestManager.close()` antes de crear el `EntityManager` en cada `setUp()`. Commit: `85b767c`.
+
+## Tests y validación
+
+- `MovimientoFondosInsuficientesTest`: **6/6**;
+- `MovimientoServiceTest`: **57/57**;
+- `RegistrarMovimientoPanelTest`: **4/4**;
+- `RegistrarCuentaPanelTest`: **6/6**;
+- `CategoriaServiceTest`: **23/23**;
+- suite general: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+
+Suite general ejecutada con `mvn clean test`, finalizada el **05/09/2026 09:49:58 -03:00**, duración **10:58 min**.
+
+## Últimos commits relevantes
+
+- `85b767c` — `test: aislar persistencia en CategoriaServiceTest`;
+- `3cffeb9` — `test: completar datos requeridos en alta de cuenta`;
+- `2b2bf3e` — `test: adaptar cambio de tipo a fondos disponibles`;
+- `805e9fa` — `test: corregir comparacion de saldo en movimiento`;
+- `5dd8372` — `fix: validar fondos disponibles en movimientos`.
+
+## Estado Git
+
+`feature/swing-shell` continúa como rama de trabajo y `main` permanece en `a4be859`. No se realizó merge a `main`.
+
+Los commits documentales posteriores al cambio funcional/test dejaron la rama en `fa46e02` al cierre de esta actualización.
 
 ## Próximo paso
 
-Reconstruir nuevamente el estado del código antes de implementar el siguiente bloque. Revisar `Categoria`, `CategoriaService`, repositorio, `Movimiento`, relaciones JPA y tests/UI de categorías.
+El próximo bloque funcional candidato es definir e incorporar `FormaPago`, manteniendo la distinción entre `Cuenta` y medio de pago y el núcleo financiero común basado en `Movimiento`.
 
-El próximo bloque funcional previsto es resolver la eliminación/desactivación de categorías con movimientos asociados, evitando el borrado físico y la exposición de `ConstraintViolationException`.
+Antes de implementar cambios, reconstruir nuevamente el código real, revisar clases relacionadas, repositorios, reglas de negocio y tests. Después de cambios importantes: tests específicos, relacionados y suite general cuando corresponda; `git diff`, `git diff --check` y `git status`.
 
-No hacer merge automático a `main`. No crear ramas nuevas. Después de cambios importantes: tests específicos, relacionados y suite general cuando corresponda; `git diff`, `git diff --check` y `git status`.
+No hacer merge automático a `main`. No crear ramas nuevas salvo indicación explícita.
