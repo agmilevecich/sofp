@@ -124,12 +124,14 @@ Estos criterios son de diseño y roadmap; no deben registrarse como funcionalida
 
 ## Estado Git — 05/09/2026
 
-`feature/swing-shell` → `a301276`.
+`feature/swing-shell` continúa como rama de trabajo.
 
-Último cambio funcional/test: `85b767c`.
+Último cambio funcional/test: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
-Último commit de documentación: `a301276` — `docs: consolidar continuidad del proyecto`.
+Los commits posteriores corresponden a actualizaciones documentales de continuidad.
 
 `main` permanece en `a4be859`. No se realizó merge a `main`.
+
+Suite general vigente: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
 
 Antes de cerrar un bloque: tests específicos, relacionados y suite general cuando corresponda; luego `git diff`, `git diff --check` y `git status`.
