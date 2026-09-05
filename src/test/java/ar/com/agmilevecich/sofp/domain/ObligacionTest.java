@@ -76,7 +76,7 @@ class ObligacionTest {
 
         obligacion.registrarPago(new BigDecimal("15000.50"));
 
-        assertEquals(BigDecimal.ZERO, obligacion.getSaldoPendiente());
+        assertEquals(0, obligacion.getSaldoPendiente().compareTo(BigDecimal.ZERO));
         assertEquals(EstadoObligacion.PAGADA, obligacion.getEstado());
     }
 
