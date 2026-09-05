@@ -72,48 +72,40 @@ Commit: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
 
 Validación específica posterior: `CategoriaServiceTest` **23/23**, `BUILD SUCCESS`.
 
-## 2026-09-05 — Suite general final conocida
+## 2026-09-05 — Primer corte funcional de Gastos
 
-Se ejecutó `mvn clean test` sobre `feature/swing-shell` después de corregir el aislamiento.
-
-Resultado: **580/580 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
-
-Duración: **10:58 min**.
-
-Finalización: **05/09/2026 09:49:58 -03:00**.
-
-Este es el último resultado de suite general informado y no debe atribuirse a los commits posteriores de `FormaPago`.
-
-## 2026-09-05 — Definición de FormaPago
-
-Se agregó `FormaPago` al dominio mediante `927c66c` con cinco valores: efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR.
-
-Se agregó `FormaPagoTest` mediante `4ae0a27`.
-
-La prueba todavía no tiene resultado de ejecución informado y, por lo tanto, la funcionalidad no se considera validada.
-
-## 2026-09-05 — Redefinición del próximo avance del Swing
-
-Se precisó el objetivo funcional del Swing a partir de la experiencia previa con ControlFinanzas.
-
-El usuario quiere una experiencia donde exista un panel especializado de **Gastos** para registrar compras, pagos de servicios y otros egresos, y que esos registros aparezcan posteriormente en la tabla/historial común de `Movimientos`.
-
-Se reafirmó que esto no implica crear una segunda fuente de verdad. El flujo será:
+Se implementó `GastoService` y `GastosPanel` siguiendo el criterio acordado:
 
 **Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos` como historial consolidado.**
 
-Por esta razón, el próximo bloque funcional pasa a ser el primer corte de `GastosPanel`. La integración de `FormaPago` queda como paso posterior dentro de ese flujo, cuando su relación con el modelo financiero esté correctamente definida.
+`GastosPanel` permite seleccionar cuenta y categoría activas, importe, fecha y descripción. `GastoService` delega en `MovimientoService`, manteniendo las reglas financieras y una única fuente de verdad.
+
+La cobertura de `GastosPanelTest` valida el registro exitoso y su persistencia como `EGRESO` en el historial común.
+
+El commit `98dead73` corrigió únicamente el fixture de prueba agregando un ingreso previo de $1.000 para registrar un gasto de $100 respetando la regla de fondos disponibles.
+
+## 2026-09-05 — Suite general posterior a Gastos
+
+El usuario ejecutó `mvn test` después de sincronizar la rama.
+
+Resultado: **586/586 tests**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+
+Duración: **10:43 min**.
+
+Finalización: **05/09/2026 12:34:00 -03:00**.
+
+Con este resultado, el primer corte funcional de Gastos queda validado.
 
 ## Estado Git — 2026-09-05
 
 La rama activa continúa siendo `feature/swing-shell`.
 
-Último commit actual de la rama: `4ae0a27` — `test: cubrir formas de pago`.
+Último commit de código: `98dead73` — `test: preparar saldo para registro de gasto`.
 
-Último cambio funcional/test previo: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+Luego se actualizaron los documentos de continuidad y builds para reflejar el cierre del primer corte de Gastos.
 
 La rama no se integró a `main`. `main` permanece en `a4be859`.
 
 ## Próximo avance
 
-Implementar el primer corte funcional de `GastosPanel`, revisando antes código Swing, `MovimientoService`, `Movimiento`, cuentas, categorías y tests relacionados.
+Integrar `FormaPago` dentro del flujo de Gastos cuando corresponda al modelo financiero y, posteriormente, abordar tarjetas de crédito, obligaciones/pasivos y patrimonio neto.
