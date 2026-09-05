@@ -1,106 +1,72 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
+## Estado actual — 05/09/2026
 
-## Estado verificado — 05/09/2026
+La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar.
 
-**Rama estable:** `main` → `a4be859`.
-**Rama de trabajo:** `feature/swing-shell` → `4ae0a27`.
+**Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
+**Rama de trabajo:** `feature/swing-shell`.
 
-Último commit de la rama: `4ae0a27` — `test: cubrir formas de pago`.
-Último commit funcional/test previo: `85b767c` — `test: aislar persistencia en CategoriaServiceTest`.
+Comparación verificada: `feature/swing-shell` está **274 commits por delante y 2 por detrás** de `main`. No se realizó merge.
 
-Después de `85b767c` se definió `FormaPago` y se agregó `FormaPagoTest`. No se ha informado todavía la ejecución de ese test.
+## Último estado funcional
 
-La suite general más reciente informada corresponde al estado anterior a esos commits: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+El shell Swing de Fase 8 integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes mediante `CardLayout`.
 
-## Fase 8 — Shell Swing
-
-Componentes implementados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
-
-`MainFrame` usa `CardLayout` para Inicio, Cuentas, Categorías, Movimientos, Inversiones y Reportes. La UI utiliza servicios existentes y no duplica reglas de negocio.
-
-## Objetivo UX actual del Swing
-
-A partir del análisis de `ControlFinanzas`, el usuario definió que el Swing debe aproximarse funcionalmente a esa experiencia: un panel de **Gastos** donde se registren compras, pagos de servicios y otros egresos, y esos registros deben verse reflejados en la tabla/historial común de `Movimientos`.
-
-El patrón arquitectónico acordado es:
+La arquitectura funcional acordada es:
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Por lo tanto, `Gastos` será una interfaz de carga especializada y `Movimientos` será el historial financiero consolidado. No deben existir dos fuentes de verdad financieras.
-
-Flujo conceptual:
-
-**Gastos → servicio específico → `Movimiento` `EGRESO` → `Movimientos`.**
-
-El primer corte de Gastos debe reutilizar las reglas existentes de `MovimientoService` y no crear un núcleo financiero paralelo.
-
-## Seguridad
-
-La auditoría transversal de seguridad y aislamiento de datos está completada e integrada en `main`. Se mantienen protegidos por propietario/usuario perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras.
-
-## Criterios de diseño derivados de ControlFinanzas
-
-`agmilevecich/controlfinanzas` queda establecido como **banco de ideas y referencia funcional**, no como arquitectura a copiar.
-
-Se distingue **Cuenta** de **Forma/Medio de pago**. Formas previstas: tarjeta de crédito, tarjeta de débito, QR, transferencia y efectivo.
-
-La tarjeta de crédito requiere modelar una obligación/pasivo que puede existir sin una salida inmediata de fondos de una cuenta bancaria.
-
-Los préstamos otorgados deben conservarse como derechos de cobro. Las transferencias entre cuentas propias no deben computarse como ingreso ni gasto.
-
-Objetivo patrimonial de largo plazo: `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`.
-
-Estos criterios son decisiones de diseño/roadmap; no deben considerarse funcionalidades implementadas hasta contar con código y tests.
+Gastos utiliza `GastosPanel → GastoService → MovimientoService → Movimiento` de tipo `EGRESO`, y el resultado aparece en `Movimientos`.
 
 ## FormaPago
 
-`FormaPago` fue agregada mediante `927c66c` y `FormaPagoTest` mediante `4ae0a27`.
+Integración **completada y validada**.
 
-`FormaPagoTest` todavía no tiene un resultado de ejecución informado. No considerar la funcionalidad validada hasta recibir ese resultado.
+`Movimiento` persiste la forma de pago. `MovimientoService` la propaga al registrar. `GastoService` exige una forma de pago.
 
-La integración de `FormaPago` con `Movimiento` queda pendiente y debe realizarse dentro del flujo funcional de Gastos cuando corresponda.
+Formas disponibles: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-## Reglas de negocio cerradas
+`TARJETA_CREDITO` continúa temporalmente rechazada hasta implementar obligaciones/pasivos. No se debe simular un egreso inmediato sobre una cuenta para una compra a crédito.
 
-### Fondos insuficientes
+## Última validación conocida
 
-Un `EGRESO` debe rechazarse si supera el saldo disponible de la cuenta. Un egreso exactamente igual al saldo disponible está permitido y deja saldo cero.
+El usuario informó el **05/09/2026 13:04:09 -03:00**:
 
-Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
+- `mvn test`;
+- Tests run: **590**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **11:29 min**.
 
-### Categorías con movimientos
+## Reglas vigentes
 
-Una categoría referenciada por movimientos no debe eliminarse físicamente. Se conserva el historial y se desactiva la categoría. La UI informa la situación de forma amigable.
+Los egresos respetan fondos disponibles, incluyendo modificaciones de importe y tipo. Un egreso igual al saldo está permitido y deja saldo cero.
 
-`CategoriaServiceTest`: **23/23**.
+Las categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
 
-El aislamiento de persistencia del test se corrigió mediante `JpaTestManager.close()` antes de crear el `EntityManager` en cada `setUp()`. Commit: `85b767c`.
+Cuenta y forma de pago son conceptos distintos.
 
-## Tests y validación
+Las transferencias entre cuentas propias no son ingresos ni gastos y se relacionan mediante `OperacionFinanciera`.
 
-- `MovimientoFondosInsuficientesTest`: **6/6**;
-- `MovimientoServiceTest`: **57/57**;
-- `RegistrarMovimientoPanelTest`: **4/4**;
-- `RegistrarCuentaPanelTest`: **6/6**;
-- `CategoriaServiceTest`: **23/23**;
-- suite general: **580/580**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+La UI no duplica reglas de negocio.
 
-Suite general ejecutada con `mvn clean test`, finalizada el **05/09/2026 09:49:58 -03:00**, duración **10:58 min**.
+## Próximo bloque
 
-No atribuir esta suite a los commits posteriores de `FormaPago`.
+El próximo bloque funcional real es el diseño de obligaciones/pasivos para tarjeta de crédito, si se decide continuar con esa funcionalidad. Después podrán evolucionarse ingresos/transferencias, pasivos, patrimonio neto y capacidades de análisis.
 
-## Estado Git
+## Protocolo para nuevas sesiones
 
-`feature/swing-shell` continúa como rama de trabajo y `main` permanece en `a4be859`. No se realizó merge a `main`.
+1. Revisar rama actual.
+2. Revisar últimos commits.
+3. Comparar con `main`.
+4. Revisar README y documentación de continuidad.
+5. Revisar archivos modificados recientemente.
+6. Revisar tests relacionados.
+7. Identificar último cambio, último test conocido y próximo paso.
 
-## Próximo paso
+Prioridad: **código → tests → commits → main → documentación**.
 
-Implementar el primer corte funcional de `GastosPanel`: registrar un egreso de negocio y reflejarlo en el historial común de `Movimientos`.
-
-Antes de implementar cambios, reconstruir nuevamente el código real y revisar `MainFrame`, `SidebarPanel`, `MovimientosPanel`, `RegistrarMovimientoPanel`, `MovimientoService`, `Movimiento`, cuentas, categorías y tests relacionados.
-
-Después de cambios importantes: tests específicos, relacionados y suite general cuando corresponda; `git diff`, `git diff --check` y `git status`.
-
-No hacer merge automático a `main`. No crear ramas nuevas salvo indicación explícita.
+No modificar `main`, no crear ramas nuevas salvo indicación explícita y no asumir sincronizaciones o resultados de tests no informados.
