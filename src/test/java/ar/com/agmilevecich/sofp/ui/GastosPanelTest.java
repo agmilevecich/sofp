@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
@@ -66,6 +67,7 @@ class GastosPanelTest {
 
         assertNotNull(panel.getCuentaComboBox());
         assertNotNull(panel.getCategoriaComboBox());
+        assertNotNull(panel.getFormaPagoComboBox());
         assertNotNull(panel.getImporteField());
         assertNotNull(panel.getFechaField());
         assertEquals(LocalDate.now(), panel.getFechaField().getDate());
@@ -100,11 +102,12 @@ class GastosPanelTest {
         assertEquals(activa, panel.getCuentaComboBox().getItemAt(0));
         assertEquals(1, panel.getCategoriaComboBox().getItemCount());
         assertEquals(activaCategoria, panel.getCategoriaComboBox().getItemAt(0));
+        assertEquals(5, panel.getFormaPagoComboBox().getItemCount());
         assertTrue(panel.getRegistrarButton().isEnabled());
     }
 
     @Test
-    void deberiaRegistrarElGastoComoEgreso() {
+    void deberiaRegistrarElGastoComoEgresoConFormaDePago() {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
@@ -134,6 +137,7 @@ class GastosPanelTest {
         );
         panel.getCuentaComboBox().setSelectedItem(cuenta);
         panel.getCategoriaComboBox().setSelectedItem(categoria);
+        panel.getFormaPagoComboBox().setSelectedItem(FormaPago.TARJETA_DEBITO);
         panel.getImporteField().setText("100");
         panel.getFechaField().setDate(LocalDate.of(2026, 9, 4));
         panel.getDescripcionField().setText("Compra supermercado");
@@ -143,9 +147,34 @@ class GastosPanelTest {
         var movimientos = movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId());
         assertEquals(2, movimientos.size());
         assertEquals(TipoMovimiento.EGRESO, movimientos.get(1).getTipoMovimiento());
+        assertEquals(FormaPago.TARJETA_DEBITO, movimientos.get(1).getFormaPago());
         assertEquals(new BigDecimal("100"), movimientos.get(1).getImporte());
         assertEquals("Compra supermercado", movimientos.get(1).getDescripcion());
         assertEquals(LocalDate.of(2026, 9, 4), movimientos.get(1).getFechaHora().toLocalDate());
+    }
+
+    @Test
+    void deberiaRechazarTarjetaDeCreditoHastaModelarLaObligacion() {
+        Usuario usuario = crearUsuario();
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta("Cuenta principal", TipoCuenta.CAJA_AHORRO, perfil, institucion, moneda);
+        Categoria categoria = new Categoria("Supermercado", perfil);
+        persistir(usuario, perfil, institucion, moneda, cuenta, categoria);
+
+        GastoService gastoService = new GastoService(movimientoService);
+
+        assertThrows(IllegalArgumentException.class, () -> gastoService.registrar(
+                cuenta,
+                categoria,
+                new BigDecimal("100"),
+                LocalDateTime.of(2026, 9, 4, 9, 0),
+                "Compra con crédito",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        ));
     }
 
     @Test
