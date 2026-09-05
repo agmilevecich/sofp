@@ -61,8 +61,34 @@ class MovimientoTest {
         assertEquals(cuenta, movimiento.getCuenta());
         assertEquals(categoria, movimiento.getCategoria());
         assertEquals(TipoMovimiento.EGRESO, movimiento.getTipoMovimiento());
+        assertNull(movimiento.getFormaPago());
         assertEquals(new BigDecimal("15000.50"), movimiento.getImporte());
         assertEquals("Compra Carrefour", movimiento.getDescripcion());
+    }
+
+    @Test
+    void deberiaCriarMovimientoConFormaDePago() {
+        Movimiento movimiento = crearMovimientoConFormaPago(FormaPago.EFECTIVO);
+
+        assertEquals(FormaPago.EFECTIVO, movimiento.getFormaPago());
+    }
+
+    @Test
+    void deberiaCambiarFormaDePago() {
+        Movimiento movimiento = crearMovimientoConFormaPago(FormaPago.EFECTIVO);
+
+        movimiento.cambiarFormaPago(FormaPago.TRANSFERENCIA);
+
+        assertEquals(FormaPago.TRANSFERENCIA, movimiento.getFormaPago());
+    }
+
+    @Test
+    void deberiaPermitirFormaDePagoNulaParaMovimientosLegados() {
+        Movimiento movimiento = crearMovimientoConFormaPago(FormaPago.EFECTIVO);
+
+        movimiento.cambiarFormaPago(null);
+
+        assertNull(movimiento.getFormaPago());
     }
 
     @Test
@@ -164,6 +190,30 @@ class MovimientoTest {
                 new BigDecimal("15000.50"),
                 LocalDateTime.now(),
                 "Compra Carrefour"
+        );
+    }
+
+    private Movimiento crearMovimientoConFormaPago(FormaPago formaPago) {
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.forma.pago." + System.nanoTime(),
+                "hash"
+        );
+        PerfilFinanciero perfil = new PerfilFinanciero("Personal", usuario);
+        InstitucionFinanciera banco = new InstitucionFinanciera("Banco Santander", TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta("Caja de Ahorro", TipoCuenta.CAJA_AHORRO, perfil, banco, moneda);
+        Categoria categoria = new Categoria("Supermercado", perfil);
+
+        return new Movimiento(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.now(),
+                "Compra",
+                formaPago
         );
     }
 
