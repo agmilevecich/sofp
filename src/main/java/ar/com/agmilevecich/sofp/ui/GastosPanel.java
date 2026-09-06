@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -224,41 +226,59 @@ public class GastosPanel extends JPanel {
     }
 
     private void construirFormulario() {
-        setLayout(new GridBagLayout());
-        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        setLayout(new BorderLayout(12, 12));
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JLabel titulo = new JLabel("Gastos");
+        titulo.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+        add(titulo, BorderLayout.NORTH);
+
+        JPanel panelFormulario = new JPanel(new GridBagLayout());
+        panelFormulario.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Registrar gasto",
+                TitledBorder.LEFT,
+                TitledBorder.TOP
+        ));
 
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(4, 4, 4, 4);
+        constraints.insets = new Insets(6, 6, 6, 6);
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.weightx = 0.0;
+
+        agregarCampo(panelFormulario, new JLabel("Cuenta"), cuentaComboBox, constraints, 0, 0);
+        agregarCampo(panelFormulario, new JLabel("Categoría"), categoriaComboBox, constraints, 2, 0);
+        agregarCampo(panelFormulario, new JLabel("Forma de pago"), formaPagoComboBox, constraints, 0, 1);
+        agregarCampo(panelFormulario, new JLabel("Importe"), importeField, constraints, 2, 1);
+        agregarCampo(panelFormulario, new JLabel("Fecha"), fechaField, constraints, 0, 2);
+        agregarCampo(panelFormulario, new JLabel("Descripción"), descripcionField, constraints, 2, 2);
 
         constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridwidth = 2;
-        add(new JLabel("Gastos"), constraints);
-        constraints.gridwidth = 1;
+        constraints.gridy = 3;
+        constraints.gridwidth = 4;
+        constraints.weightx = 1.0;
+        constraints.anchor = GridBagConstraints.EAST;
+        panelFormulario.add(registrarButton, constraints);
 
-        agregarCampo(new JLabel("Cuenta"), cuentaComboBox, constraints, 1);
-        agregarCampo(new JLabel("Categoría"), categoriaComboBox, constraints, 2);
-        agregarCampo(new JLabel("Forma de pago"), formaPagoComboBox, constraints, 3);
-        agregarCampo(new JLabel("Importe"), importeField, constraints, 4);
-        agregarCampo(new JLabel("Fecha"), fechaField, constraints, 5);
-        agregarCampo(new JLabel("Descripción"), descripcionField, constraints, 6);
-
-        constraints.gridx = 1;
-        constraints.gridy = 7;
-        add(registrarButton, constraints);
+        add(panelFormulario, BorderLayout.NORTH);
     }
 
-    private void agregarCampo(JLabel etiqueta,
+    private void agregarCampo(JPanel panel,
+                              JLabel etiqueta,
                               java.awt.Component campo,
                               GridBagConstraints constraints,
+                              int columna,
                               int fila) {
-        constraints.gridx = 0;
+        constraints.gridx = columna;
         constraints.gridy = fila;
-        add(etiqueta, constraints);
-        constraints.gridx = 1;
-        add(campo, constraints);
+        constraints.gridwidth = 1;
+        constraints.weightx = 0.0;
+        panel.add(etiqueta, constraints);
+
+        constraints.gridx = columna + 1;
+        constraints.weightx = 1.0;
+        panel.add(campo, constraints);
     }
 
     private void registrar() {
