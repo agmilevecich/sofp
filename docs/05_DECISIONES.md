@@ -90,10 +90,14 @@ La integración de `FormaPago` se realiza dentro del flujo funcional de Gastos. 
 
 `TARJETA_CREDITO` se rechaza actualmente en `GastoService`. No se debe simular un egreso inmediato sobre una cuenta cuando la compra genera una obligación que se pagará posteriormente. La habilitación queda condicionada a un modelo correcto de obligaciones/pasivos.
 
-## Actualización — 05/09/2026
+## Actualización — 07/09/2026
 
-La integración de `FormaPago` quedó implementada y validada. `GastosPanel` ofrece las cinco formas actuales: efectivo, transferencia, tarjeta de débito, tarjeta de crédito y QR. La tarjeta de crédito continúa temporalmente bloqueada por la decisión D-019.
+La integración de `FormaPago` permanece implementada y validada. Los últimos cambios de la rama `feature/swing-shell` fueron de pulido visual del shell Swing: `5faff68` (Cuentas), `5310ba3` (Movimientos) y `26f7f58` (Categorías). No modificaron las reglas de negocio.
 
-Suite general informada por el usuario: **590/590**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, `mvn test`, finalizada el **05/09/2026 13:04:09 -03:00**, duración **11:29 min**.
+Las pruebas específicas recientes fueron `CuentasPanelTest` **3/3**, `MovimientosPanelTest` **3/3** y `CategoriasPanelTest` **4/4**.
+
+Suite general informada por el usuario: **602/602**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, `mvn test`, finalizada el **07/09/2026 14:59:12 -03:00**, duración **10:54 min**.
 
 La rama de trabajo sigue siendo `feature/swing-shell`; `main` permanece en `a4be859` y no se realizó merge.
+
+Como criterio de pulido futuro, la salida de consola de la aplicación podrá limpiarse cuando SOFP alcance una etapa más cercana al uso cotidiano; no es una tarea funcional prioritaria.
