@@ -74,33 +74,46 @@ Formas disponibles: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CRED
 
 Cobertura agregada en dominio y UI para selección, persistencia, modificación y rechazo de tarjeta de crédito.
 
-## Suite general — 05/09/2026 13:04:09
+## Bloque — Pulido visual del shell Swing
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se realizaron ajustes visuales incrementales sin modificar reglas de negocio ni servicios:
+
+- `5faff68` — mejora de layout de `CuentasPanel`.
+- `5310ba3` — mejora de layout de `MovimientosPanel`.
+- `26f7f58` — mejora de layout de `CategoriasPanel`.
+
+Las pruebas específicas informadas por el usuario quedaron verdes: `CuentasPanelTest` **3/3**, `MovimientosPanelTest` **3/3** y `CategoriasPanelTest` **4/4**.
+
+## Suite general — 07/09/2026 14:59:12
 
 Resultado informado por el usuario:
 
-- Tests run: **590**
+- Tests run: **602**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **11:29 min**
-- Finalización: **05/09/2026 13:04:09 -03:00**
+- Duración: **10:54 min**
+- Finalización: **07/09/2026 14:59:12 -03:00**
 
-Este es el último resultado de tests conocido y valida el estado actual de la rama `feature/swing-shell`.
+Es la validación general más reciente conocida. La suite aumentó de 590 a 602 tests y continúa completamente en verde.
 
 ## Estado Git vigente
 
 `main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-`feature/swing-shell` está en `11c189af1a4f8670f66e321cc033ab94e0139366` al inicio de esta actualización documental y continúa sin merge a `main`.
+`feature/swing-shell` estaba en `26f7f58` antes de esta actualización documental y continúa sin merge a `main`.
 
-La comparación verificada es **274 commits por delante y 2 por detrás**.
+La comparación verificada es **292 commits por delante y 2 por detrás**, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`.
 
 ## Próximos bloques
 
-1. Modelar obligaciones/pasivos para tarjeta de crédito.
+1. Diseñar/modelar obligaciones y pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
 2. Evolucionar ingresos y transferencias mediante el núcleo común.
 3. Incorporar progresivamente pasivos y patrimonio neto.
 4. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard.
+5. Como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
 Antes de cerrar cualquier bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
