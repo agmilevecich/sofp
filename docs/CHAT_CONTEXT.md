@@ -1,19 +1,29 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 05/09/2026
+## Estado actual — 07/09/2026
 
 La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Comparación verificada: `feature/swing-shell` está **274 commits por delante y 2 por detrás** de `main`. No se realizó merge.
+La rama de trabajo está **292 commits por delante y 2 por detrás** de `main`, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge.
 
-## Último estado funcional
+## Último estado
+
+Último commit de código antes de la actualización documental: `26f7f5891f1657d6c343d20a378b291c3eb310fd` — `style: mejorar layout del panel de categorias`.
+
+Los tres últimos cambios son ajustes visuales del shell:
+
+- `5faff68` — layout de `CuentasPanel`;
+- `5310ba3` — layout de `MovimientosPanel`;
+- `26f7f58` — layout de `CategoriasPanel`.
+
+No modifican las reglas financieras ni los servicios.
 
 El shell Swing de Fase 8 integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes mediante `CardLayout`.
 
-La arquitectura funcional acordada es:
+## Arquitectura funcional
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
@@ -31,15 +41,21 @@ Formas disponibles: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CRED
 
 ## Última validación conocida
 
-El usuario informó el **05/09/2026 13:04:09 -03:00**:
+El usuario informó el **07/09/2026 14:59:12 -03:00**:
 
 - `mvn test`;
-- Tests run: **590**;
+- Tests run: **602**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **11:29 min**.
+- duración: **10:54 min**.
+
+Las pruebas específicas de los últimos tres ajustes visuales también fueron informadas como verdes:
+
+- `CuentasPanelTest`: **3/3**;
+- `MovimientosPanelTest`: **3/3**;
+- `CategoriasPanelTest`: **4/4**.
 
 ## Reglas vigentes
 
@@ -53,9 +69,13 @@ Las transferencias entre cuentas propias no son ingresos ni gastos y se relacion
 
 La UI no duplica reglas de negocio.
 
-## Próximo bloque
+## Pendientes
 
-El próximo bloque funcional real es el diseño de obligaciones/pasivos para tarjeta de crédito, si se decide continuar con esa funcionalidad. Después podrán evolucionarse ingresos/transferencias, pasivos, patrimonio neto y capacidades de análisis.
+1. Diseñar/modelar obligaciones y pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
+2. Evolucionar ingresos y transferencias mediante el núcleo común.
+3. Incorporar progresivamente pasivos y patrimonio neto.
+4. Evolucionar resúmenes, análisis histórico, evolución patrimonial, vencimientos y dashboard.
+5. Como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
 ## Protocolo para nuevas sesiones
 
