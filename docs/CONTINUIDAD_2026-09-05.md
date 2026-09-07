@@ -3,21 +3,23 @@
 ## Estado verificado
 
 Rama estable: `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-Rama de trabajo: `feature/swing-shell` → `26f7f5891f1657d6c343d20a378b291c3eb310fd` antes de la actualización documental.
+Rama de trabajo: `feature/swing-shell`.
 
-La rama de trabajo está divergida respecto de `main`: **292 commits por delante y 2 por detrás**. Merge-base: `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge a `main`.
+La comparación verificada antes de la actualización documental indica que la rama de trabajo está divergida respecto de `main`: **306 commits por delante y 2 por detrás**. Merge-base: `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge a `main`.
 
-Último commit de código: `26f7f5891f1657d6c343d20a378b291c3eb310fd` — `style: mejorar layout del panel de categorias`.
+Último commit funcional antes de la actualización documental: `06a9fd849aeef9947ad79b9cd6a9943ec93ee8c3` — `fix: corregir pruebas de saldo con usuario`.
 
-## Últimos cambios
+## Últimos cambios funcionales
 
-La rama completó una secuencia de pulido visual del shell Swing:
+Se cerró el bloque específico de reglas de saldo de movimientos.
 
-- `5faff68` — `style: mejorar layout del panel de cuentas`.
-- `5310ba3` — `style: mejorar layout del panel de movimientos`.
-- `26f7f58` — `style: mejorar layout del panel de categorias`.
+`MovimientoServiceSaldoTest` agregó tres casos:
 
-Son cambios de presentación/layout y mantienen la lógica funcional existente.
+- rechazo de `EGRESO` superior al saldo disponible;
+- aceptación de `EGRESO` exactamente igual al saldo disponible;
+- aumento del importe de un `EGRESO` hasta el saldo disponible.
+
+El primer intento del test falló porque el fixture utilizaba el overload interno de `MovimientoService.registrar`, que no aplica la validación pública de saldo. Se corrigió en `06a9fd8` pasando `usuario.getId()` en los registros correspondientes. No fue necesario modificar producción.
 
 ## Estado funcional actual
 
@@ -55,24 +57,27 @@ La forma de pago se persiste en `Movimiento` y puede modificarse en el dominio.
 
 ## Validación más reciente
 
-Suite general ejecutada y reportada por el usuario el **07/09/2026 14:59:12 -03:00** mediante `mvn test`:
+Pruebas relacionadas ejecutadas y reportadas por el usuario el **07/09/2026 20:12:52 -03:00**:
 
-- Tests run: **602**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **10:54 min**
+- `MovimientoServiceSaldoTest`: **3/3**.
+- `MovimientoServiceTest`: **50/50**.
+- `IngresoServiceTest` y `GastoServiceTest`: incluidos.
+- Total: **61/61**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- `BUILD SUCCESS`.
+- Duración: **03:09 min**.
 
-Pruebas específicas recientes:
+Suite general más reciente conocida: **602/602**, `BUILD SUCCESS`, ejecutada el **07/09/2026 14:59:12 -03:00** mediante `mvn test`. Esa suite completa no fue repetida después de los cambios de saldo.
+
+Pruebas específicas de UI conocidas:
 
 - `CuentasPanelTest`: **3/3**.
 - `MovimientosPanelTest`: **3/3**.
 - `CategoriasPanelTest`: **4/4**.
 
 Total: **10/10**.
-
-El fallo histórico observado en `RegistrarMovimientoPanelTest.deberiaRegistrarMovimientoConLaHoraDelSistema` no reapareció en la suite general del 07/09/2026.
 
 ## Próximos pasos
 
