@@ -16,6 +16,7 @@ Este documento conserva el punto de continuidad de la evolución del proyecto. L
 8. Integración de `FormaPago` al flujo de Gastos.
 9. Pulido visual incremental de Cuentas, Movimientos y Categorías.
 10. Validación de la suite general con **602/602 tests**.
+11. Cobertura específica adicional de las reglas de saldo de movimientos con **3/3** y validación relacionada con **61/61**.
 
 ## Gastos
 
@@ -33,9 +34,17 @@ Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDI
 
 `GastoService` exige una forma de pago. `TARJETA_CREDITO` permanece bloqueada hasta disponer de un modelo correcto de obligaciones/pasivos.
 
+## Reglas de saldo
+
+El bloque de reglas de fondos quedó ampliado y validado.
+
+`MovimientoServiceSaldoTest` cubre rechazo de egreso superior al saldo, aceptación de egreso exactamente igual al saldo y aumento de un egreso hasta el saldo disponible.
+
+La última validación relacionada informada por el usuario fue **61/61**, sin fallos, errores ni tests omitidos. El commit `06a9fd8` corrigió el fixture para ejercitar la API pública del servicio con el usuario propietario.
+
 ## Shell Swing — pulido visual
 
-Los últimos commits de la rama son ajustes visuales sin cambios de reglas de negocio:
+Los ajustes visuales realizados anteriormente fueron:
 
 - `5faff68` — `style: mejorar layout del panel de cuentas`.
 - `5310ba3` — `style: mejorar layout del panel de movimientos`.
@@ -52,15 +61,15 @@ Suite general más reciente informada por el usuario el **07/09/2026 14:59:12 -0
 Comando: `mvn test`.
 Duración: **10:54 min**.
 
-Este resultado reemplaza como validación vigente al registro anterior de 590 tests del 05/09/2026.
+Esta suite general no fue repetida después de la cobertura adicional de saldo. La validación relacionada posterior, ejecutada el **07/09/2026 20:12:52 -03:00**, quedó en **61/61**.
 
 ## Estado Git
 
 `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-`feature/swing-shell`: `26f7f5891f1657d6c343d20a378b291c3eb310fd` antes de iniciar esta actualización documental.
+`feature/swing-shell`: `06a9fd849aeef9947ad79b9cd6a9943ec93ee8c3` antes de iniciar la actualización documental.
 
-Comparación verificada: **292 commits por delante y 2 por detrás**, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`.
+Comparación verificada antes de esta actualización: **306 commits por delante y 2 por detrás**, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`.
 
 La rama de trabajo continúa sin merge a `main`.
 
