@@ -2,7 +2,7 @@
 
 ## Estado de validación — 07/09/2026
 
-### Suite general vigente
+### Validación general
 
 Última ejecución general informada por el usuario mediante `mvn test`:
 
@@ -14,22 +14,52 @@
 - duración: **10:54 min**;
 - finalización: **07/09/2026 14:59:12 -03:00**.
 
-Es la ejecución general más reciente conocida. La suite aumentó de 590 a 602 tests y permanece completamente en verde.
+Esta suite general no fue repetida después de los últimos cambios de cobertura de saldo.
 
-### Fondos insuficientes
+### Validación relacionada más reciente
 
-`MovimientoFondosInsuficientesTest`: **6/6**.
+El usuario ejecutó el 07/09/2026 a las **20:12:52 -03:00**:
 
-Casos cubiertos: egreso menor al saldo, egreso igual al saldo, egreso superior rechazado, modificación válida de egreso, modificación que produciría saldo negativo y cambio de `INGRESO` a `EGRESO` sin fondos.
+`mvn -Dtest=MovimientoServiceSaldoTest,MovimientoServiceTest,IngresoServiceTest,GastoServiceTest test`
+
+Resultado:
+
+- Tests run: **61**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **03:09 min**.
+
+Detalle conocido: `MovimientoServiceTest` **50/50** y `MovimientoServiceSaldoTest` **3/3**; `IngresoServiceTest` y `GastoServiceTest` quedaron incluidos en la misma ejecución sin fallos.
+
+### Fondos insuficientes y saldo
+
+El bloque específico de reglas de saldo quedó completado y validado.
+
+`MovimientoServiceSaldoTest`: **3/3**.
+
+Casos cubiertos:
+
+1. rechazo de un `EGRESO` que supera el saldo disponible;
+2. aceptación de un `EGRESO` exactamente igual al saldo disponible;
+3. aceptación del aumento del importe de un `EGRESO` hasta el saldo disponible.
+
+El primer intento del nuevo test utilizaba accidentalmente el overload interno de `MovimientoService.registrar`, que no aplica la validación de saldo. Se corrigió el fixture para utilizar la API pública con `usuario.getId()`. El cambio quedó registrado en `06a9fd8`.
+
+No fue necesario modificar producción para resolver este fallo de test.
 
 ### Movimientos
 
-- `MovimientoServiceTest`: **57/57**;
-- `RegistrarMovimientoPanelTest`: **4/4**.
+`MovimientoServiceTest`: **50/50** en la última ejecución relacionada.
 
-La regla de fondos se mantiene en registro y modificaciones.
+La cobertura existente incluye registro, consultas, modificaciones, eliminación y reglas de negocio de movimientos. El bloque adicional de saldo aporta cobertura específica sin duplicar el caso de cambio de `INGRESO` a `EGRESO` ya existente.
 
-La ejecución general del 07/09/2026 no reprodujo el fallo histórico observado anteriormente en la prueba de hora del sistema.
+### Ingresos y gastos
+
+`IngresoServiceTest` y `GastoServiceTest` participaron de la ejecución relacionada más reciente, dentro del total **61/61**.
+
+`GastoService` continúa rechazando `TARJETA_CREDITO` hasta disponer del modelo de obligaciones/pasivos.
 
 ### Gestión de categorías
 
@@ -38,12 +68,6 @@ La ejecución general del 07/09/2026 no reprodujo el fallo histórico observado 
 La cobertura confirma que una categoría con movimientos no se elimina físicamente y se desactiva para conservar el historial. También se cubre la interfaz mediante `CategoriasPanelTest`.
 
 El aislamiento de persistencia de `CategoriaServiceTest` se corrigió en `85b767c`.
-
-### Gastos
-
-`GastosPanelTest` cubre construcción, dependencias, cuentas y categorías activas, registro exitoso, persistencia como `EGRESO`, importe, descripción, fecha y reflejo en el historial común.
-
-El fixture utiliza un ingreso previo de $1.000 y registra un gasto de $100 para validar la regla real de fondos. El ajuste corresponde a `98dead73`.
 
 ### FormaPago
 
@@ -57,8 +81,6 @@ La cobertura actual incluye:
 - selección de forma de pago en `GastosPanel`;
 - persistencia de la forma de pago;
 - rechazo de `TARJETA_CREDITO` en `GastoService` mientras no exista el modelo de obligaciones/pasivos.
-
-El nombre de la prueba de dominio fue corregido en `6cdc3736128718b8c8ca803928c31c5b190a2866`.
 
 ### Inversiones y reportes
 
@@ -82,13 +104,13 @@ Las baterías conocidas continúan validadas:
 
 Tests relacionados: `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
 
-Pruebas específicas de los últimos ajustes visuales:
+Pruebas específicas recientes de UI conocidas:
 
 - `CuentasPanelTest`: **3/3**;
 - `MovimientosPanelTest`: **3/3**;
 - `CategoriasPanelTest`: **4/4**.
 
-Total de las tres pruebas específicas recientes: **10/10**.
+Total de esas tres pruebas específicas: **10/10**.
 
 ## Criterio de validación
 
