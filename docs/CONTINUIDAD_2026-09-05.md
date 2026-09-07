@@ -1,13 +1,23 @@
-# SOFP — Continuidad 2026-09-05
+# SOFP — Continuidad 2026-09-07
 
 ## Estado verificado
 
 Rama estable: `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-Rama de trabajo: `feature/swing-shell` → `597982d4450f60b8e06083e71b5f364905bc79cf`.
+Rama de trabajo: `feature/swing-shell` → `26f7f5891f1657d6c343d20a378b291c3eb310fd` antes de la actualización documental.
 
-La rama de trabajo está divergida respecto de `main`: **274 commits por delante y 2 por detrás**. No se realizó merge a `main`.
+La rama de trabajo está divergida respecto de `main`: **292 commits por delante y 2 por detrás**. Merge-base: `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge a `main`.
 
-Último commit: `597982d4450f60b8e06083e71b5f364905bc79cf` — `docs: sincronizar estado actual con continuidad 2026-09-05`.
+Último commit de código: `26f7f5891f1657d6c343d20a378b291c3eb310fd` — `style: mejorar layout del panel de categorias`.
+
+## Últimos cambios
+
+La rama completó una secuencia de pulido visual del shell Swing:
+
+- `5faff68` — `style: mejorar layout del panel de cuentas`.
+- `5310ba3` — `style: mejorar layout del panel de movimientos`.
+- `26f7f58` — `style: mejorar layout del panel de categorias`.
+
+Son cambios de presentación/layout y mantienen la lógica funcional existente.
 
 ## Estado funcional actual
 
@@ -29,22 +39,9 @@ No existe una segunda fuente de verdad financiera para Gastos.
 
 La forma de pago se persiste en `Movimiento` y puede modificarse en el dominio.
 
-`GastoService` exige una forma de pago para registrar un gasto.
+`GastoService` exige una forma de pago.
 
 `TARJETA_CREDITO` se rechaza explícitamente por ahora porque todavía no existe el modelo de obligaciones/pasivos necesario para representar correctamente una compra a crédito sin simular una salida inmediata de fondos.
-
-## Validación más reciente
-
-Suite general ejecutada y reportada por el usuario el **05/09/2026 13:04:09 -03:00** mediante `mvn test`:
-
-- Tests run: **590**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **11:29 min**
-
-Esta ejecución valida la integración actual de `FormaPago` y mantiene en verde la suite completa.
 
 ## Reglas financieras vigentes
 
@@ -56,12 +53,34 @@ Esta ejecución valida la integración actual de `FormaPago` y mantiene en verde
 - Transferencias entre cuentas propias no son ingresos ni gastos; se representan como movimientos relacionados mediante `OperacionFinanciera`.
 - Los paneles especializados no deben duplicar el núcleo financiero.
 
+## Validación más reciente
+
+Suite general ejecutada y reportada por el usuario el **07/09/2026 14:59:12 -03:00** mediante `mvn test`:
+
+- Tests run: **602**
+- Failures: **0**
+- Errors: **0**
+- Skipped: **0**
+- `BUILD SUCCESS`
+- Duración: **10:54 min**
+
+Pruebas específicas recientes:
+
+- `CuentasPanelTest`: **3/3**.
+- `MovimientosPanelTest`: **3/3**.
+- `CategoriasPanelTest`: **4/4**.
+
+Total: **10/10**.
+
+El fallo histórico observado en `RegistrarMovimientoPanelTest.deberiaRegistrarMovimientoConLaHoraDelSistema` no reapareció en la suite general del 07/09/2026.
+
 ## Próximos pasos
 
 1. Diseñar y modelar obligaciones/pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
 2. Evolucionar ingresos y transferencias mediante el núcleo común.
 3. Incorporar progresivamente pasivos y patrimonio neto.
-4. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard según el roadmap.
+4. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard.
+5. Como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
 ## Reglas de continuidad
 
