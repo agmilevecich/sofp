@@ -1,8 +1,8 @@
 # SOFP — Historial del proyecto
 
-## Estado documental — 05/09/2026
+## Estado documental — 07/09/2026
 
-Este documento conserva el punto de continuidad actual de la evolución del proyecto. Los estados técnicos deben verificarse siempre contra código, tests y Git.
+Este documento conserva el punto de continuidad de la evolución del proyecto. Los estados técnicos deben verificarse siempre contra código, tests y Git.
 
 ## Hitos principales
 
@@ -14,6 +14,8 @@ Este documento conserva el punto de continuidad actual de la evolución del proy
 6. Integración de cuentas, categorías, movimientos, inversiones y reportes en el shell.
 7. Implementación del primer corte funcional de Gastos.
 8. Integración de `FormaPago` al flujo de Gastos.
+9. Pulido visual incremental de Cuentas, Movimientos y Categorías.
+10. Validación de la suite general con **602/602 tests**.
 
 ## Gastos
 
@@ -31,22 +33,36 @@ Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDI
 
 `GastoService` exige una forma de pago. `TARJETA_CREDITO` permanece bloqueada hasta disponer de un modelo correcto de obligaciones/pasivos.
 
+## Shell Swing — pulido visual
+
+Los últimos commits de la rama son ajustes visuales sin cambios de reglas de negocio:
+
+- `5faff68` — `style: mejorar layout del panel de cuentas`.
+- `5310ba3` — `style: mejorar layout del panel de movimientos`.
+- `26f7f58` — `style: mejorar layout del panel de categorias`.
+
+Las pruebas específicas correspondientes informadas por el usuario fueron **3/3**, **3/3** y **4/4**, respectivamente.
+
 ## Validación
 
-Suite general más reciente informada por el usuario el **05/09/2026 13:04:09 -03:00**:
+Suite general más reciente informada por el usuario el **07/09/2026 14:59:12 -03:00**:
 
-**590 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
+**602 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
 
 Comando: `mvn test`.
-Duración: **11:29 min**.
+Duración: **10:54 min**.
+
+Este resultado reemplaza como validación vigente al registro anterior de 590 tests del 05/09/2026.
 
 ## Estado Git
 
 `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-`feature/swing-shell`: los cambios funcionales y documentales continúan sin merge a `main`.
+`feature/swing-shell`: `26f7f5891f1657d6c343d20a378b291c3eb310fd` antes de iniciar esta actualización documental.
 
-Comparación verificada: **274 commits por delante y 2 por detrás**.
+Comparación verificada: **292 commits por delante y 2 por detrás**, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`.
+
+La rama de trabajo continúa sin merge a `main`.
 
 ## Criterios permanentes
 
@@ -66,5 +82,6 @@ No considerar implementada una funcionalidad solamente por estar documentada.
 2. Ingresos y transferencias mediante el núcleo común.
 3. Pasivos y patrimonio neto.
 4. Análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+5. Pulido posterior de la salida de consola de la aplicación.
 
 No hacer merge a `main` automáticamente ni crear nuevas ramas salvo indicación explícita.
