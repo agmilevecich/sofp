@@ -1,20 +1,20 @@
 # SOFP — Tests
 
-## Estado de validación — 05/09/2026
+## Estado de validación — 07/09/2026
 
 ### Suite general vigente
 
 Última ejecución general informada por el usuario mediante `mvn test`:
 
-- Tests run: **590**;
+- Tests run: **602**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **11:29 min**;
-- finalización: **05/09/2026 13:04:09 -03:00**.
+- duración: **10:54 min**;
+- finalización: **07/09/2026 14:59:12 -03:00**.
 
-Esta es la ejecución más reciente conocida y mantiene toda la suite en verde después de integrar `FormaPago`.
+Es la ejecución general más reciente conocida. La suite aumentó de 590 a 602 tests y permanece completamente en verde.
 
 ### Fondos insuficientes
 
@@ -28,6 +28,8 @@ Casos cubiertos: egreso menor al saldo, egreso igual al saldo, egreso superior r
 - `RegistrarMovimientoPanelTest`: **4/4**.
 
 La regla de fondos se mantiene en registro y modificaciones.
+
+La ejecución general del 07/09/2026 no reprodujo el fallo histórico observado anteriormente en la prueba de hora del sistema.
 
 ### Gestión de categorías
 
@@ -79,6 +81,14 @@ Las baterías conocidas continúan validadas:
 ## Cobertura Swing
 
 Tests relacionados: `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
+
+Pruebas específicas de los últimos ajustes visuales:
+
+- `CuentasPanelTest`: **3/3**;
+- `MovimientosPanelTest`: **3/3**;
+- `CategoriasPanelTest`: **4/4**.
+
+Total de las tres pruebas específicas recientes: **10/10**.
 
 ## Criterio de validación
 
