@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -55,7 +56,8 @@ public class CategoriasPanel extends JPanel {
         perfilFinancieroId = null;
         usuarioId = null;
         categorias = new ArrayList<>();
-        setLayout(new BorderLayout(8, 8));
+        setLayout(new BorderLayout(12, 12));
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         add(new JLabel("Categorías"), BorderLayout.NORTH);
         add(new JScrollPane(listaCategorias), BorderLayout.CENTER);
     }
@@ -93,11 +95,29 @@ public class CategoriasPanel extends JPanel {
         eliminarButton = new JButton("Eliminar");
         categorias = new ArrayList<>();
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        setLayout(new BorderLayout(12, 12));
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         add(new JLabel("Categorías"), BorderLayout.NORTH);
-        add(new JScrollPane(listaCategorias), BorderLayout.CENTER);
-        add(crearFormulario(), BorderLayout.SOUTH);
+
+        JPanel listaPanel = new JPanel(new BorderLayout());
+        listaPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Categorías registradas",
+                TitledBorder.LEADING,
+                TitledBorder.TOP
+        ));
+        listaPanel.add(new JScrollPane(listaCategorias), BorderLayout.CENTER);
+        add(listaPanel, BorderLayout.CENTER);
+
+        JPanel formularioPanel = new JPanel(new BorderLayout());
+        formularioPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Registrar categoría",
+                TitledBorder.LEADING,
+                TitledBorder.TOP
+        ));
+        formularioPanel.add(crearFormulario(), BorderLayout.CENTER);
+        add(formularioPanel, BorderLayout.SOUTH);
 
         listaCategorias.addListSelectionListener(event -> {
             if (!event.getValueIsAdjusting()) {
@@ -115,7 +135,7 @@ public class CategoriasPanel extends JPanel {
     private JPanel crearFormulario() {
         JPanel formulario = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(3, 3, 3, 3);
+        gbc.insets = new Insets(4, 4, 4, 4);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         gbc.gridx = 0;
