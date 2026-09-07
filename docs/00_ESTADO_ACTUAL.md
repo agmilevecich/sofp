@@ -2,14 +2,14 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
-## Estado verificado — 05/09/2026
+## Estado verificado — 07/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `04ee8214736bf21cca669ad203c8fb9dc7a1ce39`.
+**Rama de trabajo:** `feature/swing-shell` → `26f7f5891f1657d6c343d20a378b291c3eb310fd`.
 
-Último commit de la rama: `04ee8214736bf21cca669ad203c8fb9dc7a1ce39` — `docs: actualizar indice de continuidad 2026-09-05`.
+Último commit de la rama: `26f7f5891f1657d6c343d20a378b291c3eb310fd` — `style: mejorar layout del panel de categorias`.
 
-La comparación verificada antes de las actualizaciones documentales indica que `feature/swing-shell` está **274 commits por delante y 2 por detrás** de `main`. No se realizó merge a `main`.
+La comparación verificada indica que `feature/swing-shell` está **292 commits por delante y 2 por detrás** de `main`. El merge-base es `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge a `main`.
 
 ## Estado funcional
 
@@ -21,23 +21,25 @@ Criterio central:
 
 `Movimientos` es el historial financiero común y consolidado, no una segunda fuente de verdad.
 
-## Gastos
+## Gastos y FormaPago
 
-Primer corte funcional completado y validado. El flujo es:
+El flujo funcional vigente es:
 
 **`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-El panel permite seleccionar cuenta, categoría, importe, fecha, descripción y forma de pago. El servicio especializado delega las reglas financieras al núcleo existente.
+`FormaPago` está integrada y validada. Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-## FormaPago
+`GastoService` exige forma de pago. `TARJETA_CREDITO` continúa rechazada hasta disponer del modelo correcto de obligaciones/pasivos; no debe simularse una salida inmediata de fondos por una compra a crédito.
 
-Integración completada y validada.
+## UI — estado reciente
 
-`Movimiento` persiste una `FormaPago` opcional para conservar compatibilidad con movimientos existentes. `MovimientoService` dispone del registro público que propaga la forma de pago y mantiene el registro anterior.
+Los últimos cambios de `feature/swing-shell` son ajustes visuales del shell, sin cambios de reglas financieras:
 
-`GastoService` exige forma de pago y rechaza `TARJETA_CREDITO` hasta que exista un modelo de obligaciones/pasivos que permita representar correctamente la compra a crédito sin simular una salida inmediata de fondos.
+- `5faff68` — mejora de layout de `CuentasPanel`.
+- `5310ba3` — mejora de layout de `MovimientosPanel`.
+- `26f7f58` — mejora de layout de `CategoriasPanel`.
 
-Formas actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO`, `QR`.
+Los tres paneles siguen el patrón visual de espaciado y secciones tituladas, manteniendo la lógica existente.
 
 ## Reglas financieras vigentes
 
@@ -55,20 +57,26 @@ La auditoría transversal de aislamiento de datos quedó completada e integrada 
 
 ## Validación vigente
 
-Suite general ejecutada localmente y reportada por el usuario el **05/09/2026 13:04:09 -03:00** mediante `mvn test`:
+Suite general ejecutada y reportada por el usuario el **07/09/2026 14:59:12 -03:00** mediante `mvn test`:
 
-- Tests run: **590**
+- Tests run: **602**
 - Failures: **0**
 - Errors: **0**
 - Skipped: **0**
 - `BUILD SUCCESS`
-- Duración: **11:29 min**
+- Duración: **10:54 min**
 
-Esta es la última ejecución conocida y valida el estado funcional actual de la rama.
+Además, las pruebas específicas recientes de UI quedaron verdes:
+
+- `CuentasPanelTest`: **3/3**.
+- `MovimientosPanelTest`: **3/3**.
+- `CategoriasPanelTest`: **4/4**.
 
 ## Próximo paso
 
-El siguiente bloque funcional debe partir de `feature/swing-shell` tal como está ahora. Prioridad inmediata: modelar obligaciones/pasivos si se decide habilitar compras con tarjeta de crédito. No crear un modelo paralelo ni alterar `main`.
+La rama queda funcionalmente validada y con el shell Swing en etapa de pulido visual. El siguiente bloque funcional pendiente sigue siendo el diseño/modelado de obligaciones y pasivos si se decide habilitar compras con tarjeta de crédito.
+
+Como tarea de pulido futura queda limpiar la salida de consola al ejecutar la aplicación, sin prioridad inmediata y sin alterar ahora la configuración de logging.
 
 ## Continuidad
 
