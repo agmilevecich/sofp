@@ -130,7 +130,8 @@ class MovimientoServiceSaldoTest {
                 TipoMovimiento.INGRESO,
                 new BigDecimal("100.00"),
                 LocalDateTime.of(2026, 9, 7, 10, 0),
-                "Saldo inicial"
+                "Saldo inicial",
+                usuario.getId()
         );
 
         assertThrows(
@@ -141,7 +142,8 @@ class MovimientoServiceSaldoTest {
                         TipoMovimiento.EGRESO,
                         new BigDecimal("100.01"),
                         LocalDateTime.of(2026, 9, 7, 11, 0),
-                        "Egreso sin saldo suficiente"
+                        "Egreso sin saldo suficiente",
+                        usuario.getId()
                 )
         );
     }
@@ -155,7 +157,8 @@ class MovimientoServiceSaldoTest {
                 TipoMovimiento.INGRESO,
                 new BigDecimal("100.00"),
                 LocalDateTime.of(2026, 9, 7, 10, 0),
-                "Saldo inicial"
+                "Saldo inicial",
+                usuario.getId()
         );
 
         Movimiento egreso =
@@ -165,7 +168,8 @@ class MovimientoServiceSaldoTest {
                         TipoMovimiento.EGRESO,
                         new BigDecimal("100.00"),
                         LocalDateTime.of(2026, 9, 7, 11, 0),
-                        "Egreso por saldo exacto"
+                        "Egreso por saldo exacto",
+                        usuario.getId()
                 );
 
         assertNotNull(egreso);
@@ -188,7 +192,8 @@ class MovimientoServiceSaldoTest {
                 TipoMovimiento.INGRESO,
                 new BigDecimal("100.00"),
                 LocalDateTime.of(2026, 9, 7, 10, 0),
-                "Saldo inicial"
+                "Saldo inicial",
+                usuario.getId()
         );
 
         Movimiento egreso =
@@ -198,7 +203,8 @@ class MovimientoServiceSaldoTest {
                         TipoMovimiento.EGRESO,
                         new BigDecimal("40.00"),
                         LocalDateTime.of(2026, 9, 7, 11, 0),
-                        "Egreso original"
+                        "Egreso original",
+                        usuario.getId()
                 );
 
         Movimiento actualizado =
