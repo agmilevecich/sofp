@@ -7,19 +7,13 @@ La fuente de verdad es el código, los tests y los commits actuales. `docs/` es 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-La rama de trabajo está **292 commits por delante y 2 por detrás** de `main`, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge.
+La comparación verificada antes de la actualización documental indica que `feature/swing-shell` está **306 commits por delante y 2 por detrás** de `main`, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge.
 
-## Último estado
+## Último estado funcional
 
-Último commit de código antes de la actualización documental: `26f7f5891f1657d6c343d20a378b291c3eb310fd` — `style: mejorar layout del panel de categorias`.
+Último commit funcional antes de la actualización documental: `06a9fd849aeef9947ad79b9cd6a9943ec93ee8c3` — `fix: corregir pruebas de saldo con usuario`.
 
-Los tres últimos cambios son ajustes visuales del shell:
-
-- `5faff68` — layout de `CuentasPanel`;
-- `5310ba3` — layout de `MovimientosPanel`;
-- `26f7f58` — layout de `CategoriasPanel`.
-
-No modifican las reglas financieras ni los servicios.
+El commit corrigió `MovimientoServiceSaldoTest` para que los registros utilizados en las pruebas de saldo pasaran el `usuarioId` y ejercitaran la API pública de `MovimientoService`. No hubo cambio de producción.
 
 El shell Swing de Fase 8 integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes mediante `CardLayout`.
 
@@ -39,35 +33,27 @@ Formas disponibles: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CRED
 
 `TARJETA_CREDITO` continúa temporalmente rechazada hasta implementar obligaciones/pasivos. No se debe simular un egreso inmediato sobre una cuenta para una compra a crédito.
 
+## Reglas de saldo
+
+Los egresos respetan fondos disponibles, incluyendo modificaciones de importe y tipo. Un egreso igual al saldo está permitido y deja saldo cero.
+
+`MovimientoServiceSaldoTest`: **3/3**, cubriendo rechazo de egreso superior al saldo, aceptación de egreso exacto y aumento de importe de un egreso hasta el saldo.
+
 ## Última validación conocida
 
-El usuario informó el **07/09/2026 14:59:12 -03:00**:
+El usuario informó el **07/09/2026 20:12:52 -03:00**:
 
-- `mvn test`;
-- Tests run: **602**;
+- comando: `mvn -Dtest=MovimientoServiceSaldoTest,MovimientoServiceTest,IngresoServiceTest,GastoServiceTest test`;
+- Tests run: **61**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **10:54 min**.
+- duración: **03:09 min**.
 
-Las pruebas específicas de los últimos tres ajustes visuales también fueron informadas como verdes:
+Detalle: `MovimientoServiceTest` **50/50**, `MovimientoServiceSaldoTest` **3/3** y `IngresoServiceTest`/`GastoServiceTest` incluidos sin fallos.
 
-- `CuentasPanelTest`: **3/3**;
-- `MovimientosPanelTest`: **3/3**;
-- `CategoriasPanelTest`: **4/4**.
-
-## Reglas vigentes
-
-Los egresos respetan fondos disponibles, incluyendo modificaciones de importe y tipo. Un egreso igual al saldo está permitido y deja saldo cero.
-
-Las categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
-
-Cuenta y forma de pago son conceptos distintos.
-
-Las transferencias entre cuentas propias no son ingresos ni gastos y se relacionan mediante `OperacionFinanciera`.
-
-La UI no duplica reglas de negocio.
+La última suite general conocida sigue siendo la del **07/09/2026 14:59:12 -03:00**: `mvn test`, **602/602**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **10:54 min**. No fue repetida después de los cambios de saldo.
 
 ## Pendientes
 
