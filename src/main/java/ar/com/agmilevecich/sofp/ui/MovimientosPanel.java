@@ -12,6 +12,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Objects;
@@ -65,21 +66,39 @@ public class MovimientosPanel extends JPanel {
         modeloMovimientos = new DefaultListModel<>();
         listaMovimientos = new JList<>(modeloMovimientos);
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        setLayout(new BorderLayout(12, 12));
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        add(new JLabel("Movimientos"), BorderLayout.NORTH);
-        add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
+        JLabel titulo = new JLabel("Movimientos");
+        add(titulo, BorderLayout.NORTH);
+
+        JPanel panelLista = new JPanel(new BorderLayout());
+        panelLista.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Movimientos registrados",
+                TitledBorder.LEFT,
+                TitledBorder.TOP
+        ));
+        panelLista.add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
+        add(panelLista, BorderLayout.CENTER);
         actualizarMovimientos();
 
         if (categoriaService != null) {
-            add(new RegistrarMovimientoPanel(
+            JPanel panelFormulario = new JPanel(new BorderLayout());
+            panelFormulario.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createEtchedBorder(),
+                    "Registrar movimiento",
+                    TitledBorder.LEFT,
+                    TitledBorder.TOP
+            ));
+            panelFormulario.add(new RegistrarMovimientoPanel(
                     movimientoService,
                     categoriaService,
                     cuenta,
                     usuarioId,
                     this::actualizarMovimientos
-            ), BorderLayout.SOUTH);
+            ), BorderLayout.CENTER);
+            add(panelFormulario, BorderLayout.SOUTH);
         }
     }
 
@@ -101,10 +120,21 @@ public class MovimientosPanel extends JPanel {
         modeloMovimientos = new DefaultListModel<>();
         listaMovimientos = new JList<>(modeloMovimientos);
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        add(new JLabel("Movimientos"), BorderLayout.NORTH);
-        add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
+        setLayout(new BorderLayout(12, 12));
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JLabel titulo = new JLabel("Movimientos");
+        add(titulo, BorderLayout.NORTH);
+
+        JPanel panelLista = new JPanel(new BorderLayout());
+        panelLista.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Movimientos registrados",
+                TitledBorder.LEFT,
+                TitledBorder.TOP
+        ));
+        panelLista.add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
+        add(panelLista, BorderLayout.CENTER);
         actualizarMovimientos();
     }
 
