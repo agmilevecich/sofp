@@ -13,6 +13,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,21 +95,39 @@ public class CuentasPanel extends JPanel {
         listaCuentas = new JList<>(modeloCuentas);
         cuentas = new ArrayList<>();
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        setLayout(new BorderLayout(12, 12));
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        add(new JLabel("Cuentas"), BorderLayout.NORTH);
-        add(new JScrollPane(listaCuentas), BorderLayout.CENTER);
+        JLabel titulo = new JLabel("Cuentas");
+        add(titulo, BorderLayout.NORTH);
+
+        JPanel panelLista = new JPanel(new BorderLayout());
+        panelLista.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Cuentas registradas",
+                TitledBorder.LEFT,
+                TitledBorder.TOP
+        ));
+        panelLista.add(new JScrollPane(listaCuentas), BorderLayout.CENTER);
+        add(panelLista, BorderLayout.CENTER);
 
         if (institucionFinancieraService != null) {
-            add(new RegistrarCuentaPanel(
+            JPanel panelFormulario = new JPanel(new BorderLayout());
+            panelFormulario.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createEtchedBorder(),
+                    "Registrar cuenta",
+                    TitledBorder.LEFT,
+                    TitledBorder.TOP
+            ));
+            panelFormulario.add(new RegistrarCuentaPanel(
                     cuentaService,
                     institucionFinancieraService,
                     monedaService,
                     perfilFinanciero,
                     usuarioId,
                     this::actualizarCuentas
-            ), BorderLayout.SOUTH);
+            ), BorderLayout.CENTER);
+            add(panelFormulario, BorderLayout.SOUTH);
         }
 
         actualizarCuentas();
