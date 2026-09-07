@@ -5,17 +5,32 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-La comparación verificada indica que `feature/swing-shell` está **292 commits por delante y 2 por detrás** de `main`, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge.
+La comparación verificada antes de la actualización documental indica que `feature/swing-shell` está **306 commits por delante y 2 por detrás** de `main`, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge.
 
-## Bloques cerrados
+## Último bloque cerrado
 
-### Fondos insuficientes
+### Reglas de saldo de movimientos
 
 **Completado y validado.**
 
 `MovimientoService` rechaza `EGRESO` superior al saldo disponible, permite el egreso igual al saldo y aplica la regla también a modificaciones de importe y tipo.
 
-Pruebas: `MovimientoFondosInsuficientesTest` **6/6**, `MovimientoServiceTest` **57/57**, `RegistrarMovimientoPanelTest` **4/4**.
+Se agregó `MovimientoServiceSaldoTest` con tres casos específicos. La validación relacionada más reciente fue:
+
+- `MovimientoServiceSaldoTest`: **3/3**;
+- `MovimientoServiceTest`: **50/50**;
+- `IngresoServiceTest` y `GastoServiceTest`: incluidos;
+- total: **61/61**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **03:09 min**;
+- finalización: **07/09/2026 20:12:52 -03:00**.
+
+El fixture de saldo fue corregido en `06a9fd8` para utilizar la API pública de `MovimientoService` pasando el usuario propietario. No se modificó producción.
+
+## Bloques cerrados anteriores
 
 ### Categorías con movimientos
 
@@ -35,8 +50,6 @@ El registro queda en el historial común de `Movimientos` y respeta la regla de 
 
 ### FormaPago — completado y validado
 
-La integración quedó cerrada y la suite general continúa en verde.
-
 `FormaPago` está integrada a `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`.
 
 Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
@@ -55,7 +68,7 @@ Commits: `5faff68`, `5310ba3` y `26f7f58`.
 
 Pruebas específicas recientes: `CuentasPanelTest` **3/3**, `MovimientosPanelTest` **3/3**, `CategoriasPanelTest` **4/4**.
 
-## Validación vigente
+## Validación general conocida
 
 Última suite general informada por el usuario:
 
@@ -68,7 +81,7 @@ Pruebas específicas recientes: `CuentasPanelTest` **3/3**, `MovimientosPanelTes
 - duración: **10:54 min**;
 - finalización: **07/09/2026 14:59:12 -03:00**.
 
-La suite pasó de 590 a 602 tests y se mantiene completamente en verde.
+Esta suite completa no fue repetida después de los cambios de saldo. La validación relacionada posterior sí quedó en **61/61**.
 
 ## Criterio funcional adoptado a partir de ControlFinanzas
 
@@ -82,7 +95,7 @@ La experiencia Swing debe permitir registrar el hecho financiero desde un panel 
 
 ## Próximos pasos reales
 
-1. Diseñar obligaciones/pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
+1. Diseñar/modelar obligaciones y pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
 2. Evolucionar ingresos y transferencias mediante el núcleo común.
 3. Incorporar progresivamente pasivos y patrimonio neto.
 4. Evolucionar resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
