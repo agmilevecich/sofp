@@ -38,7 +38,31 @@ Componentes conectados: `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel
 
 Producción: `5dd8372` — `fix: validar fondos disponibles en movimientos`.
 
-Cobertura: `MovimientoFondosInsuficientesTest` **6/6**, `MovimientoServiceTest` **57/57**, `RegistrarMovimientoPanelTest` **4/4**.
+Cobertura histórica: `MovimientoFondosInsuficientesTest` **6/6**, `MovimientoServiceTest` **57/57**, `RegistrarMovimientoPanelTest` **4/4**.
+
+### Cobertura adicional de saldo — 07/09/2026
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se agregó `MovimientoServiceSaldoTest` para cubrir explícitamente tres reglas mediante la API pública del servicio:
+
+- rechazo de egreso superior al saldo;
+- aceptación de egreso exactamente igual al saldo;
+- aumento de importe de un egreso hasta el saldo disponible.
+
+`MovimientoServiceSaldoTest`: **3/3**.
+
+La prueba se corrigió en `06a9fd8` porque el fixture inicial utilizaba el overload interno de `registrar`, que no aplica la validación pública de saldo. No fue necesario modificar producción.
+
+Validación relacionada informada por el usuario el **07/09/2026 20:12:52 -03:00**:
+
+- `MovimientoServiceSaldoTest`: **3/3**;
+- `MovimientoServiceTest`: **50/50**;
+- `IngresoServiceTest` y `GastoServiceTest`: incluidos;
+- total: **61/61**;
+- Failures 0, Errors 0, Skipped 0;
+- `BUILD SUCCESS`;
+- duración **03:09 min**.
 
 ## Bloque — Categorías con movimientos
 
@@ -98,15 +122,15 @@ Resultado informado por el usuario:
 - Duración: **10:54 min**
 - Finalización: **07/09/2026 14:59:12 -03:00**
 
-Es la validación general más reciente conocida. La suite aumentó de 590 a 602 tests y continúa completamente en verde.
+Es la validación general más reciente conocida. No se volvió a ejecutar la suite completa después de los cambios de saldo.
 
 ## Estado Git vigente
 
 `main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-`feature/swing-shell` estaba en `26f7f58` antes de esta actualización documental y continúa sin merge a `main`.
+`feature/swing-shell` alcanzó `06a9fd849aeef9947ad79b9cd6a9943ec93ee8c3` antes de iniciar la actualización documental. La comparación actual con `main` es **306 commits por delante y 2 por detrás**, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`.
 
-La comparación verificada es **292 commits por delante y 2 por detrás**, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`.
+La documentación de continuidad genera nuevos commits posteriores a ese estado funcional.
 
 ## Próximos bloques
 
