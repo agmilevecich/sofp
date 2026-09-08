@@ -160,7 +160,9 @@ public class MainFrame extends JFrame {
             this.movimientoService = movimientoService;
             this.categoriaService = categoriaService;
             this.gastoService = movimientoService != null
-                    ? new GastoService(movimientoService, obligacionService)
+                    ? (obligacionService != null
+                        ? new GastoService(movimientoService, obligacionService)
+                        : new GastoService(movimientoService))
                     : null;
             this.carteraActivoService = carteraActivoService;
             this.perfilFinanciero = perfilFinanciero;
