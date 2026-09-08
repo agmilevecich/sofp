@@ -86,18 +86,32 @@ Gastos no tiene fuente de verdad independiente.
 
 La integración de `FormaPago` se realiza dentro del flujo funcional de Gastos. `Movimiento` conserva la forma de pago y `GastoService` la exige.
 
-## D-019 — Tarjeta de crédito requiere obligaciones/pasivos
+## D-019 — Tarjeta de crédito genera una obligación
 
-`TARJETA_CREDITO` se rechaza actualmente en `GastoService`. No se debe simular un egreso inmediato sobre una cuenta cuando la compra genera una obligación que se pagará posteriormente. La habilitación queda condicionada a un modelo correcto de obligaciones/pasivos.
+La decisión original de no simular una salida inmediata de fondos se mantiene. El modelo ya fue implementado: una compra con `TARJETA_CREDITO` se registra como `Movimiento` de tipo `EGRESO` y `GastoService`, mediante `ObligacionService`, crea una `Obligacion` asociada al movimiento persistido.
 
-## Actualización — 07/09/2026
+Si `GastoService` no dispone de `ObligacionService`, el uso de `TARJETA_CREDITO` se rechaza con `IllegalStateException`. No se debe reintroducir una simulación de pago inmediato sobre la cuenta.
 
-La integración de `FormaPago` permanece implementada y validada. Los últimos cambios de la rama `feature/swing-shell` fueron de pulido visual del shell Swing: `5faff68` (Cuentas), `5310ba3` (Movimientos) y `26f7f58` (Categorías). No modificaron las reglas de negocio.
+## D-020 — Obligaciones como pasivo especializado
 
-Las pruebas específicas recientes fueron `CuentasPanelTest` **3/3**, `MovimientosPanelTest` **3/3** y `CategoriasPanelTest` **4/4**.
+`Obligacion` representa actualmente el pasivo originado por una compra con tarjeta de crédito. Conserva importe original, saldo pendiente, estado y movimiento de origen. Sus estados son `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
-Suite general informada por el usuario: **602/602**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, `mvn test`, finalizada el **07/09/2026 14:59:12 -03:00**, duración **10:54 min**.
+Los pagos se registran mediante `ObligacionService`, que mantiene las reglas transaccionales y delega la lógica de estado en el dominio.
 
-La rama de trabajo sigue siendo `feature/swing-shell`; `main` permanece en `a4be859` y no se realizó merge.
+La UI especializada para consultar obligaciones y registrar pagos queda como evolución posterior; el modelo de dominio y servicio no debe duplicarse en Swing.
 
-Como criterio de pulido futuro, la salida de consola de la aplicación podrá limpiarse cuando SOFP alcance una etapa más cercana al uso cotidiano; no es una tarea funcional prioritaria.
+## D-021 — Compatibilidad de constructores del shell
+
+Los constructores existentes de `MainFrame` que no reciben `ObligacionService` deben continuar funcionando mientras no necesiten registrar operaciones que requieran obligaciones. Cuando el servicio está disponible, el shell utiliza la integración completa de `GastoService`.
+
+## Actualización — 08/09/2026
+
+La rama `feature/swing-shell` se encuentra en `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
+
+La comparación verificada con `main` indica **326 commits por delante y 0 por detrás**, con merge-base `a4be859`. No se realizó merge.
+
+La suite general informada por el usuario el **08/09/2026 13:27:36 -03:00** fue `mvn test`: **618/618**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **21:26 min**.
+
+Los tests focalizados de `GastosPanelTest` y `MainFrameMovimientosTest` fueron validados previamente en **8/8**.
+
+La validación final local fue limpia: `git diff`, `git diff --check` y `git status`; working tree limpio y rama sincronizada con `github/feature/swing-shell`.
