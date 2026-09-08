@@ -193,6 +193,66 @@ class ObligacionServiceTest {
         );
     }
 
+    @Test
+    void deberiaListarSoloLasObligacionesDelUsuarioAutorizado() {
+        Obligacion obligacionUsuario = crearObligacion();
+
+        Usuario segundoUsuario = new Usuario(
+                "Ana",
+                "Gómez",
+                "ana." + System.nanoTime() + "@test.com",
+                "hash"
+        );
+        PerfilFinanciero segundoPerfil = new PerfilFinanciero(
+                "Perfil secundario",
+                segundoUsuario
+        );
+        segundoUsuario.agregarPerfilFinanciero(segundoPerfil);
+        Cuenta segundaCuenta = new Cuenta(
+                "Cuenta secundaria",
+                TipoCuenta.CAJA_AHORRO,
+                segundoPerfil,
+                cuenta.getInstitucionFinanciera(),
+                cuenta.getMoneda()
+        );
+        Categoria segundaCategoria = new Categoria("Otros", segundoPerfil);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(segundoUsuario);
+        entityManager.persist(segundoPerfil);
+        entityManager.persist(segundaCuenta);
+        entityManager.persist(segundaCategoria);
+        entityManager.getTransaction().commit();
+
+        Movimiento movimientoSegundoUsuario = gastoService.registrar(
+                segundaCuenta,
+                segundaCategoria,
+                new BigDecimal("9000.00"),
+                LocalDateTime.of(2026, 9, 8, 11, 0),
+                "Compra del segundo usuario",
+                FormaPago.TARJETA_CREDITO,
+                segundoUsuario.getId()
+        );
+        Obligacion obligacionSegundoUsuario = obligacionService
+                .buscarPorMovimientoOrigen(movimientoSegundoUsuario.getId())
+                .orElseThrow();
+
+        assertEquals(1, obligacionService.listarPorUsuario(usuario.getId()).size());
+        assertEquals(obligacionUsuario.getId(),
+                obligacionService.listarPorUsuario(usuario.getId()).get(0).getId());
+        assertEquals(1, obligacionService.listarPorUsuario(segundoUsuario.getId()).size());
+        assertEquals(obligacionSegundoUsuario.getId(),
+                obligacionService.listarPorUsuario(segundoUsuario.getId()).get(0).getId());
+    }
+
+    @Test
+    void deberiaRechazarUsuarioNuloAlListarObligaciones() {
+        assertThrows(
+                NullPointerException.class,
+                () -> obligacionService.listarPorUsuario(null)
+        );
+    }
+
     private Obligacion crearObligacion() {
         Movimiento movimiento = gastoService.registrar(
                 cuenta,
