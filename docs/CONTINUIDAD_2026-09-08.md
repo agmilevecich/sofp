@@ -7,22 +7,31 @@ Este documento registra el corte de continuidad del proyecto al 08/09/2026. La f
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-HEAD de la rama antes de iniciar esta actualización documental: `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b` — `test: actualizar expectativas de gastos con crédito`.
+Último commit funcional antes del bloque documental: `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`.
 
-Comparación con `main`: **326 commits por delante, 0 por detrás**. Merge-base: `a4be85913847200cb70976d5266d9cbba10b3100`. No se realizó merge.
+Los commits posteriores son exclusivamente documentales y actualizan el estado de continuidad.
 
-## Últimos cambios
+No se realizó merge a `main`.
 
-Los dos últimos cambios funcionales/correctivos fueron:
+## Últimos cambios funcionales
 
-- `6c7d70a` — `fix: mantener compatibilidad de MainFrame sin ObligacionService`.
-- `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
+El bloque de obligaciones quedó completado en dominio, persistencia, servicio, autorización y UI Swing.
 
-El primer cambio mantiene operativos constructores anteriores de `MainFrame` que no reciben `ObligacionService`. El segundo actualiza el test para reflejar que, sin servicio de obligaciones, una compra con tarjeta de crédito produce `IllegalStateException`.
+Commits funcionales recientes:
+
+- `43cfd9c` — autorización de pagos.
+- `456fbfb` — tests de autorización.
+- `f20023d` — `ObligacionesPanel`.
+- `264dd54` — navegación/sidebar.
+- `87b8e46` — integración en `MainFrame`.
+- `7194a5d` — tests del panel.
+- `029de48` — test de navegación.
+- `166b5f0` — conservar selección al refrescar obligaciones.
+- `87052df` — cubrir navegación hacia obligaciones.
 
 ## Estado funcional
 
-La Fase 8 integra el shell Swing con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes mediante `MainFrame` y `CardLayout`.
+La Fase 8 integra mediante `MainFrame` y `CardLayout` los paneles de Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
 
 Arquitectura acordada:
 
@@ -32,24 +41,17 @@ Gastos utiliza:
 
 **`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-`FormaPago` está integrada con cinco opciones: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
-
 ## Obligaciones y tarjeta de crédito
 
-El modelado básico de obligaciones ya está implementado. Existen:
+El modelado básico de obligaciones está implementado.
 
-- `EstadoObligacion`;
-- `Obligacion`;
-- `ObligacionRepository`;
-- `ObligacionService`;
-- persistencia JPA;
-- pagos parciales y completos;
-- estados `PENDIENTE`, `PARCIAL` y `PAGADA`;
-- tests de dominio, JPA y servicio.
+Existen `EstadoObligacion`, `Obligacion`, `ObligacionRepository` y `ObligacionService`, con persistencia JPA y estados `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
-`GastoService`, cuando recibe `ObligacionService`, registra el movimiento de egreso y crea la obligación asociada. Sin `ObligacionService`, rechaza una compra con `TARJETA_CREDITO` con `IllegalStateException`.
+`GastoService`, al registrar `TARJETA_CREDITO` con `ObligacionService`, crea el movimiento de egreso y la obligación asociada. Sin el servicio de obligaciones, el uso de tarjeta de crédito se rechaza con `IllegalStateException`.
 
-Por lo tanto, **ya no está pendiente el modelado de obligaciones**. Lo pendiente es su interfaz Swing.
+Los pagos autorizados se realizan mediante el servicio con `usuarioId`, manteniendo el aislamiento por propietario.
+
+`ObligacionesPanel` ya está integrado al shell. Lista obligaciones del usuario, muestra importe original, saldo pendiente, estado y fecha de origen, permite registrar pagos, maneja errores y refresca la lista conservando la selección.
 
 ## Reglas financieras vigentes
 
@@ -58,7 +60,7 @@ Por lo tanto, **ya no está pendiente el modelado de obligaciones**. Lo pendient
 - Las modificaciones de importe y tipo respetan fondos disponibles.
 - Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
 - Cuenta y forma de pago son conceptos distintos.
-- Una compra con tarjeta de crédito genera un egreso y una obligación; no simula un pago inmediato de la cuenta.
+- Una compra con tarjeta de crédito genera un egreso y una obligación; no simula el pago inmediato de la cuenta.
 - Transferencias entre cuentas propias no son ingresos ni gastos y se modelan mediante `OperacionFinanciera`.
 
 ## Tests
@@ -78,44 +80,45 @@ Resultado el **08/09/2026 13:27:36 -03:00**:
 - `BUILD SUCCESS`;
 - duración: **21:26 min**.
 
-### Tests focalizados
+Esta ejecución es anterior a la UI de obligaciones y sigue siendo la última suite general completa conocida.
 
-Antes de la suite general:
+### Tests focalizados de obligaciones/UI
 
-`GastosPanelTest` + `MainFrameMovimientosTest` → **8/8**, sin fallos ni errores.
+El usuario ejecutó el **08/09/2026 14:14:14 -03:00**:
 
-La primera suite general del bloque había presentado 1 failure y 2 errors. Las correcciones `6c7d70a` y `7f05cd1` dejaron posteriormente la suite en **618/618**.
+`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
 
-### Validación Git local
+Resultado:
 
-Después de los tests, el usuario informó:
+- Tests run: **14**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **01:48 min**.
 
-- `git diff`: limpio;
-- `git diff --check`: sin errores;
-- `git status`: working tree limpio;
-- rama sincronizada con `github/feature/swing-shell`.
+`ObligacionesPanelTest`: **3/3**.
+
+La primera ejecución del panel tuvo un fallo por pérdida de selección durante el refresco. `166b5f0` corrigió ese comportamiento y la ejecución posterior quedó verde.
 
 ## Último resultado de tests conocido
 
-**618/618 — BUILD SUCCESS.**
+**14/14 — BUILD SUCCESS** para el bloque focalizado de obligaciones/UI.
+
+**618/618 — BUILD SUCCESS** para la última suite general, pero anterior a la UI de obligaciones.
 
 No debe asumirse ninguna ejecución posterior hasta que el usuario la informe o GitHub/CI la confirme.
 
-## Próximo paso recomendado
+## Próximo paso
 
-El próximo bloque lógico es construir la **UI Swing de obligaciones y pagos**, empezando por revisar `MainFrame`, `SidebarPanel`, `ObligacionService`, `ObligacionRepository`, `Obligacion`, `GastosPanel` y sus tests.
+Ejecutar la suite completa `mvn test` sobre el estado actual y luego revisar:
 
-Objetivos de esa etapa:
+1. `git diff`;
+2. `git diff --check`;
+3. `git status`;
+4. comparación de `feature/swing-shell` con `main`.
 
-1. listar obligaciones del perfil/usuario autorizado;
-2. mostrar importe original, saldo pendiente, estado y fecha de origen;
-3. seleccionar una obligación;
-4. registrar un pago mediante `ObligacionService`;
-5. refrescar la información después del pago;
-6. manejar errores de forma amigable;
-7. agregar cobertura Swing sin duplicar reglas de dominio/servicio.
-
-No modificar todavía hasta realizar la revisión completa del estado actual y de las clases relacionadas.
+Después continuar con ingresos/transferencias, pasivos y patrimonio neto, análisis histórico, vencimientos y dashboard.
 
 ## Protocolo permanente de continuidad
 
