@@ -1,67 +1,90 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 07/09/2026
+## Estado actual — 08/09/2026
 
-La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar.
+La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar y puede quedar desactualizada; ante contradicción prevalecen código y tests.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-La comparación verificada antes de la actualización documental indica que `feature/swing-shell` está **306 commits por delante y 2 por detrás** de `main`, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge.
+HEAD verificado antes de esta actualización documental: `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b` — `test: actualizar expectativas de gastos con crédito`.
 
-## Último estado funcional
+La comparación con `main` indica **326 commits por delante y 0 por detrás**, con merge-base `a4be85913847200cb70976d5266d9cbba10b3100`. No se realizó merge.
 
-Último commit funcional antes de la actualización documental: `06a9fd849aeef9947ad79b9cd6a9943ec93ee8c3` — `fix: corregir pruebas de saldo con usuario`.
+## Último bloque funcional cerrado
 
-El commit corrigió `MovimientoServiceSaldoTest` para que los registros utilizados en las pruebas de saldo pasaran el `usuarioId` y ejercitaran la API pública de `MovimientoService`. No hubo cambio de producción.
+El bloque reciente de tarjeta de crédito quedó consolidado en dominio, persistencia y servicios.
 
-El shell Swing de Fase 8 integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes mediante `CardLayout`.
+`Obligacion` representa una obligación originada por un `Movimiento` de egreso con `TARJETA_CREDITO`. Conserva importe original, saldo pendiente, estado y movimiento de origen.
+
+`ObligacionService` permite registrar, consultar y registrar pagos con transacción JPA. Los pagos actualizan `PARCIAL` o `PAGADA` y las reglas del dominio rechazan pagos no positivos, sobrepagos y pagos sobre obligaciones ya pagadas.
+
+`GastoService` crea la obligación cuando registra un gasto con tarjeta de crédito y recibe `ObligacionService`. Si no recibe ese servicio, rechaza la operación con `IllegalStateException`.
+
+Los últimos commits de corrección fueron:
+
+- `6c7d70a` — `fix: mantener compatibilidad de MainFrame sin ObligacionService`.
+- `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
 
 ## Arquitectura funcional
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Gastos utiliza `GastosPanel → GastoService → MovimientoService → Movimiento` de tipo `EGRESO`, y el resultado aparece en `Movimientos`.
+Gastos utiliza:
 
-## FormaPago
+**`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-Integración **completada y validada**.
+Las obligaciones se coordinan desde `GastoService`/`ObligacionService`; la UI no debe duplicar sus reglas.
 
-`Movimiento` persiste la forma de pago. `MovimientoService` la propaga al registrar. `GastoService` exige una forma de pago.
+## Shell Swing
 
-Formas disponibles: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
+El shell integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes mediante `MainFrame` y `CardLayout`.
 
-`TARJETA_CREDITO` continúa temporalmente rechazada hasta implementar obligaciones/pasivos. No se debe simular un egreso inmediato sobre una cuenta para una compra a crédito.
+Existe compatibilidad para constructores anteriores de `MainFrame` que no reciben `ObligacionService`, evitando romper pruebas y usos existentes.
 
-## Reglas de saldo
+Todavía no existe un panel Swing específico de obligaciones/pagos.
 
-Los egresos respetan fondos disponibles, incluyendo modificaciones de importe y tipo. Un egreso igual al saldo está permitido y deja saldo cero.
+## Reglas financieras vigentes
 
-`MovimientoServiceSaldoTest`: **3/3**, cubriendo rechazo de egreso superior al saldo, aceptación de egreso exacto y aumento de importe de un egreso hasta el saldo.
+- `EGRESO` superior al saldo disponible: rechazado.
+- `EGRESO` igual al saldo disponible: permitido y deja saldo cero.
+- Las modificaciones de importe y tipo respetan fondos disponibles.
+- Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
+- `Cuenta` y `FormaPago` son conceptos distintos.
+- Una compra con tarjeta de crédito genera un egreso y una obligación; no se simula el pago inmediato de la cuenta.
+- Transferencias entre cuentas propias no son ingresos ni gastos; se modelan mediante `OperacionFinanciera`.
 
 ## Última validación conocida
 
-El usuario informó el **07/09/2026 20:12:52 -03:00**:
+El usuario informó el **08/09/2026 13:27:36 -03:00**:
 
-- comando: `mvn -Dtest=MovimientoServiceSaldoTest,MovimientoServiceTest,IngresoServiceTest,GastoServiceTest test`;
-- Tests run: **61**;
+- comando: `mvn test`;
+- Tests run: **618**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **03:09 min**.
+- duración: **21:26 min**.
 
-Detalle: `MovimientoServiceTest` **50/50**, `MovimientoServiceSaldoTest` **3/3** y `IngresoServiceTest`/`GastoServiceTest` incluidos sin fallos.
+Validación focalizada previa: `GastosPanelTest` + `MainFrameMovimientosTest` → **8/8**, sin fallos ni errores.
 
-La última suite general conocida sigue siendo la del **07/09/2026 14:59:12 -03:00**: `mvn test`, **602/602**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **10:54 min**. No fue repetida después de los cambios de saldo.
+La primera ejecución general del bloque había presentado 1 failure y 2 errors. Fueron resueltos por `6c7d70a` y `7f05cd1`; la ejecución posterior quedó en **618/618**.
 
-## Pendientes
+Validación final local informada por el usuario:
 
-1. Diseñar/modelar obligaciones y pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
-2. Evolucionar ingresos y transferencias mediante el núcleo común.
-3. Incorporar progresivamente pasivos y patrimonio neto.
-4. Evolucionar resúmenes, análisis histórico, evolución patrimonial, vencimientos y dashboard.
-5. Como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
+- `git diff`: limpio;
+- `git diff --check`: sin errores;
+- `git status`: working tree limpio;
+- rama sincronizada con `github/feature/swing-shell`.
+
+## Pendientes reales
+
+1. Crear panel Swing para consultar obligaciones y registrar pagos.
+2. Integrar el panel en `MainFrame`/`SidebarPanel` y definir refrescos después de gastos con tarjeta y pagos.
+3. Continuar la evolución de ingresos y transferencias mediante el núcleo común.
+4. Ampliar pasivos y patrimonio neto.
+5. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+6. Limpiar posteriormente la salida de consola de la aplicación sin perder diagnóstico.
 
 ## Protocolo para nuevas sesiones
 
