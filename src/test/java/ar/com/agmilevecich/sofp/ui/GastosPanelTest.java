@@ -154,7 +154,7 @@ class GastosPanelTest {
     }
 
     @Test
-    void deberiaRechazarTarjetaDeCreditoHastaModelarLaObligacion() {
+    void deberiaRechazarTarjetaDeCreditoSinServicioDeObligaciones() {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
@@ -166,7 +166,7 @@ class GastosPanelTest {
 
         GastoService gastoService = new GastoService(movimientoService);
 
-        assertThrows(IllegalArgumentException.class, () -> gastoService.registrar(
+        assertThrows(IllegalStateException.class, () -> gastoService.registrar(
                 cuenta,
                 categoria,
                 new BigDecimal("100"),
