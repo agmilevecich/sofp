@@ -3,9 +3,9 @@
 ## Estado — 08/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `aa29d44` como último commit funcional.
+**Rama de trabajo:** `feature/swing-shell` → `d20fc8ba54c9ea36f11e2232ff781863c2971496`.
 
-La comparación verificada en GitHub indica **377 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
+La comparación verificada en GitHub antes de esta actualización documental indicó **390 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
 ## Último bloque cerrado
 
@@ -19,40 +19,23 @@ El formulario permite cuenta origen, cuenta destino, categoría, importe, fecha 
 
 Cada transferencia genera una operación financiera con dos movimientos: `EGRESO` en origen e `INGRESO` en destino.
 
+La integración al shell incluye `Main`, `MainFrame` y `SidebarPanel`, con navegación cubierta por test.
+
 Commits funcionales:
 
 - `1753074` — `feat: agregar formulario de transferencias`.
 - `aa29d44` — `test: cubrir formulario de transferencias`.
+- `ef71bdc` — `feat: preparar integracion de transferencias en Main`.
+- `0d7b708` — `feat: integrar transferencias al shell`.
+- `99c9218` — `feat: agregar transferencias a la navegacion`.
+- `9c6f274` — `test: cubrir navegacion a transferencias`.
 
-Validaciones:
+Validaciones informadas por el usuario:
 
 - **4/4** `TransferenciasPanelTest`.
+- **1/1** `MainFrameNavigationTest`.
 - **5/5** `TransferenciasPanelTest,MainFrameNavigationTest`.
 - **634/634** suite general.
-
-### Ingresos
-
-**Completado y validado.**
-
-`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO`.
-
-### Reglas de saldo
-
-**Completado y validado.**
-
-`MovimientoService` rechaza `EGRESO` superior al saldo disponible, permite el egreso igual al saldo y aplica la regla a modificaciones.
-
-### FormaPago
-
-**Completado y validado.**
-
-`FormaPago` está integrada en `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`.
-
-### Obligaciones — dominio, servicio y UI Swing
-
-**Completado y validado.**
-
-El modelo incluye `EstadoObligacion`, `Obligacion`, `ObligacionRepository`, `ObligacionService`, pagos autorizados por usuario, `ObligacionesPanel` e integración con `MainFrame`/`SidebarPanel`.
 
 ## Pendiente inmediato
 
@@ -91,6 +74,7 @@ Limpiar la salida de consola de la aplicación sin eliminar la posibilidad de di
 - Formulario e integración de Ingresos.
 - Navegación hacia Ingresos.
 - Formulario e integración de Transferencias.
+- Integración de Transferencias en `Main` y `MainFrame`.
 - Navegación hacia Transferencias.
 - Suite general posterior a Transferencias: **634/634**.
 
@@ -108,17 +92,17 @@ Ejecutada e informada por el usuario el **08/09/2026 18:13:55 -03:00**:
 - `BUILD SUCCESS`;
 - duración **11:52 min**.
 
-### Suite focalizada de Transferencias
+### Navegación
 
-Ejecutada e informada el **08/09/2026 17:59:29 -03:00**:
+Ejecutada e informada el **08/09/2026 18:51:06 -03:00**:
 
-`mvn -Dtest=TransferenciasPanelTest test` → **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:16 min**.
+`mvn -Dtest=MainFrameNavigationTest test` → **1/1**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **42.833 s**.
 
 ### Suite de Transferencias y navegación
 
-Ejecutada e informada el **08/09/2026 18:01:19 -03:00**:
+Ejecutada e informada el **08/09/2026 18:53:49 -03:00**:
 
-`mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **39 s**.
+`mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:30 min**.
 
 ## Integración
 
