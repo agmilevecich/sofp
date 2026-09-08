@@ -11,6 +11,7 @@ import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
+import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import ar.com.agmilevecich.sofp.persistence.PerfilFinancieroRepository;
 import ar.com.agmilevecich.sofp.persistence.UsuarioRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
@@ -20,6 +21,7 @@ import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
+import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PerfilFinancieroService;
 import ar.com.agmilevecich.sofp.service.UsuarioService;
 import jakarta.persistence.EntityManager;
@@ -104,6 +106,8 @@ public class Main {
         MovimientoActivoRepository movimientoActivoRepository =
                 new MovimientoActivoRepository(entityManager);
         ObligacionRepository obligacionRepository = new ObligacionRepository(entityManager);
+        OperacionFinancieraRepository operacionFinancieraRepository =
+                new OperacionFinancieraRepository(entityManager);
 
         CuentaService cuentaService = new CuentaService(
                 cuentaRepository,
@@ -128,6 +132,11 @@ public class Main {
                 entityManager,
                 obligacionRepository
         );
+        OperacionFinancieraService operacionFinancieraService = new OperacionFinancieraService(
+                entityManager,
+                movimientoRepository,
+                operacionFinancieraRepository
+        );
 
         MainFrame mainFrame = new MainFrame(
                 cuentaService,
@@ -138,7 +147,8 @@ public class Main {
                 carteraActivoService,
                 perfil,
                 usuario.getId(),
-                obligacionService
+                obligacionService,
+                operacionFinancieraService
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
