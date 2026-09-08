@@ -4,20 +4,20 @@
 
 ### Validación general más reciente
 
-El usuario ejecutó `mvn test` el **08/09/2026 13:27:36 -03:00**.
+El usuario ejecutó `mvn test` el **08/09/2026 14:41:08 -03:00**.
 
 Resultado:
 
-- Tests run: **618**;
+- Tests run: **626**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **21:26 min**.
+- duración: **12:35 min**.
 
-Esta es la suite general completa más reciente conocida. Fue ejecutada antes de la incorporación de la UI de obligaciones y pagos.
+Esta es la suite general completa más reciente y valida la integración de la UI de obligaciones y pagos.
 
-### Validación focalizada actual de obligaciones/UI
+### Validación focalizada de obligaciones/UI
 
 El usuario ejecutó:
 
@@ -40,7 +40,7 @@ La primera ejecución del bloque Swing tuvo 1 failure en `ObligacionesPanelTest.
 
 Se corrigió en `166b5f0` — `fix: conservar seleccion al refrescar obligaciones`, haciendo que `ObligacionesPanel` conserve y restaure la obligación seleccionada al recargar la lista.
 
-La ejecución focalizada posterior quedó en **14/14**.
+La ejecución focalizada posterior quedó en **14/14** y la suite general posterior quedó en **626/626**.
 
 ## Obligaciones
 
@@ -105,14 +105,16 @@ Las baterías conocidas continúan integradas en la suite general, incluyendo pr
 
 Tests relacionados incluyen `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `MainFrameObligacionesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
 
-Validación específica reciente de obligaciones/UI: **14/14**.
+Validación específica de obligaciones/UI: **14/14**.
+
+Validación general posterior a la UI: **626/626**.
 
 ## Criterio de validación
 
 No considerar una funcionalidad terminada solamente porque compila. Cada nuevo bloque debe validar éxito, null cuando corresponda, entidad inexistente, reglas de negocio, persistencia, relaciones y casos límite relevantes.
 
-Antes del cierre: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
+El bloque actual ya completó: tests específicos → tests relacionados → suite general → `git diff` → `git diff --check` → `git status`.
 
 ## Próximo bloque de tests
 
-Ejecutar `mvn test` sobre el estado actual para comprobar que la integración de la UI de obligaciones no introduce regresiones en la suite completa.
+La suite general del estado actual está validada. El próximo bloque de tests deberá acompañar la siguiente funcionalidad que se implemente.
