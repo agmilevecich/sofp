@@ -7,7 +7,9 @@ La fuente de verdad es el código, los tests y los commits actuales. `docs/` es 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-HEAD funcional documentado: `87052df953dbd282a43c5647d05b68d1854c4f17`.
+HEAD actual: `941386dd8278beddd83e78d7736c75c0fdf70743`.
+Último cambio funcional: `87052df953dbd282a43c5647d05b68d1854c4f17`.
+Los commits posteriores son documentales.
 
 No se realizó merge a `main`.
 
@@ -65,18 +67,18 @@ Existe compatibilidad para constructores anteriores de `MainFrame` que no recibe
 
 ### Suite general
 
-`mvn test`, ejecutado el **08/09/2026 13:27:36 -03:00**:
+`mvn test`, ejecutado el **08/09/2026 14:41:08 -03:00**:
 
-- **618** tests;
+- **626** tests;
 - 0 failures;
 - 0 errors;
 - 0 skipped;
 - `BUILD SUCCESS`;
-- duración **21:26 min**.
+- duración **12:35 min**.
 
-Esta suite fue ejecutada antes de la UI de obligaciones y sigue siendo la última suite general completa conocida.
+Es la suite general completa más reciente y valida la integración posterior de la UI de obligaciones.
 
-### Suite focalizada actual
+### Suite focalizada
 
 `mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`, ejecutado el **08/09/2026 14:14:14 -03:00**:
 
@@ -89,15 +91,18 @@ Esta suite fue ejecutada antes de la UI de obligaciones y sigue siendo la últim
 
 `ObligacionesPanelTest`: **3/3**.
 
-No asumir que `mvn test` completo fue ejecutado después de estos cambios.
+## Estado Git local conocido
+
+El usuario informó que ejecutó `git diff`, `git diff --check` y `git status` en `feature/swing-shell`.
+
+Resultado: rama actualizada respecto de `github/feature/swing-shell`, sin cambios pendientes y `working tree clean`.
 
 ## Pendientes reales
 
-1. Ejecutar la suite completa `mvn test` sobre el estado actual.
-2. Continuar la evolución de ingresos y transferencias mediante el núcleo común.
-3. Ampliar pasivos y patrimonio neto.
-4. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
-5. Limpiar posteriormente la salida de consola de la aplicación sin perder diagnóstico.
+1. Evolucionar ingresos y transferencias mediante el núcleo común.
+2. Ampliar pasivos y patrimonio neto.
+3. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+4. Limpiar posteriormente la salida de consola de la aplicación sin perder diagnóstico.
 
 ## Protocolo para nuevas sesiones
 
