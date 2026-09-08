@@ -4,8 +4,6 @@
 
 **Rama de trabajo:** `feature/swing-shell`
 
-**HEAD de GitHub:** `e8e6cdfce65d2e617c26f037d98f67e3cfe47600` — `docs: cerrar pendientes de integracion de transferencias`.
-
 Este documento registra las decisiones y criterios definidos antes de implementar tarjetas de crédito en SOFP. La documentación describe el diseño previsto; no implica que las funcionalidades aquí indicadas ya estén implementadas.
 
 ## 1. Objetivo
@@ -171,7 +169,17 @@ La lógica debe quedar centralizada en un servicio de tarjetas o componente de d
 
 El límite de crédito pertenece a `TarjetaCredito`.
 
-El disponible debe calcularse a partir del límite y de las obligaciones/consumos que correspondan según las reglas definidas para SOFP.
+Se adopta como criterio de diseño que una compra con tarjeta **consume el límite de crédito**, pero **no representa una salida de dinero de la cuenta bancaria** en el momento de la compra.
+
+Por lo tanto, el movimiento asociado a una compra con tarjeta debe poder identificarse como consumo de crédito de una tarjeta concreta. El cálculo de ese consumo no debe quedar disperso en la interfaz ni ser responsabilidad exclusiva de `Movimiento`.
+
+El disponible deberá reflejar, como regla conceptual:
+
+`límite de crédito − crédito consumido + saldo a favor`, cuando se adopte esta última regla.
+
+El consumo se produce al registrar la compra. El límite no debe reducirse por segunda vez al facturar o generar una obligación.
+
+El pago de la tarjeta libera crédito en la medida en que reduce la deuda/consumo correspondiente. El movimiento financiero del pago, además, sí representa una salida real de fondos de la cuenta bancaria utilizada.
 
 No se debe asumir que el saldo pendiente de una única `Obligacion` representa toda la utilización de la tarjeta.
 
@@ -192,14 +200,21 @@ La experiencia de ControlFinanzas contemplaba cantidad de cuotas e interés.
 
 Para SOFP se conservará ese comportamiento conceptual, pero se deberá decidir cómo representar las cuotas sin duplicar artificialmente movimientos u obligaciones.
 
-Antes de programar esta parte deberá definirse:
+Criterio inicial para el límite: una compra financiada consume el **importe total financiado** del límite al momento de realizarse, no solamente el valor de la primera cuota. A medida que se paguen las cuotas o importes correspondientes, se liberará el crédito utilizado.
+
+Ejemplo conceptual: una compra de $600.000 en 6 cuotas consume inicialmente $600.000 de límite. Si posteriormente se paga una cuota de $100.000, se libera el crédito correspondiente a esos $100.000, siempre sujeto a las reglas definitivas de financiación, intereses, redondeos y pagos parciales.
+
+Este criterio evita que una compra en cuotas parezca disponer nuevamente del límite no pagado.
+
+Antes de programar la financiación deberá definirse:
 
 1. si cada cuota será una obligación independiente o parte de una compra financiada;
 2. cómo se calculará el importe de cada cuota;
 3. cómo se tratarán los intereses;
 4. cómo se asignarán las cuotas a los ciclos de facturación;
 5. cómo se registrarán pagos parciales;
-6. qué información histórica debe permanecer asociada a la compra original.
+6. cómo se libera exactamente el límite ante pagos parciales, totales, anulaciones o ajustes;
+7. qué información histórica debe permanecer asociada a la compra original.
 
 No se implementará financiación hasta cerrar estas reglas.
 
@@ -207,7 +222,33 @@ No se implementará financiación hasta cerrar estas reglas.
 
 El pago de una tarjeta no debe confundirse con la compra que originó la deuda.
 
-La compra genera el movimiento y la obligación. El pago reduce la obligación y debe producir el movimiento financiero correspondiente sobre la cuenta bancaria utilizada para pagar.
+La compra genera el consumo de crédito, el movimiento asociado y la obligación. **No genera en ese momento un EGRESO de dinero de la cuenta bancaria.**
+
+El pago posterior reduce la obligación y libera el crédito utilizado. Además, debe producir el movimiento financiero correspondiente sobre la cuenta bancaria utilizada para pagar.
+
+Conceptualmente:
+
+`Compra con tarjeta`
+
+→ consumo de límite
+
+→ `Movimiento` asociado a tarjeta
+
+→ `Obligacion`
+
+sin salida de fondos de la cuenta bancaria.
+
+Y posteriormente:
+
+`Pago de tarjeta`
+
+→ `Movimiento EGRESO` de la cuenta bancaria
+
+→ reducción de la obligación
+
+→ liberación del límite consumido.
+
+Esto permite distinguir correctamente dos hechos financieros diferentes: **la adquisición de la deuda** y **la salida efectiva de dinero**.
 
 La implementación deberá conservar las reglas actuales de SOFP sobre autorización, saldo disponible y aislamiento por usuario/perfil.
 
@@ -228,21 +269,25 @@ Las validaciones de autorización deben permanecer en servicios/repositorios y n
 
 ## 13. Integración con movimientos y obligaciones
 
-Una compra con tarjeta debe seguir utilizando el modelo financiero existente en SOFP.
+Una compra con tarjeta debe seguir utilizando el modelo financiero existente en SOFP, pero distinguiendo el consumo de crédito de la salida de efectivo.
 
 Conceptualmente:
 
 `Compra con tarjeta`
 
-→ `Movimiento EGRESO`
+→ `Movimiento` de compra
 
 → `FormaPago.TARJETA_CREDITO`
 
+→ consumo del límite de `TarjetaCredito`
+
 → `Obligacion`
 
-La compra no debe generar una salida inmediata de dinero de la cuenta bancaria como si fuera un gasto pagado en efectivo o débito.
+La compra **no debe generar una salida inmediata de dinero de la cuenta bancaria** como si fuera un gasto pagado en efectivo o débito.
 
 El pago posterior de la tarjeta es el momento en que debe reflejarse la salida de fondos de la cuenta utilizada para pagar.
+
+La implementación deberá evitar que el mismo hecho se contabilice simultáneamente como consumo de tarjeta y como disminución de efectivo.
 
 ## 14. Interfaz Swing
 
@@ -302,7 +347,9 @@ La implementación deberá cubrir como mínimo:
 - tarjeta de otro usuario;
 - tarjeta inactiva;
 - generación correcta del movimiento;
-- generación correcta de la obligación.
+- generación correcta de la obligación;
+- consumo correcto del límite;
+- ausencia de disminución del saldo bancario por la compra.
 
 ### Cuotas
 
@@ -310,16 +357,21 @@ Cuando se implemente financiación:
 
 - una cuota;
 - múltiples cuotas;
+- consumo inicial del importe total financiado;
 - interés;
 - distribución por ciclos;
 - última cuota con ajuste por redondeo;
-- pagos parciales.
+- pagos parciales;
+- liberación progresiva del límite según pagos.
 
 ### Límite
 
 - cálculo del disponible;
-- consumo de crédito;
+- consumo de crédito al registrar una compra;
+- no duplicación del consumo al generar la obligación/factura;
 - liberación del límite mediante pagos;
+- pago parcial;
+- pago total;
 - saldo a favor, si se adopta la regla de ControlFinanzas;
 - límites y valores extremos.
 
@@ -332,7 +384,10 @@ Cuando se implemente financiación:
 - pago de obligación de otro usuario;
 - pago con cuenta inexistente;
 - fondos insuficientes;
-- pago posterior a una obligación ya cancelada.
+- pago posterior a una obligación ya cancelada;
+- generación del `Movimiento EGRESO` bancario;
+- reducción de la deuda;
+- liberación del crédito consumido.
 
 ## 17. Etapas de implementación
 
@@ -352,11 +407,11 @@ Incorporar el cálculo de ciclo, cierre y próximo vencimiento con tests exhaust
 
 ### Etapa 4 — Compra con tarjeta
 
-Integrar la tarjeta al flujo existente de movimientos y obligaciones sin romper el modelo actual.
+Integrar la tarjeta al flujo existente de movimientos y obligaciones, incorporando el consumo de límite sin generar salida de efectivo de la cuenta bancaria.
 
 ### Etapa 5 — Límite y deuda
 
-Implementar deuda de tarjeta, disponible y reglas de utilización del límite.
+Implementar deuda de tarjeta, disponible y reglas de utilización/liberación del límite.
 
 ### Etapa 6 — Cuotas y financiación
 
@@ -364,7 +419,7 @@ Incorporar cuotas e intereses después de definir formalmente su representación
 
 ### Etapa 7 — Pago de tarjeta
 
-Integrar el pago con las obligaciones existentes y con las cuentas bancarias.
+Integrar el pago con las obligaciones existentes, con la cuenta bancaria que efectivamente entrega los fondos y con la liberación del crédito consumido.
 
 ### Etapa 8 — Swing
 
@@ -381,11 +436,15 @@ Recuperar progresivamente las alertas de vencimiento y la visualización resumid
 3. La tarjeta pertenecerá al `PerfilFinanciero`, respetando la cadena de seguridad existente.
 4. El límite, cierre y vencimiento pertenecen a la tarjeta.
 5. `Obligacion` seguirá representando la deuda y no almacenará datos propios de la tarjeta salvo que una necesidad de dominio posterior lo justifique.
-6. La compra con tarjeta seguirá generando un movimiento `EGRESO` con `FormaPago.TARJETA_CREDITO` y su obligación correspondiente.
-7. El pago de tarjeta será una operación posterior y distinta de la compra.
-8. La lógica financiera no se implementará dentro de los paneles Swing.
-9. Cuotas y financiación se definirán antes de programarse.
-10. Las alertas de vencimiento quedan como evolución posterior.
+6. La compra con tarjeta se representará mediante el modelo de movimientos existente y `FormaPago.TARJETA_CREDITO`.
+7. La compra consume límite de la tarjeta, pero **no disminuye el saldo de la cuenta bancaria** en el momento de realizarse.
+8. El pago de tarjeta es una operación posterior y distinta de la compra.
+9. El pago genera el `Movimiento EGRESO` que refleja la salida real de fondos de la cuenta bancaria.
+10. El pago reduce la obligación y libera el límite consumido, según las reglas definitivas de financiación y pagos.
+11. En una compra en cuotas, el criterio inicial es consumir el importe total financiado del límite desde el momento de la compra.
+12. La lógica financiera no se implementará dentro de los paneles Swing.
+13. Cuotas y financiación se definirán antes de programarse.
+14. Las alertas de vencimiento quedan como evolución posterior.
 
 ## 19. Pendientes de diseño
 
@@ -393,6 +452,8 @@ Antes de comenzar la implementación funcional deben cerrarse especialmente esta
 
 - nombre definitivo de la entidad de compra, si se requiere;
 - relación exacta entre compra, movimiento y obligación;
+- cómo asociar un `Movimiento` con una `TarjetaCredito` sin romper el modelo actual de cuentas;
+- cómo representar técnicamente el consumo de límite sin disminuir el efectivo de la cuenta;
 - representación de cuotas;
 - tratamiento de intereses;
 - definición exacta del disponible;
@@ -400,12 +461,8 @@ Antes de comenzar la implementación funcional deben cerrarse especialmente esta
 - comportamiento el día exacto del cierre;
 - reglas para pagos parciales y saldo a favor;
 - tratamiento de anulaciones/devoluciones;
-- campos identificatorios de la tarjeta que realmente necesita SOFP.
+- forma exacta de liberar límite en compras financiadas;
+- relación entre pagos, obligaciones y movimientos bancarios;
+- campos definitivos de persistencia y relaciones JPA.
 
-## 20. Criterio de continuidad
-
-Este documento es un diseño previo a la implementación.
-
-Cuando se retome el trabajo, se deberá volver a revisar el código actual de SOFP antes de modificar cualquier clase. Si el código evoluciona de manera diferente a este documento, prevalecerán código y tests; posteriormente se actualizará esta documentación.
-
-El objetivo es que una nueva sesión pueda reconstruir no solo qué se implementó, sino también por qué se tomó cada decisión del modelo de tarjetas de crédito.
+Estas decisiones deberán cerrarse inspeccionando primero el cálculo actual de saldos de SOFP, `MovimientoRepository`, `GastoService`, `FormaPago` y los flujos existentes de obligaciones. No se debe implementar una solución que reduzca accidentalmente el saldo de una cuenta bancaria por una compra con tarjeta.
