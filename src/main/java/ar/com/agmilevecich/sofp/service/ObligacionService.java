@@ -68,6 +68,11 @@ public class ObligacionService {
         return obligacionRepository.listarTodas();
     }
 
+    public List<Obligacion> listarPorUsuario(Long usuarioId) {
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        return obligacionRepository.listarPorUsuario(usuarioId);
+    }
+
     private Obligacion guardar(Obligacion obligacion) {
         EntityTransaction transaction = entityManager.getTransaction();
         try {
