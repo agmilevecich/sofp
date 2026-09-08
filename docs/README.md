@@ -19,13 +19,13 @@ El archivo `CONTINUIDAD_2026-09-05.md` conserva un corte histórico anterior y n
 
 Rama de trabajo: `feature/swing-shell`.
 
-Último cambio funcional verificado: `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
+Último commit funcional: `aa29d44` — `test: cubrir formulario de transferencias`.
 
 `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La rama de trabajo está 366 commits adelante y 0 atrás respecto de `main`. No se realizó merge a `main`.
+La comparación verificada en GitHub indicó **377 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
-La Fase 8 integra el shell Swing con Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
+La Fase 8 integra el shell Swing con Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias.
 
 La arquitectura funcional es:
 
@@ -35,27 +35,31 @@ Gastos utiliza `GastosPanel → GastoService → MovimientoService → Movimient
 
 Ingresos utiliza `IngresosPanel → IngresoService → MovimientoService → Movimiento` `INGRESO`.
 
+Transferencias utilizan `TransferenciasPanel → OperacionFinancieraService → OperacionFinanciera`, que agrupa un `EGRESO` en origen y un `INGRESO` en destino.
+
 `FormaPago` está integrada y validada. Las cinco opciones son `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-Las compras con `TARJETA_CREDITO` cuentan con modelo de obligaciones. `GastoService` crea una `Obligacion` mediante `ObligacionService`; las obligaciones soportan estados `PENDIENTE`, `PARCIAL` y `PAGADA` y registro de pagos autorizados por usuario.
+Las compras con `TARJETA_CREDITO` cuentan con modelo de obligaciones. `GastoService` crea una `Obligacion` mediante `ObligacionService`; las obligaciones soportan estados `PENDIENTE`, `PARCIAL` y `PAGADA` y pagos autorizados por usuario.
 
-La UI de obligaciones está implementada mediante `ObligacionesPanel` e integrada en `MainFrame`/`SidebarPanel`. Permite consultar obligaciones, seleccionar una, registrar pagos y refrescar conservando la selección.
+La UI de obligaciones está implementada mediante `ObligacionesPanel` e integrada en `MainFrame`/`SidebarPanel`.
 
-La UI de Ingresos está implementada mediante `IngresosPanel` e integrada en `MainFrame`/`SidebarPanel`. Permite registrar ingresos usando cuentas y categorías activas del perfil/usuario autorizado.
+La UI de Ingresos está implementada mediante `IngresosPanel` e integrada en `MainFrame`/`SidebarPanel`.
+
+La UI de Transferencias está implementada mediante `TransferenciasPanel` e integrada en el shell.
 
 ## Última validación
 
-Suite general más reciente, ejecutada por el usuario el **08/09/2026 15:16:17 -03:00**:
+Suite general más reciente, ejecutada por el usuario el **08/09/2026 18:13:55 -03:00**:
 
-`mvn test` → **630 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **11:55 min**.
+`mvn test` → **634 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **11:52 min**.
 
-Validación focalizada de Ingresos/navegación, ejecutada el **08/09/2026 14:55:35 -03:00**:
+Validación focalizada de Transferencias, ejecutada el **08/09/2026 17:59:29 -03:00**:
 
-`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test` → **5 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **01:21 min**.
+`mvn -Dtest=TransferenciasPanelTest test` → **4 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **01:16 min**.
 
-Validación relacionada, ejecutada el **08/09/2026 14:58:53 -03:00**:
+Validación de Transferencias + navegación, ejecutada el **08/09/2026 18:01:19 -03:00**:
 
-`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test` → **18 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **01:31 min**.
+`mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **39 s**.
 
 ## Regla para continuar
 
@@ -67,7 +71,6 @@ No asumir sincronizaciones, resultados de tests ni estado local de `git diff`, `
 
 ## Pendientes principales
 
-1. Evolucionar transferencias mediante `OperacionFinanciera`, diferenciándolas de ingresos y gastos.
-2. Ampliar pasivos y patrimonio neto.
-3. Análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
-4. Pulido posterior de la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
+1. Ampliar pasivos y patrimonio neto.
+2. Análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+3. Pulido posterior de la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
