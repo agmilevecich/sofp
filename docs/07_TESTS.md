@@ -4,115 +4,86 @@
 
 ### Validación general más reciente
 
-El usuario ejecutó `mvn test` el **08/09/2026 15:16:17 -03:00**.
+El usuario ejecutó `mvn test` el **08/09/2026 18:13:55 -03:00**.
 
 Resultado:
 
-- Tests run: **630**;
+- Tests run: **634**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **11:55 min**.
+- duración: **11:52 min**.
 
-Esta es la suite general completa más reciente y valida la integración de Ingresos y navegación sin regresiones en los bloques anteriores.
+Esta es la suite general completa más reciente y valida la incorporación de Transferencias sin regresiones.
 
-### Validación focalizada de Ingresos y navegación
+### Validación focalizada de Transferencias
 
-El usuario ejecutó:
+El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest test` el **08/09/2026 17:59:29 -03:00**.
 
-`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
+Resultado: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:16 min**.
 
-Resultado informado el **08/09/2026 14:55:35 -03:00**:
+### Validación de Transferencias y navegación
 
-- Tests run: **5**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **01:21 min**.
+El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` el **08/09/2026 18:01:19 -03:00**.
 
-### Validación relacionada de Ingresos
+Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **39 s**.
 
-El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
+## Transferencias
 
-`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
+`TransferenciasPanelTest` cubre:
 
-Resultado:
+- construcción del formulario del shell sin contexto;
+- fecha inicial actual y botón deshabilitado sin contexto;
+- filtrado de cuentas y categorías activas del perfil/usuario autorizado;
+- registro persistente de una transferencia mediante `OperacionFinancieraService`;
+- una operación con cuenta origen, cuenta destino, importe y dos movimientos (`EGRESO`/`INGRESO`);
+- fecha y descripción de la operación;
+- rechazo de dependencias obligatorias nulas.
 
-- Tests run: **18**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **01:31 min**.
-
-Esta batería valida Ingresos junto con gastos, obligaciones y navegación del shell.
+La navegación hacia el panel se valida mediante `MainFrameNavigationTest`.
 
 ## Ingresos
 
-La cobertura actual incluye:
-
-- `IngresoServiceTest`: registro mediante el núcleo financiero común.
-- `IngresosPanelTest`: construcción sin contexto, filtrado de cuentas/categorías activas, registro persistente y dependencias obligatorias.
-- `MainFrameNavigationTest`: navegación hacia Ingresos desde el shell.
+La cobertura incluye `IngresoServiceTest`, `IngresosPanelTest` y `MainFrameNavigationTest`.
 
 El flujo probado es `IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
 
 ## Obligaciones
 
-La cobertura actual incluye:
+La cobertura incluye `ObligacionTest`, `ObligacionJpaTest`, `ObligacionServiceTest`, `ObligacionesPanelTest` y `MainFrameObligacionesTest`, además de navegación.
 
-- `ObligacionTest`: reglas de creación y pagos.
-- `ObligacionJpaTest`: persistencia y relación con el movimiento de origen.
-- `ObligacionServiceTest`: alta, consulta, aislamiento por usuario, pagos parciales, pagos completos, sobrepagos, obligación inexistente e ID nulo.
-- `ObligacionesPanelTest`: construcción, listado, selección, registro de pago, refresco y comportamiento del botón.
-- `MainFrameObligacionesTest`: integración del panel con el shell.
-- `MainFrameNavigationTest`: navegación hacia Obligaciones desde el shell.
-
-Los pagos autorizados por usuario utilizan el servicio y no duplican las reglas de dominio en Swing.
+Los pagos autorizados por usuario utilizan el servicio y no duplican reglas de dominio en Swing.
 
 ## Gastos y tarjeta de crédito
 
-`GastoServiceTest` y `GastosPanelTest` cubren el flujo de gastos, forma de pago y el rechazo de tarjeta de crédito cuando el servicio de obligaciones no está disponible.
-
-Con el servicio de obligaciones disponible, `GastoService` crea una obligación asociada al movimiento de egreso.
+`GastoServiceTest` y `GastosPanelTest` cubren gastos, forma de pago y el comportamiento de tarjeta de crédito con y sin `ObligacionService`.
 
 ## Fondos insuficientes y saldo
 
-`MovimientoServiceSaldoTest`: **3/3**.
+`MovimientoServiceSaldoTest`: **3/3** en la validación conocida.
 
 Casos cubiertos:
 
-1. rechazo de un `EGRESO` que supera el saldo disponible;
-2. aceptación de un `EGRESO` exactamente igual al saldo disponible;
-3. aceptación del aumento del importe de un `EGRESO` hasta el saldo disponible.
+1. rechazo de `EGRESO` superior al saldo disponible;
+2. aceptación de `EGRESO` exactamente igual al saldo disponible;
+3. aceptación del aumento de un `EGRESO` hasta el saldo disponible.
 
-## Movimientos
+## Movimientos y categorías
 
-`MovimientoServiceTest`: **50/50** en la última ejecución relacionada conocida.
-
-La cobertura incluye registro, consultas, modificaciones, eliminación y reglas de negocio de movimientos.
-
-## Gestión de categorías
-
-`CategoriaServiceTest`: **23/23** en la validación conocida.
-
-Una categoría referenciada por movimientos no se elimina físicamente: se conserva y se desactiva.
+`MovimientoServiceTest` y `CategoriaServiceTest` continúan cubriendo las reglas centrales de movimientos y categorías, incluyendo conservación/desactivación de categorías con movimientos.
 
 ## FormaPago
 
-La cobertura actual incluye las cinco formas de pago: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`, además de persistencia, modificación, selección desde `GastosPanel` y comportamiento de tarjeta de crédito con y sin `ObligacionService`.
+La cobertura incluye `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`, persistencia, modificación, selección desde `GastosPanel` y obligaciones derivadas de tarjeta de crédito.
 
 ## Inversiones y reportes
 
-Las baterías conocidas continúan integradas en la suite general, incluyendo pruebas de cartera/activos, inversiones y reportes.
+Las baterías existentes continúan integradas en la suite general, incluyendo cartera/activos, inversiones y reportes.
 
 ## Alta de cuentas
 
-`RegistrarCuentaPanelTest` y `CuentasPanelTest` cubren construcción, dependencias, instituciones activas, monedas, alta, persistencia, identificador externo, listado autorizado, refresco y aislamiento de perfiles.
-
-`RegistrarCuentaPanelTest`: **6/6** en la validación conocida.
+`RegistrarCuentaPanelTest` y `CuentasPanelTest` cubren construcción, dependencias, instituciones activas, monedas, alta, persistencia, identificador externo, listado autorizado, refresco y aislamiento.
 
 ## Seguridad
 
@@ -120,19 +91,17 @@ Las baterías conocidas continúan integradas en la suite general, incluyendo pr
 
 ## Cobertura Swing
 
-Tests relacionados incluyen `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `MainFrameObligacionesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `IngresosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
+La suite incluye los tests de `MainFrame`, layout, navegación, movimientos, categorías, inversiones, reportes, obligaciones, cuentas y los paneles especializados de gastos, ingresos, inversiones, reportes, obligaciones y transferencias.
 
-Validación específica de Ingresos/navegación: **5/5**.
+## Evolución de la suite
 
-Validación relacionada: **18/18**.
-
-Validación general posterior a Ingresos: **630/630**.
+La suite general pasó de **630 a 634 tests** con la incorporación de los cuatro tests de `TransferenciasPanelTest`, manteniendo **0 failures, 0 errors y 0 skipped**.
 
 ## Criterio de validación
 
 No considerar una funcionalidad terminada solamente porque compila. Cada nuevo bloque debe validar éxito, null cuando corresponda, entidad inexistente, reglas de negocio, persistencia, relaciones y casos límite relevantes.
 
-El bloque de Ingresos completó: tests específicos → tests relacionados → suite general. Las comprobaciones locales `git diff`, `git diff --check` y `git status` deben ser informadas por el usuario; no se asumen desde GitHub.
+Las comprobaciones locales `git diff`, `git diff --check` y `git status` deben ser informadas desde el entorno local; no se asumen desde GitHub.
 
 ## Próximo bloque de tests
 
