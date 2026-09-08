@@ -1,11 +1,11 @@
 # SOFP — Pendientes
 
-## Estado — 07/09/2026
+## Estado — 08/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell`.
+**Rama de trabajo:** `feature/swing-shell` → `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b` antes de la actualización documental.
 
-La comparación verificada antes de la actualización documental indica que `feature/swing-shell` está **306 commits por delante y 2 por detrás** de `main`, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`. No se realizó merge.
+La comparación verificada con `main` indica que `feature/swing-shell` está **326 commits por delante y 0 por detrás**, con merge-base `a4be85913847200cb70976d5266d9cbba10b3100`. No se realizó merge.
 
 ## Último bloque cerrado
 
@@ -15,93 +15,104 @@ La comparación verificada antes de la actualización documental indica que `fea
 
 `MovimientoService` rechaza `EGRESO` superior al saldo disponible, permite el egreso igual al saldo y aplica la regla también a modificaciones de importe y tipo.
 
-Se agregó `MovimientoServiceSaldoTest` con tres casos específicos. La validación relacionada más reciente fue:
+`MovimientoServiceSaldoTest`: **3/3**.
 
-- `MovimientoServiceSaldoTest`: **3/3**;
-- `MovimientoServiceTest`: **50/50**;
-- `IngresoServiceTest` y `GastoServiceTest`: incluidos;
-- total: **61/61**;
+### FormaPago
+
+**Completado y validado.**
+
+`FormaPago` está integrada en `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`, con cinco opciones: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
+
+### Obligaciones — dominio y servicio
+
+**Completado y validado.**
+
+Ya existe el modelo de obligaciones para compras con tarjeta de crédito:
+
+- `EstadoObligacion`;
+- `Obligacion`;
+- `ObligacionRepository`;
+- `ObligacionService`;
+- persistencia JPA;
+- registro de pagos parciales y completos;
+- actualización de estado a `PARCIAL` o `PAGADA`;
+- validación de sobrepagos y obligaciones ya pagadas.
+
+No queda pendiente el modelado básico de obligaciones. La documentación anterior que indicaba lo contrario estaba desactualizada.
+
+## Pendiente inmediato
+
+### 1. UI de obligaciones y pagos
+
+**Pendiente.**
+
+No existe todavía un panel Swing específico para:
+
+- listar obligaciones del perfil/usuario;
+- visualizar importe original, saldo pendiente, estado y fecha de origen;
+- seleccionar una obligación;
+- registrar un pago;
+- refrescar el estado después del pago;
+- informar errores de forma amigable.
+
+La nueva UI debe utilizar `ObligacionService` y no duplicar reglas de dominio.
+
+### 2. Integración del shell con obligaciones
+
+**Pendiente.**
+
+Debe definirse dónde se accede a las obligaciones dentro de `MainFrame`/`SidebarPanel` y cómo se refrescan los datos después de registrar un gasto con tarjeta de crédito o un pago.
+
+### 3. Evolución de ingresos y transferencias
+
+**Pendiente.**
+
+Continuar consolidando ingresos y transferencias mediante el núcleo financiero común basado en `Movimiento` y `OperacionFinanciera`.
+
+### 4. Pasivos y patrimonio neto
+
+**Pendiente.**
+
+Las obligaciones son ahora una primera representación de pasivos. Falta evolucionar el modelo para obtener una visión más completa de pasivos y patrimonio neto.
+
+### 5. Análisis y dashboard
+
+**Pendiente.**
+
+Evolucionar progresivamente resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
+
+### 6. Pulido de consola
+
+**Pendiente de baja prioridad.**
+
+Limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico ni alterar innecesariamente la configuración de logging.
+
+## Bloques ya cerrados
+
+- Seguridad y aislamiento de datos.
+- Categorías con movimientos.
+- Fondos insuficientes y reglas de saldo.
+- Primer corte funcional de Gastos.
+- FormaPago.
+- Modelo de obligaciones y pagos en dominio/persistencia/servicio.
+- Pulido visual inicial de Cuentas, Movimientos y Categorías.
+- Compatibilidad de constructores de `MainFrame` sin `ObligacionService`.
+
+## Validación actual
+
+Suite general ejecutada e informada por el usuario el **08/09/2026 13:27:36 -03:00**:
+
+- `mvn test`;
+- **618/618**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **03:09 min**;
-- finalización: **07/09/2026 20:12:52 -03:00**.
+- duración: **21:26 min**.
 
-El fixture de saldo fue corregido en `06a9fd8` para utilizar la API pública de `MovimientoService` pasando el usuario propietario. No se modificó producción.
+Validación focalizada previa: `GastosPanelTest` + `MainFrameMovimientosTest` **8/8**.
 
-## Bloques cerrados anteriores
-
-### Categorías con movimientos
-
-**Completado y validado.**
-
-Las categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
-
-`CategoriaServiceTest`: **23/23**.
-
-### Gastos — primer corte funcional
-
-**Completado y validado.**
-
-`GastosPanel` registra compras, pagos de servicios y otros egresos básicos mediante `GastoService`, que delega finalmente en `MovimientoService` como `EGRESO`.
-
-El registro queda en el historial común de `Movimientos` y respeta la regla de fondos disponibles.
-
-### FormaPago — completado y validado
-
-`FormaPago` está integrada a `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`.
-
-Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
-
-`GastoService` exige forma de pago.
-
-`TARJETA_CREDITO` se rechaza explícitamente por ahora porque no existe todavía el modelo de obligaciones/pasivos necesario para representar una compra a crédito sin simular una salida inmediata de fondos.
-
-### Pulido visual del shell Swing
-
-**Completado y validado.**
-
-Se realizaron ajustes visuales incrementales en `CuentasPanel`, `MovimientosPanel` y `CategoriasPanel`, manteniendo la lógica existente.
-
-Commits: `5faff68`, `5310ba3` y `26f7f58`.
-
-Pruebas específicas recientes: `CuentasPanelTest` **3/3**, `MovimientosPanelTest` **3/3**, `CategoriasPanelTest` **4/4**.
-
-## Validación general conocida
-
-Última suite general informada por el usuario:
-
-- comando: `mvn test`;
-- Tests run: **602**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **10:54 min**;
-- finalización: **07/09/2026 14:59:12 -03:00**.
-
-Esta suite completa no fue repetida después de los cambios de saldo. La validación relacionada posterior sí quedó en **61/61**.
-
-## Criterio funcional adoptado a partir de ControlFinanzas
-
-ControlFinanzas se utiliza como banco de ideas y referencia funcional, no como arquitectura para copiar.
-
-El criterio de SOFP es:
-
-**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
-
-La experiencia Swing debe permitir registrar el hecho financiero desde un panel especializado y verlo luego en el historial consolidado.
-
-## Próximos pasos reales
-
-1. Diseñar/modelar obligaciones y pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
-2. Evolucionar ingresos y transferencias mediante el núcleo común.
-3. Incorporar progresivamente pasivos y patrimonio neto.
-4. Evolucionar resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
-5. Como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
-
-Estos puntos son pendientes reales; no se consideran implementados por estar documentados.
+Validación final local posterior: `git diff`, `git diff --check` y `git status` limpios; rama sincronizada con `github/feature/swing-shell` y working tree limpio.
 
 ## Integración
 
@@ -114,3 +125,5 @@ Antes de una eventual integración revisar commits, comparación con `main`, tes
 ## Continuidad
 
 Ante una nueva sesión reconstruir el estado desde GitHub priorizando código → tests → commits → `main` → documentación.
+
+La documentación debe reflejar el código actual y nunca declarar implementada una funcionalidad únicamente porque esté escrita aquí.
