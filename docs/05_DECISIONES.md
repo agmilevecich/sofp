@@ -4,7 +4,7 @@ Este documento registra decisiones que conviene conservar durante toda la vida d
 
 ## D-001 — El repositorio es la memoria permanente
 
-La continuidad del proyecto no dependerá de una única conversación de ChatGPT. Código, Git, tests y documentación del repositorio forman la memoria permanente, con prioridad del código y tests sobre `docs/`.
+La continuidad no dependerá de una única conversación. Código, Git, tests y documentación forman la memoria permanente, con prioridad del código y tests sobre `docs/`.
 
 ## D-002 — Desarrollo incremental por Builds
 
@@ -24,7 +24,7 @@ Los valores monetarios se representan con `BigDecimal`, evitando `float`/`double
 
 ## D-006 — Dominio antes de interfaz
 
-El modelo de dominio, sus reglas y persistencia se construyen antes de avanzar fuertemente sobre la interfaz.
+El dominio, sus reglas y persistencia se construyen antes de avanzar fuertemente sobre la interfaz.
 
 ## D-007 — Tests como condición de avance
 
@@ -32,7 +32,7 @@ Una funcionalidad no se considera cerrada hasta verificar sus tests correspondie
 
 ## D-008 — Sistema de continuidad documental
 
-Se mantienen documentos de estado, contexto, decisiones, Builds, tests y pendientes para poder continuar el proyecto sin depender de una conversación concreta.
+Se mantienen documentos de estado, contexto, Builds, tests y pendientes para poder continuar sin depender de una conversación concreta.
 
 ## D-009 — Las transferencias no son un TipoMovimiento
 
@@ -68,7 +68,7 @@ Un `EGRESO` mayor al saldo disponible se rechaza. Uno igual al saldo está permi
 
 ## D-015 — No eliminar físicamente categorías con movimientos
 
-Una categoría referenciada por movimientos se conserva y se desactiva. La interfaz comunica la situación sin exponer directamente la excepción de integridad referencial.
+Una categoría referenciada por movimientos se conserva y se desactiva.
 
 ## D-016 — Criterios de ControlFinanzas son roadmap hasta su implementación
 
@@ -88,29 +88,25 @@ La integración de `FormaPago` se realiza dentro del flujo funcional de Gastos. 
 
 ## D-019 — Tarjeta de crédito genera una obligación
 
-La decisión original de no simular una salida inmediata de fondos se mantiene. Una compra con `TARJETA_CREDITO` se registra como `Movimiento` de tipo `EGRESO` y `GastoService`, mediante `ObligacionService`, crea una `Obligacion` asociada al movimiento persistido.
-
-Si `GastoService` no dispone de `ObligacionService`, el uso de `TARJETA_CREDITO` se rechaza con `IllegalStateException`. No se debe reintroducir una simulación de pago inmediato sobre la cuenta.
+Una compra con `TARJETA_CREDITO` se registra como `Movimiento` de tipo `EGRESO` y `GastoService`, mediante `ObligacionService`, crea una `Obligacion` asociada al movimiento persistido. No se simula un pago inmediato sobre la cuenta.
 
 ## D-020 — Obligaciones como pasivo especializado
 
 `Obligacion` representa actualmente el pasivo originado por una compra con tarjeta de crédito. Conserva importe original, saldo pendiente, estado y movimiento de origen. Sus estados son `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
-Los pagos se registran mediante `ObligacionService`, que mantiene las reglas transaccionales y delega la lógica de estado en el dominio.
-
-La UI especializada está implementada mediante `ObligacionesPanel`. Consulta obligaciones por usuario, permite registrar pagos autorizados y refresca el estado sin duplicar reglas de dominio.
+Los pagos se registran mediante `ObligacionService`, que mantiene las reglas transaccionales y delega la lógica de estado en el dominio. `ObligacionesPanel` consulta obligaciones por usuario, permite pagos autorizados y refresca el estado conservando la selección.
 
 ## D-021 — Compatibilidad de constructores del shell
 
-Los constructores existentes de `MainFrame` que no reciben `ObligacionService` deben continuar funcionando mientras no necesiten registrar operaciones que requieran obligaciones. Cuando el servicio está disponible, el shell utiliza la integración completa de `GastoService`.
+Los constructores existentes de `MainFrame` que no reciben `ObligacionService` deben continuar funcionando mientras no necesiten registrar operaciones que requieran obligaciones.
 
 ## D-022 — Pagos de obligaciones autorizados por usuario
 
-La interfaz no debe registrar pagos utilizando únicamente el identificador de la obligación. El flujo de usuario debe pasar por la operación de servicio que recibe también el `usuarioId` y verifica la propiedad de la obligación antes de modificarla.
+La interfaz no debe registrar pagos utilizando únicamente el identificador de la obligación. El flujo debe pasar por la operación de servicio que recibe también `usuarioId` y verifica la propiedad.
 
 ## D-023 — Refresco de obligaciones conserva selección
 
-Cuando `ObligacionesPanel` refresca la lista después de un pago, debe conservar la obligación previamente seleccionada si continúa presente. Esto evita que el refresco deshabilite el botón de pago por pérdida de selección.
+Cuando `ObligacionesPanel` refresca la lista después de un pago, debe conservar la obligación previamente seleccionada si continúa presente.
 
 ## D-024 — Ingresos como panel especializado sobre Movimiento
 
@@ -118,24 +114,31 @@ Los ingresos se registran mediante:
 
 **`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
 
-El panel no mantiene un registro financiero paralelo. Cuenta, categoría, importe, fecha y descripción son datos del formulario; la persistencia y las reglas financieras permanecen en el núcleo común.
+El panel no mantiene un registro financiero paralelo.
 
 ## D-025 — Ingresos autorizados por usuario
 
-El registro de ingresos debe utilizar el `usuarioId` autorizado y servicios que validen la pertenencia de cuenta y categoría al perfil correspondiente. La UI no debe reemplazar las reglas de autorización del servicio.
+El registro de ingresos utiliza el `usuarioId` autorizado y servicios que validan la pertenencia de cuenta y categoría al perfil correspondiente.
+
+## D-026 — Transferencias mediante OperacionFinanciera
+
+Las transferencias entre cuentas propias se registran mediante `OperacionFinancieraService`, no como un ingreso o gasto independiente. Una transferencia crea una operación financiera con un `EGRESO` en la cuenta origen y un `INGRESO` en la cuenta destino.
+
+`TransferenciasPanel` es solamente la interfaz de carga: las reglas de cuentas, perfiles, moneda, actividad, importe y autorización permanecen en el servicio central.
 
 ## Actualización — 08/09/2026
 
-El bloque de Ingresos quedó implementado e integrado al shell mediante `IngresosPanel`, `IngresoService`, `MainFrame` y `SidebarPanel`.
+El bloque de Transferencias quedó implementado e integrado al shell mediante `TransferenciasPanel` y `OperacionFinancieraService`.
 
 Commits funcionales:
 
-- `d99cc6a` — `feat: agregar formulario de ingresos`.
-- `2977f36` — `test: cubrir formulario de ingresos`.
-- `4e6b363` — `feat: integrar ingresos al shell`.
-- `cd781a1` — `feat: agregar ingresos a la navegacion`.
-- `f9339db` — `test: cubrir navegacion hacia ingresos`.
+- `1753074` — `feat: agregar formulario de transferencias`.
+- `aa29d44` — `test: cubrir formulario de transferencias`.
 
-La validación focalizada fue **5/5**, la relacionada **18/18** y la suite general posterior **630/630**, todas con `BUILD SUCCESS` y sin failures, errors ni skipped.
+Validaciones informadas por el usuario:
 
-La suite general de **630/630** fue ejecutada por el usuario el **08/09/2026 15:16:17 -03:00**, con una duración de **11:55 min**.
+- `mvn -Dtest=TransferenciasPanelTest test` → **4/4**, BUILD SUCCESS, **01:16 min**.
+- `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, BUILD SUCCESS, **39 s**.
+- `mvn test` → **634/634**, BUILD SUCCESS, **11:52 min**.
+
+La suite general anterior era 630/630; los cuatro tests nuevos de `TransferenciasPanelTest` elevan la suite a 634/634.
