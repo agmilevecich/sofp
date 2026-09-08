@@ -10,6 +10,7 @@ import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
 import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import ar.com.agmilevecich.sofp.persistence.PerfilFinancieroRepository;
 import ar.com.agmilevecich.sofp.persistence.UsuarioRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
@@ -18,6 +19,7 @@ import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
+import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.PerfilFinancieroService;
 import ar.com.agmilevecich.sofp.service.UsuarioService;
 import jakarta.persistence.EntityManager;
@@ -101,6 +103,7 @@ public class Main {
         MonedaRepository monedaRepository = new MonedaRepository(entityManager);
         MovimientoActivoRepository movimientoActivoRepository =
                 new MovimientoActivoRepository(entityManager);
+        ObligacionRepository obligacionRepository = new ObligacionRepository(entityManager);
 
         CuentaService cuentaService = new CuentaService(
                 cuentaRepository,
@@ -121,6 +124,10 @@ public class Main {
         CarteraActivoService carteraActivoService = new CarteraActivoService(
                 movimientoActivoRepository
         );
+        ObligacionService obligacionService = new ObligacionService(
+                entityManager,
+                obligacionRepository
+        );
 
         MainFrame mainFrame = new MainFrame(
                 cuentaService,
@@ -130,7 +137,8 @@ public class Main {
                 monedaService,
                 carteraActivoService,
                 perfil,
-                usuario.getId()
+                usuario.getId(),
+                obligacionService
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
