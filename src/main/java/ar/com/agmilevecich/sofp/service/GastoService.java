@@ -17,6 +17,14 @@ public class GastoService {
     private final MovimientoService movimientoService;
     private final ObligacionService obligacionService;
 
+    public GastoService(MovimientoService movimientoService) {
+        this.movimientoService = Objects.requireNonNull(
+                movimientoService,
+                "El MovimientoService es obligatorio"
+        );
+        this.obligacionService = null;
+    }
+
     public GastoService(MovimientoService movimientoService,
                         ObligacionService obligacionService) {
         this.movimientoService = Objects.requireNonNull(
@@ -37,6 +45,12 @@ public class GastoService {
                                 FormaPago formaPago,
                                 Long usuarioId) {
         Objects.requireNonNull(formaPago, "La forma de pago es obligatoria");
+
+        if (formaPago == FormaPago.TARJETA_CREDITO && obligacionService == null) {
+            throw new IllegalStateException(
+                    "El ObligacionService es obligatorio para gastos con tarjeta de crédito"
+            );
+        }
 
         Movimiento movimiento = movimientoService.registrar(
                 cuenta,
