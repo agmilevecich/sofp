@@ -88,6 +88,22 @@ class MainFrameNavigationTest {
                     "Inversiones",
                     tarjetaVisible(mainFrame.getContentPane())
             );
+
+            JButton botonObligaciones =
+                    buscarBoton(sidebar, "Obligaciones");
+
+            if (botonObligaciones == null) {
+                throw new AssertionError(
+                        "No se encontró el botón: Obligaciones"
+                );
+            }
+
+            botonObligaciones.doClick();
+
+            assertEquals(
+                    "Obligaciones",
+                    tarjetaVisible(mainFrame.getContentPane())
+            );
         });
     }
 
@@ -167,6 +183,10 @@ class MainFrameNavigationTest {
                 return etiquetaDelPanel(component);
             }
 
+            if (component instanceof ObligacionesPanel) {
+                return etiquetaDelPanel(component);
+            }
+
             if (component instanceof Container hijo) {
 
                 String encontrado =
@@ -197,7 +217,8 @@ class MainFrameNavigationTest {
                         || "Cuentas".equals(texto)
                         || "Gastos".equals(texto)
                         || "Movimientos".equals(texto)
-                        || "Inversiones".equals(texto)) {
+                        || "Inversiones".equals(texto)
+                        || "Obligaciones".equals(texto)) {
 
                     return texto;
                 }
@@ -209,7 +230,6 @@ class MainFrameNavigationTest {
                         etiquetaDelPanel(contenedor);
 
                 if (encontrado != null) {
-
                     return encontrado;
                 }
             }
