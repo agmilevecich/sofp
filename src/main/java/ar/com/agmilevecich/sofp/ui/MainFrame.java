@@ -6,6 +6,7 @@ import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.GastoService;
+import ar.com.agmilevecich.sofp.service.IngresoService;
 import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
@@ -25,6 +26,7 @@ public class MainFrame extends JFrame {
     private static final String INICIO = "inicio";
     private static final String CUENTAS = "cuentas";
     private static final String CATEGORIAS = "categorias";
+    private static final String INGRESOS = "ingresos";
     private static final String GASTOS = "gastos";
     private static final String MOVIMIENTOS = "movimientos";
     private static final String OBLIGACIONES = "obligaciones";
@@ -36,6 +38,7 @@ public class MainFrame extends JFrame {
     private final CuentasPanel cuentasPanel;
     private final MovimientoService movimientoService;
     private final CategoriaService categoriaService;
+    private final IngresoService ingresoService;
     private final GastoService gastoService;
     private final CarteraActivoService carteraActivoService;
     private final PerfilFinanciero perfilFinanciero;
@@ -153,6 +156,7 @@ public class MainFrame extends JFrame {
             this.cuentasPanel = new CuentasPanel();
             this.movimientoService = null;
             this.categoriaService = null;
+            this.ingresoService = null;
             this.gastoService = null;
             this.carteraActivoService = null;
             this.perfilFinanciero = null;
@@ -160,6 +164,9 @@ public class MainFrame extends JFrame {
         } else {
             this.movimientoService = movimientoService;
             this.categoriaService = categoriaService;
+            this.ingresoService = movimientoService != null
+                    ? new IngresoService(movimientoService)
+                    : null;
             this.gastoService = movimientoService != null
                     ? (obligacionService != null
                         ? new GastoService(movimientoService, obligacionService)
@@ -169,11 +176,7 @@ public class MainFrame extends JFrame {
             this.perfilFinanciero = perfilFinanciero;
             this.usuarioId = Objects.requireNonNull(usuarioId, "usuarioId");
             if (institucionFinancieraService == null && monedaService == null && perfilFinanciero == null) {
-                this.cuentasPanel = new CuentasPanel(
-                        cuentaService,
-                        perfilFinancieroId,
-                        usuarioId
-                );
+                this.cuentasPanel = new CuentasPanel(cuentaService, perfilFinancieroId, usuarioId);
             } else {
                 this.cuentasPanel = new CuentasPanel(
                         cuentaService,
@@ -193,12 +196,24 @@ public class MainFrame extends JFrame {
         areaCentral.add(cuentasPanel, CUENTAS);
 
         if (categoriaService != null && perfilFinanciero != null && usuarioId != null) {
-            areaCentral.add(
-                    new CategoriasPanel(categoriaService, perfilFinanciero, usuarioId),
-                    CATEGORIAS
-            );
+            areaCentral.add(new CategoriasPanel(categoriaService, perfilFinanciero, usuarioId), CATEGORIAS);
         } else {
             areaCentral.add(new CategoriasPanel(), CATEGORIAS);
+        }
+
+        if (ingresoService != null && categoriaService != null && perfilFinanciero != null && usuarioId != null) {
+            areaCentral.add(
+                    new IngresosPanel(
+                            ingresoService,
+                            cuentaService,
+                            categoriaService,
+                            perfilFinanciero.getId(),
+                            usuarioId
+                    ),
+                    INGRESOS
+            );
+        } else {
+            areaCentral.add(new IngresosPanel(), INGRESOS);
         }
 
         if (gastoService != null && categoriaService != null && perfilFinanciero != null && usuarioId != null) {
@@ -219,23 +234,14 @@ public class MainFrame extends JFrame {
         areaCentral.add(new MovimientosPanel(), MOVIMIENTOS);
 
         if (obligacionService != null && usuarioId != null) {
-            areaCentral.add(
-                    new ObligacionesPanel(obligacionService, usuarioId),
-                    OBLIGACIONES
-            );
+            areaCentral.add(new ObligacionesPanel(obligacionService, usuarioId), OBLIGACIONES);
         } else {
             areaCentral.add(new ObligacionesPanel(), OBLIGACIONES);
         }
 
         if (carteraActivoService != null && perfilFinanciero != null && usuarioId != null) {
-            areaCentral.add(
-                    new InversionesPanel(carteraActivoService, perfilFinanciero, usuarioId),
-                    INVERSIONES
-            );
-            areaCentral.add(
-                    new ReportesPanel(carteraActivoService, perfilFinanciero, usuarioId),
-                    REPORTES
-            );
+            areaCentral.add(new InversionesPanel(carteraActivoService, perfilFinanciero, usuarioId), INVERSIONES);
+            areaCentral.add(new ReportesPanel(carteraActivoService, perfilFinanciero, usuarioId), REPORTES);
         } else {
             areaCentral.add(new InversionesPanel(), INVERSIONES);
             areaCentral.add(new ReportesPanel(), REPORTES);
