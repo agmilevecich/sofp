@@ -7,9 +7,9 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-HEAD funcional documentado: `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`.
+HEAD actual de la rama: `678a27a4921af8947fc9b404100978c00c72cfa2` — `docs: registrar suite general 626 tests`.
 
-Desde el bloque documental anterior se incorporó la UI Swing de obligaciones y pagos y se corrigió el refresco para conservar la selección de la obligación.
+El último cambio funcional continúa siendo `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`. Los commits posteriores son documentales.
 
 No se realizó merge a `main`.
 
@@ -41,15 +41,7 @@ Estados actuales: `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
 `ObligacionService` permite listar por usuario y registrar pagos autorizados. El dominio rechaza pagos no positivos, pagos superiores al saldo y pagos sobre obligaciones ya pagadas.
 
-La UI Swing de obligaciones ya está implementada mediante `ObligacionesPanel`. El panel:
-
-- lista las obligaciones del usuario autorizado;
-- muestra importe original, saldo pendiente, estado y fecha de origen;
-- permite seleccionar una obligación;
-- registra pagos mediante `ObligacionService` con autorización por usuario;
-- refresca la información después del pago;
-- conserva la obligación seleccionada al refrescar;
-- informa errores mediante la interfaz Swing.
+La UI Swing de obligaciones ya está implementada mediante `ObligacionesPanel`. El panel lista las obligaciones del usuario autorizado, muestra importe original, saldo pendiente, estado y fecha de origen, permite registrar pagos, refresca la información y conserva la obligación seleccionada al refrescar.
 
 La navegación hacia obligaciones está integrada en `SidebarPanel`/`MainFrame` y tiene cobertura específica.
 
@@ -88,52 +80,29 @@ El aislamiento de datos por usuario/perfil está implementado en los servicios y
 
 ### Suite general
 
-El usuario ejecutó `mvn test` el **08/09/2026 13:27:36 -03:00**:
+El usuario ejecutó `mvn test` el **08/09/2026 14:41:08 -03:00**:
 
-- Tests run: **618**.
+- Tests run: **626**.
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - `BUILD SUCCESS`.
-- Duración: **21:26 min**.
+- Duración: **12:35 min**.
 
-Esta sigue siendo la última suite general completa conocida. Fue ejecutada antes de la incorporación de la UI de obligaciones.
+Esta es la suite general completa más reciente y valida la integración de la UI de obligaciones y pagos.
 
 ### Tests focalizados de obligaciones/UI
 
-El usuario ejecutó:
+El usuario ejecutó `mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test` el **08/09/2026 14:14:14 -03:00**.
 
-`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
-
-Resultado informado el **08/09/2026 14:14:14 -03:00**:
-
-- Tests run: **14**.
-- Failures: **0**.
-- Errors: **0**.
-- Skipped: **0**.
-- `BUILD SUCCESS`.
-- Duración: **01:48 min**.
-
-`ObligacionesPanelTest`: **3/3**.
-
-La suite focalizada valida navegación, integración de `MainFrame`, panel de obligaciones y servicio de obligaciones.
-
-No se debe asumir todavía que la suite completa posterior a estos cambios fue ejecutada.
+Resultado: **14/14**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:48 min**.
 
 ## Próximo paso
 
-El bloque de obligaciones ya está cerrado en dominio, persistencia, servicio, autorización y UI Swing, con tests focalizados verdes.
-
-El siguiente paso de validación es ejecutar la **suite completa `mvn test`** sobre el estado actual y revisar `git diff`, `git diff --check` y `git status`.
-
-Después podrán evolucionarse ingresos/transferencias, pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
+La integración de obligaciones/UI está validada por la suite focalizada y por la suite general completa. El siguiente paso funcional puede ser evolucionar ingresos/transferencias, pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
 
 Como tarea de pulido posterior queda limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
-
-## Continuidad
 
 Antes de cualquier cambio revisar código actual, clases relacionadas, servicios, repositorios, tests, reglas de negocio, últimos commits y comparación con `main`.
 
 Después de cambios importantes: tests específicos, relacionados y suite completa cuando corresponda; `git diff`, `git diff --check` y `git status`.
-
-No asumir ejecuciones de tests, sincronizaciones o merges que no hayan sido informados o verificados.
