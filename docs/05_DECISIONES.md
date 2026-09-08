@@ -98,7 +98,7 @@ Si `GastoService` no dispone de `ObligacionService`, el uso de `TARJETA_CREDITO`
 
 Los pagos se registran mediante `ObligacionService`, que mantiene las reglas transaccionales y delega la lógica de estado en el dominio.
 
-La UI especializada ya está implementada mediante `ObligacionesPanel`. Consulta obligaciones por usuario, permite registrar pagos autorizados y refresca el estado sin duplicar reglas de dominio.
+La UI especializada está implementada mediante `ObligacionesPanel`. Consulta obligaciones por usuario, permite registrar pagos autorizados y refresca el estado sin duplicar reglas de dominio.
 
 ## D-021 — Compatibilidad de constructores del shell
 
@@ -112,16 +112,30 @@ La interfaz no debe registrar pagos utilizando únicamente el identificador de l
 
 Cuando `ObligacionesPanel` refresca la lista después de un pago, debe conservar la obligación previamente seleccionada si continúa presente. Esto evita que el refresco deshabilite el botón de pago por pérdida de selección.
 
+## D-024 — Ingresos como panel especializado sobre Movimiento
+
+Los ingresos se registran mediante:
+
+**`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
+
+El panel no mantiene un registro financiero paralelo. Cuenta, categoría, importe, fecha y descripción son datos del formulario; la persistencia y las reglas financieras permanecen en el núcleo común.
+
+## D-025 — Ingresos autorizados por usuario
+
+El registro de ingresos debe utilizar el `usuarioId` autorizado y servicios que validen la pertenencia de cuenta y categoría al perfil correspondiente. La UI no debe reemplazar las reglas de autorización del servicio.
+
 ## Actualización — 08/09/2026
 
-La rama de trabajo es `feature/swing-shell`. El último commit funcional del bloque es `87052df` — `test: cubrir navegacion hacia obligaciones`.
+El bloque de Ingresos quedó implementado e integrado al shell mediante `IngresosPanel`, `IngresoService`, `MainFrame` y `SidebarPanel`.
 
-El bloque de obligaciones quedó implementado en dominio, persistencia, servicio, autorización y UI Swing. La navegación está integrada en `MainFrame`/`SidebarPanel` y existe cobertura específica.
+Commits funcionales:
 
-La validación focalizada informada por el usuario el **08/09/2026 14:14:14 -03:00** fue:
+- `d99cc6a` — `feat: agregar formulario de ingresos`.
+- `2977f36` — `test: cubrir formulario de ingresos`.
+- `4e6b363` — `feat: integrar ingresos al shell`.
+- `cd781a1` — `feat: agregar ingresos a la navegacion`.
+- `f9339db` — `test: cubrir navegacion hacia ingresos`.
 
-`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
+La validación focalizada fue **5/5**, la relacionada **18/18** y la suite general posterior **630/630**, todas con `BUILD SUCCESS` y sin failures, errors ni skipped.
 
-Resultado: **14/14**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:48 min**.
-
-La suite general `mvn test` más reciente conocida fue **618/618**, `BUILD SUCCESS`, a las **13:27:36 -03:00**, pero es anterior a la UI de obligaciones. Debe ejecutarse nuevamente antes de considerar cerrado el bloque global.
+La suite general de **630/630** fue ejecutada por el usuario el **08/09/2026 15:16:17 -03:00**, con una duración de **11:55 min**.
