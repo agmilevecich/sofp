@@ -24,11 +24,11 @@ Validación final registrada: `AislamientoDatosServiceTest` **7/7** y suite gene
 
 ## Fase 8 — Interfaz Swing
 
-`feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, categorías, ingresos, movimientos, inversiones, reportes, gastos y obligaciones.
+`feature/swing-shell` desarrolló progresivamente el shell Swing y su integración con cuentas, categorías, ingresos, movimientos, inversiones, reportes, gastos, obligaciones y transferencias.
 
-Componentes conectados incluyen `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `IngresosPanel`, `MovimientosPanel`, `GastosPanel`, `InversionesPanel`, `ReportesPanel`, `ObligacionesPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
+Componentes conectados incluyen `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `CategoriasPanel`, `IngresosPanel`, `MovimientosPanel`, `GastosPanel`, `InversionesPanel`, `ReportesPanel`, `ObligacionesPanel`, `TransferenciasPanel`, `StatusBarPanel`, `RegistrarCuentaPanel`, `RegistrarMovimientoPanel` y `ui.Main`.
 
-`MainFrame` utiliza `CardLayout` para Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
+`MainFrame` utiliza `CardLayout` para Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias.
 
 ## Bloque — Fondos insuficientes
 
@@ -82,7 +82,7 @@ Commits:
 - `cd781a1` — `feat: agregar ingresos a la navegacion`.
 - `f9339db` — `test: cubrir navegacion hacia ingresos`.
 
-Validaciones: **5/5** focalizada, **18/18** relacionada y **630/630** suite general.
+Validaciones históricas: **5/5** focalizada, **18/18** relacionada y **630/630** suite general.
 
 ## Bloque — FormaPago
 
@@ -98,18 +98,7 @@ La tarjeta de crédito permite crear una `Obligacion` mediante `ObligacionServic
 
 **Estado: COMPLETADO EN DOMINIO, PERSISTENCIA, SERVICIO Y UI SWING; TESTS FOCALIZADOS VERDES.**
 
-Se incorporaron:
-
-- `EstadoObligacion` con estados `PENDIENTE`, `PARCIAL` y `PAGADA`.
-- `Obligacion` con importe original, saldo pendiente, estado y relación con el movimiento de origen.
-- `ObligacionRepository` y consulta por usuario.
-- `ObligacionService` para alta, consulta y registro de pagos.
-- autorización de pagos por usuario.
-- `ObligacionesPanel` para consulta y registro de pagos.
-- integración de navegación en `MainFrame`/`SidebarPanel`.
-- `ObligacionTest`, `ObligacionJpaTest`, `ObligacionServiceTest`, `ObligacionesPanelTest` y pruebas de integración/navegación.
-
-Las reglas del dominio incluyen rechazo de pagos no positivos, sobrepagos y pagos sobre obligaciones ya pagadas, además de transición automática a `PARCIAL` o `PAGADA`.
+Se incorporaron `EstadoObligacion`, `Obligacion`, `ObligacionRepository`, `ObligacionService`, autorización de pagos por usuario, `ObligacionesPanel` e integración de navegación.
 
 La primera ejecución focalizada del panel tuvo un fallo porque el refresco perdía la selección. `166b5f0` corrigió el comportamiento y la ejecución posterior quedó en **14/14**.
 
@@ -120,55 +109,57 @@ La primera ejecución focalizada del panel tuvo un fallo porque el refresco perd
 - `6c7d70a` — `fix: mantener compatibilidad de MainFrame sin ObligacionService`.
 - `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
 
-## Suite general — 08/09/2026 15:16:17
+## Bloque — Transferencias
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Se incorporó `TransferenciasPanel` al shell Swing para registrar transferencias entre cuentas propias mediante `OperacionFinancieraService`.
+
+Flujo:
+
+**`TransferenciasPanel` → `OperacionFinancieraService` → `OperacionFinanciera` + `Movimiento` `EGRESO`/`INGRESO`.**
+
+El formulario utiliza cuentas y categorías activas del perfil/usuario autorizado, importe, fecha y descripción. La operación se mantiene diferenciada de ingresos y gastos.
+
+Commits:
+
+- `1753074` — `feat: agregar formulario de transferencias`.
+- `aa29d44` — `test: cubrir formulario de transferencias`.
+
+Validaciones:
+
+- `mvn -Dtest=TransferenciasPanelTest test` → **4/4**, BUILD SUCCESS, **01:16 min**.
+- `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, BUILD SUCCESS, **39 s**.
+- `mvn test` → **634/634**, BUILD SUCCESS, **11:52 min**.
+
+## Suite general — 08/09/2026 18:13:55
 
 **Estado: COMPLETADO Y VALIDADO.**
 
 Resultado informado por el usuario:
 
-- Tests run: **630**.
+- Tests run: **634**.
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - `BUILD SUCCESS`.
-- Duración: **11:55 min**.
+- Duración: **11:52 min**.
 - Comando: `mvn test`.
 
-Esta es la suite general completa más reciente y valida la integración de Ingresos y su navegación, además de los bloques anteriores.
-
-## Suite focalizada de Ingresos — 08/09/2026 14:55:35
-
-**Estado: COMPLETADO Y VALIDADO.**
-
-Comando:
-
-`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
-
-Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:21 min**.
-
-## Suite relacionada de Ingresos — 08/09/2026 14:58:53
-
-**Estado: COMPLETADO Y VALIDADO.**
-
-Comando:
-
-`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
-
-Resultado: **18/18**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:31 min**.
+Esta es la suite general completa más reciente y valida la incorporación de Transferencias.
 
 ## Estado Git
 
 `main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La rama de trabajo es `feature/swing-shell`. El último cambio funcional del bloque de Ingresos es `f9339db2a500d5530eea95dc39e14e2725f4eb8f`.
+La rama de trabajo es `feature/swing-shell`, actualmente en `aa29d44` antes de estos commits documentales. La comparación con `main` fue verificada en GitHub en **377 commits adelante y 0 atrás**.
 
-La documentación posterior a este cambio se considera documental y no modifica el comportamiento funcional.
+La documentación posterior a `aa29d44` es documental y no modifica el comportamiento funcional.
 
 ## Próximos bloques
 
-1. Evolucionar transferencias mediante el núcleo común y `OperacionFinanciera`.
-2. Incorporar progresivamente pasivos y patrimonio neto.
-3. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard.
-4. Como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
+1. Ampliar pasivos y patrimonio neto.
+2. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+3. Como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
 Antes de cerrar cualquier bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
