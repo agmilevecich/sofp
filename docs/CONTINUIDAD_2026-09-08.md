@@ -6,42 +6,36 @@ Este documento registra el corte de continuidad del proyecto al 08/09/2026. La f
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
+**Último commit funcional:** `aa29d44` — `test: cubrir formulario de transferencias`.
 
-Último cambio funcional verificado: `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
-
-Los commits posteriores son documentales y actualizan el estado de continuidad. No se realizó merge a `main`.
+La comparación verificada en GitHub antes de esta actualización indicó **377 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
 ## Último bloque funcional cerrado
 
-El bloque de Ingresos quedó completado e integrado en el shell Swing.
+El bloque de Transferencias quedó completado, integrado al shell Swing y validado.
 
 El flujo es:
 
-**`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
+**`TransferenciasPanel` → `OperacionFinancieraService` → `OperacionFinanciera` + `Movimiento` `EGRESO`/`INGRESO`.**
 
-`IngresosPanel` permite seleccionar cuentas y categorías activas, informar importe, fecha y descripción y registrar el ingreso con el usuario autorizado.
+`TransferenciasPanel` permite seleccionar cuentas y categorías activas, informar importe, fecha y descripción y registrar la transferencia con el usuario autorizado.
+
+Una transferencia entre cuentas propias genera una operación financiera con un `EGRESO` en origen y un `INGRESO` en destino; no se trata como ingreso o gasto independiente.
 
 Commits funcionales del bloque:
 
-- `d99cc6a` — `feat: agregar formulario de ingresos`.
-- `2977f36` — `test: cubrir formulario de ingresos`.
-- `4e6b363` — `feat: integrar ingresos al shell`.
-- `cd781a1` — `feat: agregar ingresos a la navegacion`.
-- `f9339db` — `test: cubrir navegacion hacia ingresos`.
+- `1753074` — `feat: agregar formulario de transferencias`.
+- `aa29d44` — `test: cubrir formulario de transferencias`.
 
 ## Estado funcional acumulado
 
-La Fase 8 integra mediante `MainFrame` y `CardLayout` los paneles de Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
+La Fase 8 integra mediante `MainFrame` y `CardLayout` los paneles de Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias.
 
 Arquitectura acordada:
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Gastos utiliza:
-
-**`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
-
-Ingresos utiliza el mismo núcleo con `TipoMovimiento.INGRESO`.
+Gastos utiliza `GastoService` sobre `Movimiento` como núcleo. Ingresos utiliza `IngresoService` sobre `Movimiento`. Transferencias utilizan `OperacionFinanciera` para coordinar los movimientos de origen y destino.
 
 ## Obligaciones y tarjeta de crédito
 
@@ -49,9 +43,9 @@ El modelado de obligaciones está implementado con `EstadoObligacion`, `Obligaci
 
 `GastoService`, al registrar `TARJETA_CREDITO` con `ObligacionService`, crea el movimiento de egreso y la obligación asociada. Sin el servicio de obligaciones, el uso de tarjeta de crédito se rechaza con `IllegalStateException`.
 
-Los pagos autorizados se realizan mediante el servicio con `usuarioId`, manteniendo el aislamiento por propietario.
+Los pagos autorizados se realizan mediante el servicio con `usuarioId`.
 
-`ObligacionesPanel` está integrado al shell. Lista obligaciones del usuario, muestra importe original, saldo pendiente, estado y fecha de origen, permite registrar pagos, maneja errores y refresca la lista conservando la selección.
+`ObligacionesPanel` está integrado al shell, permite registrar pagos y refresca la lista conservando la selección.
 
 ## Reglas financieras vigentes
 
@@ -67,62 +61,60 @@ Los pagos autorizados se realizan mediante el servicio con `usuarioId`, mantenie
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` el **08/09/2026 15:16:17 -03:00**.
+El usuario ejecutó `mvn test` el **08/09/2026 18:13:55 -03:00**.
 
 Resultado:
 
-- Tests run: **630**;
+- Tests run: **634**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **11:55 min**.
+- duración: **11:52 min**.
 
-Esta ejecución es posterior a la incorporación de Ingresos y constituye la validación general completa más reciente.
+Esta ejecución es posterior a la incorporación de Transferencias y constituye la validación general completa más reciente.
 
-### Tests focalizados de Ingresos/navegación
+### Tests focalizados de Transferencias
 
-El usuario ejecutó el **08/09/2026 14:55:35 -03:00**:
+El usuario ejecutó el **08/09/2026 17:59:29 -03:00**:
 
-`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
+`mvn -Dtest=TransferenciasPanelTest test`
 
-Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:21 min**.
+Resultado: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:16 min**.
 
-### Tests relacionados
+### Tests de Transferencias y navegación
 
-El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
+El usuario ejecutó el **08/09/2026 18:01:19 -03:00**:
 
-`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
+`mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test`
 
-Resultado: **18/18**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:31 min**.
-
-La batería relacionada confirma que Ingresos no introduce regresiones en Gastos, Obligaciones ni navegación.
+Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **39 s**.
 
 ## Último resultado de tests conocido
 
-**630/630 — BUILD SUCCESS** para la suite general completa.
+**634/634 — BUILD SUCCESS** para la suite general completa.
 
-**18/18 — BUILD SUCCESS** para la batería relacionada de Ingresos.
+**5/5 — BUILD SUCCESS** para Transferencias y navegación.
 
-**5/5 — BUILD SUCCESS** para la batería focalizada de Ingresos/navegación.
+**4/4 — BUILD SUCCESS** para Transferencias.
 
-La suite general pasó de **626 a 630 tests** después de incorporar el bloque de Ingresos, sin fallos ni errores.
+La suite general pasó de **630 a 634 tests** al incorporar los cuatro tests de `TransferenciasPanelTest`, sin fallos ni errores.
 
 ## Estado Git verificado
 
 `main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La comparación verificada en GitHub indica que `feature/swing-shell` está **366 commits adelante y 0 atrás** respecto de `main`.
+La comparación verificada antes de esta actualización indicó que `feature/swing-shell` estaba **377 commits adelante y 0 atrás** respecto de `main`, con merge base en `main`.
 
-Los últimos cambios funcionales son los cinco commits del bloque de Ingresos indicados arriba. Los commits documentales posteriores actualizan continuidad y validaciones.
+Los cambios posteriores al último commit funcional son documentales y no agregan comportamiento funcional.
 
 El estado local de `git diff`, `git diff --check` y `git status` no se asume; debe verificarse en el entorno local.
 
 ## Próximo paso
 
-El bloque de Ingresos está implementado, integrado y validado. El siguiente paso funcional puede ser evolucionar transferencias mediante `OperacionFinanciera`, manteniéndolas diferenciadas de ingresos y gastos.
+El bloque de Transferencias está implementado, integrado y validado. El siguiente bloque funcional recomendado es **ampliar pasivos y patrimonio neto**, partiendo del modelo de obligaciones ya existente.
 
-Después pueden abordarse pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
+Después pueden abordarse análisis históricos, vencimientos, evolución patrimonial y dashboard.
 
 Como tarea de pulido posterior queda limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
