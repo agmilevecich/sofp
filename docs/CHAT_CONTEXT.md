@@ -7,15 +7,29 @@ La fuente de verdad es el código, los tests y los commits actuales. `docs/` es 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-HEAD actual: `941386dd8278beddd83e78d7736c75c0fdf70743`.
-Último cambio funcional: `87052df953dbd282a43c5647d05b68d1854c4f17`.
-Los commits posteriores son documentales.
+Último cambio funcional verificado: `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
 
-No se realizó merge a `main`.
+Los commits posteriores son documentales. No se realizó merge a `main`.
 
 ## Último bloque funcional cerrado
 
-El bloque de obligaciones quedó integrado en dominio, persistencia, servicio, autorización y shell Swing.
+El bloque de Ingresos quedó integrado al shell Swing sobre el núcleo financiero común.
+
+`IngresosPanel` registra ingresos mediante `IngresoService`, que delega en `MovimientoService` para crear un `Movimiento` de tipo `INGRESO`. El formulario utiliza cuenta, categoría, importe, fecha y descripción y filtra cuentas/categorías activas del perfil/usuario autorizado.
+
+La navegación hacia Ingresos está integrada en `SidebarPanel`/`MainFrame`.
+
+Commits del bloque:
+
+- `d99cc6a` — formulario de ingresos.
+- `2977f36` — tests del formulario.
+- `4e6b363` — integración en `MainFrame`.
+- `cd781a1` — navegación/sidebar.
+- `f9339db` — tests de navegación.
+
+## Bloques funcionales anteriores
+
+El bloque de obligaciones está integrado en dominio, persistencia, servicio, autorización y shell Swing.
 
 `Obligacion` representa una obligación originada por un `Movimiento` de egreso con `TARJETA_CREDITO`. Conserva importe original, saldo pendiente, estado y movimiento de origen.
 
@@ -23,21 +37,15 @@ El bloque de obligaciones quedó integrado en dominio, persistencia, servicio, a
 
 `GastoService` crea la obligación cuando registra un gasto con tarjeta de crédito y recibe `ObligacionService`. Si no recibe ese servicio, rechaza la operación con `IllegalStateException`.
 
-## Commits funcionales recientes
-
-- `43cfd9c` — autorización de pagos.
-- `456fbfb` — tests de autorización.
-- `f20023d` — `ObligacionesPanel`.
-- `264dd54` — navegación/sidebar.
-- `87b8e46` — integración en `MainFrame`.
-- `7194a5d` — tests del panel.
-- `029de48` — test de navegación.
-- `166b5f0` — conservar selección al refrescar obligaciones.
-- `87052df` — cubrir navegación hacia obligaciones.
+`ObligacionesPanel` lista las obligaciones del usuario, permite seleccionar una y registrar pagos, muestra estado/saldo/fecha, maneja errores y refresca la lista conservando la selección.
 
 ## Arquitectura funcional
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
+
+Ingresos utiliza:
+
+**`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
 
 Gastos utiliza:
 
@@ -47,9 +55,7 @@ Las obligaciones se coordinan desde `GastoService`/`ObligacionService`; la UI no
 
 ## Shell Swing
 
-El shell integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones mediante `MainFrame`, `SidebarPanel` y `CardLayout`.
-
-`ObligacionesPanel` lista las obligaciones del usuario, permite seleccionar una obligación y registrar pagos, muestra estado/saldo/fecha, maneja errores y refresca la lista conservando la selección.
+El shell integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones mediante `MainFrame`, `SidebarPanel` y `CardLayout`.
 
 Existe compatibilidad para constructores anteriores de `MainFrame` que no reciben `ObligacionService`.
 
@@ -67,39 +73,46 @@ Existe compatibilidad para constructores anteriores de `MainFrame` que no recibe
 
 ### Suite general
 
-`mvn test`, ejecutado el **08/09/2026 14:41:08 -03:00**:
+`mvn test`, ejecutado el **08/09/2026 15:16:17 -03:00**:
 
-- **626** tests;
+- **630** tests;
 - 0 failures;
 - 0 errors;
 - 0 skipped;
 - `BUILD SUCCESS`;
-- duración **12:35 min**.
+- duración **11:55 min**.
 
-Es la suite general completa más reciente y valida la integración posterior de la UI de obligaciones.
+### Suite focalizada de Ingresos/navegación
 
-### Suite focalizada
+`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`, ejecutado el **08/09/2026 14:55:35 -03:00**:
 
-`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`, ejecutado el **08/09/2026 14:14:14 -03:00**:
-
-- **14** tests;
+- **5** tests;
 - 0 failures;
 - 0 errors;
 - 0 skipped;
 - `BUILD SUCCESS`;
-- duración **01:48 min**.
+- duración **01:21 min**.
 
-`ObligacionesPanelTest`: **3/3**.
+### Suite relacionada
 
-## Estado Git local conocido
+`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`, ejecutado el **08/09/2026 14:58:53 -03:00**:
 
-El usuario informó que ejecutó `git diff`, `git diff --check` y `git status` en `feature/swing-shell`.
+- **18** tests;
+- 0 failures;
+- 0 errors;
+- 0 skipped;
+- `BUILD SUCCESS`;
+- duración **01:31 min**.
 
-Resultado: rama actualizada respecto de `github/feature/swing-shell`, sin cambios pendientes y `working tree clean`.
+## Estado Git conocido
+
+`main` permanece en `a4be859...`. La rama de trabajo es `feature/swing-shell` y la comparación verificada con `main` indica **366 commits adelante y 0 atrás**.
+
+No se asume el estado local de `git diff`, `git diff --check` ni `git status`; esos resultados deben ser informados desde el entorno local cuando se haga la validación final.
 
 ## Pendientes reales
 
-1. Evolucionar ingresos y transferencias mediante el núcleo común.
+1. Evolucionar transferencias mediante `OperacionFinanciera`.
 2. Ampliar pasivos y patrimonio neto.
 3. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
 4. Limpiar posteriormente la salida de consola de la aplicación sin perder diagnóstico.
