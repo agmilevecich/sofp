@@ -19,13 +19,15 @@ El archivo `CONTINUIDAD_2026-09-05.md` conserva un corte histórico anterior y n
 
 Rama de trabajo: `feature/swing-shell`.
 
-HEAD verificado antes de la actualización documental: `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b`.
+Último commit funcional: `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`.
+
+Los commits posteriores al funcional son actualizaciones documentales.
 
 `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La comparación verificada indica que `feature/swing-shell` está **326 commits por delante y 0 por detrás** de `main`, con merge-base `a4be859`. No se realizó merge.
+No se realizó merge a `main`.
 
-La Fase 8 integra el shell Swing con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes.
+La Fase 8 integra el shell Swing con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
 
 La arquitectura funcional es:
 
@@ -35,19 +37,21 @@ Gastos utiliza `GastosPanel → GastoService → MovimientoService → Movimient
 
 `FormaPago` está integrada y validada. Las cinco opciones son `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-Las compras con `TARJETA_CREDITO` ya cuentan con modelo de obligaciones: `GastoService` crea una `Obligacion` mediante `ObligacionService`. Las obligaciones soportan estados `PENDIENTE`, `PARCIAL` y `PAGADA` y registro de pagos.
+Las compras con `TARJETA_CREDITO` cuentan con modelo de obligaciones. `GastoService` crea una `Obligacion` mediante `ObligacionService`; las obligaciones soportan estados `PENDIENTE`, `PARCIAL` y `PAGADA` y registro de pagos autorizados por usuario.
 
-La UI de obligaciones/pagos todavía no está implementada.
+La UI de obligaciones ya está implementada mediante `ObligacionesPanel` e integrada en `MainFrame`/`SidebarPanel`. Permite consultar obligaciones, seleccionar una, registrar pagos y refrescar conservando la selección.
 
 ## Última validación
 
-El usuario informó el **08/09/2026 13:27:36 -03:00**:
+Suite general más reciente conocida, ejecutada el **08/09/2026 13:27:36 -03:00**:
 
 `mvn test` → **618 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **21:26 min**.
 
-Antes de la suite general: `GastosPanelTest` + `MainFrameMovimientosTest` → **8/8**.
+Esta suite es anterior a la UI de obligaciones.
 
-Validación final local: `git diff`, `git diff --check` y `git status` limpios; working tree limpio y rama sincronizada con `github/feature/swing-shell`.
+Validación focalizada posterior, ejecutada el **08/09/2026 14:14:14 -03:00**:
+
+`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test` → **14 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, duración **01:48 min**.
 
 ## Regla para continuar
 
@@ -57,9 +61,8 @@ No modificar `main` ni crear nuevas ramas salvo indicación explícita.
 
 ## Pendientes principales
 
-1. UI Swing de obligaciones y registro de pagos.
-2. Integración de esa UI en `MainFrame`/`SidebarPanel` y refresco de datos.
-3. Ingresos y transferencias mediante el núcleo común.
-4. Ampliación de pasivos y patrimonio neto.
-5. Análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
-6. Pulido posterior de la salida de consola de la aplicación.
+1. Ejecutar la suite completa `mvn test` sobre el estado actual.
+2. Ingresos y transferencias mediante el núcleo común.
+3. Ampliación de pasivos y patrimonio neto.
+4. Análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+5. Pulido posterior de la salida de consola de la aplicación.
