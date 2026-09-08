@@ -15,9 +15,11 @@ Este documento conserva el punto de continuidad de la evolución del proyecto. L
 7. Implementación del primer corte funcional de Gastos.
 8. Integración de `FormaPago` al flujo de Gastos.
 9. Implementación de obligaciones y pagos para compras con tarjeta de crédito.
-10. Pulido visual incremental de Cuentas, Movimientos y Categorías.
-11. Corrección de compatibilidad del shell y expectativas de tests.
-12. Validación de la suite general con **618/618 tests**.
+10. Autorización de pagos de obligaciones por usuario.
+11. Integración de obligaciones en el shell Swing.
+12. Corrección del refresco de obligaciones para conservar la selección.
+13. Cobertura de navegación hacia Obligaciones.
+14. Validación focalizada del bloque de obligaciones/UI con **14/14 tests**.
 
 ## Gastos
 
@@ -37,17 +39,29 @@ Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDI
 
 ## Obligaciones
 
-El modelo de obligaciones ya está implementado y validado en dominio, persistencia y servicio.
+El modelo de obligaciones está implementado y validado en dominio, persistencia y servicio.
 
 `Obligacion` representa el pasivo originado por una compra con tarjeta de crédito y conserva importe original, saldo pendiente, estado y movimiento de origen.
 
-`ObligacionService` permite alta, consulta y registro de pagos con persistencia transaccional.
+`ObligacionService` permite alta, consulta, listado por usuario y registro de pagos autorizados con persistencia transaccional.
 
 Los estados son `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
 La compra con tarjeta de crédito se integra en `GastoService`: primero se registra el movimiento de egreso y luego se crea la obligación asociada. Si no se dispone de `ObligacionService`, el flujo se rechaza; no se simula una salida inmediata de fondos por ausencia del modelo.
 
-La capacidad que falta es la interfaz Swing específica para consultar obligaciones y registrar pagos.
+### UI Swing de obligaciones
+
+`ObligacionesPanel` ya está integrado en el shell y permite:
+
+- consultar obligaciones del usuario;
+- mostrar importe original, saldo pendiente, estado y fecha de origen;
+- seleccionar una obligación;
+- registrar un pago mediante `ObligacionService` con autorización por usuario;
+- refrescar el estado después del pago;
+- conservar la selección al refrescar;
+- informar errores mediante la interfaz.
+
+`MainFrame`/`SidebarPanel` incorporan la navegación hacia Obligaciones.
 
 ## Reglas de saldo
 
@@ -57,7 +71,7 @@ El bloque de reglas de fondos quedó ampliado y validado.
 
 ## Shell Swing
 
-La Fase 8 integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes mediante `MainFrame` y `CardLayout`.
+La Fase 8 integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones mediante `MainFrame` y `CardLayout`.
 
 Los ajustes visuales realizados anteriormente fueron:
 
@@ -65,10 +79,17 @@ Los ajustes visuales realizados anteriormente fueron:
 - `5310ba3` — mejora de layout de `MovimientosPanel`.
 - `26f7f58` — mejora de layout de `CategoriasPanel`.
 
-Los últimos fixes antes de esta actualización documental fueron:
+El bloque reciente de obligaciones/UI quedó distribuido en commits pequeños:
 
-- `6c7d70a` — `fix: mantener compatibilidad de MainFrame sin ObligacionService`.
-- `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
+- `43cfd9c` — autorización de pagos.
+- `456fbfb` — tests de autorización.
+- `f20023d` — `ObligacionesPanel`.
+- `264dd54` — navegación/sidebar.
+- `87b8e46` — integración en `MainFrame`.
+- `7194a5d` — tests del panel.
+- `029de48` — test de navegación.
+- `166b5f0` — conservación de selección al refrescar.
+- `87052df` — cobertura de navegación hacia obligaciones.
 
 ## Validación
 
@@ -76,24 +97,29 @@ Suite general informada por el usuario el **08/09/2026 13:27:36 -03:00**:
 
 **618 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
 
-Comando: `mvn test`.
-Duración: **21:26 min**.
+Comando: `mvn test`. Duración: **21:26 min**.
 
-Antes de la suite general, `GastosPanelTest` + `MainFrameMovimientosTest` quedaron en **8/8**.
+Esta suite es anterior a la incorporación de la UI de obligaciones.
 
-La ejecución general había presentado previamente 1 failure y 2 errors relacionados con la excepción esperada de tarjeta de crédito y constructores de `MainFrame`. Las correcciones `6c7d70a` y `7f05cd1` resolvieron esos problemas.
+Suite focalizada posterior informada por el usuario el **08/09/2026 14:14:14 -03:00**:
 
-Validación final local informada por el usuario: `git diff`, `git diff --check` y `git status` limpios; working tree limpio y rama sincronizada con `github/feature/swing-shell`.
+**14 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
+
+Comando:
+
+`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
+
+Duración: **01:48 min**.
+
+No se considera validada la suite completa posterior a la UI hasta que vuelva a ejecutarse.
 
 ## Estado Git
 
 `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-`feature/swing-shell`: `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b` al iniciar esta actualización documental.
+La rama de trabajo es `feature/swing-shell`. El último commit funcional antes de esta actualización documental es `87052df953dbd282a43c5647d05b68d1854c4f17`.
 
-Comparación verificada: **326 commits por delante y 0 por detrás**, con merge-base `a4be85913847200cb70976d5266d9cbba10b3100`.
-
-La actualización documental está siendo realizada directamente sobre `feature/swing-shell`; el SHA final deberá verificarse al cerrar este bloque.
+La actualización documental genera commits posteriores; el SHA final debe verificarse al cerrar este bloque.
 
 ## Criterios permanentes
 
@@ -111,9 +137,8 @@ No hacer merge a `main` automáticamente ni crear ramas nuevas salvo indicación
 
 ## Próximos hitos
 
-1. Crear UI Swing de obligaciones y pagos.
-2. Integrar esa UI en el shell y definir refresco después de gastos con tarjeta y pagos.
-3. Evolucionar ingresos y transferencias mediante el núcleo común.
-4. Ampliar pasivos y patrimonio neto.
-5. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
-6. Pulir posteriormente la salida de consola de la aplicación.
+1. Ejecutar la suite general `mvn test` sobre el estado actual.
+2. Evolucionar ingresos y transferencias mediante el núcleo común.
+3. Ampliar pasivos y patrimonio neto.
+4. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+5. Pulir posteriormente la salida de consola de la aplicación.
