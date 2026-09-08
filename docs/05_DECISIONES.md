@@ -88,7 +88,7 @@ La integración de `FormaPago` se realiza dentro del flujo funcional de Gastos. 
 
 ## D-019 — Tarjeta de crédito genera una obligación
 
-La decisión original de no simular una salida inmediata de fondos se mantiene. El modelo ya fue implementado: una compra con `TARJETA_CREDITO` se registra como `Movimiento` de tipo `EGRESO` y `GastoService`, mediante `ObligacionService`, crea una `Obligacion` asociada al movimiento persistido.
+La decisión original de no simular una salida inmediata de fondos se mantiene. Una compra con `TARJETA_CREDITO` se registra como `Movimiento` de tipo `EGRESO` y `GastoService`, mediante `ObligacionService`, crea una `Obligacion` asociada al movimiento persistido.
 
 Si `GastoService` no dispone de `ObligacionService`, el uso de `TARJETA_CREDITO` se rechaza con `IllegalStateException`. No se debe reintroducir una simulación de pago inmediato sobre la cuenta.
 
@@ -98,20 +98,30 @@ Si `GastoService` no dispone de `ObligacionService`, el uso de `TARJETA_CREDITO`
 
 Los pagos se registran mediante `ObligacionService`, que mantiene las reglas transaccionales y delega la lógica de estado en el dominio.
 
-La UI especializada para consultar obligaciones y registrar pagos queda como evolución posterior; el modelo de dominio y servicio no debe duplicarse en Swing.
+La UI especializada ya está implementada mediante `ObligacionesPanel`. Consulta obligaciones por usuario, permite registrar pagos autorizados y refresca el estado sin duplicar reglas de dominio.
 
 ## D-021 — Compatibilidad de constructores del shell
 
 Los constructores existentes de `MainFrame` que no reciben `ObligacionService` deben continuar funcionando mientras no necesiten registrar operaciones que requieran obligaciones. Cuando el servicio está disponible, el shell utiliza la integración completa de `GastoService`.
 
+## D-022 — Pagos de obligaciones autorizados por usuario
+
+La interfaz no debe registrar pagos utilizando únicamente el identificador de la obligación. El flujo de usuario debe pasar por la operación de servicio que recibe también el `usuarioId` y verifica la propiedad de la obligación antes de modificarla.
+
+## D-023 — Refresco de obligaciones conserva selección
+
+Cuando `ObligacionesPanel` refresca la lista después de un pago, debe conservar la obligación previamente seleccionada si continúa presente. Esto evita que el refresco deshabilite el botón de pago por pérdida de selección.
+
 ## Actualización — 08/09/2026
 
-La rama `feature/swing-shell` se encuentra en `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
+La rama de trabajo es `feature/swing-shell`. El último commit funcional del bloque es `87052df` — `test: cubrir navegacion hacia obligaciones`.
 
-La comparación verificada con `main` indica **326 commits por delante y 0 por detrás**, con merge-base `a4be859`. No se realizó merge.
+El bloque de obligaciones quedó implementado en dominio, persistencia, servicio, autorización y UI Swing. La navegación está integrada en `MainFrame`/`SidebarPanel` y existe cobertura específica.
 
-La suite general informada por el usuario el **08/09/2026 13:27:36 -03:00** fue `mvn test`: **618/618**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **21:26 min**.
+La validación focalizada informada por el usuario el **08/09/2026 14:14:14 -03:00** fue:
 
-Los tests focalizados de `GastosPanelTest` y `MainFrameMovimientosTest` fueron validados previamente en **8/8**.
+`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
 
-La validación final local fue limpia: `git diff`, `git diff --check` y `git status`; working tree limpio y rama sincronizada con `github/feature/swing-shell`.
+Resultado: **14/14**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:48 min**.
+
+La suite general `mvn test` más reciente conocida fue **618/618**, `BUILD SUCCESS`, a las **13:27:36 -03:00**, pero es anterior a la UI de obligaciones. Debe ejecutarse nuevamente antes de considerar cerrado el bloque global.
