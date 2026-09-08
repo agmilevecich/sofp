@@ -39,7 +39,7 @@ public class MovimientoService {
         validarPropietario(usuarioId, categoria);
         validarPerfilFinanciero(cuenta, categoria);
         if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
-        validarSaldoDisponible(cuenta, tipoMovimiento, importe, null);
+        validarSaldoDisponible(cuenta, tipoMovimiento, importe, formaPago, null);
         return guardar(new Movimiento(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion, formaPago));
     }
 
@@ -116,7 +116,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
-        validarSaldoDisponible(movimiento.getCuenta(), tipoMovimiento, movimiento.getImporte(), movimiento);
+        validarSaldoDisponible(movimiento.getCuenta(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.modificarTipoMovimiento(tipoMovimiento));
     }
 
@@ -124,7 +124,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(importe, "El importe es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
-        validarSaldoDisponible(movimiento.getCuenta(), movimiento.getTipoMovimiento(), importe, movimiento);
+        validarSaldoDisponible(movimiento.getCuenta(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.cambiarImporte(importe));
     }
 
@@ -180,14 +180,16 @@ public class MovimientoService {
     }
 
     private void validarSaldoDisponible(Cuenta cuenta, TipoMovimiento tipoMovimiento,
-                                        BigDecimal importe, Movimiento movimientoActual) {
-        if (tipoMovimiento != TipoMovimiento.EGRESO) return;
+                                        BigDecimal importe, FormaPago formaPago,
+                                        Movimiento movimientoActual) {
+        if (tipoMovimiento != TipoMovimiento.EGRESO || formaPago == FormaPago.TARJETA_CREDITO) return;
 
         BigDecimal saldoDisponible = calcularSaldo(cuenta.getId());
         if (movimientoActual != null) {
             if (movimientoActual.getTipoMovimiento() == TipoMovimiento.INGRESO) {
                 saldoDisponible = saldoDisponible.subtract(movimientoActual.getImporte());
-            } else if (movimientoActual.getTipoMovimiento() == TipoMovimiento.EGRESO) {
+            } else if (movimientoActual.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimientoActual.getFormaPago() != FormaPago.TARJETA_CREDITO) {
                 saldoDisponible = saldoDisponible.add(movimientoActual.getImporte());
             }
         }
@@ -202,7 +204,8 @@ public class MovimientoService {
         for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
             if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO) {
+            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) {
                 saldo = saldo.subtract(movimiento.getImporte());
             }
         }
