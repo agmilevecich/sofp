@@ -5,15 +5,18 @@
 ## Estado verificado — 08/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell`.
+**Rama de trabajo:** `feature/swing-shell` → `aa29d44bc206f92aec669173709dca017731189a`.
 
-Último cambio funcional verificado: `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
+La comparación actual con `main` indica **377 commits adelante y 0 atrás**. No se realizó merge a `main`.
 
-Los commits posteriores a ese cambio, si los hubiera, son documentales. No se realizó merge a `main`.
+Último cambio funcional verificado:
+
+- `1753074` — `feat: agregar formulario de transferencias`.
+- `aa29d44` — `test: cubrir formulario de transferencias`.
 
 ## Estado funcional
 
-La Fase 8 continúa sobre el shell Swing integrado con Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
+La Fase 8 continúa sobre el shell Swing integrado con Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias.
 
 Criterio central:
 
@@ -21,25 +24,37 @@ Criterio central:
 
 `Movimientos` es el historial financiero común y consolidado, no una segunda fuente de verdad.
 
+## Transferencias
+
+El formulario `TransferenciasPanel` está implementado e integrado al shell.
+
+El flujo funcional es:
+
+**`TransferenciasPanel` → `OperacionFinancieraService` → `OperacionFinanciera` + `Movimiento` EGRESO/INGRESO.**
+
+La transferencia entre cuentas propias se mantiene diferenciada de ingresos y gastos. El formulario utiliza cuentas y categorías activas del perfil/usuario autorizado, importe, fecha y descripción, y delega la operación al servicio central.
+
+Una transferencia genera una única `OperacionFinanciera` con dos movimientos: `EGRESO` en la cuenta origen e `INGRESO` en la cuenta destino.
+
+Cobertura actual de `TransferenciasPanelTest`: construcción del shell, filtrado de cuentas/categorías activas, persistencia de una transferencia con sus dos movimientos y dependencias obligatorias.
+
 ## Ingresos
 
-El flujo funcional vigente es:
+El flujo funcional es:
 
 **`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
 
-`IngresosPanel` permite seleccionar cuenta y categoría activas, ingresar importe, fecha y descripción, y registrar el ingreso con el `usuarioId` autorizado. El registro reutiliza el núcleo financiero común y queda persistido como `TipoMovimiento.INGRESO`.
-
-El formulario tiene constructor sin contexto para el shell y constructor con contexto para el flujo real. La validación específica cubre construcción, filtrado de cuentas/categorías activas, registro persistente y dependencias obligatorias.
+El formulario permite cuenta, categoría, importe, fecha y descripción, utilizando cuentas y categorías activas del perfil/usuario autorizado.
 
 ## Gastos y FormaPago
 
-El flujo funcional vigente es:
+El flujo funcional es:
 
 **`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
 `FormaPago` está integrada y validada. Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-La tarjeta de crédito dispone del modelo de obligaciones. Cuando `GastoService` recibe `TARJETA_CREDITO` y tiene `ObligacionService`, registra el movimiento de egreso y crea una `Obligacion` asociada al movimiento persistido. Si no se dispone del servicio, el flujo se rechaza con `IllegalStateException`.
+La tarjeta de crédito dispone del modelo de obligaciones. Cuando `GastoService` recibe `TARJETA_CREDITO` y tiene `ObligacionService`, registra el movimiento de egreso y crea una `Obligacion` asociada al movimiento persistido. Sin el servicio, el flujo se rechaza con `IllegalStateException`.
 
 ## Obligaciones
 
@@ -47,23 +62,7 @@ El dominio contiene `Obligacion` con `importeOriginal`, `saldoPendiente`, `estad
 
 Estados actuales: `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
-`ObligacionService` permite listar por usuario y registrar pagos autorizados. El dominio rechaza pagos no positivos, pagos superiores al saldo y pagos sobre obligaciones ya pagadas.
-
-La UI Swing de obligaciones está implementada mediante `ObligacionesPanel`. El panel lista las obligaciones del usuario autorizado, muestra importe original, saldo pendiente, estado y fecha de origen, permite registrar pagos, refresca la información y conserva la obligación seleccionada al refrescar.
-
-La navegación hacia obligaciones e ingresos está integrada en `SidebarPanel`/`MainFrame` y tiene cobertura específica.
-
-## UI — estado reciente
-
-El shell Swing dispone de paneles para Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones, integrados mediante `MainFrame` y `CardLayout`.
-
-Cambios funcionales recientes del bloque de Ingresos:
-
-- `d99cc6a` — `feat: agregar formulario de ingresos`.
-- `2977f36` — `test: cubrir formulario de ingresos`.
-- `4e6b363` — `feat: integrar ingresos al shell`.
-- `cd781a1` — `feat: agregar ingresos a la navegacion`.
-- `f9339db` — `test: cubrir navegacion hacia ingresos`.
+`ObligacionService` permite listar por usuario y registrar pagos autorizados. La UI `ObligacionesPanel` consulta, permite pagar y refresca conservando la selección.
 
 ## Reglas financieras vigentes
 
@@ -72,52 +71,60 @@ Cambios funcionales recientes del bloque de Ingresos:
 - Las modificaciones de importe y tipo también respetan fondos disponibles.
 - Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
 - Cuenta y forma de pago son conceptos distintos.
-- Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación; no se debe modelar como pago inmediato de la cuenta.
+- Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación; no se modela como pago inmediato de la cuenta.
 - Las transferencias entre cuentas propias no son ingresos ni gastos; se modelan mediante `OperacionFinanciera`.
 - Los paneles especializados no deben duplicar el núcleo financiero.
 
 ## Seguridad
 
-El aislamiento de datos por usuario/perfil está implementado en los servicios y repositorios correspondientes. Los flujos de ingresos, gastos y obligaciones utilizan autorización por usuario.
+El aislamiento de datos por usuario/perfil está implementado en los servicios y repositorios correspondientes. Los flujos de ingresos, gastos, obligaciones y transferencias utilizan autorización por usuario.
 
 ## Validación reciente
 
 ### Suite general
 
-El usuario ejecutó `mvn test` el **08/09/2026 15:16:17 -03:00**:
+El usuario ejecutó `mvn test` el **08/09/2026 18:13:55 -03:00**:
 
-- Tests run: **630**.
+- Tests run: **634**.
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - `BUILD SUCCESS`.
-- Duración: **11:55 min**.
+- Duración: **11:52 min**.
 
-Esta es la suite general completa más reciente y valida la integración de Ingresos, incluida su navegación, sin regresiones en el resto del proyecto.
+Esta es la suite general completa más reciente y valida también los cuatro tests nuevos de `TransferenciasPanelTest`.
 
-### Tests focalizados de Ingresos y navegación
+### Tests focalizados de Transferencias
 
-El usuario ejecutó:
+El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest test` el **08/09/2026 17:59:29 -03:00**:
 
-`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
+- **4/4**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+- Duración: **01:16 min**.
 
-Resultado informado el **08/09/2026 14:55:35 -03:00**: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:21 min**.
+### Tests de Transferencias y navegación
 
-### Tests relacionados
+El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` el **08/09/2026 18:01:19 -03:00**:
 
-El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
-
-`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
-
-Resultado: **18/18**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:31 min**.
+- **5/5**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+- Duración: **39 s**.
 
 ## Próximo paso
 
-El bloque de Ingresos está implementado, integrado al shell y validado mediante tests específicos, relacionados y suite general.
+El bloque de Transferencias está implementado, integrado al shell y validado mediante tests específicos, navegación y suite general.
 
-El siguiente paso funcional puede ser evolucionar transferencias mediante el núcleo común, o continuar con pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
+Próximos bloques funcionales candidatos:
 
-Como tarea de pulido posterior queda limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
+1. ampliar pasivos y patrimonio neto;
+2. análisis históricos, resúmenes, evolución patrimonial, vencimientos y dashboard;
+3. como pulido posterior, limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
 Antes de cualquier cambio revisar código actual, clases relacionadas, servicios, repositorios, tests, reglas de negocio, últimos commits y comparación con `main`.
 
