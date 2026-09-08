@@ -7,31 +7,31 @@ Este documento registra el corte de continuidad del proyecto al 08/09/2026. La f
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último cambio funcional: `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`.
+Último cambio funcional verificado: `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
 
-El HEAD actual contiene commits documentales posteriores, siendo el más reciente `92ac4d0af4005458d41d4c3c4eb8d98064016c3d` — `docs: cerrar validacion de obligaciones`.
+Los commits posteriores son documentales y actualizan el estado de continuidad. No se realizó merge a `main`.
 
-No se realizó merge a `main`.
+## Último bloque funcional cerrado
 
-## Últimos cambios funcionales
+El bloque de Ingresos quedó completado e integrado en el shell Swing.
 
-El bloque de obligaciones quedó completado en dominio, persistencia, servicio, autorización y UI Swing.
+El flujo es:
 
-Commits funcionales recientes:
+**`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
 
-- `43cfd9c` — autorización de pagos.
-- `456fbfb` — tests de autorización.
-- `f20023d` — `ObligacionesPanel`.
-- `264dd54` — navegación/sidebar.
-- `87b8e46` — integración en `MainFrame`.
-- `7194a5d` — tests del panel.
-- `029de48` — test de navegación.
-- `166b5f0` — conservar selección al refrescar obligaciones.
-- `87052df` — cubrir navegación hacia obligaciones.
+`IngresosPanel` permite seleccionar cuentas y categorías activas, informar importe, fecha y descripción y registrar el ingreso con el usuario autorizado.
 
-## Estado funcional
+Commits funcionales del bloque:
 
-La Fase 8 integra mediante `MainFrame` y `CardLayout` los paneles de Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
+- `d99cc6a` — `feat: agregar formulario de ingresos`.
+- `2977f36` — `test: cubrir formulario de ingresos`.
+- `4e6b363` — `feat: integrar ingresos al shell`.
+- `cd781a1` — `feat: agregar ingresos a la navegacion`.
+- `f9339db` — `test: cubrir navegacion hacia ingresos`.
+
+## Estado funcional acumulado
+
+La Fase 8 integra mediante `MainFrame` y `CardLayout` los paneles de Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
 
 Arquitectura acordada:
 
@@ -40,6 +40,8 @@ Arquitectura acordada:
 Gastos utiliza:
 
 **`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
+
+Ingresos utiliza el mismo núcleo con `TipoMovimiento.INGRESO`.
 
 ## Obligaciones y tarjeta de crédito
 
@@ -65,56 +67,62 @@ Los pagos autorizados se realizan mediante el servicio con `usuarioId`, mantenie
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` el **08/09/2026 14:41:08 -03:00**.
+El usuario ejecutó `mvn test` el **08/09/2026 15:16:17 -03:00**.
 
 Resultado:
 
-- Tests run: **626**;
+- Tests run: **630**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **12:35 min**.
+- duración: **11:55 min**.
 
-Esta ejecución valida la integración de la UI de obligaciones y pagos con la suite completa.
+Esta ejecución es posterior a la incorporación de Ingresos y constituye la validación general completa más reciente.
 
-### Tests focalizados de obligaciones/UI
+### Tests focalizados de Ingresos/navegación
 
-El usuario ejecutó el **08/09/2026 14:14:14 -03:00**:
+El usuario ejecutó el **08/09/2026 14:55:35 -03:00**:
 
-`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
+`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
 
-Resultado: **14/14**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:48 min**.
+Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:21 min**.
 
-`ObligacionesPanelTest`: **3/3**.
+### Tests relacionados
 
-La primera ejecución del panel tuvo un fallo por pérdida de selección durante el refresco. `166b5f0` corrigió ese comportamiento y la ejecución posterior quedó verde.
+El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
+
+`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
+
+Resultado: **18/18**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:31 min**.
+
+La batería relacionada confirma que Ingresos no introduce regresiones en Gastos, Obligaciones ni navegación.
 
 ## Último resultado de tests conocido
 
-**626/626 — BUILD SUCCESS** para la suite general completa.
+**630/630 — BUILD SUCCESS** para la suite general completa.
 
-**14/14 — BUILD SUCCESS** para el bloque focalizado de obligaciones/UI.
+**18/18 — BUILD SUCCESS** para la batería relacionada de Ingresos.
 
-El incremento desde la suite general anterior fue de **618 a 626 tests**, sin fallos ni errores.
+**5/5 — BUILD SUCCESS** para la batería focalizada de Ingresos/navegación.
+
+La suite general pasó de **626 a 630 tests** después de incorporar el bloque de Ingresos, sin fallos ni errores.
 
 ## Estado Git verificado
 
-El usuario ejecutó localmente `git diff`, `git diff --check` y `git status` sobre `feature/swing-shell`.
+`main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-Resultado informado:
+La comparación verificada en GitHub indica que `feature/swing-shell` está **366 commits adelante y 0 atrás** respecto de `main`.
 
-- rama actual: `feature/swing-shell`;
-- sincronizada con `github/feature/swing-shell`;
-- `nothing to commit, working tree clean`.
+Los últimos cambios funcionales son los cinco commits del bloque de Ingresos indicados arriba. Los commits documentales posteriores actualizan continuidad y validaciones.
 
-En GitHub, la rama `feature/swing-shell` está **356 commits adelante y 0 atrás** respecto de `main`, cuyo HEAD es `a4be859...`.
+El estado local de `git diff`, `git diff --check` y `git status` no se asume; debe verificarse en el entorno local.
 
 ## Próximo paso
 
-La integración de obligaciones/UI está validada por tests focalizados y por la suite general completa, y el árbol de trabajo local está limpio.
+El bloque de Ingresos está implementado, integrado y validado. El siguiente paso funcional puede ser evolucionar transferencias mediante `OperacionFinanciera`, manteniéndolas diferenciadas de ingresos y gastos.
 
-El siguiente paso funcional puede ser evolucionar ingresos/transferencias, pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
+Después pueden abordarse pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
 
 Como tarea de pulido posterior queda limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
@@ -134,4 +142,4 @@ Prioridad:
 
 **código → tests → commits → `main` → documentación → conversaciones anteriores.**
 
-No modificar `main`, no crear ramas nuevas salvo indicación explícita, no asumir sincronizaciones ni resultados de tests y no considerar implementada una funcionalidad solamente porque aparezca documentada.
+No modificar `main`, no crear ramas nuevas salvo indicación explícita, no asumir sincronizaciones ni resultados de tests y no considerar implementada una funcionalidad únicamente porque esté documentada.
