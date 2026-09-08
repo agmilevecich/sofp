@@ -17,17 +17,17 @@ Resultado:
 
 Esta es la suite general completa más reciente y valida la incorporación de Transferencias sin regresiones.
 
-### Validación focalizada de Transferencias
+### Validación de navegación
 
-El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest test` el **08/09/2026 17:59:29 -03:00**.
+El usuario ejecutó `mvn -Dtest=MainFrameNavigationTest test` el **08/09/2026 18:51:06 -03:00**.
 
-Resultado: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:16 min**.
+Resultado: **1/1**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **42.833 s**.
 
-### Validación de Transferencias y navegación
+### Validación conjunta final de Transferencias y navegación
 
-El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` el **08/09/2026 18:01:19 -03:00**.
+El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` el **08/09/2026 18:53:49 -03:00**.
 
-Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **39 s**.
+Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:30 min**.
 
 ## Transferencias
 
@@ -97,6 +97,8 @@ La suite incluye los tests de `MainFrame`, layout, navegación, movimientos, cat
 
 La suite general pasó de **630 a 634 tests** con la incorporación de los cuatro tests de `TransferenciasPanelTest`, manteniendo **0 failures, 0 errors y 0 skipped**.
 
+La integración del módulo en la navegación fue validada adicionalmente con `MainFrameNavigationTest` y la ejecución conjunta final quedó en **5/5**.
+
 ## Criterio de validación
 
 No considerar una funcionalidad terminada solamente porque compila. Cada nuevo bloque debe validar éxito, null cuando corresponda, entidad inexistente, reglas de negocio, persistencia, relaciones y casos límite relevantes.
@@ -105,4 +107,4 @@ Las comprobaciones locales `git diff`, `git diff --check` y `git status` deben s
 
 ## Próximo bloque de tests
 
-La suite general del estado actual está validada. El próximo bloque de tests deberá acompañar la siguiente funcionalidad que se implemente.
+La suite general y la integración de Transferencias están validadas. El próximo bloque de tests deberá acompañar la siguiente funcionalidad que se implemente.
