@@ -1,41 +1,58 @@
 # SOFP — Tests
 
-## Estado de validación — 07/09/2026
+## Estado de validación — 08/09/2026
 
-### Validación general
+### Validación general más reciente
 
-Última ejecución general informada por el usuario mediante `mvn test`:
-
-- Tests run: **602**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **10:54 min**;
-- finalización: **07/09/2026 14:59:12 -03:00**.
-
-Esta suite general no fue repetida después de los últimos cambios de cobertura de saldo.
-
-### Validación relacionada más reciente
-
-El usuario ejecutó el 07/09/2026 a las **20:12:52 -03:00**:
-
-`mvn -Dtest=MovimientoServiceSaldoTest,MovimientoServiceTest,IngresoServiceTest,GastoServiceTest test`
+El usuario ejecutó `mvn test` el **08/09/2026 13:27:36 -03:00**.
 
 Resultado:
 
-- Tests run: **61**;
+- Tests run: **618**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **03:09 min**.
+- duración: **21:26 min**.
 
-Detalle conocido: `MovimientoServiceTest` **50/50** y `MovimientoServiceSaldoTest` **3/3**; `IngresoServiceTest` y `GastoServiceTest` quedaron incluidos en la misma ejecución sin fallos.
+Esta es la suite general más reciente conocida y posterior a las correcciones de compatibilidad de `MainFrame` y expectativas de tarjeta de crédito.
+
+### Validación focalizada previa
+
+El usuario ejecutó `GastosPanelTest` + `MainFrameMovimientosTest` antes de la suite general.
+
+Resultado: **8/8**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`.
+
+### Correcciones que llevaron a la suite verde
+
+La primera ejecución de la suite general del bloque presentó:
+
+- 1 failure en `GastosPanelTest.deberiaRechazarTarjetaDeCreditoHastaModelarLaObligacion`, porque la implementación vigente produce `IllegalStateException` y el test esperaba `IllegalArgumentException`.
+- 2 errors en `MainFrameMovimientosTest`, porque constructores anteriores de `MainFrame` llegaban a `GastoService` sin `ObligacionService` y provocaban `NullPointerException`.
+
+Se corrigió producción en `6c7d70a` — `fix: mantener compatibilidad de MainFrame sin ObligacionService` — y el test en `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
+
+La suite completa posterior quedó en **618/618**.
+
+### Obligaciones
+
+La cobertura actual incluye:
+
+- `ObligacionTest`: reglas de creación y pagos.
+- `ObligacionJpaTest`: persistencia y relación con el movimiento de origen.
+- `ObligacionServiceTest`: alta, consulta, pagos parciales, pagos completos, sobrepagos, obligación inexistente e ID nulo.
+
+El dominio `Obligacion` mantiene `importeOriginal`, `saldoPendiente`, `estado` y `movimientoOrigen`.
+
+Los pagos actualizan `PARCIAL` o `PAGADA`, rechazan importes no válidos, sobrepagos y pagos sobre obligaciones ya pagadas.
+
+### Gastos y tarjeta de crédito
+
+`GastoServiceTest` y `GastosPanelTest` cubren el flujo de gastos, forma de pago y el rechazo de tarjeta de crédito cuando el servicio de obligaciones no está disponible.
+
+Con el servicio de obligaciones disponible, `GastoService` crea una obligación asociada al movimiento de egreso.
 
 ### Fondos insuficientes y saldo
-
-El bloque específico de reglas de saldo quedó completado y validado.
 
 `MovimientoServiceSaldoTest`: **3/3**.
 
@@ -45,72 +62,60 @@ Casos cubiertos:
 2. aceptación de un `EGRESO` exactamente igual al saldo disponible;
 3. aceptación del aumento del importe de un `EGRESO` hasta el saldo disponible.
 
-El primer intento del nuevo test utilizaba accidentalmente el overload interno de `MovimientoService.registrar`, que no aplica la validación de saldo. Se corrigió el fixture para utilizar la API pública con `usuario.getId()`. El cambio quedó registrado en `06a9fd8`.
-
-No fue necesario modificar producción para resolver este fallo de test.
+La prueba se corrigió en `06a9fd8` para utilizar la API pública de `MovimientoService` pasando el usuario propietario. No fue necesario modificar producción.
 
 ### Movimientos
 
-`MovimientoServiceTest`: **50/50** en la última ejecución relacionada.
+`MovimientoServiceTest`: **50/50** en la última ejecución relacionada conocida.
 
-La cobertura existente incluye registro, consultas, modificaciones, eliminación y reglas de negocio de movimientos. El bloque adicional de saldo aporta cobertura específica sin duplicar el caso de cambio de `INGRESO` a `EGRESO` ya existente.
-
-### Ingresos y gastos
-
-`IngresoServiceTest` y `GastoServiceTest` participaron de la ejecución relacionada más reciente, dentro del total **61/61**.
-
-`GastoService` continúa rechazando `TARJETA_CREDITO` hasta disponer del modelo de obligaciones/pasivos.
+La cobertura incluye registro, consultas, modificaciones, eliminación y reglas de negocio de movimientos.
 
 ### Gestión de categorías
 
-`CategoriaServiceTest`: **23/23**.
+`CategoriaServiceTest`: **23/23** en la validación conocida.
 
-La cobertura confirma que una categoría con movimientos no se elimina físicamente y se desactiva para conservar el historial. También se cubre la interfaz mediante `CategoriasPanelTest`.
-
-El aislamiento de persistencia de `CategoriaServiceTest` se corrigió en `85b767c`.
+Una categoría referenciada por movimientos no se elimina físicamente: se conserva y se desactiva.
 
 ### FormaPago
 
 La cobertura actual incluye:
 
-- definición de las cinco formas de pago;
-- construcción de `Movimiento` con forma de pago;
-- lectura mediante `getFormaPago()`;
-- modificación mediante `cambiarFormaPago()`;
+- las cinco formas de pago: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`;
+- construcción y lectura de `Movimiento` con forma de pago;
+- modificación de forma de pago;
 - compatibilidad del constructor anterior;
-- selección de forma de pago en `GastosPanel`;
-- persistencia de la forma de pago;
-- rechazo de `TARJETA_CREDITO` en `GastoService` mientras no exista el modelo de obligaciones/pasivos.
+- selección desde `GastosPanel`;
+- persistencia;
+- comportamiento de tarjeta de crédito con y sin `ObligacionService`.
 
 ### Inversiones y reportes
 
-Las baterías conocidas continúan validadas:
-
-- `InversionesPanelTest` + `MainFrameInversionesTest` + `MainFrameReportesTest`: **5/5**;
-- `CarteraActivoServiceTest` + `CarteraActivoServiceComposicionTest` + `CarteraActivoServiceMovimientosTest`: **16/16**;
-- total conocido del bloque: **21/21**.
+Las baterías conocidas continúan integradas en la suite general, incluyendo pruebas de cartera/activos, inversiones y reportes.
 
 ### Alta de cuentas
 
 `RegistrarCuentaPanelTest` y `CuentasPanelTest` cubren construcción, dependencias, instituciones activas, monedas, alta, persistencia, identificador externo, listado autorizado, refresco y aislamiento de perfiles.
 
-`RegistrarCuentaPanelTest`: **6/6**.
+`RegistrarCuentaPanelTest`: **6/6** en la validación conocida.
 
 ### Seguridad
 
-`AislamientoDatosServiceTest`: **7/7**. La autorización cubre perfiles, cuentas, categorías, movimientos, operaciones financieras y posiciones/cartera.
+`AislamientoDatosServiceTest`: **7/7** en la validación conocida. La autorización cubre perfiles, cuentas, categorías, movimientos, operaciones financieras y posiciones/cartera.
 
 ## Cobertura Swing
 
-Tests relacionados: `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
+Tests relacionados incluyen `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
 
-Pruebas específicas recientes de UI conocidas:
+Validación específica reciente:
+
+- `GastosPanelTest` + `MainFrameMovimientosTest`: **8/8**.
+
+Validaciones específicas UI anteriores conocidas:
 
 - `CuentasPanelTest`: **3/3**;
 - `MovimientosPanelTest`: **3/3**;
-- `CategoriasPanelTest`: **4/4**.
-
-Total de esas tres pruebas específicas: **10/10**.
+- `CategoriasPanelTest`: **4/4**;
+- total de esas tres: **10/10**.
 
 ## Criterio de validación
 
@@ -120,4 +125,4 @@ Antes del cierre: tests específicos → tests relacionados → suite general cu
 
 ## Próximo bloque de tests
 
-El siguiente bloque deberá cubrir las reglas de obligaciones/pasivos si se habilita el tratamiento de tarjeta de crédito. No debe anticiparse esa funcionalidad ni modificar tests para forzarla.
+Si se incorpora UI para obligaciones, deberán agregarse tests de Swing para consulta, selección, registro de pagos, errores y refresco del estado de la obligación, sin duplicar reglas que pertenecen a dominio/servicio.
