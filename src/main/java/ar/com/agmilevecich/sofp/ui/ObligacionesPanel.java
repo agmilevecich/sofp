@@ -83,8 +83,24 @@ public class ObligacionesPanel extends JPanel {
             return;
         }
 
+        Long idSeleccionado = null;
+        Obligacion seleccionada = obligacionesList.getSelectedValue();
+        if (seleccionada != null) {
+            idSeleccionado = seleccionada.getId();
+        }
+
         List<Obligacion> obligaciones = obligacionService.listarPorUsuario(usuarioId);
         obligacionesList.setListData(obligaciones.toArray(new Obligacion[0]));
+
+        if (idSeleccionado != null) {
+            for (int i = 0; i < obligacionesList.getModel().getSize(); i++) {
+                if (idSeleccionado.equals(obligacionesList.getModel().getElementAt(i).getId())) {
+                    obligacionesList.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
         actualizarEstadoBoton();
     }
 
