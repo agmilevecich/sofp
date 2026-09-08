@@ -35,6 +35,7 @@ class GastoServiceTest {
     private GastoService gastoService;
     private MovimientoService movimientoService;
     private ObligacionService obligacionService;
+    private MovimientoRepository movimientoRepository;
     private Usuario usuario;
     private Cuenta cuenta;
     private Categoria categoria;
@@ -42,9 +43,10 @@ class GastoServiceTest {
     @BeforeEach
     void setUp() {
         entityManager = JpaTestManager.createEntityManager();
+        movimientoRepository = new MovimientoRepository(entityManager);
         movimientoService = new MovimientoService(
                 entityManager,
-                new MovimientoRepository(entityManager)
+                movimientoRepository
         );
         obligacionService = new ObligacionService(
                 entityManager,
@@ -151,7 +153,17 @@ class GastoServiceTest {
     }
 
     @Test
-    void deberiaRegistrarCompraConTarjetaDeCreditoYCrearObligacion() {
+    void deberiaRegistrarCompraConTarjetaDeCreditoYCrearObligacionSinConsumirSaldo() {
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 7, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
         Movimiento movimiento = gastoService.registrar(
                 cuenta,
                 categoria,
@@ -173,6 +185,13 @@ class GastoServiceTest {
         assertEquals(new BigDecimal("15000.00"), obligacion.getSaldoPendiente());
         assertEquals(EstadoObligacion.PENDIENTE, obligacion.getEstado());
         assertEquals(movimiento.getId(), obligacion.getMovimientoOrigen().getId());
+
+        assertEquals(2, movimientoRepository.listarPorCuenta(cuenta.getId()).size());
+        assertEquals(new BigDecimal("100.00"),
+                movimientoRepository.listarPorCuenta(cuenta.getId()).stream()
+                        .filter(m -> m.getTipoMovimiento() == TipoMovimiento.INGRESO)
+                        .map(Movimiento::getImporte)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
     @Test
