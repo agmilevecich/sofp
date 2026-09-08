@@ -253,6 +253,38 @@ class ObligacionServiceTest {
         );
     }
 
+    @Test
+    void deberiaRegistrarPagoSoloParaElUsuarioAutorizado() {
+        Obligacion obligacion = crearObligacion();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacionService.registrarPago(
+                        obligacion.getId(),
+                        new BigDecimal("5000.00"),
+                        usuario.getId() + 1
+                )
+        );
+
+        assertEquals(new BigDecimal("15000.00"), obligacion.getSaldoPendiente());
+        assertEquals(ar.com.agmilevecich.sofp.domain.EstadoObligacion.PENDIENTE,
+                obligacion.getEstado());
+    }
+
+    @Test
+    void deberiaRechazarUsuarioNuloAlRegistrarPagoAutorizado() {
+        Obligacion obligacion = crearObligacion();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> obligacionService.registrarPago(
+                        obligacion.getId(),
+                        new BigDecimal("5000.00"),
+                        null
+                )
+        );
+    }
+
     private Obligacion crearObligacion() {
         Movimiento movimiento = gastoService.registrar(
                 cuenta,
