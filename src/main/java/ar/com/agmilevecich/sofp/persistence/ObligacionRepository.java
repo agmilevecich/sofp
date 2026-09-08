@@ -73,4 +73,23 @@ public class ObligacionRepository {
                 )
                 .getResultList();
     }
+
+    public List<Obligacion> listarPorUsuario(Long usuarioId) {
+        Objects.requireNonNull(
+                usuarioId,
+                "El id del usuario es obligatorio"
+        );
+
+        return entityManager.createQuery(
+                        """
+                        SELECT o
+                        FROM Obligacion o
+                        WHERE o.movimientoOrigen.cuenta.perfilFinanciero.usuario.id = :usuarioId
+                        ORDER BY o.movimientoOrigen.fechaHora, o.id
+                        """,
+                        Obligacion.class
+                )
+                .setParameter("usuarioId", usuarioId)
+                .getResultList();
+    }
 }
