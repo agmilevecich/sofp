@@ -20,6 +20,11 @@ Este documento conserva el punto de continuidad de la evolución del proyecto. L
 12. Corrección del refresco de obligaciones para conservar la selección.
 13. Cobertura de navegación hacia Obligaciones.
 14. Validación focalizada del bloque de obligaciones/UI con **14/14 tests**.
+15. Implementación del formulario de Ingresos sobre el núcleo financiero común.
+16. Integración de Ingresos en `MainFrame` y `SidebarPanel`.
+17. Cobertura de formulario y navegación de Ingresos.
+18. Validación relacionada de Ingresos con **18/18 tests**.
+19. Validación general posterior a Ingresos con **630/630 tests**.
 
 ## Gastos
 
@@ -28,6 +33,22 @@ El flujo de Gastos quedó integrado mediante:
 **`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
 La arquitectura mantiene una única fuente de verdad financiera.
+
+## Ingresos
+
+El flujo de Ingresos quedó integrado mediante:
+
+**`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
+
+El formulario permite seleccionar cuenta y categoría activas, ingresar importe, fecha y descripción, y registrar el ingreso utilizando el usuario autorizado.
+
+Commits del bloque:
+
+- `d99cc6a` — `feat: agregar formulario de ingresos`.
+- `2977f36` — `test: cubrir formulario de ingresos`.
+- `4e6b363` — `feat: integrar ingresos al shell`.
+- `cd781a1` — `feat: agregar ingresos a la navegacion`.
+- `f9339db` — `test: cubrir navegacion hacia ingresos`.
 
 ## FormaPago
 
@@ -51,15 +72,7 @@ La compra con tarjeta de crédito se integra en `GastoService`: primero se regis
 
 ### UI Swing de obligaciones
 
-`ObligacionesPanel` ya está integrado en el shell y permite:
-
-- consultar obligaciones del usuario;
-- mostrar importe original, saldo pendiente, estado y fecha de origen;
-- seleccionar una obligación;
-- registrar un pago mediante `ObligacionService` con autorización por usuario;
-- refrescar el estado después del pago;
-- conservar la selección al refrescar;
-- informar errores mediante la interfaz.
+`ObligacionesPanel` está integrado en el shell y permite consultar obligaciones, mostrar importe original/saldo/estado/fecha, seleccionar una obligación, registrar un pago autorizado, refrescar el estado y conservar la selección al refrescar.
 
 `MainFrame`/`SidebarPanel` incorporan la navegación hacia Obligaciones.
 
@@ -71,7 +84,7 @@ El bloque de reglas de fondos quedó ampliado y validado.
 
 ## Shell Swing
 
-La Fase 8 integra Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones mediante `MainFrame` y `CardLayout`.
+La Fase 8 integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes y Obligaciones mediante `MainFrame` y `CardLayout`.
 
 Los ajustes visuales realizados anteriormente fueron:
 
@@ -79,47 +92,47 @@ Los ajustes visuales realizados anteriormente fueron:
 - `5310ba3` — mejora de layout de `MovimientosPanel`.
 - `26f7f58` — mejora de layout de `CategoriasPanel`.
 
-El bloque reciente de obligaciones/UI quedó distribuido en commits pequeños:
-
-- `43cfd9c` — autorización de pagos.
-- `456fbfb` — tests de autorización.
-- `f20023d` — `ObligacionesPanel`.
-- `264dd54` — navegación/sidebar.
-- `87b8e46` — integración en `MainFrame`.
-- `7194a5d` — tests del panel.
-- `029de48` — test de navegación.
-- `166b5f0` — conservación de selección al refrescar.
-- `87052df` — cobertura de navegación hacia obligaciones.
-
 ## Validación
 
-Suite general informada por el usuario el **08/09/2026 13:27:36 -03:00**:
+### Suite general más reciente
 
-**618 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
+El usuario ejecutó `mvn test` el **08/09/2026 15:16:17 -03:00**.
 
-Comando: `mvn test`. Duración: **21:26 min**.
+**630 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
 
-Esta suite es anterior a la incorporación de la UI de obligaciones.
+Duración: **11:55 min**.
 
-Suite focalizada posterior informada por el usuario el **08/09/2026 14:14:14 -03:00**:
+Esta ejecución es la validación general posterior a la incorporación de Ingresos.
 
-**14 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
+### Suite focalizada de Ingresos/navegación
 
-Comando:
+El usuario ejecutó el **08/09/2026 14:55:35 -03:00**:
 
-`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
+`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
 
-Duración: **01:48 min**.
+**5 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
 
-No se considera validada la suite completa posterior a la UI hasta que vuelva a ejecutarse.
+Duración: **01:21 min**.
+
+### Suite relacionada
+
+El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
+
+`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
+
+**18 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
+
+Duración: **01:31 min**.
 
 ## Estado Git
 
 `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La rama de trabajo es `feature/swing-shell`. El último commit funcional antes de esta actualización documental es `87052df953dbd282a43c5647d05b68d1854c4f17`.
+La rama de trabajo es `feature/swing-shell`. El último cambio funcional verificado es `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
 
-La actualización documental genera commits posteriores; el SHA final debe verificarse al cerrar este bloque.
+La rama está 366 commits adelante y 0 atrás respecto de `main` según la comparación verificada en GitHub. No se realizó merge a `main`.
+
+Los commits documentales posteriores actualizan el estado de continuidad y no agregan comportamiento funcional.
 
 ## Criterios permanentes
 
@@ -137,8 +150,7 @@ No hacer merge a `main` automáticamente ni crear ramas nuevas salvo indicación
 
 ## Próximos hitos
 
-1. Ejecutar la suite general `mvn test` sobre el estado actual.
-2. Evolucionar ingresos y transferencias mediante el núcleo común.
-3. Ampliar pasivos y patrimonio neto.
-4. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
-5. Pulir posteriormente la salida de consola de la aplicación.
+1. Evolucionar transferencias mediante `OperacionFinanciera`, manteniéndolas diferenciadas de ingresos y gastos.
+2. Ampliar pasivos y patrimonio neto.
+3. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
+4. Pulir posteriormente la salida de consola de la aplicación.
