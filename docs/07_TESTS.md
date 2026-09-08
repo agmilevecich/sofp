@@ -4,43 +4,60 @@
 
 ### Validación general más reciente
 
-El usuario ejecutó `mvn test` el **08/09/2026 14:41:08 -03:00**.
+El usuario ejecutó `mvn test` el **08/09/2026 15:16:17 -03:00**.
 
 Resultado:
 
-- Tests run: **626**;
+- Tests run: **630**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **12:35 min**.
+- duración: **11:55 min**.
 
-Esta es la suite general completa más reciente y valida la integración de la UI de obligaciones y pagos.
+Esta es la suite general completa más reciente y valida la integración de Ingresos y navegación sin regresiones en los bloques anteriores.
 
-### Validación focalizada de obligaciones/UI
+### Validación focalizada de Ingresos y navegación
 
 El usuario ejecutó:
 
-`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
+`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
 
-Resultado informado el **08/09/2026 14:14:14 -03:00**:
+Resultado informado el **08/09/2026 14:55:35 -03:00**:
 
-- Tests run: **14**;
+- Tests run: **5**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **01:48 min**.
+- duración: **01:21 min**.
 
-Cobertura específica: `ObligacionesPanelTest` **3/3**, además de servicio, integración de `MainFrame` y navegación.
+### Validación relacionada de Ingresos
 
-### Corrección de UI validada
+El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
 
-La primera ejecución del bloque Swing tuvo 1 failure en `ObligacionesPanelTest.deberiaRegistrarPagoYRefrescarSaldo`: después de refrescar, la lista perdía la selección y el botón quedaba deshabilitado.
+`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
 
-Se corrigió en `166b5f0` — `fix: conservar seleccion al refrescar obligaciones`, haciendo que `ObligacionesPanel` conserve y restaure la obligación seleccionada al recargar la lista.
+Resultado:
 
-La ejecución focalizada posterior quedó en **14/14** y la suite general posterior quedó en **626/626**.
+- Tests run: **18**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración: **01:31 min**.
+
+Esta batería valida Ingresos junto con gastos, obligaciones y navegación del shell.
+
+## Ingresos
+
+La cobertura actual incluye:
+
+- `IngresoServiceTest`: registro mediante el núcleo financiero común.
+- `IngresosPanelTest`: construcción sin contexto, filtrado de cuentas/categorías activas, registro persistente y dependencias obligatorias.
+- `MainFrameNavigationTest`: navegación hacia Ingresos desde el shell.
+
+El flujo probado es `IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
 
 ## Obligaciones
 
@@ -103,17 +120,19 @@ Las baterías conocidas continúan integradas en la suite general, incluyendo pr
 
 ## Cobertura Swing
 
-Tests relacionados incluyen `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `MainFrameObligacionesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
+Tests relacionados incluyen `MainFrameTest`, `MainFrameLayoutTest`, `MainFrameNavigationTest`, `MainFrameMovimientosTest`, `MainFrameCategoriasTest`, `MainFrameInversionesTest`, `MainFrameReportesTest`, `MainFrameObligacionesTest`, `CuentasPanelTest`, `MovimientosPanelTest`, `CategoriasPanelTest`, `GastosPanelTest`, `IngresosPanelTest`, `InversionesPanelTest`, `ReportesPanelTest`, `RegistrarCuentaPanelTest` y `RegistrarMovimientoPanelTest`.
 
-Validación específica de obligaciones/UI: **14/14**.
+Validación específica de Ingresos/navegación: **5/5**.
 
-Validación general posterior a la UI: **626/626**.
+Validación relacionada: **18/18**.
+
+Validación general posterior a Ingresos: **630/630**.
 
 ## Criterio de validación
 
 No considerar una funcionalidad terminada solamente porque compila. Cada nuevo bloque debe validar éxito, null cuando corresponda, entidad inexistente, reglas de negocio, persistencia, relaciones y casos límite relevantes.
 
-El bloque actual ya completó: tests específicos → tests relacionados → suite general → `git diff` → `git diff --check` → `git status`.
+El bloque de Ingresos completó: tests específicos → tests relacionados → suite general. Las comprobaciones locales `git diff`, `git diff --check` y `git status` deben ser informadas por el usuario; no se asumen desde GitHub.
 
 ## Próximo bloque de tests
 
