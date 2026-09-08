@@ -3,78 +3,72 @@
 ## Estado — 08/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell`.
+**Rama de trabajo:** `feature/swing-shell` → `aa29d44` como último commit funcional.
 
-Último cambio funcional verificado: `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
-No se realizó merge a `main`.
+La comparación verificada en GitHub indica **377 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
 ## Último bloque cerrado
 
-### Ingresos — formulario e integración al shell
+### Transferencias — formulario e integración al shell
 
 **Completado y validado.**
 
-`IngresosPanel` utiliza `IngresoService`, que delega en `MovimientoService` para registrar un `Movimiento` de tipo `INGRESO`.
+`TransferenciasPanel` utiliza `OperacionFinancieraService` para registrar transferencias entre cuentas propias mediante `OperacionFinanciera`. La transferencia no se modela como ingreso o gasto independiente.
 
-El formulario permite cuenta, categoría, importe, fecha y descripción y utiliza cuentas/categorías activas del perfil/usuario autorizado.
+El formulario permite cuenta origen, cuenta destino, categoría, importe, fecha y descripción, utilizando cuentas/categorías activas del perfil/usuario autorizado.
 
-La navegación hacia Ingresos está integrada en `SidebarPanel`/`MainFrame` y tiene cobertura específica.
+Cada transferencia genera una operación financiera con dos movimientos: `EGRESO` en origen e `INGRESO` en destino.
 
-Commits del bloque:
+Commits funcionales:
 
-- `d99cc6a` — `feat: agregar formulario de ingresos`.
-- `2977f36` — `test: cubrir formulario de ingresos`.
-- `4e6b363` — `feat: integrar ingresos al shell`.
-- `cd781a1` — `feat: agregar ingresos a la navegacion`.
-- `f9339db` — `test: cubrir navegacion hacia ingresos`.
+- `1753074` — `feat: agregar formulario de transferencias`.
+- `aa29d44` — `test: cubrir formulario de transferencias`.
 
-Validaciones: **5/5** focalizada, **18/18** relacionada y **630/630** suite general.
+Validaciones:
 
-### Reglas de saldo de movimientos
+- **4/4** `TransferenciasPanelTest`.
+- **5/5** `TransferenciasPanelTest,MainFrameNavigationTest`.
+- **634/634** suite general.
+
+### Ingresos
 
 **Completado y validado.**
 
-`MovimientoService` rechaza `EGRESO` superior al saldo disponible, permite el egreso igual al saldo y aplica la regla también a modificaciones de importe y tipo.
+`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO`.
 
-`MovimientoServiceSaldoTest`: **3/3** en la validación conocida.
+### Reglas de saldo
+
+**Completado y validado.**
+
+`MovimientoService` rechaza `EGRESO` superior al saldo disponible, permite el egreso igual al saldo y aplica la regla a modificaciones.
 
 ### FormaPago
 
 **Completado y validado.**
 
-`FormaPago` está integrada en `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`, con cinco opciones: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
+`FormaPago` está integrada en `Movimiento`, `MovimientoService`, `GastoService` y `GastosPanel`.
 
 ### Obligaciones — dominio, servicio y UI Swing
 
 **Completado y validado.**
 
-El modelo incluye `EstadoObligacion`, `Obligacion`, `ObligacionRepository`, `ObligacionService`, persistencia JPA, pagos parciales y completos, autorización por usuario, `ObligacionesPanel` e integración de navegación en `MainFrame`/`SidebarPanel`.
-
-`ObligacionesPanel` lista obligaciones del usuario, muestra importe original, saldo, estado y fecha de origen, permite registrar pagos y refresca la información conservando la selección.
-
-La validación focalizada quedó en **14/14** y las validaciones posteriores del bloque se integran en la suite general de **630/630**.
+El modelo incluye `EstadoObligacion`, `Obligacion`, `ObligacionRepository`, `ObligacionService`, pagos autorizados por usuario, `ObligacionesPanel` e integración con `MainFrame`/`SidebarPanel`.
 
 ## Pendiente inmediato
 
-### 1. Evolución de transferencias
-
-**Pendiente.**
-
-Continuar consolidando las transferencias entre cuentas propias mediante `OperacionFinanciera`, manteniéndolas diferenciadas de ingresos y gastos.
-
-### 2. Pasivos y patrimonio neto
+### 1. Ampliar pasivos y patrimonio neto
 
 **Pendiente.**
 
 Las obligaciones son una primera representación de pasivos. Falta evolucionar el modelo para obtener una visión más completa de pasivos y patrimonio neto.
 
-### 3. Análisis y dashboard
+### 2. Análisis y dashboard
 
 **Pendiente.**
 
 Evolucionar progresivamente resúmenes mensuales/históricos, distribución por categoría/tipo, evolución patrimonial, vencimientos y dashboard.
 
-### 4. Pulido de consola
+### 3. Pulido de consola
 
 **Pendiente de baja prioridad.**
 
@@ -94,41 +88,37 @@ Limpiar la salida de consola de la aplicación sin eliminar la posibilidad de di
 - Corrección de conservación de selección al refrescar obligaciones.
 - Pulido visual inicial de Cuentas, Movimientos y Categorías.
 - Compatibilidad de constructores de `MainFrame` sin `ObligacionService`.
-- Formulario e integración de Ingresos en el shell.
+- Formulario e integración de Ingresos.
 - Navegación hacia Ingresos.
-- Suite general posterior a Ingresos: **630/630**.
+- Formulario e integración de Transferencias.
+- Navegación hacia Transferencias.
+- Suite general posterior a Transferencias: **634/634**.
 
 ## Validación actual
 
 ### Suite general
 
-Ejecutada e informada por el usuario el **08/09/2026 15:16:17 -03:00**:
+Ejecutada e informada por el usuario el **08/09/2026 18:13:55 -03:00**:
 
 - `mvn test`;
-- **630/630**;
+- **634/634**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **11:55 min**.
+- duración **11:52 min**.
 
-Esta es la validación general completa más reciente y confirma la integración de Ingresos sin regresiones en la suite.
+### Suite focalizada de Transferencias
 
-### Suite focalizada de Ingresos/navegación
+Ejecutada e informada el **08/09/2026 17:59:29 -03:00**:
 
-El usuario ejecutó el **08/09/2026 14:55:35 -03:00**:
+`mvn -Dtest=TransferenciasPanelTest test` → **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:16 min**.
 
-`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
+### Suite de Transferencias y navegación
 
-Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:21 min**.
+Ejecutada e informada el **08/09/2026 18:01:19 -03:00**:
 
-### Suite relacionada
-
-El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
-
-`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
-
-Resultado: **18/18**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:31 min**.
+`mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **39 s**.
 
 ## Integración
 
