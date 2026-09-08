@@ -7,9 +7,9 @@ Este documento registra el corte de continuidad del proyecto al 08/09/2026. La f
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit funcional antes del bloque documental: `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`.
+Último cambio funcional: `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`.
 
-Los commits posteriores son exclusivamente documentales y actualizan el estado de continuidad.
+El HEAD actual contiene commits documentales posteriores, siendo el más reciente `92ac4d0af4005458d41d4c3c4eb8d98064016c3d` — `docs: cerrar validacion de obligaciones`.
 
 No se realizó merge a `main`.
 
@@ -43,15 +43,13 @@ Gastos utiliza:
 
 ## Obligaciones y tarjeta de crédito
 
-El modelado básico de obligaciones está implementado.
-
-Existen `EstadoObligacion`, `Obligacion`, `ObligacionRepository` y `ObligacionService`, con persistencia JPA y estados `PENDIENTE`, `PARCIAL` y `PAGADA`.
+El modelado de obligaciones está implementado con `EstadoObligacion`, `Obligacion`, `ObligacionRepository` y `ObligacionService`, persistencia JPA y estados `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
 `GastoService`, al registrar `TARJETA_CREDITO` con `ObligacionService`, crea el movimiento de egreso y la obligación asociada. Sin el servicio de obligaciones, el uso de tarjeta de crédito se rechaza con `IllegalStateException`.
 
 Los pagos autorizados se realizan mediante el servicio con `usuarioId`, manteniendo el aislamiento por propietario.
 
-`ObligacionesPanel` ya está integrado al shell. Lista obligaciones del usuario, muestra importe original, saldo pendiente, estado y fecha de origen, permite registrar pagos, maneja errores y refresca la lista conservando la selección.
+`ObligacionesPanel` está integrado al shell. Lista obligaciones del usuario, muestra importe original, saldo pendiente, estado y fecha de origen, permite registrar pagos, maneja errores y refresca la lista conservando la selección.
 
 ## Reglas financieras vigentes
 
@@ -65,22 +63,20 @@ Los pagos autorizados se realizan mediante el servicio con `usuarioId`, mantenie
 
 ## Tests
 
-### Suite general
+### Suite general más reciente
 
-El usuario ejecutó:
+El usuario ejecutó `mvn test` el **08/09/2026 14:41:08 -03:00**.
 
-`mvn test`
+Resultado:
 
-Resultado el **08/09/2026 13:27:36 -03:00**:
-
-- Tests run: **618**;
+- Tests run: **626**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **21:26 min**.
+- duración: **12:35 min**.
 
-Esta ejecución es anterior a la UI de obligaciones y sigue siendo la última suite general completa conocida.
+Esta ejecución valida la integración de la UI de obligaciones y pagos con la suite completa.
 
 ### Tests focalizados de obligaciones/UI
 
@@ -88,14 +84,7 @@ El usuario ejecutó el **08/09/2026 14:14:14 -03:00**:
 
 `mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
 
-Resultado:
-
-- Tests run: **14**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración: **01:48 min**.
+Resultado: **14/14**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:48 min**.
 
 `ObligacionesPanelTest`: **3/3**.
 
@@ -103,22 +92,31 @@ La primera ejecución del panel tuvo un fallo por pérdida de selección durante
 
 ## Último resultado de tests conocido
 
+**626/626 — BUILD SUCCESS** para la suite general completa.
+
 **14/14 — BUILD SUCCESS** para el bloque focalizado de obligaciones/UI.
 
-**618/618 — BUILD SUCCESS** para la última suite general, pero anterior a la UI de obligaciones.
+El incremento desde la suite general anterior fue de **618 a 626 tests**, sin fallos ni errores.
 
-No debe asumirse ninguna ejecución posterior hasta que el usuario la informe o GitHub/CI la confirme.
+## Estado Git verificado
+
+El usuario ejecutó localmente `git diff`, `git diff --check` y `git status` sobre `feature/swing-shell`.
+
+Resultado informado:
+
+- rama actual: `feature/swing-shell`;
+- sincronizada con `github/feature/swing-shell`;
+- `nothing to commit, working tree clean`.
+
+En GitHub, la rama `feature/swing-shell` está **356 commits adelante y 0 atrás** respecto de `main`, cuyo HEAD es `a4be859...`.
 
 ## Próximo paso
 
-Ejecutar la suite completa `mvn test` sobre el estado actual y luego revisar:
+La integración de obligaciones/UI está validada por tests focalizados y por la suite general completa, y el árbol de trabajo local está limpio.
 
-1. `git diff`;
-2. `git diff --check`;
-3. `git status`;
-4. comparación de `feature/swing-shell` con `main`.
+El siguiente paso funcional puede ser evolucionar ingresos/transferencias, pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
 
-Después continuar con ingresos/transferencias, pasivos y patrimonio neto, análisis histórico, vencimientos y dashboard.
+Como tarea de pulido posterior queda limpiar la salida de consola de la aplicación sin eliminar la posibilidad de diagnóstico.
 
 ## Protocolo permanente de continuidad
 
