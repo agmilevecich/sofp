@@ -54,25 +54,13 @@ Se agregó `MovimientoServiceSaldoTest` para cubrir explícitamente tres reglas 
 
 La prueba se corrigió en `06a9fd8` porque el fixture inicial utilizaba el overload interno de `registrar`, que no aplica la validación pública de saldo. No fue necesario modificar producción.
 
-Validación relacionada informada por el usuario el **07/09/2026 20:12:52 -03:00**:
-
-- `MovimientoServiceSaldoTest`: **3/3**;
-- `MovimientoServiceTest`: **50/50**;
-- `IngresoServiceTest` y `GastoServiceTest`: incluidos;
-- total: **61/61**;
-- Failures 0, Errors 0, Skipped 0;
-- `BUILD SUCCESS`;
-- duración **03:09 min**.
-
 ## Bloque — Categorías con movimientos
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y se desactiva. La UI informa la situación de forma amigable.
+Una categoría referenciada por movimientos no se elimina físicamente. Se conserva el historial y se desactiva.
 
 `CategoriaServiceTest`: **23/23**.
-
-La corrección de aislamiento de persistencia quedó registrada en `85b767c`.
 
 ## Bloque — Gastos
 
@@ -82,9 +70,7 @@ Flujo:
 
 **Gastos → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
 
-El panel permite cuenta, categoría, importe, fecha, descripción y posteriormente forma de pago. El registro se conserva en el historial común y mantiene la regla de fondos disponibles.
-
-El fixture de prueba se ajustó en `98dead73` agregando un ingreso previo de $1.000 antes del gasto de $100.
+El panel permite cuenta, categoría, importe, fecha, descripción y forma de pago. El registro se conserva en el historial común y mantiene la regla de fondos disponibles.
 
 ## Bloque — FormaPago
 
@@ -94,47 +80,72 @@ El fixture de prueba se ajustó en `98dead73` agregando un ingreso previo de $1.
 
 Formas disponibles: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-`GastoService` exige forma de pago. `TARJETA_CREDITO` se rechaza temporalmente porque requiere un modelo de obligaciones/pasivos y no debe simular una salida inmediata de fondos.
+La tarjeta de crédito ya no está limitada por ausencia de modelo: `GastoService` puede crear una `Obligacion` mediante `ObligacionService` después de registrar el movimiento de egreso. Si no existe `ObligacionService`, la tarjeta de crédito se rechaza con `IllegalStateException`.
 
-Cobertura agregada en dominio y UI para selección, persistencia, modificación y rechazo de tarjeta de crédito.
+## Bloque — Obligaciones y pagos
 
-## Bloque — Pulido visual del shell Swing
+**Estado: COMPLETADO EN DOMINIO, PERSISTENCIA Y SERVICIO; UI PENDIENTE.**
+
+Se incorporaron:
+
+- `EstadoObligacion` con estados `PENDIENTE`, `PARCIAL` y `PAGADA`.
+- `Obligacion` con importe original, saldo pendiente, estado y relación uno a uno con el movimiento de origen.
+- `ObligacionRepository`.
+- `ObligacionService` para alta, consulta y registro de pagos.
+- `ObligacionTest`, `ObligacionJpaTest` y `ObligacionServiceTest`.
+
+Las reglas del dominio incluyen rechazo de pagos no positivos, sobrepagos y pagos sobre obligaciones ya pagadas, además de transición automática a `PARCIAL` o `PAGADA`.
+
+La siguiente evolución pendiente es llevar estas capacidades a una interfaz Swing específica.
+
+## Bloque — Compatibilidad del shell y expectativas de tests
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-Se realizaron ajustes visuales incrementales sin modificar reglas de negocio ni servicios:
+- `6c7d70a` — `fix: mantener compatibilidad de MainFrame sin ObligacionService`.
+- `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
 
-- `5faff68` — mejora de layout de `CuentasPanel`.
-- `5310ba3` — mejora de layout de `MovimientosPanel`.
-- `26f7f58` — mejora de layout de `CategoriasPanel`.
+La compatibilidad mantiene operativos constructores anteriores de `MainFrame` sin `ObligacionService`. El test de tarjeta de crédito sin servicio fue alineado con la excepción de estado vigente.
 
-Las pruebas específicas informadas por el usuario quedaron verdes: `CuentasPanelTest` **3/3**, `MovimientosPanelTest` **3/3** y `CategoriasPanelTest` **4/4**.
+## Suite general — 08/09/2026 13:27:36
 
-## Suite general — 07/09/2026 14:59:12
+**Estado: COMPLETADO Y VALIDADO.**
 
 Resultado informado por el usuario:
 
-- Tests run: **602**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **10:54 min**
-- Finalización: **07/09/2026 14:59:12 -03:00**
+- Tests run: **618**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- `BUILD SUCCESS`.
+- Duración: **21:26 min**.
+- Finalización: **08/09/2026 13:27:36 -03:00**.
+- Comando: `mvn test`.
 
-Es la validación general más reciente conocida. No se volvió a ejecutar la suite completa después de los cambios de saldo.
+Antes de la suite general, `GastosPanelTest` + `MainFrameMovimientosTest` quedaron en **8/8**.
+
+La suite general había fallado previamente con 1 failure y 2 errors por incompatibilidad de expectativas y constructores; las correcciones `6c7d70a` y `7f05cd1` resolvieron esos problemas.
+
+## Validación final local — 08/09/2026
+
+El usuario informó:
+
+- `git diff`: limpio.
+- `git diff --check`: sin errores.
+- `git status`: working tree limpio.
+- Rama local sincronizada con `github/feature/swing-shell`.
 
 ## Estado Git vigente
 
 `main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-`feature/swing-shell` alcanzó `06a9fd849aeef9947ad79b9cd6a9943ec93ee8c3` antes de iniciar la actualización documental. La comparación actual con `main` es **306 commits por delante y 2 por detrás**, con merge-base `96f3d99969b0090dda9f502cf2cf999b87650386`.
+`feature/swing-shell` estaba en `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b` al iniciar la actualización documental y se encuentra **326 commits por delante y 0 por detrás** de `main`, con merge-base `a4be859`.
 
-La documentación de continuidad genera nuevos commits posteriores a ese estado funcional.
+La actualización de esta documentación generará commits posteriores y debe verificarse nuevamente el SHA final al cerrar el bloque documental.
 
 ## Próximos bloques
 
-1. Diseñar/modelar obligaciones y pasivos para tarjeta de crédito antes de habilitar su efecto financiero.
+1. Crear integración Swing para consultar obligaciones y registrar pagos.
 2. Evolucionar ingresos y transferencias mediante el núcleo común.
 3. Incorporar progresivamente pasivos y patrimonio neto.
 4. Evolucionar análisis, resúmenes, evolución patrimonial, vencimientos y dashboard.
