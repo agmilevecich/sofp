@@ -5,15 +5,17 @@
 ## Estado verificado — 08/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b`.
+**Rama de trabajo:** `feature/swing-shell`.
 
-Último commit: `7f05cd1ef48576e0bc59a3828cd254e0bd4a9d9b` — `test: actualizar expectativas de gastos con crédito`.
+HEAD funcional documentado: `87052df953dbd282a43c5647d05b68d1854c4f17` — `test: cubrir navegacion hacia obligaciones`.
 
-La comparación verificada con `main` indica que `feature/swing-shell` está **326 commits por delante y 0 por detrás**. El merge-base es `a4be85913847200cb70976d5266d9cbba10b3100`. No se realizó merge a `main`.
+Desde el bloque documental anterior se incorporó la UI Swing de obligaciones y pagos y se corrigió el refresco para conservar la selección de la obligación.
+
+No se realizó merge a `main`.
 
 ## Estado funcional
 
-La Fase 8 continúa sobre el shell Swing integrado con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes.
+La Fase 8 continúa sobre el shell Swing integrado con Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones.
 
 Criterio central:
 
@@ -29,28 +31,43 @@ El flujo funcional vigente es:
 
 `FormaPago` está integrada y validada. Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
 
-La tarjeta de crédito **ya dispone del modelo de obligaciones**. Cuando `GastoService` recibe `TARJETA_CREDITO` y tiene `ObligacionService`, registra el movimiento de egreso y crea una `Obligacion` asociada al movimiento persistido. Si no se dispone del servicio de obligaciones, el flujo se rechaza con `IllegalStateException`.
+La tarjeta de crédito dispone del modelo de obligaciones. Cuando `GastoService` recibe `TARJETA_CREDITO` y tiene `ObligacionService`, registra el movimiento de egreso y crea una `Obligacion` asociada al movimiento persistido. Si no se dispone del servicio, el flujo se rechaza con `IllegalStateException`.
 
 ## Obligaciones
 
-El dominio contiene `Obligacion` con `importeOriginal`, `saldoPendiente`, `estado` y relación uno a uno con el `Movimiento` de origen.
+El dominio contiene `Obligacion` con `importeOriginal`, `saldoPendiente`, `estado` y relación con el `Movimiento` de origen.
 
 Estados actuales: `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
-`ObligacionService` permite registrar, consultar y registrar pagos con persistencia transaccional. El dominio rechaza pagos no positivos, pagos superiores al saldo y pagos sobre obligaciones ya pagadas.
+`ObligacionService` permite listar por usuario y registrar pagos autorizados. El dominio rechaza pagos no positivos, pagos superiores al saldo y pagos sobre obligaciones ya pagadas.
 
-La integración funcional de obligaciones está implementada en servicios y dominio, pero **todavía no existe un panel Swing específico para listar obligaciones y registrar sus pagos**.
+La UI Swing de obligaciones ya está implementada mediante `ObligacionesPanel`. El panel:
+
+- lista las obligaciones del usuario autorizado;
+- muestra importe original, saldo pendiente, estado y fecha de origen;
+- permite seleccionar una obligación;
+- registra pagos mediante `ObligacionService` con autorización por usuario;
+- refresca la información después del pago;
+- conserva la obligación seleccionada al refrescar;
+- informa errores mediante la interfaz Swing.
+
+La navegación hacia obligaciones está integrada en `SidebarPanel`/`MainFrame` y tiene cobertura específica.
 
 ## UI — estado reciente
 
-El shell Swing dispone de paneles para Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones y Reportes, integrados mediante `MainFrame` y `CardLayout`.
+El shell Swing dispone de paneles para Inicio, Cuentas, Categorías, Gastos, Movimientos, Inversiones, Reportes y Obligaciones, integrados mediante `MainFrame` y `CardLayout`.
 
-Los últimos ajustes inmediatos fueron correcciones de compatibilidad y expectativas de tests:
+Commits funcionales recientes del bloque de obligaciones/UI:
 
-- `6c7d70a` — `fix: mantener compatibilidad de MainFrame sin ObligacionService`.
-- `7f05cd1` — `test: actualizar expectativas de gastos con crédito`.
-
-La primera corrección permite que constructores antiguos de `MainFrame` sigan funcionando sin `ObligacionService`; la segunda actualiza la expectativa del test al comportamiento vigente.
+- `43cfd9c` — autorización de pagos en el servicio.
+- `456fbfb` — tests de autorización de pagos.
+- `f20023d` — creación de `ObligacionesPanel`.
+- `264dd54` — navegación/sidebar.
+- `87b8e46` — integración en `MainFrame`.
+- `7194a5d` — tests del panel.
+- `029de48` — test de navegación.
+- `166b5f0` — conservación de selección al refrescar obligaciones.
+- `87052df` — cobertura de navegación hacia obligaciones.
 
 ## Reglas financieras vigentes
 
@@ -60,16 +77,18 @@ La primera corrección permite que constructores antiguos de `MainFrame` sigan f
 - Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
 - Cuenta y forma de pago son conceptos distintos.
 - Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación; no se debe modelar como pago inmediato de la cuenta.
-- Las transferencias entre cuentas propias no son ingresos ni gastos; se modelan como movimientos relacionados mediante `OperacionFinanciera`.
+- Las transferencias entre cuentas propias no son ingresos ni gastos; se modelan mediante `OperacionFinanciera`.
 - Los paneles especializados no deben duplicar el núcleo financiero.
 
 ## Seguridad
 
-La auditoría transversal de aislamiento de datos quedó completada e integrada en `main`, cubriendo perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras con autorización por propietario.
+El aislamiento de datos por usuario/perfil está implementado en los servicios y repositorios correspondientes. La consulta de obligaciones utilizada por la UI es específica del usuario autorizado.
 
 ## Validación reciente
 
-El usuario ejecutó la suite general el **08/09/2026 13:27:36 -03:00** mediante `mvn test`:
+### Suite general
+
+El usuario ejecutó `mvn test` el **08/09/2026 13:27:36 -03:00**:
 
 - Tests run: **618**.
 - Failures: **0**.
@@ -78,17 +97,34 @@ El usuario ejecutó la suite general el **08/09/2026 13:27:36 -03:00** mediante 
 - `BUILD SUCCESS`.
 - Duración: **21:26 min**.
 
-Antes de la suite general se validaron los tests focalizados de `GastosPanelTest` y `MainFrameMovimientosTest`: **8/8**, sin fallos ni errores.
+Esta sigue siendo la última suite general completa conocida. Fue ejecutada antes de la incorporación de la UI de obligaciones.
 
-La ejecución general había presentado previamente 1 fallo y 2 errores por expectativas y compatibilidad de constructores; esos problemas fueron corregidos en `6c7d70a` y `7f05cd1`, y la suite posterior quedó en **618/618**.
+### Tests focalizados de obligaciones/UI
 
-La validación local final informada por el usuario fue limpia: `git diff`, `git diff --check` y `git status`; rama sincronizada con `github/feature/swing-shell` y working tree limpio.
+El usuario ejecutó:
+
+`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
+
+Resultado informado el **08/09/2026 14:14:14 -03:00**:
+
+- Tests run: **14**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- `BUILD SUCCESS`.
+- Duración: **01:48 min**.
+
+`ObligacionesPanelTest`: **3/3**.
+
+La suite focalizada valida navegación, integración de `MainFrame`, panel de obligaciones y servicio de obligaciones.
+
+No se debe asumir todavía que la suite completa posterior a estos cambios fue ejecutada.
 
 ## Próximo paso
 
-El bloque de obligaciones/pasivos ya no es un pendiente de modelado básico: dominio, persistencia, servicio, pagos y cobertura de tests existen.
+El bloque de obligaciones ya está cerrado en dominio, persistencia, servicio, autorización y UI Swing, con tests focalizados verdes.
 
-El siguiente bloque funcional lógico es **llevar las obligaciones a Swing**: consultar obligaciones del usuario/perfil y permitir registrar pagos desde una interfaz especializada, manteniendo las reglas en dominio/servicio y evitando duplicar el núcleo financiero.
+El siguiente paso de validación es ejecutar la **suite completa `mvn test`** sobre el estado actual y revisar `git diff`, `git diff --check` y `git status`.
 
 Después podrán evolucionarse ingresos/transferencias, pasivos y patrimonio neto, análisis históricos, vencimientos y dashboard.
 
