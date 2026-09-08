@@ -5,11 +5,30 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-HEAD actual: `def06a498007404f4245878bfb30742d2681aad1`.
-Último cambio funcional: `87052df953dbd282a43c5647d05b68d1854c4f17`.
+Último cambio funcional verificado: `f9339db2a500d5530eea95dc39e14e2725f4eb8f` — `test: cubrir navegacion hacia ingresos`.
 No se realizó merge a `main`.
 
 ## Último bloque cerrado
+
+### Ingresos — formulario e integración al shell
+
+**Completado y validado.**
+
+`IngresosPanel` utiliza `IngresoService`, que delega en `MovimientoService` para registrar un `Movimiento` de tipo `INGRESO`.
+
+El formulario permite cuenta, categoría, importe, fecha y descripción y utiliza cuentas/categorías activas del perfil/usuario autorizado.
+
+La navegación hacia Ingresos está integrada en `SidebarPanel`/`MainFrame` y tiene cobertura específica.
+
+Commits del bloque:
+
+- `d99cc6a` — `feat: agregar formulario de ingresos`.
+- `2977f36` — `test: cubrir formulario de ingresos`.
+- `4e6b363` — `feat: integrar ingresos al shell`.
+- `cd781a1` — `feat: agregar ingresos a la navegacion`.
+- `f9339db` — `test: cubrir navegacion hacia ingresos`.
+
+Validaciones: **5/5** focalizada, **18/18** relacionada y **630/630** suite general.
 
 ### Reglas de saldo de movimientos
 
@@ -33,15 +52,15 @@ El modelo incluye `EstadoObligacion`, `Obligacion`, `ObligacionRepository`, `Obl
 
 `ObligacionesPanel` lista obligaciones del usuario, muestra importe original, saldo, estado y fecha de origen, permite registrar pagos y refresca la información conservando la selección.
 
-La suite focalizada quedó en **14/14** y la suite general posterior en **626/626**.
+La validación focalizada quedó en **14/14** y las validaciones posteriores del bloque se integran en la suite general de **630/630**.
 
 ## Pendiente inmediato
 
-### 1. Evolución de ingresos y transferencias
+### 1. Evolución de transferencias
 
 **Pendiente.**
 
-Continuar consolidando ingresos y transferencias mediante el núcleo financiero común basado en `Movimiento` y `OperacionFinanciera`.
+Continuar consolidando las transferencias entre cuentas propias mediante `OperacionFinanciera`, manteniéndolas diferenciadas de ingresos y gastos.
 
 ### 2. Pasivos y patrimonio neto
 
@@ -75,33 +94,41 @@ Limpiar la salida de consola de la aplicación sin eliminar la posibilidad de di
 - Corrección de conservación de selección al refrescar obligaciones.
 - Pulido visual inicial de Cuentas, Movimientos y Categorías.
 - Compatibilidad de constructores de `MainFrame` sin `ObligacionService`.
-- Suite general posterior a la UI de obligaciones: **626/626**.
+- Formulario e integración de Ingresos en el shell.
+- Navegación hacia Ingresos.
+- Suite general posterior a Ingresos: **630/630**.
 
 ## Validación actual
 
 ### Suite general
 
-Ejecutada e informada por el usuario el **08/09/2026 14:41:08 -03:00**:
+Ejecutada e informada por el usuario el **08/09/2026 15:16:17 -03:00**:
 
 - `mvn test`;
-- **626/626**;
+- **630/630**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **12:35 min**.
+- duración: **11:55 min**.
 
-Esta es la validación general completa más reciente y confirma que la integración de obligaciones/UI no introdujo regresiones en la suite.
+Esta es la validación general completa más reciente y confirma la integración de Ingresos sin regresiones en la suite.
 
-### Suite focalizada
+### Suite focalizada de Ingresos/navegación
 
-El usuario ejecutó el **08/09/2026 14:14:14 -03:00**:
+El usuario ejecutó el **08/09/2026 14:55:35 -03:00**:
 
-`mvn -Dtest=MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,ObligacionServiceTest test`
+`mvn -Dtest=IngresosPanelTest,MainFrameNavigationTest test`
 
-Resultado: **14/14**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:48 min**.
+Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:21 min**.
 
-`ObligacionesPanelTest`: **3/3**.
+### Suite relacionada
+
+El usuario ejecutó el **08/09/2026 14:58:53 -03:00**:
+
+`mvn -Dtest=IngresoServiceTest,IngresosPanelTest,MainFrameNavigationTest,MainFrameObligacionesTest,ObligacionesPanelTest,GastosPanelTest test`
+
+Resultado: **18/18**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:31 min**.
 
 ## Integración
 
