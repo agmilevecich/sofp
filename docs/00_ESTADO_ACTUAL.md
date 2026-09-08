@@ -5,14 +5,18 @@
 ## Estado verificado — 08/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `aa29d44bc206f92aec669173709dca017731189a`.
+**Rama de trabajo:** `feature/swing-shell` → `9c6f274111ccf72602dd755e527b21faacc86b11`.
 
-La comparación actual con `main` indica **377 commits adelante y 0 atrás**. No se realizó merge a `main`.
+La comparación actual con `main` indica **390 commits adelante y 0 atrás**. No se realizó merge a `main`.
 
-Último cambio funcional verificado:
+Último cambio funcional:
 
 - `1753074` — `feat: agregar formulario de transferencias`.
 - `aa29d44` — `test: cubrir formulario de transferencias`.
+- `ef71bdc` — `feat: preparar integracion de transferencias en Main`.
+- `0d7b708` — `feat: integrar transferencias al shell`.
+- `99c9218` — `feat: agregar transferencias a la navegacion`.
+- `9c6f274` — `test: cubrir navegacion a transferencias`.
 
 ## Estado funcional
 
@@ -36,7 +40,9 @@ La transferencia entre cuentas propias se mantiene diferenciada de ingresos y ga
 
 Una transferencia genera una única `OperacionFinanciera` con dos movimientos: `EGRESO` en la cuenta origen e `INGRESO` en la cuenta destino.
 
-Cobertura actual de `TransferenciasPanelTest`: construcción del shell, filtrado de cuentas/categorías activas, persistencia de una transferencia con sus dos movimientos y dependencias obligatorias.
+La integración al shell incluye creación del `OperacionFinancieraRepository` y `OperacionFinancieraService` en `Main`, inyección compatible en `MainFrame`, tarjeta del módulo y botón de navegación en `SidebarPanel`.
+
+`TransferenciasPanelTest` cubre construcción del shell, filtrado de cuentas/categorías activas, persistencia de una transferencia con sus dos movimientos y dependencias obligatorias. `MainFrameNavigationTest` cubre la navegación hacia Transferencias.
 
 ## Ingresos
 
@@ -92,29 +98,25 @@ El usuario ejecutó `mvn test` el **08/09/2026 18:13:55 -03:00**:
 - `BUILD SUCCESS`.
 - Duración: **11:52 min**.
 
-Esta es la suite general completa más reciente y valida también los cuatro tests nuevos de `TransferenciasPanelTest`.
-
-### Tests focalizados de Transferencias
-
-El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest test` el **08/09/2026 17:59:29 -03:00**:
-
-- **4/4**.
-- Failures: 0.
-- Errors: 0.
-- Skipped: 0.
-- `BUILD SUCCESS`.
-- Duración: **01:16 min**.
-
 ### Tests de Transferencias y navegación
 
-El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` el **08/09/2026 18:01:19 -03:00**:
+El usuario ejecutó `mvn -Dtest=MainFrameNavigationTest test` el **08/09/2026 18:51:06 -03:00**:
+
+- **1/1**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- `BUILD SUCCESS`.
+- Duración: **42.833 s**.
+
+Luego ejecutó `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` el **08/09/2026 18:53:49 -03:00**:
 
 - **5/5**.
-- Failures: 0.
-- Errors: 0.
-- Skipped: 0.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
 - `BUILD SUCCESS`.
-- Duración: **39 s**.
+- Duración: **01:30 min**.
 
 ## Próximo paso
 
