@@ -3,10 +3,12 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.EstadoObligacion;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
@@ -14,6 +16,7 @@ import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +34,7 @@ class GastoServiceTest {
     private EntityManager entityManager;
     private GastoService gastoService;
     private MovimientoService movimientoService;
+    private ObligacionService obligacionService;
     private Usuario usuario;
     private Cuenta cuenta;
     private Categoria categoria;
@@ -42,7 +46,11 @@ class GastoServiceTest {
                 entityManager,
                 new MovimientoRepository(entityManager)
         );
-        gastoService = new GastoService(movimientoService);
+        obligacionService = new ObligacionService(
+                entityManager,
+                new ObligacionRepository(entityManager)
+        );
+        gastoService = new GastoService(movimientoService, obligacionService);
 
         usuario = new Usuario(
                 "Juan",
@@ -143,26 +151,35 @@ class GastoServiceTest {
     }
 
     @Test
-    void deberiaRechazarTarjetaDeCreditoHastaTenerModeloDeObligaciones() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> gastoService.registrar(
-                        cuenta,
-                        categoria,
-                        new BigDecimal("1000.00"),
-                        LocalDateTime.of(2026, 9, 7, 12, 0),
-                        "Compra con tarjeta",
-                        FormaPago.TARJETA_CREDITO,
-                        usuario.getId()
-                )
+    void deberiaRegistrarCompraConTarjetaDeCreditoYCrearObligacion() {
+        Movimiento movimiento = gastoService.registrar(
+                cuenta,
+                categoria,
+                new BigDecimal("15000.00"),
+                LocalDateTime.of(2026, 9, 7, 12, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
         );
+
+        Obligacion obligacion = obligacionService
+                .buscarPorMovimientoOrigen(movimiento.getId())
+                .orElseThrow();
+
+        assertNotNull(movimiento.getId());
+        assertEquals(TipoMovimiento.EGRESO, movimiento.getTipoMovimiento());
+        assertEquals(FormaPago.TARJETA_CREDITO, movimiento.getFormaPago());
+        assertEquals(new BigDecimal("15000.00"), obligacion.getImporteOriginal());
+        assertEquals(new BigDecimal("15000.00"), obligacion.getSaldoPendiente());
+        assertEquals(EstadoObligacion.PENDIENTE, obligacion.getEstado());
+        assertEquals(movimiento.getId(), obligacion.getMovimientoOrigen().getId());
     }
 
     @Test
     void deberiaRechazarDependenciaNula() {
         assertThrows(
                 NullPointerException.class,
-                () -> new GastoService(null)
+                () -> new GastoService(movimientoService, null)
         );
     }
 }
