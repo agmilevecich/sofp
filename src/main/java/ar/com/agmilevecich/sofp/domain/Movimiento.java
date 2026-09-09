@@ -19,6 +19,10 @@ public class Movimiento extends EntidadAuditable {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "moneda_id", nullable = false)
+    private Moneda moneda;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private TipoMovimiento tipoMovimiento;
@@ -43,15 +47,9 @@ public class Movimiento extends EntidadAuditable {
     @JoinColumn(name = "operacion_financiera_id")
     private OperacionFinanciera operacionFinanciera;
 
-    /**
-     * Constructor requerido por JPA.
-     */
     protected Movimiento() {
     }
 
-    /**
-     * Constructor principal del dominio.
-     */
     public Movimiento(
             Cuenta cuenta,
             Categoria categoria,
@@ -59,12 +57,9 @@ public class Movimiento extends EntidadAuditable {
             BigDecimal importe,
             LocalDateTime fechaHora,
             String descripcion) {
-        this(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion, null);
+        this(cuenta, categoria, cuenta.getMoneda(), tipoMovimiento, importe, fechaHora, descripcion, null);
     }
 
-    /**
-     * Constructor principal con forma de pago.
-     */
     public Movimiento(
             Cuenta cuenta,
             Categoria categoria,
@@ -73,37 +68,41 @@ public class Movimiento extends EntidadAuditable {
             LocalDateTime fechaHora,
             String descripcion,
             FormaPago formaPago) {
+        this(cuenta, categoria, cuenta.getMoneda(), tipoMovimiento, importe, fechaHora, descripcion, formaPago);
+    }
 
-        this.cuenta = Objects.requireNonNull(
-                cuenta,
-                "La cuenta es obligatoria"
-        );
+    /**
+     * Constructor que permite indicar la moneda económica propia del movimiento.
+     * Es necesario, entre otros casos, para compras en moneda extranjera con tarjeta.
+     */
+    public Movimiento(
+            Cuenta cuenta,
+            Categoria categoria,
+            Moneda moneda,
+            TipoMovimiento tipoMovimiento,
+            BigDecimal importe,
+            LocalDateTime fechaHora,
+            String descripcion) {
+        this(cuenta, categoria, moneda, tipoMovimiento, importe, fechaHora, descripcion, null);
+    }
 
-        this.categoria = Objects.requireNonNull(
-                categoria,
-                "La categoría es obligatoria"
-        );
+    public Movimiento(
+            Cuenta cuenta,
+            Categoria categoria,
+            Moneda moneda,
+            TipoMovimiento tipoMovimiento,
+            BigDecimal importe,
+            LocalDateTime fechaHora,
+            String descripcion,
+            FormaPago formaPago) {
 
-        this.tipoMovimiento = Objects.requireNonNull(
-                tipoMovimiento,
-                "El tipo de movimiento es obligatorio"
-        );
-
-        this.importe = Validaciones.importePositivo(
-                importe,
-                "El importe es obligatorio"
-        );
-
-        this.fechaHora = Objects.requireNonNull(
-                fechaHora,
-                "La fecha y hora son obligatorias"
-        );
-
-        this.descripcion = Validaciones.textoObligatorio(
-                descripcion,
-                "La descripción es obligatoria"
-        );
-
+        this.cuenta = Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
+        this.categoria = Objects.requireNonNull(categoria, "La categoría es obligatoria");
+        this.moneda = Objects.requireNonNull(moneda, "La moneda es obligatoria");
+        this.tipoMovimiento = Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
+        this.importe = Validaciones.importePositivo(importe, "El importe es obligatorio");
+        this.fechaHora = Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+        this.descripcion = Validaciones.textoObligatorio(descripcion, "La descripción es obligatoria");
         this.formaPago = formaPago;
     }
 
@@ -113,6 +112,10 @@ public class Movimiento extends EntidadAuditable {
 
     public Categoria getCategoria() {
         return categoria;
+    }
+
+    public Moneda getMoneda() {
+        return moneda;
     }
 
     public TipoMovimiento getTipoMovimiento() {
@@ -143,70 +146,36 @@ public class Movimiento extends EntidadAuditable {
         return operacionFinanciera;
     }
 
-    public void asociarOperacionFinanciera(
-            OperacionFinanciera operacionFinanciera) {
-
-        Objects.requireNonNull(
-                operacionFinanciera,
-                "La operación financiera es obligatoria"
-        );
-
-        if (this.operacionFinanciera != null
-                && this.operacionFinanciera != operacionFinanciera) {
-
-            throw new IllegalStateException(
-                    "El movimiento ya pertenece a otra operación financiera"
-            );
+    public void asociarOperacionFinanciera(OperacionFinanciera operacionFinanciera) {
+        Objects.requireNonNull(operacionFinanciera, "La operación financiera es obligatoria");
+        if (this.operacionFinanciera != null && this.operacionFinanciera != operacionFinanciera) {
+            throw new IllegalStateException("El movimiento ya pertenece a otra operación financiera");
         }
-
-        this.operacionFinanciera =
-                operacionFinanciera;
+        this.operacionFinanciera = operacionFinanciera;
     }
 
-    public void modificarTipoMovimiento(
-            TipoMovimiento tipoMovimiento) {
-
-        this.tipoMovimiento = Objects.requireNonNull(
-                tipoMovimiento,
-                "El tipo de movimiento es obligatorio"
-        );
+    public void modificarTipoMovimiento(TipoMovimiento tipoMovimiento) {
+        this.tipoMovimiento = Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
     }
 
     public void cambiarImporte(BigDecimal importe) {
-
-        this.importe = Validaciones.importePositivo(
-                importe,
-                "El importe es obligatorio"
-        );
+        this.importe = Validaciones.importePositivo(importe, "El importe es obligatorio");
     }
 
     public void cambiarFechaHora(LocalDateTime fechaHora) {
-
-        this.fechaHora = Objects.requireNonNull(
-                fechaHora,
-                "La fecha y hora son obligatorias"
-        );
+        this.fechaHora = Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
     }
 
     public void cambiarDescripcion(String descripcion) {
-
-        this.descripcion = Validaciones.textoObligatorio(
-                descripcion,
-                "La descripción es obligatoria"
-        );
+        this.descripcion = Validaciones.textoObligatorio(descripcion, "La descripción es obligatoria");
     }
 
     public void cambiarObservaciones(String observaciones) {
-
         this.observaciones = observaciones;
     }
 
     public void cambiarCategoria(Categoria categoria) {
-
-        this.categoria = Objects.requireNonNull(
-                categoria,
-                "La categoría es obligatoria"
-        );
+        this.categoria = Objects.requireNonNull(categoria, "La categoría es obligatoria");
     }
 
     public void cambiarFormaPago(FormaPago formaPago) {
