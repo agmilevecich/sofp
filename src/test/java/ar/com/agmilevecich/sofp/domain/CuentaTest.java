@@ -94,6 +94,36 @@ class CuentaTest {
     }
 
     @Test
+    void deberiaCalcularCreditoDisponible() {
+        Cuenta tarjeta = crearTarjeta();
+
+        assertEquals(
+                new BigDecimal("350000.00"),
+                tarjeta.calcularCreditoDisponible(new BigDecimal("150000.00"))
+        );
+    }
+
+    @Test
+    void noDeberiaPermitirCreditoUtilizadoNegativo() {
+        Cuenta tarjeta = crearTarjeta();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> tarjeta.calcularCreditoDisponible(new BigDecimal("-1.00"))
+        );
+    }
+
+    @Test
+    void deberiaPermitirCreditoDisponibleCero() {
+        Cuenta tarjeta = crearTarjeta();
+
+        assertEquals(
+                BigDecimal.ZERO.setScale(2),
+                tarjeta.calcularCreditoDisponible(new BigDecimal("500000.00"))
+        );
+    }
+
+    @Test
     void deberiaRenombrarCuenta() {
         Cuenta cuenta = crearCuenta();
         cuenta.renombrar("Cuenta Principal");
