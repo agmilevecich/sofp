@@ -20,6 +20,7 @@ import java.awt.Insets;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /** Panel para consultar obligaciones del usuario y registrar sus pagos. */
@@ -128,6 +129,7 @@ public class ObligacionesPanel extends JPanel {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Obligacion obligacion) {
                     setText(String.format(
+                            Locale.ROOT,
                             "%.2f %s | pendiente %.2f %s | %s | %s",
                             obligacion.getImporteOriginal(),
                             obligacion.getMoneda().getCodigo(),
