@@ -260,4 +260,116 @@ class MovimientoServiceSaldoTest {
                 cuentaService.calcularSaldo(cuenta.getId(), usuario.getId())
         );
     }
+
+    @Test
+    void deberiaCalcularCreditoDisponibleDeTarjeta() {
+        Cuenta tarjeta = crearTarjeta();
+
+        movimientoService.registrar(
+                tarjeta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("150000.00"),
+                LocalDateTime.of(2026, 9, 9, 10, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("350000.00"),
+                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+        );
+    }
+
+    @Test
+    void deberiaPermitirConsumirElLimiteExactoDeLaTarjeta() {
+        Cuenta tarjeta = crearTarjeta();
+
+        movimientoService.registrar(
+                tarjeta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("500000.00"),
+                LocalDateTime.of(2026, 9, 9, 10, 0),
+                "Compra por límite exacto",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("0.00"),
+                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+        );
+    }
+
+    @Test
+    void deberiaRechazarConsumoQueSupereElLimiteDeLaTarjeta() {
+        Cuenta tarjeta = crearTarjeta();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        tarjeta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("500000.01"),
+                        LocalDateTime.of(2026, 9, 9, 10, 0),
+                        "Compra superior al límite",
+                        FormaPago.TARJETA_CREDITO,
+                        usuario.getId()
+                )
+        );
+    }
+
+    @Test
+    void deberiaIgnorarConsumoEnMonedaDiferenteParaElCreditoDisponible() {
+        Cuenta tarjeta = crearTarjeta();
+        Moneda usd = new Moneda(
+                "USD",
+                "Dólar estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.getTransaction().commit();
+
+        movimientoService.registrar(
+                tarjeta,
+                categoria,
+                usd,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("600.00"),
+                LocalDateTime.of(2026, 9, 9, 11, 0),
+                "Compra en dólares",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("500000.00"),
+                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+        );
+    }
+
+    private Cuenta crearTarjeta() {
+        Cuenta tarjeta = new Cuenta(
+                "Visa Santander",
+                perfilFinanciero,
+                entityManager.find(InstitucionFinanciera.class, entityManager.createQuery(
+                        "SELECT i FROM InstitucionFinanciera i", InstitucionFinanciera.class
+                ).setMaxResults(1).getSingleResult().getId()),
+                cuenta.getMoneda(),
+                new BigDecimal("500000.00"),
+                10,
+                25
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(tarjeta);
+        entityManager.getTransaction().commit();
+        return tarjeta;
+    }
 }
