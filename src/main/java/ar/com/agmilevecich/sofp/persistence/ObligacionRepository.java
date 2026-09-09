@@ -95,12 +95,12 @@ public class ObligacionRepository {
                 .getResultList();
     }
 
-    /** Suma el crédito pendiente de obligaciones no pagadas para una cuenta y moneda. */
+    /** Suma el crédito pendiente y los consumos de tarjeta todavía no materializados como obligación. */
     public BigDecimal sumarSaldoPendientePorCuentaYMoneda(Long cuentaId, Moneda moneda) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(moneda, "La moneda es obligatoria");
 
-        return entityManager.createQuery(
+        BigDecimal saldoPendiente = entityManager.createQuery(
                         """
                         SELECT COALESCE(SUM(o.saldoPendiente), 0)
                         FROM Obligacion o
@@ -113,5 +113,27 @@ public class ObligacionRepository {
                 .setParameter("cuentaId", cuentaId)
                 .setParameter("moneda", moneda)
                 .getSingleResult();
+
+        BigDecimal consumosSinObligacion = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(m.importe), 0)
+                        FROM Movimiento m
+                        WHERE m.cuenta.id = :cuentaId
+                          AND m.moneda = :moneda
+                          AND m.tipoMovimiento = ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
+                          AND m.formaPago = ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO
+                          AND NOT EXISTS (
+                              SELECT o.id
+                              FROM Obligacion o
+                              WHERE o.movimientoOrigen.id = m.id
+                          )
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("moneda", moneda)
+                .getSingleResult();
+
+        return saldoPendiente.add(consumosSinObligacion);
     }
 }
