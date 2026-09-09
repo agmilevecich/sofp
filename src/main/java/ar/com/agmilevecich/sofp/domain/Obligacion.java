@@ -29,33 +29,18 @@ public class Obligacion extends EntidadAuditable {
     @JoinColumn(name = "movimiento_origen_id", nullable = false, unique = true)
     private Movimiento movimientoOrigen;
 
-    /**
-     * Constructor requerido por JPA.
-     */
     protected Obligacion() {
     }
 
-    /**
-     * Crea una obligación a partir de un movimiento de egreso realizado
-     * con tarjeta de crédito.
-     */
     public Obligacion(Movimiento movimientoOrigen) {
-
-        this.movimientoOrigen = Objects.requireNonNull(
-                movimientoOrigen,
-                "El movimiento de origen es obligatorio"
-        );
+        this.movimientoOrigen = Objects.requireNonNull(movimientoOrigen, "El movimiento de origen es obligatorio");
 
         if (movimientoOrigen.getTipoMovimiento() != TipoMovimiento.EGRESO) {
-            throw new IllegalArgumentException(
-                    "El movimiento de origen debe ser un egreso"
-            );
+            throw new IllegalArgumentException("El movimiento de origen debe ser un egreso");
         }
 
         if (movimientoOrigen.getFormaPago() != FormaPago.TARJETA_CREDITO) {
-            throw new IllegalArgumentException(
-                    "El movimiento de origen debe utilizar tarjeta de crédito"
-            );
+            throw new IllegalArgumentException("El movimiento de origen debe utilizar tarjeta de crédito");
         }
 
         this.importeOriginal = Validaciones.importePositivo(
@@ -83,36 +68,27 @@ public class Obligacion extends EntidadAuditable {
         return movimientoOrigen;
     }
 
+    /** La moneda de la obligación es la moneda económica del movimiento que la originó. */
+    public Moneda getMoneda() {
+        return movimientoOrigen.getMoneda();
+    }
+
     public java.time.LocalDateTime getFechaOrigen() {
         return movimientoOrigen.getFechaHora();
     }
 
-    /**
-     * Registra un pago sobre la obligación y actualiza su estado.
-     */
     public void registrarPago(BigDecimal importe) {
-
         if (estado == EstadoObligacion.PAGADA) {
-            throw new IllegalStateException(
-                    "La obligación ya está pagada"
-            );
+            throw new IllegalStateException("La obligación ya está pagada");
         }
 
-        BigDecimal pago = Validaciones.importePositivo(
-                importe,
-                "El importe del pago es obligatorio"
-        );
+        BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
 
         if (pago.compareTo(saldoPendiente) > 0) {
-            throw new IllegalArgumentException(
-                    "El pago no puede superar el saldo pendiente"
-            );
+            throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
         }
 
         saldoPendiente = saldoPendiente.subtract(pago);
-
-        estado = saldoPendiente.signum() == 0
-                ? EstadoObligacion.PAGADA
-                : EstadoObligacion.PARCIAL;
+        estado = saldoPendiente.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
     }
 }
