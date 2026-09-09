@@ -263,7 +263,7 @@ public class CuentaService {
             transaction.commit();
             return actualizada;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) entityManager.getTransaction().rollback();
+            if (transaction.isActive()) transaction.rollback();
             throw e;
         }
     }
