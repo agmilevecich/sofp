@@ -1,41 +1,36 @@
 # SOFP — Pendientes
 
-## Estado — 08/09/2026
+## Estado — 09/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `d20fc8ba54c9ea36f11e2232ff781863c2971496`.
+**Rama de trabajo:** `feature/swing-shell` → `13a68fb8429d930b2137b9c9e78f7b884077f33e` como último commit funcional; los commits documentales posteriores no cambian el comportamiento.
 
-La comparación verificada en GitHub antes de esta actualización documental indicó **390 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
+La comparación verificada en GitHub indica **411 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
 ## Último bloque cerrado
 
-### Transferencias — formulario e integración al shell
+### Moneda en movimientos y obligaciones
 
 **Completado y validado.**
 
-`TransferenciasPanel` utiliza `OperacionFinancieraService` para registrar transferencias entre cuentas propias mediante `OperacionFinanciera`. La transferencia no se modela como ingreso o gasto independiente.
+Los movimientos admiten moneda explícita. Una compra con tarjeta de crédito conserva la moneda económica informada en el movimiento de origen y la obligación expone esa moneda.
 
-El formulario permite cuenta origen, cuenta destino, categoría, importe, fecha y descripción, utilizando cuentas/categorías activas del perfil/usuario autorizado.
+Una compra en USD genera una obligación en USD y una compra en ARS una obligación en ARS. No se realiza conversión automática al crear la obligación.
 
-Cada transferencia genera una operación financiera con dos movimientos: `EGRESO` en origen e `INGRESO` en destino.
-
-La integración al shell incluye `Main`, `MainFrame` y `SidebarPanel`, con navegación cubierta por test.
+`ObligacionesPanel` muestra importe original y saldo pendiente junto con el código de moneda. El formato numérico utiliza `Locale.ROOT` para que el separador decimal no dependa del locale del entorno.
 
 Commits funcionales:
 
-- `1753074` — `feat: agregar formulario de transferencias`.
-- `aa29d44` — `test: cubrir formulario de transferencias`.
-- `ef71bdc` — `feat: preparar integracion de transferencias en Main`.
-- `0d7b708` — `feat: integrar transferencias al shell`.
-- `99c9218` — `feat: agregar transferencias a la navegacion`.
-- `9c6f274` — `test: cubrir navegacion a transferencias`.
+- `9b92eac` — `feat: exponer moneda de la obligacion`.
+- `47ced65` — `feat: mostrar moneda en obligaciones`.
+- `fe0aa71` — `test: verificar moneda en obligaciones`.
+- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
 
 Validaciones informadas por el usuario:
 
-- **4/4** `TransferenciasPanelTest`.
-- **1/1** `MainFrameNavigationTest`.
-- **5/5** `TransferenciasPanelTest,MainFrameNavigationTest`.
-- **634/634** suite general.
+- **4/4** `ObligacionesPanelTest`.
+- **642/642** suite general.
+- `git diff`, `git diff --check`, `git status` → working tree limpio y rama sincronizada.
 
 ## Pendiente inmediato
 
@@ -76,33 +71,30 @@ Limpiar la salida de consola de la aplicación sin eliminar la posibilidad de di
 - Formulario e integración de Transferencias.
 - Integración de Transferencias en `Main` y `MainFrame`.
 - Navegación hacia Transferencias.
-- Suite general posterior a Transferencias: **634/634**.
+- Moneda explícita en movimientos.
+- Conservación de moneda en obligaciones.
+- Visualización de moneda en obligaciones.
+- Suite general posterior al bloque de moneda: **642/642**.
 
 ## Validación actual
 
 ### Suite general
 
-Ejecutada e informada por el usuario el **08/09/2026 18:13:55 -03:00**:
+Ejecutada e informada por el usuario el **09/09/2026 13:15:48 -03:00**:
 
 - `mvn test`;
-- **634/634**;
+- **642/642**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración **11:52 min**.
+- duración **09:43 min**.
 
-### Navegación
+### ObligacionesPanelTest
 
-Ejecutada e informada el **08/09/2026 18:51:06 -03:00**:
+Ejecutada e informada el **09/09/2026 13:05:03 -03:00**:
 
-`mvn -Dtest=MainFrameNavigationTest test` → **1/1**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **42.833 s**.
-
-### Suite de Transferencias y navegación
-
-Ejecutada e informada el **08/09/2026 18:53:49 -03:00**:
-
-`mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:30 min**.
+`mvn test -Dtest=ObligacionesPanelTest` → **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:20 min**.
 
 ## Integración
 
