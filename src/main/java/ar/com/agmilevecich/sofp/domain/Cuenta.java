@@ -46,52 +46,22 @@ public class Cuenta extends EntidadAuditable {
     @JoinColumn(name = "moneda_id", nullable = false)
     private Moneda moneda;
 
-    /**
-     * Constructor requerido por JPA.
-     */
     protected Cuenta() {
     }
 
-    /**
-     * Constructor principal del dominio para cuentas que no son tarjetas.
-     */
     public Cuenta(String nombre,
                   TipoCuenta tipoCuenta,
                   PerfilFinanciero perfilFinanciero,
                   InstitucionFinanciera institucionFinanciera,
                   Moneda moneda) {
-
-        this.nombre = Validaciones.textoObligatorio(
-                nombre,
-                "El nombre es obligatorio"
-        );
-
-        this.tipoCuenta = Objects.requireNonNull(
-                tipoCuenta,
-                "El tipo de cuenta es obligatorio"
-        );
-
-        this.perfilFinanciero = Objects.requireNonNull(
-                perfilFinanciero,
-                "El perfil financiero es obligatorio"
-        );
-
-        this.institucionFinanciera = Objects.requireNonNull(
-                institucionFinanciera,
-                "La institución financiera es obligatoria"
-        );
-
-        this.moneda = Objects.requireNonNull(
-                moneda,
-                "La moneda es obligatoria"
-        );
-
+        this.nombre = Validaciones.textoObligatorio(nombre, "El nombre es obligatorio");
+        this.tipoCuenta = Objects.requireNonNull(tipoCuenta, "El tipo de cuenta es obligatorio");
+        this.perfilFinanciero = Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
+        this.institucionFinanciera = Objects.requireNonNull(institucionFinanciera, "La institución financiera es obligatoria");
+        this.moneda = Objects.requireNonNull(moneda, "La moneda es obligatoria");
         this.activa = true;
     }
 
-    /**
-     * Constructor para una cuenta especializada en tarjeta de crédito.
-     */
     public Cuenta(String nombre,
                   PerfilFinanciero perfilFinanciero,
                   InstitucionFinanciera institucionFinanciera,
@@ -99,114 +69,46 @@ public class Cuenta extends EntidadAuditable {
                   BigDecimal limiteCredito,
                   Integer diaCierre,
                   Integer diaVencimiento) {
-
-        this(
-                nombre,
-                TipoCuenta.TARJETA_CREDITO,
-                perfilFinanciero,
-                institucionFinanciera,
-                moneda
-        );
-
+        this(nombre, TipoCuenta.TARJETA_CREDITO, perfilFinanciero, institucionFinanciera, moneda);
         configurarDatosCredito(limiteCredito, diaCierre, diaVencimiento);
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getIdentificadorExterno() {
-        return identificadorExterno;
-    }
-
-    public TipoCuenta getTipoCuenta() {
-        return tipoCuenta;
-    }
-
-    public boolean isActiva() {
-        return activa;
-    }
-
-    public BigDecimal getLimiteCredito() {
-        return limiteCredito;
-    }
-
-    public Integer getDiaCierre() {
-        return diaCierre;
-    }
-
-    public Integer getDiaVencimiento() {
-        return diaVencimiento;
-    }
-
-    public PerfilFinanciero getPerfilFinanciero() {
-        return perfilFinanciero;
-    }
-
-    public InstitucionFinanciera getInstitucionFinanciera() {
-        return institucionFinanciera;
-    }
-
-    public Moneda getMoneda() {
-        return moneda;
-    }
+    public String getNombre() { return nombre; }
+    public String getIdentificadorExterno() { return identificadorExterno; }
+    public TipoCuenta getTipoCuenta() { return tipoCuenta; }
+    public boolean isActiva() { return activa; }
+    public BigDecimal getLimiteCredito() { return limiteCredito; }
+    public Integer getDiaCierre() { return diaCierre; }
+    public Integer getDiaVencimiento() { return diaVencimiento; }
+    public PerfilFinanciero getPerfilFinanciero() { return perfilFinanciero; }
+    public InstitucionFinanciera getInstitucionFinanciera() { return institucionFinanciera; }
+    public Moneda getMoneda() { return moneda; }
 
     public void renombrar(String nuevoNombre) {
-        this.nombre = Validaciones.textoObligatorio(
-                nuevoNombre,
-                "El nombre es obligatorio"
-        );
+        this.nombre = Validaciones.textoObligatorio(nuevoNombre, "El nombre es obligatorio");
     }
 
-    public void cambiarIdentificadorExterno(String identificadorExterno) {
-        this.identificadorExterno = identificadorExterno;
-    }
+    public void cambiarIdentificadorExterno(String identificadorExterno) { this.identificadorExterno = identificadorExterno; }
 
     public void cambiarTipoCuenta(TipoCuenta tipoCuenta) {
-        this.tipoCuenta = Objects.requireNonNull(
-                tipoCuenta,
-                "El tipo de cuenta es obligatoria"
-        );
+        this.tipoCuenta = Objects.requireNonNull(tipoCuenta, "El tipo de cuenta es obligatoria");
     }
 
     public void cambiarInstitucionFinanciera(InstitucionFinanciera institucionFinanciera) {
-        this.institucionFinanciera = Objects.requireNonNull(
-                institucionFinanciera,
-                "La institución financiera es obligatoria"
-        );
+        this.institucionFinanciera = Objects.requireNonNull(institucionFinanciera, "La institución financiera es obligatoria");
     }
 
     public void cambiarMoneda(Moneda moneda) {
-        this.moneda = Objects.requireNonNull(
-                moneda,
-                "La moneda es obligatoria"
-        );
+        this.moneda = Objects.requireNonNull(moneda, "La moneda es obligatoria");
     }
 
-    public void configurarDatosCredito(BigDecimal limiteCredito,
-                                       Integer diaCierre,
-                                       Integer diaVencimiento) {
-
-        this.limiteCredito = Objects.requireNonNull(
-                limiteCredito,
-                "El límite de crédito es obligatorio"
-        );
-
+    public void configurarDatosCredito(BigDecimal limiteCredito, Integer diaCierre, Integer diaVencimiento) {
+        this.limiteCredito = Objects.requireNonNull(limiteCredito, "El límite de crédito es obligatorio");
         if (limiteCredito.signum() <= 0) {
-            throw new IllegalArgumentException(
-                    "El límite de crédito debe ser positivo"
-            );
+            throw new IllegalArgumentException("El límite de crédito debe ser positivo");
         }
-
-        this.diaCierre = validarDia(
-                diaCierre,
-                "El día de cierre es obligatorio"
-        );
-
-        this.diaVencimiento = validarDia(
-                diaVencimiento,
-                "El día de vencimiento es obligatorio"
-        );
+        this.diaCierre = validarDia(diaCierre, "El día de cierre es obligatorio");
+        this.diaVencimiento = validarDia(diaVencimiento, "El día de vencimiento es obligatorio");
     }
 
     /**
@@ -224,7 +126,8 @@ public class Cuenta extends EntidadAuditable {
 
         if (!fechaConsumo.isAfter(cierreMesActual)) {
             fechaCierre = cierreMesActual;
-            LocalDate cierreMesAnterior = fechaCierre(fechaConsumo.minusMonths(1).getYear(), fechaConsumo.minusMonths(1).getMonthValue());
+            LocalDate fechaAnterior = fechaConsumo.minusMonths(1);
+            LocalDate cierreMesAnterior = fechaCierre(fechaAnterior.getYear(), fechaAnterior.getMonthValue());
             fechaInicio = cierreMesAnterior.plusDays(1);
         } else {
             LocalDate mesSiguiente = fechaConsumo.plusMonths(1);
@@ -238,7 +141,7 @@ public class Cuenta extends EntidadAuditable {
 
     private LocalDate calcularFechaVencimiento(LocalDate fechaCierre) {
         YearMonth mesVencimiento = YearMonth.from(fechaCierre);
-        if (diaVencimiento <= fechaCierre.getDayOfMonth()) {
+        if (diaVencimiento <= diaCierre) {
             mesVencimiento = mesVencimiento.plusMonths(1);
         }
         return fechaDelMes(mesVencimiento, diaVencimiento);
@@ -258,47 +161,23 @@ public class Cuenta extends EntidadAuditable {
         Objects.requireNonNull(diaVencimiento, "El día de vencimiento es obligatorio");
     }
 
-    /**
-     * Calcula el crédito disponible a partir del crédito utilizado en la
-     * moneda de la tarjeta. No realiza conversiones de moneda.
-     */
     public BigDecimal calcularCreditoDisponible(BigDecimal creditoUtilizado) {
-        Objects.requireNonNull(
-                limiteCredito,
-                "El límite de crédito es obligatorio"
-        );
-        Objects.requireNonNull(
-                creditoUtilizado,
-                "El crédito utilizado es obligatorio"
-        );
-
+        Objects.requireNonNull(limiteCredito, "El límite de crédito es obligatorio");
+        Objects.requireNonNull(creditoUtilizado, "El crédito utilizado es obligatorio");
         if (creditoUtilizado.signum() < 0) {
-            throw new IllegalArgumentException(
-                    "El crédito utilizado no puede ser negativo"
-            );
+            throw new IllegalArgumentException("El crédito utilizado no puede ser negativo");
         }
-
         return limiteCredito.subtract(creditoUtilizado);
     }
 
     private int validarDia(Integer dia, String mensaje) {
-
         Objects.requireNonNull(dia, mensaje);
-
         if (dia < 1 || dia > 31) {
-            throw new IllegalArgumentException(
-                    "El día debe estar entre 1 y 31"
-            );
+            throw new IllegalArgumentException("El día debe estar entre 1 y 31");
         }
-
         return dia;
     }
 
-    public void activar() {
-        this.activa = true;
-    }
-
-    public void desactivar() {
-        this.activa = false;
-    }
+    public void activar() { this.activa = true; }
+    public void desactivar() { this.activa = false; }
 }
