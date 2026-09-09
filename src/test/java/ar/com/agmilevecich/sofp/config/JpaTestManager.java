@@ -10,21 +10,23 @@ import java.util.UUID;
 
 public final class JpaTestManager {
 
-    private static EntityManagerFactory entityManagerFactory;
+    private static final ThreadLocal<EntityManagerFactory> ENTITY_MANAGER_FACTORY = new ThreadLocal<>();
 
     private JpaTestManager() {
     }
 
     public static synchronized EntityManager createEntityManager() {
 
-        if (entityManagerFactory == null
-                || !entityManagerFactory.isOpen()) {
+        EntityManagerFactory entityManagerFactory = ENTITY_MANAGER_FACTORY.get();
+
+        if (entityManagerFactory == null || !entityManagerFactory.isOpen()) {
 
             entityManagerFactory =
                     Persistence.createEntityManagerFactory(
                             "sofp-persistence-unit-test",
                             propiedadesTest()
                     );
+            ENTITY_MANAGER_FACTORY.set(entityManagerFactory);
         }
 
         return entityManagerFactory.createEntityManager();
@@ -32,12 +34,13 @@ public final class JpaTestManager {
 
     public static synchronized void close() {
 
-        if (entityManagerFactory != null
-                && entityManagerFactory.isOpen()) {
+        EntityManagerFactory entityManagerFactory = ENTITY_MANAGER_FACTORY.get();
 
+        if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
             entityManagerFactory.close();
-            entityManagerFactory = null;
         }
+
+        ENTITY_MANAGER_FACTORY.remove();
     }
 
     private static Map<String, Object> propiedadesTest() {
