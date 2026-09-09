@@ -128,9 +128,11 @@ public class ObligacionesPanel extends JPanel {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Obligacion obligacion) {
                     setText(String.format(
-                            "%.2f | pendiente %.2f | %s | %s",
+                            "%.2f %s | pendiente %.2f %s | %s | %s",
                             obligacion.getImporteOriginal(),
+                            obligacion.getMoneda().getCodigo(),
                             obligacion.getSaldoPendiente(),
+                            obligacion.getMoneda().getCodigo(),
                             obligacion.getEstado(),
                             obligacion.getFechaOrigen().format(FORMATO_FECHA)
                     ));
