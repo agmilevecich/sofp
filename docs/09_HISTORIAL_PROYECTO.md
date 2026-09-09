@@ -1,6 +1,6 @@
 # SOFP — Historial del proyecto
 
-## Estado documental — 08/09/2026
+## Estado documental — 09/09/2026
 
 Este documento conserva el punto de continuidad de la evolución del proyecto. Los estados técnicos deben verificarse siempre contra código, tests y Git.
 
@@ -30,6 +30,28 @@ Este documento conserva el punto de continuidad de la evolución del proyecto. L
 22. Validación específica de Transferencias con **4/4 tests**.
 23. Validación de Transferencias y navegación con **5/5 tests**.
 24. Validación general posterior a Transferencias con **634/634 tests**.
+25. Incorporación de moneda explícita a movimientos.
+26. Conservación de la moneda económica del consumo en obligaciones.
+27. Visualización de moneda en `ObligacionesPanel`.
+28. Corrección de formato decimal independiente del locale.
+29. Validación general posterior al bloque de moneda con **642/642 tests**.
+
+## Moneda en movimientos y obligaciones
+
+La evolución reciente permite informar una `Moneda` explícita en los movimientos cuando el hecho económico requiere una moneda distinta de la moneda por defecto de la cuenta.
+
+En compras con tarjeta de crédito, `Obligacion` conserva la moneda del `Movimiento` de origen. Una compra en USD genera una obligación identificada en USD y una compra en ARS una obligación identificada en ARS.
+
+No se realiza conversión automática ARS↔USD al crear la obligación.
+
+`ObligacionesPanel` muestra el código de moneda junto al importe original y al saldo pendiente. El renderer utiliza `Locale.ROOT` para estabilizar la representación decimal.
+
+Commits:
+
+- `9b92eac` — `feat: exponer moneda de la obligacion`.
+- `47ced65` — `feat: mostrar moneda en obligaciones`.
+- `fe0aa71` — `test: verificar moneda en obligaciones`.
+- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
 
 ## Transferencias
 
@@ -38,13 +60,6 @@ El formulario `TransferenciasPanel` quedó integrado al shell Swing y utiliza `O
 El flujo es:
 
 **`TransferenciasPanel` → `OperacionFinancieraService` → `OperacionFinanciera` + `Movimiento` `EGRESO`/`INGRESO`.**
-
-Una transferencia genera un egreso en la cuenta origen y un ingreso en la cuenta destino, manteniendo la operación diferenciada de ingresos y gastos.
-
-Commits:
-
-- `1753074` — `feat: agregar formulario de transferencias`.
-- `aa29d44` — `test: cubrir formulario de transferencias`.
 
 ## Ingresos
 
@@ -68,43 +83,31 @@ La Fase 8 integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, I
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` el **08/09/2026 18:13:55 -03:00**.
+El usuario ejecutó `mvn test` el **09/09/2026 13:15:48 -03:00**.
 
-**634 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
+**642 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
 
-Duración: **11:52 min**.
+Duración: **09:43 min**.
 
-Esta ejecución es la validación general posterior a la incorporación de Transferencias.
+### Suite focalizada de moneda en obligaciones
 
-### Suite focalizada de Transferencias
-
-El usuario ejecutó el **08/09/2026 17:59:29 -03:00**:
-
-`mvn -Dtest=TransferenciasPanelTest test`
+El usuario ejecutó `mvn test -Dtest=ObligacionesPanelTest` el **09/09/2026 13:05:03 -03:00**.
 
 **4 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
 
-Duración: **01:16 min**.
-
-### Suite Transferencias + navegación
-
-El usuario ejecutó el **08/09/2026 18:01:19 -03:00**:
-
-`mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test`
-
-**5 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.**
-
-Duración: **39 s**.
+Duración: **01:20 min**.
 
 ## Estado Git
 
 `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La rama de trabajo es `feature/swing-shell`. El último cambio funcional es `aa29d44` — `test: cubrir formulario de transferencias`.
+La rama de trabajo es `feature/swing-shell`. El último commit funcional es `13a68fb8429d930b2137b9c9e78f7b884077f33e` — `fix: estabilizar formato de moneda en obligaciones`.
 
-La comparación verificada antes de actualizar esta documentación indicó **377 commits adelante y 0 atrás** respecto de `main`.
+La comparación con `main` indica **411 commits adelante y 0 atrás**. Los commits documentales posteriores a `13a68fb` actualizan únicamente continuidad.
 
-Los commits posteriores a `aa29d44` corresponden exclusivamente a documentación.
+## Validación local
+
+El usuario informó el 09/09/2026 que `git diff`, `git diff --check` y `git status` dejaron el working tree limpio y que la rama estaba sincronizada con `github/feature/swing-shell`.
 
 ## Criterios permanentes
 
@@ -115,6 +118,8 @@ La UI no duplica reglas de negocio.
 Los paneles especializados convergen en el núcleo financiero basado en `Movimiento`.
 
 Las transferencias propias se modelan mediante `OperacionFinanciera`.
+
+La moneda económica de una obligación se conserva desde su movimiento de origen.
 
 Los tests son condición de cierre.
 
