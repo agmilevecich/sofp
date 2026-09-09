@@ -91,6 +91,27 @@ public class CuentaService {
         return calcularSaldoInterno(cuentaId);
     }
 
+    public BigDecimal calcularCreditoDisponible(Long cuentaId, Long usuarioId) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
+
+        if (cuenta.getTipoCuenta() != TipoCuenta.TARJETA_CREDITO) {
+            throw new IllegalArgumentException("La cuenta no es una tarjeta de crédito");
+        }
+
+        BigDecimal utilizado = BigDecimal.ZERO;
+        for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
+            if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() == FormaPago.TARJETA_CREDITO
+                    && Objects.equals(movimiento.getMoneda(), cuenta.getMoneda())) {
+                utilizado = utilizado.add(movimiento.getImporte());
+            }
+        }
+
+        return cuenta.calcularCreditoDisponible(utilizado);
+    }
+
     public List<EvolucionSaldoCuenta> obtenerEvolucionSaldo(Long cuentaId, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
@@ -242,7 +263,7 @@ public class CuentaService {
             transaction.commit();
             return actualizada;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
+            if (transaction.isActive()) entityManager.getTransaction().rollback();
             throw e;
         }
     }
