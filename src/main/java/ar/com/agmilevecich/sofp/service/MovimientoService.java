@@ -5,6 +5,7 @@ import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
@@ -50,6 +51,7 @@ public class MovimientoService {
         if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
         Objects.requireNonNull(moneda, "La moneda es obligatoria");
         validarSaldoDisponible(cuenta, tipoMovimiento, importe, formaPago, null);
+        validarCreditoDisponible(cuenta, moneda, tipoMovimiento, importe, formaPago, null);
         return guardar(new Movimiento(cuenta, categoria, moneda, tipoMovimiento, importe, fechaHora, descripcion, formaPago));
     }
 
@@ -127,6 +129,7 @@ public class MovimientoService {
         Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
         validarSaldoDisponible(movimiento.getCuenta(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
+        validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.modificarTipoMovimiento(tipoMovimiento));
     }
 
@@ -135,6 +138,7 @@ public class MovimientoService {
         Objects.requireNonNull(importe, "El importe es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
         validarSaldoDisponible(movimiento.getCuenta(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
+        validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.cambiarImporte(importe));
     }
 
@@ -207,6 +211,37 @@ public class MovimientoService {
         if (saldoDisponible.compareTo(importe) < 0) {
             throw new IllegalArgumentException("No hay fondos suficientes en la cuenta para registrar el egreso");
         }
+    }
+
+    private void validarCreditoDisponible(Cuenta cuenta, Moneda moneda,
+                                          TipoMovimiento tipoMovimiento, BigDecimal importe,
+                                          FormaPago formaPago, Movimiento movimientoActual) {
+        if (cuenta.getTipoCuenta() != TipoCuenta.TARJETA_CREDITO
+                || tipoMovimiento != TipoMovimiento.EGRESO
+                || formaPago != FormaPago.TARJETA_CREDITO
+                || !Objects.equals(cuenta.getMoneda(), moneda)) {
+            return;
+        }
+
+        BigDecimal creditoUtilizado = calcularCreditoUtilizado(cuenta, moneda, movimientoActual);
+        BigDecimal creditoDisponible = cuenta.calcularCreditoDisponible(creditoUtilizado);
+
+        if (creditoDisponible.compareTo(importe) < 0) {
+            throw new IllegalArgumentException("El consumo supera el crédito disponible de la tarjeta");
+        }
+    }
+
+    private BigDecimal calcularCreditoUtilizado(Cuenta cuenta, Moneda moneda, Movimiento movimientoActual) {
+        BigDecimal utilizado = BigDecimal.ZERO;
+        for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuenta.getId())) {
+            if (movimiento == movimientoActual) continue;
+            if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() == FormaPago.TARJETA_CREDITO
+                    && Objects.equals(movimiento.getMoneda(), moneda)) {
+                utilizado = utilizado.add(movimiento.getImporte());
+            }
+        }
+        return utilizado;
     }
 
     private BigDecimal calcularSaldo(Long cuentaId) {
