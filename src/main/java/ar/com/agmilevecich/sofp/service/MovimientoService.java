@@ -8,6 +8,7 @@ import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
@@ -20,11 +21,19 @@ import java.util.Optional;
 public class MovimientoService {
 
     private final MovimientoRepository movimientoRepository;
+    private final ObligacionRepository obligacionRepository;
     private final EntityManager entityManager;
 
     public MovimientoService(EntityManager entityManager, MovimientoRepository movimientoRepository) {
+        this(entityManager, movimientoRepository, new ObligacionRepository(entityManager));
+    }
+
+    public MovimientoService(EntityManager entityManager,
+                             MovimientoRepository movimientoRepository,
+                             ObligacionRepository obligacionRepository) {
         this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
         this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El repositorio de movimientos es obligatorio");
+        this.obligacionRepository = Objects.requireNonNull(obligacionRepository, "El repositorio de obligaciones es obligatorio");
     }
 
     public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
@@ -223,7 +232,14 @@ public class MovimientoService {
             return;
         }
 
-        BigDecimal creditoUtilizado = calcularCreditoUtilizado(cuenta, moneda, movimientoActual);
+        BigDecimal creditoUtilizado = calcularCreditoUtilizado(cuenta, moneda);
+        if (movimientoActual != null
+                && movimientoActual.getTipoMovimiento() == TipoMovimiento.EGRESO
+                && movimientoActual.getFormaPago() == FormaPago.TARJETA_CREDITO
+                && Objects.equals(movimientoActual.getMoneda(), moneda)) {
+            creditoUtilizado = creditoUtilizado.subtract(movimientoActual.getImporte());
+        }
+
         BigDecimal creditoDisponible = cuenta.calcularCreditoDisponible(creditoUtilizado);
 
         if (creditoDisponible.compareTo(importe) < 0) {
@@ -231,17 +247,8 @@ public class MovimientoService {
         }
     }
 
-    private BigDecimal calcularCreditoUtilizado(Cuenta cuenta, Moneda moneda, Movimiento movimientoActual) {
-        BigDecimal utilizado = BigDecimal.ZERO;
-        for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuenta.getId())) {
-            if (movimiento == movimientoActual) continue;
-            if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
-                    && movimiento.getFormaPago() == FormaPago.TARJETA_CREDITO
-                    && Objects.equals(movimiento.getMoneda(), moneda)) {
-                utilizado = utilizado.add(movimiento.getImporte());
-            }
-        }
-        return utilizado;
+    private BigDecimal calcularCreditoUtilizado(Cuenta cuenta, Moneda moneda) {
+        return obligacionRepository.sumarSaldoPendientePorCuentaYMoneda(cuenta.getId(), moneda);
     }
 
     private BigDecimal calcularSaldo(Long cuentaId) {
