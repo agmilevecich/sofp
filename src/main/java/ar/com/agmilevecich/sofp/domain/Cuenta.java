@@ -207,6 +207,29 @@ public class Cuenta extends EntidadAuditable {
         );
     }
 
+    /**
+     * Calcula el crédito disponible a partir del crédito utilizado en la
+     * moneda de la tarjeta. No realiza conversiones de moneda.
+     */
+    public BigDecimal calcularCreditoDisponible(BigDecimal creditoUtilizado) {
+        Objects.requireNonNull(
+                limiteCredito,
+                "El límite de crédito es obligatorio"
+        );
+        Objects.requireNonNull(
+                creditoUtilizado,
+                "El crédito utilizado es obligatorio"
+        );
+
+        if (creditoUtilizado.signum() < 0) {
+            throw new IllegalArgumentException(
+                    "El crédito utilizado no puede ser negativo"
+            );
+        }
+
+        return limiteCredito.subtract(creditoUtilizado);
+    }
+
     private int validarDia(Integer dia, String mensaje) {
 
         Objects.requireNonNull(dia, mensaje);
