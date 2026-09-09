@@ -1,8 +1,10 @@
 package ar.com.agmilevecich.sofp.persistence;
 
+import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import jakarta.persistence.EntityManager;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,5 +93,25 @@ public class ObligacionRepository {
                 )
                 .setParameter("usuarioId", usuarioId)
                 .getResultList();
+    }
+
+    /** Suma el crédito pendiente de obligaciones no pagadas para una cuenta y moneda. */
+    public BigDecimal sumarSaldoPendientePorCuentaYMoneda(Long cuentaId, Moneda moneda) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(moneda, "La moneda es obligatoria");
+
+        return entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(o.saldoPendiente), 0)
+                        FROM Obligacion o
+                        WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.movimientoOrigen.moneda = :moneda
+                          AND o.saldoPendiente > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("moneda", moneda)
+                .getSingleResult();
     }
 }
