@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
@@ -12,6 +13,7 @@ import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +31,7 @@ class MovimientoServiceSaldoTest {
 
     private EntityManager entityManager;
     private MovimientoService movimientoService;
+    private CuentaService cuentaService;
 
     private Usuario usuario;
     private PerfilFinanciero perfilFinanciero;
@@ -47,6 +50,13 @@ class MovimientoServiceSaldoTest {
                 new MovimientoService(
                         entityManager,
                         movimientoRepository
+                );
+
+        cuentaService =
+                new CuentaService(
+                        new CuentaRepository(entityManager),
+                        movimientoRepository,
+                        entityManager
                 );
 
         usuario = new Usuario(
@@ -218,6 +228,36 @@ class MovimientoServiceSaldoTest {
         assertEquals(
                 new BigDecimal("100.00"),
                 actualizado.getImporte()
+        );
+    }
+
+    @Test
+    void deberiaIgnorarEgresoConTarjetaDeCreditoAlCalcularSaldoDeCuenta() {
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 7, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("30.00"),
+                LocalDateTime.of(2026, 9, 7, 11, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("100.00"),
+                cuentaService.calcularSaldo(cuenta.getId(), usuario.getId())
         );
     }
 }
