@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milevecich",
+                        "Milev ecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -118,7 +119,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milevecich",
+                        "Milev ecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -201,7 +202,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milevecich",
+                        "Milev ecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -295,7 +296,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milevecich",
+                        "Milev ecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -393,7 +394,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milevecich",
+                        "Milev ecich",
                         "ariel.eliminar." + System.nanoTime() + "@test.com",
                         "hash-test"
                 );
@@ -462,6 +463,94 @@ class CuentaRepositoryTest {
 
         assertTrue(
                 resultado.isEmpty()
+        );
+    }
+
+    @Test
+    void deberiaPersistirDatosEspecificosDeTarjetaDeCredito() {
+
+        Usuario usuario =
+                new Usuario(
+                        "Ariel",
+                        "Milev ecich",
+                        "ariel.tarjeta." + System.nanoTime() + "@test.com",
+                        "hash-test"
+                );
+
+        PerfilFinanciero perfil =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(
+                        "Banco Santander",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        BigDecimal limiteCredito =
+                new BigDecimal("500000.00");
+
+        Cuenta tarjeta =
+                new Cuenta(
+                        "Tarjeta Santander",
+                        perfil,
+                        institucion,
+                        moneda,
+                        limiteCredito,
+                        15,
+                        5
+                );
+
+        em.getTransaction().begin();
+
+        em.persist(usuario);
+        em.persist(perfil);
+        em.persist(institucion);
+        em.persist(moneda);
+
+        CuentaRepository repository =
+                new CuentaRepository(em);
+
+        repository.guardar(tarjeta);
+
+        em.getTransaction().commit();
+
+        Long tarjetaId = tarjeta.getId();
+
+        em.clear();
+
+        Cuenta tarjetaVerificada =
+                repository.buscarPorId(tarjetaId)
+                        .orElseThrow();
+
+        assertEquals(
+                TipoCuenta.TARJETA_CREDITO,
+                tarjetaVerificada.getTipoCuenta()
+        );
+
+        assertEquals(
+                limiteCredito,
+                tarjetaVerificada.getLimiteCredito()
+        );
+
+        assertEquals(
+                15,
+                tarjetaVerificada.getDiaCierre()
+        );
+
+        assertEquals(
+                5,
+                tarjetaVerificada.getDiaVencimiento()
         );
     }
 }
