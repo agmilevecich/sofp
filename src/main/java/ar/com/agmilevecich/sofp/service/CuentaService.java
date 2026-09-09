@@ -6,10 +6,9 @@ import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
-import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
-import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
@@ -23,15 +22,25 @@ public class CuentaService {
 
     private final CuentaRepository cuentaRepository;
     private final MovimientoRepository movimientoRepository;
+    private final ObligacionRepository obligacionRepository;
     private final EntityManager entityManager;
 
     public CuentaService(
             CuentaRepository cuentaRepository,
             MovimientoRepository movimientoRepository,
             EntityManager entityManager) {
+        this(cuentaRepository, movimientoRepository, new ObligacionRepository(entityManager), entityManager);
+    }
+
+    public CuentaService(
+            CuentaRepository cuentaRepository,
+            MovimientoRepository movimientoRepository,
+            ObligacionRepository obligacionRepository,
+            EntityManager entityManager) {
 
         this.cuentaRepository = Objects.requireNonNull(cuentaRepository, "El CuentaRepository es obligatorio");
         this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El MovimientoRepository es obligatorio");
+        this.obligacionRepository = Objects.requireNonNull(obligacionRepository, "El ObligacionRepository es obligatorio");
         this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
     }
 
@@ -100,14 +109,10 @@ public class CuentaService {
             throw new IllegalArgumentException("La cuenta no es una tarjeta de crédito");
         }
 
-        BigDecimal utilizado = BigDecimal.ZERO;
-        for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
-            if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
-                    && movimiento.getFormaPago() == FormaPago.TARJETA_CREDITO
-                    && Objects.equals(movimiento.getMoneda(), cuenta.getMoneda())) {
-                utilizado = utilizado.add(movimiento.getImporte());
-            }
-        }
+        BigDecimal utilizado = obligacionRepository.sumarSaldoPendientePorCuentaYMoneda(
+                cuentaId,
+                cuenta.getMoneda()
+        );
 
         return cuenta.calcularCreditoDisponible(utilizado);
     }
@@ -154,10 +159,10 @@ public class CuentaService {
         List<Movimiento> movimientos = movimientoRepository.listarPorCuenta(cuentaId);
         BigDecimal saldo = BigDecimal.ZERO;
         for (Movimiento movimiento : movimientos) {
-            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
+            if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
-                    && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) {
+            } else if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO) {
                 saldo = saldo.subtract(movimiento.getImporte());
             }
         }
@@ -168,10 +173,10 @@ public class CuentaService {
         List<EvolucionSaldoCuenta> evolucion = new ArrayList<>();
         BigDecimal saldo = BigDecimal.ZERO;
         for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
-            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
+            if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
-                    && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) {
+            } else if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO) {
                 saldo = saldo.subtract(movimiento.getImporte());
             }
             evolucion.add(new EvolucionSaldoCuenta(movimiento.getFechaHora(), saldo));
