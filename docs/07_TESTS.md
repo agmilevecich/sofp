@@ -1,45 +1,41 @@
 # SOFP — Tests
 
-## Estado de validación — 08/09/2026
+## Estado de validación — 09/09/2026
 
 ### Validación general más reciente
 
-El usuario ejecutó `mvn test` el **08/09/2026 18:13:55 -03:00**.
+El usuario ejecutó `mvn test` el **09/09/2026 13:15:48 -03:00**.
 
 Resultado:
 
-- Tests run: **634**;
+- Tests run: **642**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **11:52 min**.
+- duración: **09:43 min**.
 
-Esta es la suite general completa más reciente y valida la incorporación de Transferencias sin regresiones.
+Esta es la suite general completa más reciente y valida la integración existente sin regresiones.
 
-### Validación de navegación
+### Obligaciones con moneda
 
-El usuario ejecutó `mvn -Dtest=MainFrameNavigationTest test` el **08/09/2026 18:51:06 -03:00**.
+El usuario ejecutó `mvn test -Dtest=ObligacionesPanelTest` el **09/09/2026 13:05:03 -03:00**.
 
-Resultado: **1/1**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **42.833 s**.
+Resultado: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:20 min**.
 
-### Validación conjunta final de Transferencias y navegación
+La cobertura incluye la visualización del código de moneda de la obligación tanto para el importe original como para el saldo pendiente.
 
-El usuario ejecutó `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` el **08/09/2026 18:53:49 -03:00**.
+## Moneda en obligaciones
 
-Resultado: **5/5**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:30 min**.
+`ObligacionesPanelTest` verifica una obligación originada por un gasto con `TARJETA_CREDITO` en USD y comprueba que el renderer muestre el importe y saldo pendiente con `USD`.
+
+La cobertura valida indirectamente que la obligación expone la moneda del movimiento de origen y que la UI no pierde esa información.
+
+El formato esperado utiliza punto decimal estable (`120.50 USD`), independientemente del locale del entorno.
 
 ## Transferencias
 
-`TransferenciasPanelTest` cubre:
-
-- construcción del formulario del shell sin contexto;
-- fecha inicial actual y botón deshabilitado sin contexto;
-- filtrado de cuentas y categorías activas del perfil/usuario autorizado;
-- registro persistente de una transferencia mediante `OperacionFinancieraService`;
-- una operación con cuenta origen, cuenta destino, importe y dos movimientos (`EGRESO`/`INGRESO`);
-- fecha y descripción de la operación;
-- rechazo de dependencias obligatorias nulas.
+`TransferenciasPanelTest` cubre construcción del formulario del shell, filtrado de cuentas y categorías activas, persistencia de una transferencia mediante `OperacionFinancieraService`, operación financiera con movimientos `EGRESO`/`INGRESO`, fecha, descripción y dependencias obligatorias.
 
 La navegación hacia el panel se valida mediante `MainFrameNavigationTest`.
 
@@ -95,9 +91,9 @@ La suite incluye los tests de `MainFrame`, layout, navegación, movimientos, cat
 
 ## Evolución de la suite
 
-La suite general pasó de **630 a 634 tests** con la incorporación de los cuatro tests de `TransferenciasPanelTest`, manteniendo **0 failures, 0 errors y 0 skipped**.
+La suite general pasó de **634 a 642 tests** en las validaciones posteriores a la incorporación de la cobertura de moneda en obligaciones.
 
-La integración del módulo en la navegación fue validada adicionalmente con `MainFrameNavigationTest` y la ejecución conjunta final quedó en **5/5**.
+El bloque de moneda añadió un test específico de `ObligacionesPanelTest` y mantuvo la suite completa en **642/642**, sin fallos ni errores.
 
 ## Criterio de validación
 
@@ -107,4 +103,4 @@ Las comprobaciones locales `git diff`, `git diff --check` y `git status` deben s
 
 ## Próximo bloque de tests
 
-La suite general y la integración de Transferencias están validadas. El próximo bloque de tests deberá acompañar la siguiente funcionalidad que se implemente.
+La suite general y la cobertura de moneda en obligaciones están validadas. El próximo bloque de tests deberá acompañar la siguiente funcionalidad que se implemente.
