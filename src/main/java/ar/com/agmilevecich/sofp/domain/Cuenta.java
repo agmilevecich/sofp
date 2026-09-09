@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.domain;
 import ar.com.agmilevecich.sofp.util.Validaciones;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -21,6 +22,15 @@ public class Cuenta extends EntidadAuditable {
 
     @Column(nullable = false)
     private boolean activa;
+
+    @Column(name = "limite_credito", precision = 19, scale = 2)
+    private BigDecimal limiteCredito;
+
+    @Column(name = "dia_cierre")
+    private Integer diaCierre;
+
+    @Column(name = "dia_vencimiento")
+    private Integer diaVencimiento;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "perfil_financiero_id", nullable = false)
@@ -41,7 +51,7 @@ public class Cuenta extends EntidadAuditable {
     }
 
     /**
-     * Constructor principal del dominio.
+     * Constructor principal del dominio para cuentas que no son tarjetas.
      */
     public Cuenta(String nombre,
                   TipoCuenta tipoCuenta,
@@ -77,6 +87,28 @@ public class Cuenta extends EntidadAuditable {
         this.activa = true;
     }
 
+    /**
+     * Constructor para una cuenta especializada en tarjeta de crédito.
+     */
+    public Cuenta(String nombre,
+                  PerfilFinanciero perfilFinanciero,
+                  InstitucionFinanciera institucionFinanciera,
+                  Moneda moneda,
+                  BigDecimal limiteCredito,
+                  Integer diaCierre,
+                  Integer diaVencimiento) {
+
+        this(
+                nombre,
+                TipoCuenta.TARJETA_CREDITO,
+                perfilFinanciero,
+                institucionFinanciera,
+                moneda
+        );
+
+        configurarDatosCredito(limiteCredito, diaCierre, diaVencimiento);
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -91,6 +123,18 @@ public class Cuenta extends EntidadAuditable {
 
     public boolean isActiva() {
         return activa;
+    }
+
+    public BigDecimal getLimiteCredito() {
+        return limiteCredito;
+    }
+
+    public Integer getDiaCierre() {
+        return diaCierre;
+    }
+
+    public Integer getDiaVencimiento() {
+        return diaVencimiento;
     }
 
     public PerfilFinanciero getPerfilFinanciero() {
@@ -135,6 +179,45 @@ public class Cuenta extends EntidadAuditable {
                 moneda,
                 "La moneda es obligatoria"
         );
+    }
+
+    public void configurarDatosCredito(BigDecimal limiteCredito,
+                                       Integer diaCierre,
+                                       Integer diaVencimiento) {
+
+        this.limiteCredito = Objects.requireNonNull(
+                limiteCredito,
+                "El límite de crédito es obligatorio"
+        );
+
+        if (limiteCredito.signum() <= 0) {
+            throw new IllegalArgumentException(
+                    "El límite de crédito debe ser positivo"
+            );
+        }
+
+        this.diaCierre = validarDia(
+                diaCierre,
+                "El día de cierre es obligatorio"
+        );
+
+        this.diaVencimiento = validarDia(
+                diaVencimiento,
+                "El día de vencimiento es obligatorio"
+        );
+    }
+
+    private int validarDia(Integer dia, String mensaje) {
+
+        Objects.requireNonNull(dia, mensaje);
+
+        if (dia < 1 || dia > 31) {
+            throw new IllegalArgumentException(
+                    "El día debe estar entre 1 y 31"
+            );
+        }
+
+        return dia;
     }
 
     public void activar() {
