@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
@@ -18,43 +19,36 @@ public class GastoService {
     private final ObligacionService obligacionService;
 
     public GastoService(MovimientoService movimientoService) {
-        this.movimientoService = Objects.requireNonNull(
-                movimientoService,
-                "El MovimientoService es obligatorio"
-        );
+        this.movimientoService = Objects.requireNonNull(movimientoService, "El MovimientoService es obligatorio");
         this.obligacionService = null;
     }
 
-    public GastoService(MovimientoService movimientoService,
-                        ObligacionService obligacionService) {
-        this.movimientoService = Objects.requireNonNull(
-                movimientoService,
-                "El MovimientoService es obligatorio"
-        );
-        this.obligacionService = Objects.requireNonNull(
-                obligacionService,
-                "El ObligacionService es obligatorio"
-        );
+    public GastoService(MovimientoService movimientoService, ObligacionService obligacionService) {
+        this.movimientoService = Objects.requireNonNull(movimientoService, "El MovimientoService es obligatorio");
+        this.obligacionService = Objects.requireNonNull(obligacionService, "El ObligacionService es obligatorio");
     }
 
-    public Movimiento registrar(Cuenta cuenta,
-                                Categoria categoria,
-                                BigDecimal importe,
-                                LocalDateTime fechaHora,
-                                String descripcion,
-                                FormaPago formaPago,
-                                Long usuarioId) {
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, BigDecimal importe,
+                                LocalDateTime fechaHora, String descripcion,
+                                FormaPago formaPago, Long usuarioId) {
+        return registrar(cuenta, categoria, cuenta.getMoneda(), importe, fechaHora, descripcion, formaPago, usuarioId);
+    }
+
+    /** Registra un gasto indicando expresamente la moneda del consumo. */
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, Moneda moneda,
+                                BigDecimal importe, LocalDateTime fechaHora, String descripcion,
+                                FormaPago formaPago, Long usuarioId) {
         Objects.requireNonNull(formaPago, "La forma de pago es obligatoria");
+        Objects.requireNonNull(moneda, "La moneda es obligatoria");
 
         if (formaPago == FormaPago.TARJETA_CREDITO && obligacionService == null) {
-            throw new IllegalStateException(
-                    "El ObligacionService es obligatorio para gastos con tarjeta de crédito"
-            );
+            throw new IllegalStateException("El ObligacionService es obligatorio para gastos con tarjeta de crédito");
         }
 
         Movimiento movimiento = movimientoService.registrar(
                 cuenta,
                 categoria,
+                moneda,
                 TipoMovimiento.EGRESO,
                 importe,
                 fechaHora,
