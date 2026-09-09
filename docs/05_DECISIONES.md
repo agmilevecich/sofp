@@ -92,7 +92,7 @@ Una compra con `TARJETA_CREDITO` se registra como `Movimiento` de tipo `EGRESO` 
 
 ## D-020 — Obligaciones como pasivo especializado
 
-`Obligacion` representa actualmente el pasivo originado por una compra con tarjeta de crédito. Conserva importe original, saldo pendiente, estado y movimiento de origen. Sus estados son `PENDIENTE`, `PARCIAL` y `PAGADA`.
+`Obligacion` representa actualmente el pasivo originado por una compra con tarjeta de crédito. Conserva importe original, saldo pendiente, estado, movimiento de origen y su moneda económica a través del movimiento de origen. Sus estados son `PENDIENTE`, `PARCIAL` y `PAGADA`.
 
 Los pagos se registran mediante `ObligacionService`, que mantiene las reglas transaccionales y delega la lógica de estado en el dominio. `ObligacionesPanel` consulta obligaciones por usuario, permite pagos autorizados y refresca el estado conservando la selección.
 
@@ -126,19 +126,29 @@ Las transferencias entre cuentas propias se registran mediante `OperacionFinanci
 
 `TransferenciasPanel` es solamente la interfaz de carga: las reglas de cuentas, perfiles, moneda, actividad, importe y autorización permanecen en el servicio central.
 
-## Actualización — 08/09/2026
+## D-027 — La obligación conserva la moneda económica del consumo
 
-El bloque de Transferencias quedó implementado e integrado al shell mediante `TransferenciasPanel` y `OperacionFinancieraService`.
+La moneda de una obligación es la moneda del `Movimiento` que la origina. Una compra en ARS genera una obligación en ARS y una compra en USD genera una obligación en USD.
 
-Commits funcionales:
+No se realiza conversión automática de moneda al crear la obligación. La conversión entre monedas queda fuera de este flujo y deberá definirse explícitamente cuando se diseñe el pago multidivisa.
 
-- `1753074` — `feat: agregar formulario de transferencias`.
-- `aa29d44` — `test: cubrir formulario de transferencias`.
+## D-028 — La UI muestra moneda explícita en obligaciones
+
+`ObligacionesPanel` muestra el código de moneda tanto para `importeOriginal` como para `saldoPendiente`. El formato numérico se estabiliza mediante `Locale.ROOT` para que la representación de dos decimales no dependa del locale del entorno de ejecución.
+
+## Actualización — 09/09/2026
+
+El bloque de moneda en obligaciones quedó implementado y validado.
+
+Commits:
+
+- `9b92eac` — `feat: exponer moneda de la obligacion`.
+- `47ced65` — `feat: mostrar moneda en obligaciones`.
+- `fe0aa71` — `test: verificar moneda en obligaciones`.
+- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
 
 Validaciones informadas por el usuario:
 
-- `mvn -Dtest=TransferenciasPanelTest test` → **4/4**, BUILD SUCCESS, **01:16 min**.
-- `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, BUILD SUCCESS, **39 s**.
-- `mvn test` → **634/634**, BUILD SUCCESS, **11:52 min**.
-
-La suite general anterior era 630/630; los cuatro tests nuevos de `TransferenciasPanelTest` elevan la suite a 634/634.
+- `mvn test -Dtest=ObligacionesPanelTest` → **4/4**, BUILD SUCCESS, **01:20 min**.
+- `mvn test` → **642/642**, BUILD SUCCESS, **09:43 min**.
+- `git diff`, `git diff --check`, `git status` → working tree limpio y rama sincronizada con `github/feature/swing-shell`.
