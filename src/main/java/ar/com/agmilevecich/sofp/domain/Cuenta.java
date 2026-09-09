@@ -4,6 +4,8 @@ import ar.com.agmilevecich.sofp.util.Validaciones;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Objects;
 
 @Entity
@@ -205,6 +207,55 @@ public class Cuenta extends EntidadAuditable {
                 diaVencimiento,
                 "El día de vencimiento es obligatorio"
         );
+    }
+
+    /**
+     * Calcula el ciclo de facturación al que pertenece un consumo.
+     * Los días configurados se ajustan al último día real del mes cuando
+     * dicho día no existe, sin realizar conversiones de moneda.
+     */
+    public CicloFacturacion calcularCicloFacturacion(LocalDate fechaConsumo) {
+        validarConfiguracionCredito();
+        Objects.requireNonNull(fechaConsumo, "La fecha de consumo es obligatoria");
+
+        LocalDate cierreMesActual = fechaCierre(fechaConsumo.getYear(), fechaConsumo.getMonthValue());
+        LocalDate fechaCierre;
+        LocalDate fechaInicio;
+
+        if (!fechaConsumo.isAfter(cierreMesActual)) {
+            fechaCierre = cierreMesActual;
+            LocalDate cierreMesAnterior = fechaCierre(fechaConsumo.minusMonths(1).getYear(), fechaConsumo.minusMonths(1).getMonthValue());
+            fechaInicio = cierreMesAnterior.plusDays(1);
+        } else {
+            LocalDate mesSiguiente = fechaConsumo.plusMonths(1);
+            fechaCierre = fechaCierre(mesSiguiente.getYear(), mesSiguiente.getMonthValue());
+            fechaInicio = cierreMesActual.plusDays(1);
+        }
+
+        LocalDate fechaVencimiento = calcularFechaVencimiento(fechaCierre);
+        return new CicloFacturacion(fechaInicio, fechaCierre, fechaVencimiento);
+    }
+
+    private LocalDate calcularFechaVencimiento(LocalDate fechaCierre) {
+        YearMonth mesVencimiento = YearMonth.from(fechaCierre);
+        if (diaVencimiento <= fechaCierre.getDayOfMonth()) {
+            mesVencimiento = mesVencimiento.plusMonths(1);
+        }
+        return fechaDelMes(mesVencimiento, diaVencimiento);
+    }
+
+    private LocalDate fechaCierre(int year, int month) {
+        return fechaDelMes(YearMonth.of(year, month), diaCierre);
+    }
+
+    private LocalDate fechaDelMes(YearMonth mes, int dia) {
+        return mes.atDay(Math.min(dia, mes.lengthOfMonth()));
+    }
+
+    private void validarConfiguracionCredito() {
+        Objects.requireNonNull(limiteCredito, "El límite de crédito es obligatorio");
+        Objects.requireNonNull(diaCierre, "El día de cierre es obligatorio");
+        Objects.requireNonNull(diaVencimiento, "El día de vencimiento es obligatorio");
     }
 
     /**
