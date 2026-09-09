@@ -74,16 +74,6 @@ Se incorporó `IngresosPanel` como panel especializado de carga de ingresos, con
 
 El formulario permite cuenta, categoría, importe, fecha y descripción, utilizando cuentas y categorías activas del perfil/usuario autorizado.
 
-Commits:
-
-- `d99cc6a` — `feat: agregar formulario de ingresos`.
-- `2977f36` — `test: cubrir formulario de ingresos`.
-- `4e6b363` — `feat: integrar ingresos al shell`.
-- `cd781a1` — `feat: agregar ingresos a la navegacion`.
-- `f9339db` — `test: cubrir navegacion hacia ingresos`.
-
-Validaciones históricas: **5/5** focalizada, **18/18** relacionada y **630/630** suite general.
-
 ## Bloque — FormaPago
 
 **Estado: COMPLETADO Y VALIDADO.**
@@ -119,42 +109,55 @@ Flujo:
 
 **`TransferenciasPanel` → `OperacionFinancieraService` → `OperacionFinanciera` + `Movimiento` `EGRESO`/`INGRESO`.**
 
-El formulario utiliza cuentas y categorías activas del perfil/usuario autorizado, importe, fecha y descripción. La operación se mantiene diferenciada de ingresos y gastos.
+## Bloque — Moneda en movimientos y obligaciones
+
+**Estado: COMPLETADO Y VALIDADO.**
+
+Los flujos de movimientos admiten moneda explícita. En compras con tarjeta de crédito, la obligación conserva la moneda económica del movimiento de origen.
+
+Una obligación en USD permanece en USD y una obligación en ARS permanece en ARS. No se realiza conversión automática al crear la obligación.
+
+`ObligacionesPanel` muestra importe original y saldo pendiente con el código de moneda y utiliza `Locale.ROOT` para estabilizar el formato decimal.
 
 Commits:
 
-- `1753074` — `feat: agregar formulario de transferencias`.
-- `aa29d44` — `test: cubrir formulario de transferencias`.
+- `9b92eac` — `feat: exponer moneda de la obligacion`.
+- `47ced65` — `feat: mostrar moneda en obligaciones`.
+- `fe0aa71` — `test: verificar moneda en obligaciones`.
+- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
 
 Validaciones:
 
-- `mvn -Dtest=TransferenciasPanelTest test` → **4/4**, BUILD SUCCESS, **01:16 min**.
-- `mvn -Dtest=TransferenciasPanelTest,MainFrameNavigationTest test` → **5/5**, BUILD SUCCESS, **39 s**.
-- `mvn test` → **634/634**, BUILD SUCCESS, **11:52 min**.
+- `mvn test -Dtest=ObligacionesPanelTest` → **4/4**, BUILD SUCCESS, **01:20 min**.
+- `mvn test` → **642/642**, BUILD SUCCESS, **09:43 min**.
 
-## Suite general — 08/09/2026 18:13:55
+## Suite general — 09/09/2026 13:15:48
 
 **Estado: COMPLETADO Y VALIDADO.**
 
 Resultado informado por el usuario:
 
-- Tests run: **634**.
+- Tests run: **642**.
 - Failures: **0**.
 - Errors: **0**.
 - Skipped: **0**.
 - `BUILD SUCCESS`.
-- Duración: **11:52 min**.
+- Duración: **09:43 min**.
 - Comando: `mvn test`.
 
-Esta es la suite general completa más reciente y valida la incorporación de Transferencias.
+Es la suite general completa más reciente conocida.
 
 ## Estado Git
 
 `main` permanece en `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La rama de trabajo es `feature/swing-shell`, actualmente en `aa29d44` antes de estos commits documentales. La comparación con `main` fue verificada en GitHub en **377 commits adelante y 0 atrás**.
+La rama de trabajo es `feature/swing-shell`. Al momento de esta actualización su último commit funcional es `13a68fb8429d930b2137b9c9e78f7b884077f33e` y la comparación con `main` indica **411 commits adelante y 0 atrás**.
 
-La documentación posterior a `aa29d44` es documental y no modifica el comportamiento funcional.
+Los commits documentales posteriores no deben interpretarse como cambios funcionales.
+
+## Validación local
+
+El usuario informó `git diff`, `git diff --check` y `git status` sin salida de diferencias y con `working tree clean`; la rama local está actualizada con `github/feature/swing-shell`.
 
 ## Próximos bloques
 
