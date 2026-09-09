@@ -7,6 +7,7 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
@@ -134,7 +135,8 @@ public class CuentaService {
         for (Movimiento movimiento : movimientos) {
             if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO) {
+            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) {
                 saldo = saldo.subtract(movimiento.getImporte());
             }
         }
@@ -147,7 +149,8 @@ public class CuentaService {
         for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
             if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO) {
+            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) {
                 saldo = saldo.subtract(movimiento.getImporte());
             }
             evolucion.add(new EvolucionSaldoCuenta(movimiento.getFechaHora(), saldo));
