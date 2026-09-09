@@ -141,7 +141,7 @@ public class Cuenta extends EntidadAuditable {
 
     private LocalDate calcularFechaVencimiento(LocalDate fechaCierre) {
         YearMonth mesVencimiento = YearMonth.from(fechaCierre);
-        if (diaVencimiento <= diaCierre) {
+        if (diaVencimiento <= diaCierre || diaVencimiento > mesVencimiento.lengthOfMonth()) {
             mesVencimiento = mesVencimiento.plusMonths(1);
         }
         return fechaDelMes(mesVencimiento, diaVencimiento);
