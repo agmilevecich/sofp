@@ -45,7 +45,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milev ecich",
+                        "Milevecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -119,7 +119,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milev ecich",
+                        "Milevecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -202,7 +202,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milev ecich",
+                        "Milevecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -296,7 +296,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milev ecich",
+                        "Milevecich",
                         "ariel@test.com",
                         "hash-test"
                 );
@@ -394,7 +394,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milev ecich",
+                        "Milevecich",
                         "ariel.eliminar." + System.nanoTime() + "@test.com",
                         "hash-test"
                 );
@@ -472,7 +472,7 @@ class CuentaRepositoryTest {
         Usuario usuario =
                 new Usuario(
                         "Ariel",
-                        "Milev ecich",
+                        "Milevecich",
                         "ariel.tarjeta." + System.nanoTime() + "@test.com",
                         "hash-test"
                 );
