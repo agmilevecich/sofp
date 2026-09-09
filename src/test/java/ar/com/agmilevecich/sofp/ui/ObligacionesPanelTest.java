@@ -22,7 +22,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
+import java.awt.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -38,6 +40,7 @@ class ObligacionesPanelTest {
     private Usuario usuario;
     private Cuenta cuenta;
     private Categoria categoria;
+    private Moneda monedaUsd;
 
     @BeforeEach
     void setUp() {
@@ -66,6 +69,7 @@ class ObligacionesPanelTest {
                 TipoInstitucionFinanciera.BANCO
         );
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        monedaUsd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
         cuenta = new Cuenta(
                 "Cuenta principal",
                 TipoCuenta.CAJA_AHORRO,
@@ -80,6 +84,7 @@ class ObligacionesPanelTest {
         entityManager.persist(perfil);
         entityManager.persist(institucion);
         entityManager.persist(moneda);
+        entityManager.persist(monedaUsd);
         entityManager.persist(cuenta);
         entityManager.persist(categoria);
         entityManager.getTransaction().commit();
@@ -104,6 +109,35 @@ class ObligacionesPanelTest {
 
         assertEquals(1, panel.getObligacionesList().getModel().getSize());
         assertEquals(obligacion.getId(), panel.getObligacionesList().getModel().getElementAt(0).getId());
+    }
+
+    @Test
+    void deberiaMostrarLaMonedaDeLaObligacion() {
+        var movimiento = gastoService.registrar(
+                cuenta,
+                categoria,
+                monedaUsd,
+                new BigDecimal("120.50"),
+                LocalDateTime.of(2026, 9, 8, 11, 0),
+                "Compra en dólares con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        ObligacionesPanel panel = new ObligacionesPanel(obligacionService, usuario.getId());
+
+        Component renderer = panel.getObligacionesList().getCellRenderer().getListCellRendererComponent(
+                panel.getObligacionesList(),
+                obligacion,
+                0,
+                false,
+                false
+        );
+
+        assertTrue(renderer instanceof JLabel);
+        assertTrue(((JLabel) renderer).getText().contains("120.50 USD"));
+        assertTrue(((JLabel) renderer).getText().contains("pendiente 120.50 USD"));
     }
 
     @Test
