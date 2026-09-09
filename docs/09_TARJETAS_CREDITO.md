@@ -4,573 +4,237 @@
 
 **Rama de trabajo:** `feature/swing-shell`
 
-Este documento registra las decisiones y criterios definidos para incorporar tarjetas de crédito en SOFP. La documentación describe el diseño acordado y distingue explícitamente entre comportamiento ya existente y funcionalidad todavía pendiente de implementación.
+Este documento registra las decisiones y criterios definidos para incorporar tarjetas de crédito en SOFP. La documentación distingue explícitamente entre comportamiento ya existente y funcionalidad pendiente de implementación.
 
 ## 1. Objetivo
 
-Incorporar tarjetas de crédito a SOFP permitiendo registrar cada tarjeta con sus condiciones propias y utilizar esa información para gestionar compras, ciclos de facturación, vencimientos, límite disponible, cuotas, obligaciones y pagos.
+Incorporar tarjetas de crédito a SOFP procurando reproducir el comportamiento de una entidad financiera real, sin copiar literalmente el modelo histórico de ControlFinanzas.
 
-La adaptación debe conservar la arquitectura de seguridad y aislamiento de datos ya consolidada en SOFP.
+La tarjeta debe permitir gestionar consumos, ciclos de facturación, vencimientos, límite disponible, consumos en distintas monedas, cuotas, obligaciones y pagos, conservando la arquitectura de seguridad y aislamiento de datos de SOFP.
+
+La regla principal es que el modelo financiero debe representar los hechos económicos reales y no utilizar simplificaciones de interfaz para ocultar diferencias de negocio.
 
 ## 2. Antecedente: ControlFinanzas
 
-La implementación histórica revisada en ControlFinanzas, especialmente en la rama `integracionPaneles`, contaba con una entidad `TarjetaCredito` propia.
+La implementación histórica revisada en ControlFinanzas, especialmente en la rama `integracionPaneles`, contaba con una entidad `TarjetaCredito` propia y una entidad `CompraTarjeta` para información específica de las compras.
 
-La tarjeta almacenaba, entre otros datos:
+Ese modelo se utiliza como antecedente funcional, pero **no se copiará literalmente en SOFP**. La implementación de SOFP debe respetar su arquitectura actual y adoptar únicamente las reglas de negocio que sean compatibles con un sistema financiero coherente.
 
-- nombre de la tarjeta;
-- límite de crédito;
-- día de cierre;
-- día de vencimiento;
-- banco asociado;
-- usuario propietario;
-- movimientos asociados;
-- compras con tarjeta asociadas.
+## 3. Decisión arquitectónica principal
 
-También existía `CompraTarjeta`, destinada a conservar información específica de la compra:
+### 3.1 Tarjeta como cuenta especializada
 
-- comercio;
-- monto total;
-- cantidad de cuotas;
-- interés;
-- fecha de compra;
-- tarjeta utilizada.
-
-El servicio de tarjetas de ControlFinanzas incluía lógica para determinar el inicio y cierre del ciclo, calcular el próximo vencimiento, consultar movimientos del ciclo, calcular deuda, disponible, saldo a favor y pago mínimo, además de gestionar pagos y financiación.
-
-También existía un mecanismo de alertas de vencimiento de tarjetas.
-
-Este modelo se utiliza como antecedente funcional, pero **no se copiará literalmente en SOFP**.
-
-## 3. Estado actual de SOFP
-
-SOFP ya dispone de una arquitectura diferente y más madura que ControlFinanzas.
-
-La propiedad y autorización siguen la cadena:
-
-`Usuario → PerfilFinanciero → Cuenta / Categoría → Movimientos / Operaciones`
-
-SOFP ya contempla `FormaPago.TARJETA_CREDITO` y posee una entidad `Obligacion` para representar la deuda generada por un movimiento realizado con tarjeta de crédito.
-
-Una `Obligacion` se origina a partir de un `Movimiento` de tipo `EGRESO` cuya forma de pago es `TARJETA_CREDITO`. Conserva el importe original, saldo pendiente y estado de la deuda.
-
-Además, `MovimientoService` ya contiene una regla específica para que un EGRESO con `FormaPago.TARJETA_CREDITO` no requiera fondos disponibles en la cuenta y no se descuente del saldo de efectivo ordinario.
-
-`GastoService` ya coordina la creación del movimiento y, para pagos con tarjeta, la generación de la `Obligacion` correspondiente.
-
-Por este motivo, la tarjeta no debe reemplazar a `Obligacion` ni absorber responsabilidades que corresponden a la deuda.
-
-## 4. Decisión arquitectónica principal
-
-### 4.1 Tarjeta como cuenta especializada
-
-Se adopta como decisión de diseño que **SOFP no incorporará una entidad independiente `TarjetaCredito` para representar la tarjeta como instrumento financiero**.
+SOFP no incorporará una entidad independiente `TarjetaCredito` para representar la tarjeta como instrumento financiero.
 
 Una tarjeta de crédito será una instancia de `Cuenta` cuyo `TipoCuenta` sea `TARJETA_CREDITO`.
 
-La relación conceptual queda:
+La relación conceptual es:
 
 `Usuario → PerfilFinanciero → Cuenta(TARJETA_CREDITO)`
 
-Esto aprovecha la infraestructura existente de cuentas, autorización, movimientos, instituciones financieras, moneda y estado activo/inactivo, evitando duplicar una jerarquía paralela.
+Esto reutiliza la infraestructura existente de cuentas, autorización, instituciones financieras, monedas y estado activo/inactivo, evitando duplicar una jerarquía paralela.
 
-El cambio requerido en el modelo será, como mínimo, incorporar `TARJETA_CREDITO` al enum `TipoCuenta` y extender `Cuenta` con los datos específicos de crédito que sean necesarios.
+### 3.2 Datos específicos
 
-### 4.2 Datos específicos de la tarjeta
-
-La cuenta que representa una tarjeta deberá poder almacenar, además de sus atributos generales, información propia del crédito:
+La cuenta que representa una tarjeta deberá almacenar los atributos propios del crédito que correspondan, actualmente:
 
 - límite de crédito;
 - día de cierre;
 - día de vencimiento.
 
-Los atributos generales ya pertenecen naturalmente a `Cuenta`:
+Los atributos generales continúan perteneciendo a `Cuenta`.
 
-- nombre;
-- identificador externo;
-- institución financiera;
-- moneda;
-- perfil financiero propietario;
-- estado activa/inactiva.
+## 4. Modelo financiero de la tarjeta
 
-No se debe duplicar en una nueva entidad información que `Cuenta` ya administra correctamente.
+La tarjeta representa el instrumento financiero y su capacidad de crédito. La deuda se representa mediante `Obligacion`.
 
-### 4.3 Compra con tarjeta
+El flujo conceptual es:
 
-La compra se seguirá representando mediante el modelo financiero existente:
+`Cuenta(TARJETA_CREDITO)` → `Movimiento` de compra → consumo de crédito → `Obligacion`
 
-`Cuenta(TARJETA_CREDITO) + Movimiento(EGRESO, TARJETA_CREDITO) + Obligacion`
+La compra con tarjeta es un hecho distinto del pago posterior.
 
-La necesidad de una entidad específica `CompraTarjeta` queda pendiente y deberá justificarse cuando se implemente financiación, cuotas e información comercial que no pueda representarse adecuadamente mediante `Movimiento` y `Obligacion`.
+Una compra con tarjeta consume crédito, genera una obligación, puede pertenecer a un ciclo de facturación y no genera una salida inmediata de dinero de la cuenta bancaria que posteriormente pagará la tarjeta.
 
-No se agregará una entidad solamente para reproducir el diseño de ControlFinanzas.
+El pago genera una salida efectiva de dinero desde una cuenta bancaria, reduce la obligación y libera el crédito correspondiente. El pago no debe volver a registrar la compra ni generar una segunda obligación.
 
-## 5. Relación conceptual definitiva
+## 5. Regla fundamental sobre monedas
 
-El modelo acordado pasa a ser:
+Se incorpora como decisión de negocio que **la moneda del consumo debe conservarse y no debe convertirse automáticamente al cierre de la tarjeta**.
 
-`Usuario`
+Una tarjeta puede tener consumos en ARS y USD dentro del mismo período.
 
-→ `PerfilFinanciero`
+Por lo tanto, deben distinguirse:
 
-→ `Cuenta` con `TipoCuenta.TARJETA_CREDITO`
+`Moneda del consumo ≠ Moneda de la deuda ≠ Moneda del pago`
 
-→ `Movimiento` de compra
+Ejemplo:
 
-→ `Obligacion`
+- compra: USD 100;
+- cierre de tarjeta: 10/10;
+- resumen: USD 100;
+- vencimiento: 20/10.
 
-La tarjeta pertenece al perfil financiero y queda protegida por la cadena de autorización existente.
+El cierre no convierte esos USD 100 a ARS.
 
-El `usuarioId` debe utilizarse como actor autorizado en servicios, siguiendo las reglas actuales de SOFP, y no como una duplicación innecesaria de la propiedad en cada entidad.
+Si la deuda se paga en USD, se cancela mediante USD 100.
 
-La `Obligacion` continúa representando la deuda. La `Cuenta` especializada representa el instrumento financiero y su límite.
+Si la deuda se paga en ARS, la conversión se determina en el momento del pago conforme a la regla de cotización que SOFP defina para ese pago. Esa cotización no debe introducirse artificialmente al momento del cierre.
 
-## 6. Estado actual frente al diseño nuevo
+En consecuencia, una compra en USD debe permanecer identificada como una obligación en USD mientras no sea cancelada o convertida mediante un pago en otra moneda.
 
-La arquitectura existente ya aporta varias piezas reutilizables:
+## 6. Consecuencia para el modelo de datos
 
-### Ya existe
+El modelo actual de SOFP tiene una limitación que deberá resolverse antes de implementar completamente las tarjetas multidivisa: `Cuenta` posee una moneda y `Movimiento` actualmente no almacena una moneda propia, por lo que un consumo se encuentra implícitamente asociado a la moneda de la cuenta.
 
-- `FormaPago.TARJETA_CREDITO`.
-- `Obligacion` para representar la deuda originada por una compra con tarjeta.
-- `GastoService` para coordinar el gasto y crear la obligación.
-- `MovimientoService` con tratamiento especial de egresos con tarjeta.
-- `Cuenta` como entidad central de las operaciones financieras.
-- `CuentaService` para registrar, consultar, modificar, activar/desactivar y calcular saldos de cuentas.
-- autorización por `usuarioId` y aislamiento por `PerfilFinanciero`.
+Esto no es suficiente para representar fielmente una tarjeta que pueda registrar simultáneamente consumos en ARS y USD.
 
-### Todavía pendiente
+Antes de implementar el cálculo definitivo de deuda, disponible y pagos multidivisa se deberá definir el mecanismo mínimo que permita conservar la moneda de cada consumo y de cada obligación, sin introducir entidades redundantes.
 
-- agregar `TARJETA_CREDITO` a `TipoCuenta`;
-- incorporar en `Cuenta` los atributos específicos de crédito;
-- definir y validar límite disponible;
-- asociar de forma inequívoca el consumo de crédito con la cuenta/tarjeta;
-- implementar ciclos y vencimientos;
-- completar el flujo de pago de tarjeta;
-- hacer que el pago reduzca la obligación y libere crédito;
-- incorporar financiación/cuotas una vez cerradas sus reglas;
-- crear los tests correspondientes;
-- integrar posteriormente la funcionalidad en Swing.
+No se debe resolver esta limitación convirtiendo todos los consumos a la moneda de `Cuenta`.
 
-## 7. Regla fundamental de contabilización
+## 7. Límite y crédito disponible
 
-Se establece como regla central:
+El límite de crédito pertenece a la tarjeta, no a una obligación individual.
 
-> **Una compra con tarjeta consume crédito, pero no consume dinero de la cuenta bancaria en el momento de la compra.**
+Una compra válida debe comprobar que existe crédito suficiente antes de registrar el consumo.
 
-La compra genera una deuda con la tarjeta. La salida efectiva de dinero se produce cuando se realiza el pago de la tarjeta desde una cuenta que tenga fondos suficientes.
+El criterio conceptual es:
 
-Por lo tanto, deben distinguirse dos hechos financieros:
+`crédito disponible = límite − crédito utilizado + saldo a favor`, si finalmente se adopta la regla de saldo a favor.
 
-`Compra`
+Una compra financiada consume inicialmente el importe total comprometido del límite, no solamente la primera cuota.
 
-→ consumo de crédito
+El límite no debe reducirse una segunda vez al generar una obligación, cerrar un ciclo o consultar un resumen.
 
-→ deuda / obligación
+### Decisión pendiente: tratamiento multidivisa del límite
 
-sin salida de efectivo bancario.
+Todavía no se fija si SOFP utilizará un límite general compartido para todas las monedas, límites independientes por moneda, o una combinación de límite general y conversión para determinar el crédito disponible.
 
-`Pago`
+Esta decisión deberá basarse en el comportamiento real de las entidades financieras y quedar documentada antes de implementar el cálculo definitivo del disponible multidivisa.
 
-→ salida de efectivo de una cuenta bancaria
+No se debe asumir que una tarjeta posee automáticamente un límite USD independiente por el solo hecho de admitir consumos en USD.
 
-→ reducción de deuda
-
-→ liberación del crédito utilizado.
-
-## 8. Límite y disponible
-
-El límite de crédito será un atributo de la `Cuenta` cuando `TipoCuenta == TARJETA_CREDITO`.
-
-Una compra válida debe comprobar que existe crédito suficiente antes de consumirlo.
-
-El criterio conceptual para el disponible es:
-
-`límite de crédito − crédito consumido + saldo a favor`, si finalmente se adopta la regla de saldo a favor.
-
-El consumo se produce al registrar la compra.
-
-El límite **no debe reducirse una segunda vez** al generar la obligación, facturar la compra o consultar el ciclo.
-
-El disponible debe calcularse de forma centralizada en dominio/servicio y no en Swing.
-
-No se debe asumir que el saldo pendiente de una única `Obligacion` representa toda la utilización de la tarjeta.
-
-## 9. Saldo de la cuenta y saldo de crédito
-
-Debe mantenerse una separación estricta entre:
-
-- saldo monetario de una cuenta bancaria;
-- crédito utilizado de una tarjeta;
-- deuda pendiente de obligaciones.
-
-Una compra con `FormaPago.TARJETA_CREDITO` no debe disminuir el saldo monetario disponible de una cuenta bancaria.
-
-Al mismo tiempo, esa compra sí debe incrementar el crédito utilizado de la cuenta que representa la tarjeta y originar una obligación.
-
-Existe actualmente una diferencia que deberá corregirse durante la implementación: `MovimientoService` ya excluye los egresos con tarjeta al calcular fondos y saldo monetario, mientras que `CuentaService.calcularSaldo()` actualmente suma/resta los movimientos sin esa excepción. La implementación de tarjetas deberá unificar esta regla para evitar resultados inconsistentes.
-
-## 10. Datos de la tarjeta
-
-Como mínimo, una cuenta de tipo tarjeta deberá disponer de:
-
-- nombre;
-- institución financiera;
-- identificador externo, si corresponde;
-- límite de crédito;
-- día de cierre;
-- día de vencimiento;
-- moneda;
-- estado activa/inactiva;
-- perfil financiero propietario.
-
-Los días de cierre y vencimiento son reglas de la tarjeta, no atributos de una compra individual.
-
-El límite determina la capacidad de crédito disponible y no debe almacenarse en `Obligacion`.
-
-## 11. Ciclo de facturación
+## 8. Ciclo de facturación
 
 La fecha de compra debe compararse con el cierre de la tarjeta para determinar a qué ciclo pertenece.
 
 Ejemplo conceptual:
 
 - cierre: día 10;
-- vencimiento: día 20;
-- compra el día 8 → pertenece al ciclo que cierra el día 10;
-- compra el día 11 → pertenece al ciclo siguiente.
+- compra el día 8 → ciclo que cierra el día 10;
+- compra el día 11 → ciclo siguiente.
 
-El cálculo debe contemplar correctamente meses de distinta duración. Si el día de cierre configurado no existe en un mes concreto, deberá utilizarse el último día válido de ese mes.
+La implementación deberá definir expresamente el tratamiento de compras realizadas exactamente el día de cierre.
 
-La implementación final deberá definir de manera explícita el tratamiento de compras realizadas exactamente el día de cierre.
+También deberá contemplar meses de distinta duración: si el día configurado no existe, se utilizará el último día válido del mes cuando corresponda.
 
-La lógica debe quedar centralizada en un servicio o componente de dominio apropiado, evitando reproducir cálculos de fechas en los paneles Swing.
+La lógica de ciclos y fechas debe quedar centralizada en dominio/servicio y no en Swing.
 
-## 12. Vencimiento
+## 9. Vencimiento
 
-El vencimiento debe calcularse a partir del ciclo correspondiente y del día de vencimiento configurado en la tarjeta.
+El vencimiento se calculará a partir del ciclo correspondiente y del día de vencimiento configurado en la tarjeta.
 
-También debe contemplarse correctamente el cambio de mes y los meses cuyo último día sea anterior al día configurado.
+Debe contemplarse correctamente el cambio de mes y los meses cuyo último día sea anterior al día configurado.
 
-No se debe colocar esta lógica en la interfaz.
+La política exacta para casos especiales y días no hábiles deberá definirse cuando se implemente el cálculo de vencimiento.
 
-## 13. Compras en cuotas
+## 10. Compras en cuotas
 
-La experiencia de ControlFinanzas contemplaba cantidad de cuotas e interés.
+Una compra financiada debe conservar el vínculo con su operación original y sus cuotas.
 
-Para SOFP se conservará ese comportamiento conceptual, pero se deberá decidir cómo representar las cuotas sin duplicar artificialmente movimientos u obligaciones.
+Criterio inicial:
 
-Criterio inicial para el límite: una compra financiada consume el **importe total financiado** del límite al momento de realizarse, no solamente el valor de la primera cuota.
+> Una compra de $600.000 en 6 cuotas compromete inicialmente $600.000 de límite, no $100.000.
 
-Ejemplo conceptual: una compra de $600.000 en 6 cuotas consume inicialmente $600.000 de límite. Si posteriormente se paga una cuota de $100.000, se libera el crédito correspondiente a esos $100.000, siempre sujeto a las reglas definitivas de financiación, intereses, redondeos y pagos parciales.
+Al aplicar pagos, se libera el crédito correspondiente al importe que efectivamente deje de estar comprometido, de acuerdo con las reglas definitivas de financiación.
 
-Este criterio evita que una compra en cuotas parezca disponer nuevamente del límite que todavía permanece comprometido.
+Antes de programar cuotas deberá definirse la representación de la compra y sus cuotas, importe de cada cuota, intereses, asignación a ciclos, pagos parciales, liberación del límite ante pagos/anulaciones/ajustes y conservación del historial de la operación original.
 
-Antes de programar financiación deberá definirse:
+No se implementará financiación completa hasta cerrar estas reglas.
 
-1. si cada cuota será una obligación independiente o parte de una compra financiada;
-2. cómo se calculará el importe de cada cuota;
-3. cómo se tratarán los intereses;
-4. cómo se asignarán las cuotas a los ciclos de facturación;
-5. cómo se registrarán pagos parciales;
-6. cómo se libera exactamente el límite ante pagos parciales, totales, anulaciones o ajustes;
-7. qué información histórica debe permanecer asociada a la compra original.
+## 11. Pagos de tarjeta
 
-No se implementará financiación hasta cerrar estas reglas.
+El pago debe ser un hecho financiero independiente de la compra.
 
-## 14. Pagos de tarjeta
+El flujo será conceptualmente:
 
-El pago de una tarjeta no debe confundirse con la compra que originó la deuda.
+`Pago` → `Movimiento EGRESO` de la cuenta bancaria utilizada → reducción de `Obligacion` → liberación del crédito.
 
-La compra genera el consumo de crédito, el movimiento asociado y la obligación. **No genera en ese momento un EGRESO de dinero de la cuenta bancaria.**
+Debe validarse usuario autorizado, pertenencia de la tarjeta al perfil, pertenencia de la cuenta bancaria al mismo perfil, fondos suficientes cuando corresponda, moneda del pago e importe aplicable a la deuda.
 
-El pago posterior debe:
+En pagos en moneda distinta de la deuda, la conversión deberá efectuarse según una regla de cotización explícita y en el momento del pago, no al cierre de la tarjeta.
 
-1. validar que la obligación pertenece al usuario autorizado;
-2. validar que la cuenta bancaria utilizada pertenece al mismo perfil;
-3. validar fondos suficientes cuando corresponda;
-4. generar un `Movimiento EGRESO` sobre la cuenta bancaria;
-5. reducir la obligación;
-6. liberar el crédito utilizado en la tarjeta.
+La prioridad de aplicación de pagos entre obligaciones deberá ser explícita y testeable.
 
-Conceptualmente:
+## 12. Seguridad y aislamiento
 
-`Pago de tarjeta`
+La tarjeta debe respetar el aislamiento de datos existente. Un usuario no puede registrar, consultar o consumir una tarjeta de otro perfil, pagar obligaciones de otro perfil ni utilizar una cuenta bancaria de otro perfil para pagar una tarjeta propia.
 
-→ `Movimiento EGRESO` bancario
+Estas reglas deben permanecer en servicios/repositorios y no depender exclusivamente de Swing.
 
-→ reducción de `Obligacion`
+## 13. Estado actual de SOFP
 
-→ liberación del crédito.
+SOFP ya dispone de piezas reutilizables:
 
-El pago parcial debe producir una liberación proporcional al importe efectivamente aplicado, según las reglas definitivas de financiación.
+- `FormaPago.TARJETA_CREDITO`;
+- `Obligacion` para representar deuda originada por una compra con tarjeta;
+- `GastoService` para coordinar gasto y obligación;
+- `MovimientoService` con tratamiento especial para egresos con tarjeta;
+- `Cuenta` como entidad financiera central;
+- `CuentaService`;
+- autorización por `usuarioId` y aislamiento por `PerfilFinanciero`.
 
-El pago no debe volver a registrar la compra ni generar una segunda obligación.
+La implementación actual de `Cuenta` ya contempla `TipoCuenta.TARJETA_CREDITO` y los datos específicos de crédito de límite, cierre y vencimiento.
 
-La lógica de pago debe priorizar las obligaciones pendientes mediante una regla explícita y testeable, evitando depender del orden accidental de una consulta.
+Existe además una prueba de persistencia de estos datos en `CuentaRepositoryTest`.
 
-## 15. Seguridad y aislamiento de datos
+## 14. Inconsistencia pendiente de corregir
 
-La tarjeta debe respetar el aislamiento de datos ya existente en SOFP.
+Actualmente `MovimientoService` excluye los egresos con `FormaPago.TARJETA_CREDITO` del saldo monetario y de la validación de fondos, mientras que `CuentaService.calcularSaldo()` todavía calcula los movimientos sin aplicar esa misma excepción.
 
-Un usuario no debe poder:
+Esta diferencia debe unificarse antes de considerar terminada la integración financiera de tarjetas.
 
-- registrar una cuenta/tarjeta en otro perfil;
-- consultar una cuenta/tarjeta de otro perfil;
-- utilizar una tarjeta perteneciente a otro perfil para registrar una compra;
-- pagar obligaciones asociadas a otro usuario;
-- utilizar una cuenta bancaria de otro perfil para pagar una tarjeta propia.
+## 15. Interfaz Swing
 
-Las validaciones de autorización deben permanecer en servicios/repositorios y no depender exclusivamente de Swing.
+La tarjeta tendrá una experiencia específica y no deberá aparecer como una opción genérica equivalente a una cuenta bancaria común.
 
-## 16. Integración con movimientos y obligaciones
+La interfaz prevista separará conceptualmente cuentas y tarjetas de crédito.
 
-La compra seguirá utilizando el modelo financiero existente:
+El panel específico de tarjetas deberá permitir progresivamente listar tarjetas del perfil autorizado, registrar una tarjeta, consultar límite y disponible, consultar consumos, visualizar deuda separada por moneda, consultar ciclo/cierre/vencimiento, registrar y consultar pagos y posteriormente gestionar cuotas y financiación.
 
-`Cuenta(TARJETA_CREDITO)`
+Internamente seguirá creándose una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`.
 
-→ `Movimiento(EGRESO, FormaPago.TARJETA_CREDITO)`
+La interfaz no deberá calcular reglas financieras por sí misma.
 
-→ consumo del límite
+## 16. Orden de implementación propuesto
 
-→ `Obligacion`
+1. Consolidar el modelo de moneda de los movimientos/obligaciones para soportar consumos multidivisa.
+2. Resolver el criterio de límite y disponible para ARS/USD.
+3. Unificar el cálculo de saldo monetario entre `MovimientoService` y `CuentaService`.
+4. Implementar consumo y liberación de crédito con pruebas de dominio y persistencia.
+5. Implementar ciclos y vencimientos.
+6. Implementar pagos, incluyendo pagos en la misma moneda y conversiones al pagar en otra moneda.
+7. Implementar cuotas y financiación una vez cerradas sus reglas.
+8. Incorporar el panel Swing específico de tarjetas.
+9. Agregar pruebas de seguridad, aislamiento, monedas, ciclos, pagos, límites y casos límite.
 
-La compra no debe generar una salida inmediata de dinero de una cuenta bancaria.
+## 17. Principios de implementación
 
-El pago posterior debe ser un movimiento financiero independiente sobre la cuenta bancaria utilizada.
+- código y tests prevalecen sobre documentación;
+- cambios mínimos y coherentes con la arquitectura existente;
+- no duplicar entidades sin necesidad de negocio;
+- no esconder diferencias monetarias mediante conversiones automáticas;
+- no contabilizar dos veces un mismo hecho financiero;
+- separar instrumento financiero, consumo, deuda y pago;
+- centralizar reglas de negocio fuera de Swing;
+- mantener autorización y aislamiento en servicios/repositorios;
+- no implementar decisiones todavía abiertas como si fueran definitivas.
 
-La implementación debe evitar que un mismo hecho se contabilice simultáneamente como consumo de tarjeta y disminución de efectivo.
+## 18. Próximo paso
 
-## 17. Interfaz Swing
-
-La incorporación de tarjetas deberá integrarse al shell existente siguiendo el patrón utilizado para Ingresos, Transferencias y Obligaciones.
-
-La interfaz prevista deberá permitir progresivamente:
-
-- listar tarjetas del perfil autorizado;
-- registrar una tarjeta como cuenta de tipo `TARJETA_CREDITO`;
-- editar sus datos permitidos;
-- activar/desactivar la tarjeta;
-- consultar límite y disponible;
-- visualizar cierre y próximo vencimiento;
-- registrar compras;
-- consultar deuda y ciclo;
-- registrar pagos.
+El siguiente paso técnico no será todavía construir la pantalla Swing.
 
-La interfaz no debe contener reglas complejas de negocio. Los cálculos de ciclos, vencimientos, límites, deuda y pagos deben quedar en dominio/servicios.
+Primero deberá revisarse el modelo actual de `Movimiento`, `Obligacion`, `Cuenta`, `Moneda` y los servicios relacionados para determinar el cambio mínimo que permita representar correctamente una tarjeta con consumos en ARS y USD, manteniendo la deuda en la moneda original hasta el momento del pago.
 
-## 18. Alertas
-
-ControlFinanzas contaba con alertas específicas para vencimientos de tarjetas.
-
-Se considera una funcionalidad válida para recuperar en SOFP, pero no forma parte del primer corte de implementación.
-
-La prioridad inicial será construir correctamente el modelo y las reglas financieras. Las alertas podrán incorporarse posteriormente utilizando los servicios ya existentes.
-
-## 19. Tests previstos
-
-La implementación deberá cubrir como mínimo:
-
-### Cuenta de tarjeta
-
-- creación válida de una cuenta `TARJETA_CREDITO`;
-- parámetros obligatorios nulos;
-- límite inválido;
-- día de cierre inválido;
-- día de vencimiento inválido;
-- cuenta/tarjeta perteneciente a otro perfil;
-- tarjeta inactiva cuando corresponda;
-- persistencia de los atributos específicos.
-
-### Ciclos
-
-- compra antes del cierre;
-- compra después del cierre;
-- compra exactamente el día de cierre;
-- cierre en febrero;
-- cierre en meses de 30 días;
-- cierre en meses de 31 días;
-- cálculo del próximo vencimiento.
-
-### Compras
-
-- compra válida;
-- importe inválido;
-- tarjeta inexistente;
-- tarjeta de otro usuario;
-- tarjeta inactiva;
-- generación correcta del movimiento;
-- generación correcta de la obligación;
-- consumo correcto del límite;
-- rechazo cuando no existe crédito suficiente;
-- ausencia de disminución del saldo bancario por la compra;
-- no duplicación del consumo al generar la obligación.
-
-### Cuotas
-
-Cuando se implemente financiación:
-
-- una cuota;
-- múltiples cuotas;
-- consumo inicial del importe total financiado;
-- interés;
-- distribución por ciclos;
-- última cuota con ajuste por redondeo;
-- pagos parciales;
-- liberación progresiva del límite según pagos.
-
-### Límite
-
-- cálculo del disponible;
-- consumo de crédito al registrar una compra;
-- no duplicación del consumo al generar la obligación/factura;
-- liberación del límite mediante pagos;
-- pago parcial;
-- pago total;
-- saldo a favor, si se adopta la regla;
-- límites y valores extremos.
-
-### Pagos
-
-- pago parcial;
-- pago total;
-- pago superior al saldo;
-- pago de obligación inexistente;
-- pago de obligación de otro usuario;
-- pago con cuenta inexistente;
-- fondos insuficientes;
-- pago posterior a una obligación ya cancelada;
-- generación del `Movimiento EGRESO` bancario;
-- reducción de la deuda;
-- liberación del crédito consumido;
-- persistencia del pago y de sus efectos.
-
-### Seguridad
-
-- acceso autorizado;
-- acceso con usuario incorrecto;
-- tarjeta de otro perfil;
-- cuenta bancaria de otro perfil;
-- obligación de otro usuario;
-- aislamiento entre perfiles financieros.
-
-## 20. Etapas de implementación
-
-La implementación se realizará en etapas pequeñas y verificables.
-
-### Etapa 1 — Modelo de cuenta especializada
-
-- agregar `TARJETA_CREDITO` a `TipoCuenta`;
-- agregar a `Cuenta` los atributos específicos de crédito acordados;
-- validar límites y días;
-- crear tests de dominio/persistencia;
-- corregir la diferencia entre el cálculo de saldo de `MovimientoService` y `CuentaService`.
-
-### Etapa 2 — Consumo de crédito
-
-- identificar la cuenta como tarjeta mediante `TipoCuenta`;
-- validar crédito disponible;
-- registrar compras con `FormaPago.TARJETA_CREDITO`;
-- asociar el consumo de crédito a la tarjeta;
-- mantener la generación de `Obligacion`;
-- verificar que la compra no reduzca el efectivo bancario.
-
-### Etapa 3 — Ciclos y vencimientos
-
-- definir semántica exacta del día de cierre;
-- implementar cálculo de ciclo;
-- implementar vencimiento;
-- cubrir meses de distinta duración;
-- agregar tests exhaustivos de fechas.
-
-### Etapa 4 — Pagos
-
-- definir asociación entre pago, obligación y tarjeta;
-- generar EGRESO bancario;
-- reducir obligación;
-- liberar crédito;
-- validar autorización y fondos;
-- cubrir pagos parciales y totales.
-
-### Etapa 5 — Financiación
-
-- cerrar modelo de compra financiada;
-- definir cuotas, intereses y ciclos;
-- implementar la representación elegida;
-- cubrir redondeos y pagos parciales.
-
-### Etapa 6 — Swing
-
-- incorporar panel de tarjetas;
-- registro y edición;
-- visualización de límite/disponible;
-- compras;
-- ciclos/deuda;
-- pagos.
-
-### Etapa 7 — Alertas
-
-- evaluar alertas de vencimiento;
-- integrar con el mecanismo de tareas/avisos disponible en SOFP.
-
-## 21. Decisión arquitectónica consolidada — 08/09/2026
-
-Después de revisar el código actual de `Cuenta`, `CuentaService`, `MovimientoService`, `GastoService` y `Obligacion`, se consolida la siguiente decisión:
-
-**La tarjeta de crédito será una cuenta especializada (`TipoCuenta.TARJETA_CREDITO`), no una entidad paralela `TarjetaCredito`.**
-
-La decisión se basa en que `Cuenta` ya posee:
-
-- perfil financiero;
-- institución financiera;
-- moneda;
-- identificador externo;
-- estado activo/inactivo;
-- integración natural con `Movimiento`;
-- autorización y aislamiento por usuario/perfil;
-- servicios y repositorios existentes.
-
-La especialización agregará únicamente el comportamiento y los datos necesarios para crédito.
-
-Esta decisión evita duplicar:
-
-`PerfilFinanciero → Cuenta`
-
-en otra estructura paralela como:
-
-`PerfilFinanciero → TarjetaCredito`.
-
-También mantiene separadas las responsabilidades:
-
-- `Cuenta(TARJETA_CREDITO)` → instrumento y capacidad de crédito;
-- `Movimiento` → hecho financiero de la compra o del pago;
-- `Obligacion` → deuda pendiente;
-- servicios → coordinación, autorización y reglas financieras;
-- Swing → presentación e interacción.
-
-## 22. Pendientes técnicos explícitos
-
-Antes de considerar terminada la funcionalidad de tarjetas quedan pendientes, como mínimo:
-
-1. decidir exactamente dónde almacenar los atributos específicos de tarjeta dentro de `Cuenta`;
-2. definir la estrategia para calcular y persistir el crédito utilizado;
-3. definir cómo asociar inequívocamente cada consumo a la cuenta tarjeta sin romper el modelo actual de `Movimiento`;
-4. corregir la inconsistencia de saldo entre `CuentaService` y `MovimientoService`;
-5. definir la semántica exacta del día de cierre;
-6. definir la política de vencimiento en meses cortos;
-7. definir cuotas e intereses;
-8. definir cómo se relacionan pagos con una o varias obligaciones;
-9. definir la liberación del límite ante pagos parciales, totales, anulaciones y ajustes;
-10. definir si se adopta saldo a favor;
-11. implementar y ejecutar los tests antes de incorporar Swing.
-
-No se debe considerar implementada ninguna de estas reglas solamente porque esté documentada.
-
-## 23. Regla de continuidad
-
-Esta documentación acompaña al código, pero no reemplaza su estado real.
-
-Ante cualquier nueva sesión de trabajo sobre tarjetas de crédito se deberá revisar primero:
-
-`código actual → tests → commits → main → documentación`
-
-Si el código contradice esta documentación, prevalecen el código y los tests hasta que se formalice una nueva decisión.
+Esta decisión será la base para implementar posteriormente el comportamiento de una tarjeta de crédito real en SOFP.
