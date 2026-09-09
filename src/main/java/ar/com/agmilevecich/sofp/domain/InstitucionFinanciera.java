@@ -120,6 +120,23 @@ public class InstitucionFinanciera extends EntidadAuditable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof InstitucionFinanciera otra)) {
+            return false;
+        }
+        return Objects.equals(nombre, otra.nombre)
+                && tipo == otra.tipo;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nombre, tipo);
+    }
+
+    @Override
     public String toString() {
         return nombre;
     }
