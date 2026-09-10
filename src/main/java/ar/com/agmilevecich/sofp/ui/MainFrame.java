@@ -38,6 +38,7 @@ public class MainFrame extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel areaCentral;
     private final CuentasPanel cuentasPanel;
+    private final GastosPanel gastosPanel;
     private final MovimientoService movimientoService;
     private final CategoriaService categoriaService;
     private final IngresoService ingresoService;
@@ -175,6 +176,7 @@ public class MainFrame extends JFrame {
                 );
             }
             this.cuentasPanel = new CuentasPanel();
+            this.gastosPanel = new GastosPanel();
             this.movimientoService = null;
             this.categoriaService = null;
             this.ingresoService = null;
@@ -207,6 +209,17 @@ public class MainFrame extends JFrame {
                         usuarioId
                 );
             }
+            if (gastoService != null && categoriaService != null && perfilFinanciero != null && usuarioId != null) {
+                this.gastosPanel = new GastosPanel(
+                        gastoService,
+                        cuentaService,
+                        categoriaService,
+                        perfilFinanciero.getId(),
+                        usuarioId
+                );
+            } else {
+                this.gastosPanel = new GastosPanel();
+            }
         }
 
         cardLayout = new CardLayout();
@@ -237,21 +250,7 @@ public class MainFrame extends JFrame {
             areaCentral.add(new IngresosPanel(), INGRESOS);
         }
 
-        if (gastoService != null && categoriaService != null && perfilFinanciero != null && usuarioId != null) {
-            areaCentral.add(
-                    new GastosPanel(
-                            gastoService,
-                            cuentaService,
-                            categoriaService,
-                            perfilFinanciero.getId(),
-                            usuarioId
-                    ),
-                    GASTOS
-            );
-        } else {
-            areaCentral.add(new GastosPanel(), GASTOS);
-        }
-
+        areaCentral.add(gastosPanel, GASTOS);
         areaCentral.add(new MovimientosPanel(), MOVIMIENTOS);
 
         if (obligacionService != null && usuarioId != null) {
@@ -303,6 +302,9 @@ public class MainFrame extends JFrame {
         if (MOVIMIENTOS.equals(destino)) {
             mostrarMovimientos();
             return;
+        }
+        if (GASTOS.equals(destino)) {
+            gastosPanel.actualizarCuentas();
         }
         cardLayout.show(areaCentral, destino);
     }
