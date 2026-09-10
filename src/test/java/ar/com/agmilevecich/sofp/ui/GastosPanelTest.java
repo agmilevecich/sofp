@@ -14,10 +14,12 @@ import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.GastoService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
+import ar.com.agmilevecich.sofp.service.ObligacionService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,7 @@ class GastosPanelTest {
     private MovimientoService movimientoService;
     private CategoriaService categoriaService;
     private CuentaService cuentaService;
+    private ObligacionService obligacionService;
 
     @BeforeEach
     void setUp() {
@@ -50,6 +53,10 @@ class GastosPanelTest {
                 new ar.com.agmilevecich.sofp.persistence.CuentaRepository(entityManager),
                 movimientoRepository,
                 entityManager
+        );
+        obligacionService = new ObligacionService(
+                entityManager,
+                new ObligacionRepository(entityManager)
         );
     }
 
@@ -167,7 +174,6 @@ class GastosPanelTest {
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         Cuenta cuenta = new Cuenta(
                 "Visa Test",
-                TipoCuenta.TARJETA_CREDITO,
                 perfil,
                 institucion,
                 moneda,
@@ -180,7 +186,7 @@ class GastosPanelTest {
         persistir(usuario, perfil, institucion, moneda, cuenta, categoria);
 
         GastosPanel panel = new GastosPanel(
-                new GastoService(movimientoService),
+                new GastoService(movimientoService, obligacionService),
                 cuentaService,
                 categoriaService,
                 perfil.getId(),
@@ -202,8 +208,7 @@ class GastosPanelTest {
         assertEquals(FormaPago.TARJETA_CREDITO, movimientos.get(0).getFormaPago());
 
         entityManager.clear();
-        var movimiento = movimientoService.buscarPorId(movimientos.get(0).getId(), usuario.getId()).orElseThrow();
-        var obligacion = movimiento.getObligacion();
+        var obligacion = obligacionService.buscarPorMovimientoOrigen(movimientos.get(0).getId()).orElseThrow();
         assertNotNull(obligacion);
         assertEquals(3, obligacion.getCuotas().size());
         assertEquals(new BigDecimal("1000.00"), obligacion.getSaldoPendiente());
