@@ -2,59 +2,61 @@
 
 ## Estado de validación — 10/09/2026
 
-### Suite general más reciente
+### Suite general más reciente conocida
 
-El usuario ejecutó `mvn test` el **09/09/2026 21:58:35 -03:00**.
+El usuario ejecutó `mvn test` el **10/09/2026 10:39:38 -03:00**.
 
 Resultado:
 
-- Tests run: **664**;
+- Tests run: **671**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`.
+
+Esta es la suite general más reciente conocida.
+
+### Última validación relacionada con cuotas
+
+El usuario ejecutó:
+
+`mvn -Dtest=GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest test`
+
+el **10/09/2026 13:14:29 -03:00**.
+
+Resultado:
+
+- Tests run: **32**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **10:04 min**.
+- duración **01:19 min**.
 
-Es la validación general más reciente conocida y no debe sustituirse por resultados anteriores de 642/642 o 650/650.
+Validaciones focalizadas:
 
-### Diagnóstico y aislamiento JPA/H2
+- `PagoTarjetaServiceTest`: **4/4**, `BUILD SUCCESS`, 13:08:50 -03:00.
+- `GastosPanelTest`: **6/6**, `BUILD SUCCESS`.
 
-La suite había presentado un único error por duplicación de `ARS` en `monedas.codigo` dentro de `TarjetaCreditoPagoCreditoTest`. El diagnóstico con forks independientes pasó 664/664 y `TarjetaCreditoPagoCreditoTest` pasó **5/5**.
+## Cuotas
 
-La causa fue reutilización de un `EntityManagerFactory`/contexto H2 entre tests. `PosicionActivoServiceTest` cerraba el `EntityManager` pero no el `EntityManagerFactory` almacenado por `JpaTestManager`.
+La cobertura actual verifica la generación de cuotas al registrar gastos con tarjeta y el tratamiento de las cuotas por `PagoTarjetaService`.
 
-La corrección quedó en dos pasos:
+`GastosPanelTest` cubre actualmente el registro de un gasto con tres cuotas. El test utiliza el flujo real de `GastoService`, que genera automáticamente las cuotas.
 
-- `e8f6fdb` — aislamiento del contexto JPA por hilo y base H2 de test independiente;
-- `46290786` — cierre del `EntityManagerFactory` mediante `@AfterEach` en `PosicionActivoServiceTest`.
-
-La suite posterior pasó **664/664**.
-
-## Ciclos de facturación
-
-`CicloFacturacionTest` contiene **9 tests** y cubre:
-
-1. consumo anterior al cierre;
-2. consumo en el día exacto de cierre;
-3. consumo posterior al cierre;
-4. vencimiento posterior cuando el día de vencimiento es anterior al cierre;
-5. vencimiento posterior cuando coincide con el cierre;
-6. ajuste de cierre a febrero;
-7. ajuste de vencimiento al último día real del mes;
-8. cambio de año;
-9. fecha de consumo nula.
-
-La lógica reside en `Cuenta.calcularCicloFacturacion(LocalDate)` y `CicloFacturacion` es un objeto de dominio no persistente.
+`PagoTarjetaServiceTest.deberiaAplicarPagoDeTarjetaSobreLasCuotasEnOrden` fue ajustado para registrar el gasto con `cantidadCuotas = 3` y ya no genera cuotas manualmente. Esto refleja el comportamiento productivo actual y evita la excepción `La obligación ya tiene cuotas generadas`.
 
 ## Crédito y tarjetas
 
 La cobertura incluye límites, crédito disponible, consumo parcial, límite exacto, exceso, monedas diferentes, liberación mediante pagos y consumos sin obligación sin doble contabilización.
 
-`TarjetaCreditoPagoCreditoTest`: **5/5** en la validación focalizada conocida.
+## Ciclos de facturación
+
+`CicloFacturacionTest` contiene **9 tests** y cubre cierre exacto, ciclo siguiente, meses cortos, febrero, vencimiento posterior al cierre, cambio de año y fecha nula.
 
 ## Obligaciones y moneda
 
-La cobertura incluye `ObligacionTest`, `ObligacionJpaTest`, `ObligacionServiceTest`, `ObligacionesPanelTest` y navegación. `ObligacionesPanelTest` había validado **4/4** la visualización de moneda antes del bloque posterior de tarjeta.
+La cobertura incluye `ObligacionTest`, `ObligacionJpaTest`, `ObligacionServiceTest`, `ObligacionesPanelTest` y navegación. Las obligaciones conservan la moneda económica del movimiento de origen.
 
 ## Otros bloques
 
