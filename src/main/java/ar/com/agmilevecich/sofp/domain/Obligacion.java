@@ -77,6 +77,16 @@ public class Obligacion extends EntidadAuditable {
         return movimientoOrigen.getFechaHora();
     }
 
+    /**
+     * Calcula el ciclo de facturación correspondiente al consumo que originó la obligación.
+     * El ciclo no se persiste: se deriva de la configuración actual de la tarjeta y de la fecha del consumo.
+     */
+    public CicloFacturacion getCicloFacturacion() {
+        return movimientoOrigen.getCuenta().calcularCicloFacturacion(
+                movimientoOrigen.getFechaHora().toLocalDate()
+        );
+    }
+
     public void registrarPago(BigDecimal importe) {
         if (estado == EstadoObligacion.PAGADA) {
             throw new IllegalStateException("La obligación ya está pagada");
