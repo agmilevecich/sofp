@@ -7,7 +7,6 @@ import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
-import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
@@ -103,11 +101,13 @@ class MainFrameObligacionesTest {
         );
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         Cuenta cuenta = new Cuenta(
-                "Cuenta principal",
-                TipoCuenta.CAJA_AHORRO,
+                "Tarjeta principal",
                 perfil,
                 institucion,
-                moneda
+                moneda,
+                new BigDecimal("500000.00"),
+                15,
+                10
         );
         Categoria categoria = new Categoria("Supermercado", perfil);
 
