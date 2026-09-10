@@ -5,28 +5,24 @@
 La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `548063914ad7a3fe6ae028dad606aad57f7ca42e`.
-**Comparación:** 443 commits adelante, 0 atrás.
+**Rama de trabajo:** `feature/swing-shell`.
+**Comparación verificada antes de la actualización documental:** 470 commits adelante, 0 atrás.
 
-El último commit es documental (`5480639`). El último cambio funcional es `46290786` — cierre del contexto JPA de `PosicionActivoServiceTest`.
+Último commit funcional previo a la actualización documental: `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
 
 ## Último bloque cerrado
 
-Crédito disponible y límite de tarjetas, conservación de consumos sin obligación y aislamiento JPA/H2 de la suite.
+Cuotas automáticas en gastos con tarjeta.
 
-Regla actual:
+`GastoService` genera las cuotas solicitadas al registrar una compra con `TARJETA_CREDITO`, dentro de la transacción de la obligación, y las cuotas quedan persistidas.
 
-`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
-
-No hay conversiones implícitas entre monedas.
+`PagoTarjetaServiceTest` fue corregido para registrar el gasto directamente con `cantidadCuotas = 3`, en lugar de generar manualmente cuotas sobre una obligación que ya las tenía. Esto eliminó el error `La obligación ya tiene cuotas generadas`.
 
 ## Ciclos de facturación — YA IMPLEMENTADOS
 
 `CicloFacturacion` es un objeto de dominio no persistente. `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento.
 
-Casos cubiertos por `CicloFacturacionTest` (**9 tests**): consumo antes del cierre, día exacto de cierre, día posterior, vencimiento posterior al cierre, meses cortos, febrero, último día real y cambio de año, además de fecha nula.
-
-No volver a plantear ciclos como implementación desde cero. El siguiente trabajo es integrar esta lógica con consumos/obligaciones y revisar sus interacciones con pagos.
+`CicloFacturacionTest` cubre 9 escenarios. Los ciclos no deben plantearse como implementación desde cero; queda pendiente su integración con consumos/obligaciones/pagos.
 
 ## Arquitectura
 
@@ -46,6 +42,7 @@ Transferencias → `OperacionFinancieraService` → `OperacionFinanciera` con EG
 - categorías con movimientos se conservan y desactivan;
 - cuenta y forma de pago son conceptos distintos;
 - tarjeta de crédito genera movimiento y obligación;
+- las cuotas solicitadas se generan automáticamente al registrar el gasto;
 - obligación conserva moneda del movimiento de origen;
 - crédito disponible inicial se calcula por moneda, sin conversión implícita;
 - transferencias propias no son ingresos ni gastos;
@@ -53,23 +50,20 @@ Transferencias → `OperacionFinancieraService` → `OperacionFinanciera` con EG
 
 ## Tests
 
-Suite general más reciente: `mvn test` → **664/664**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **09/09/2026 21:58:35 -03:00**, 10:04 min.
+Suite general más reciente conocida: `mvn test` → **671/671**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **10/09/2026 10:39:38 -03:00**.
 
-`TarjetaCreditoPagoCreditoTest` → **5/5** en validación focalizada conocida.
-`CicloFacturacionTest` → **9 tests** incluidos en la suite general.
+Suite relacionada más reciente: `GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest` → **32/32**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **10/09/2026 13:14:29 -03:00**, duración 01:19 min.
 
-## Estado local conocido
-
-Después de `git syncsofp`, el usuario informó working tree sin cambios versionados, `git diff --check` sin salida y únicamente `surefire-debug.txt` sin rastrear. No agregar ese archivo al repositorio.
+Focalizados: `PagoTarjetaServiceTest` 4/4 y `GastosPanelTest` 6/6.
 
 ## Próximo paso
 
-1. Integrar `CicloFacturacion` con consumos y obligaciones.
-2. Unificar el cálculo de saldo de tarjetas entre `MovimientoService` y `CuentaService`.
-3. Profundizar pagos/liberación de crédito y reglas multidivisa explícitas.
-4. Cuotas y financiación.
-5. UI específica de tarjetas.
-6. Pasivos/patrimonio, análisis y dashboard.
+1. Revisar `GastosPanelTest` y las convenciones actuales de cuentas/paneles.
+2. Implementar selección explícita de tarjeta de crédito en `GastosPanel` cuando la forma de pago sea `TARJETA_CREDITO`.
+3. Cubrir que solo aparezcan tarjetas activas y que la tarjeta seleccionada sea la cuenta usada por `GastoService`.
+4. Integrar `CicloFacturacion` con consumos y obligaciones.
+5. Unificar el cálculo de saldo de tarjetas entre `MovimientoService` y `CuentaService`.
+6. Profundizar pagos/liberación de crédito, pasivos/patrimonio, análisis y dashboard.
 
 ## Protocolo de nuevas sesiones
 
