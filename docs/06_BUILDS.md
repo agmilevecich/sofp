@@ -1,59 +1,70 @@
 # SOFP — Historial de Builds
 
-## Build 060 — Crédito, ciclos y aislamiento JPA
+## Build actual — Cuotas y pagos de tarjeta
 
 **Estado: COMPLETADO Y VALIDADO.**
 
-El bloque reciente consolidó el crédito disponible de tarjetas, la validación de límites, la conservación de consumos sin obligación y el aislamiento del contexto JPA/H2 en tests.
+El bloque reciente consolidó la integración de cuotas al registro de gastos con tarjeta de crédito. `GastoService` genera las cuotas solicitadas automáticamente y la generación ocurre dentro de la transacción de la obligación.
 
-Regla actual:
+Se corrigió el fixture de `GastosPanelTest` para respetar el registro automático de cuotas y se ajustó `PagoTarjetaServiceTest` para crear las tres cuotas mediante `GastoService`, evitando generación manual duplicada.
 
-`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
+Commits recientes:
 
-No se realizan conversiones implícitas entre monedas.
+- `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
+- `4ce1591` — `fix: generar cuotas dentro de la transaccion del gasto`.
+- `87fab04` — `fix: persistir cuotas al registrar obligaciones`.
+- `4092212` — `fix: corregir fixture de cuotas en GastosPanelTest`.
+- `afbfd7b` — `test: cubrir cuotas en GastoService`.
+- `3fd91b1` — `feat: integrar cuotas al registro de gastos`.
 
-`CicloFacturacion` y `Cuenta.calcularCicloFacturacion(LocalDate)` también quedaron incorporados al dominio. `CicloFacturacionTest` contiene **9 tests** para cierre, ciclo siguiente, meses cortos, vencimientos y cambio de año.
+## Validación — 10/09/2026
 
-## Validación general — 09/09/2026 21:58:35 -03:00
+Suite general conocida:
 
 - `mvn test`;
-- **664/664**;
+- **671/671**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración **10:04 min**.
+- finalización **10:39:38 -03:00**.
 
-Validaciones focalizadas conocidas:
+Suite relacionada con el ajuste de cuotas:
 
-- `TarjetaCreditoPagoCreditoTest`: **5/5**;
-- `CicloFacturacionTest`: **9 tests** incluidos en la suite general.
+`mvn -Dtest=GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest test`
 
-## Diagnóstico JPA/H2
+- **32/32**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración **01:19 min**;
+- finalización **13:14:29 -03:00**.
 
-El fallo previo de duplicación de `ARS` en `TarjetaCreditoPagoCreditoTest` se explicó por reutilización del contexto JPA/H2 entre tests. `JpaTestManager` fue aislado por hilo y `PosicionActivoServiceTest` ahora cierra el `EntityManagerFactory` mediante `@AfterEach`.
+Validaciones focalizadas:
 
-Commits relevantes:
+- `PagoTarjetaServiceTest`: **4/4**, `BUILD SUCCESS`, 13:08:50 -03:00.
+- `GastosPanelTest`: **6/6**, `BUILD SUCCESS`.
 
-- `e8f6fdb` — `fix: aislar contexto JPA entre hilos de test`.
-- `46290786` — `fix: cerrar contexto JPA de PosicionActivoServiceTest`.
+## Bloques funcionales consolidados
+
+Fondos insuficientes, categorías con movimientos, Gastos, Ingresos, FormaPago, Obligaciones/pagos, autorización por usuario, Transferencias, moneda explícita, crédito/límite de tarjeta, ciclos básicos de facturación y cuotas/financiación inicial.
 
 ## Fase 8 — Swing
 
 La Fase 8 integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias mediante `MainFrame`, `SidebarPanel` y `CardLayout`.
 
-## Bloques funcionales consolidados
-
-Fondos insuficientes, categorías con movimientos, Gastos, Ingresos, FormaPago, Obligaciones/pagos, autorización por usuario, Transferencias, moneda explícita, crédito/límite de tarjeta y ciclos básicos de facturación.
+`GastosPanel` permite seleccionar forma de pago y cantidad de cuotas. El próximo ajuste de UI será permitir seleccionar explícitamente qué tarjeta de crédito se utiliza cuando la forma de pago sea `TARJETA_CREDITO`.
 
 ## Próximo bloque
 
-Integrar los ciclos ya existentes con consumos y obligaciones; revisar y unificar el cálculo de saldo de tarjetas entre `MovimientoService` y `CuentaService`. Después profundizar pagos, cuotas/financiación y UI específica de tarjetas.
+Antes de modificar la UI, revisar `GastosPanelTest` y las convenciones actuales de cuentas/paneles. Luego implementar el selector específico de tarjeta con cobertura de tests.
 
-## Estado Git
+## Estado Git verificado antes de esta actualización
 
 `main` → `a4be859...`.
-`feature/swing-shell` → `548063914ad7a3fe6ae028dad606aad57f7ca42e`.
-GitHub verifica **443 adelante / 0 atrás**.
+`feature/swing-shell` estaba en `51d4afe...` y **470 commits adelante / 0 atrás**.
+
+Las actualizaciones documentales posteriores avanzan la rama; el estado Git definitivo debe verificarse nuevamente al cerrar esta actualización documental.
 
 No hacer merge a `main` automáticamente.
