@@ -2,19 +2,22 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
+import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JList;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +25,7 @@ import java.util.Objects;
 /** Panel del módulo de cuentas. */
 public class CuentasPanel extends JPanel {
 
-    private final DefaultListModel<String> modeloCuentas;
+    private final DefaultListModelWrapper modeloCuentas;
     private final JList<String> listaCuentas;
     private final List<Cuenta> cuentas;
     private final CuentaService cuentaService;
@@ -34,8 +37,8 @@ public class CuentasPanel extends JPanel {
 
     /** Constructor del shell sin contexto de usuario. */
     public CuentasPanel() {
-        modeloCuentas = new DefaultListModel<>();
-        listaCuentas = new JList<>(modeloCuentas);
+        modeloCuentas = new DefaultListModelWrapper();
+        listaCuentas = new JList<>(modeloCuentas.getModel());
         cuentas = new ArrayList<>();
         cuentaService = null;
         institucionFinancieraService = null;
@@ -91,8 +94,8 @@ public class CuentasPanel extends JPanel {
             );
         }
 
-        modeloCuentas = new DefaultListModel<>();
-        listaCuentas = new JList<>(modeloCuentas);
+        modeloCuentas = new DefaultListModelWrapper();
+        listaCuentas = new JList<>(modeloCuentas.getModel());
         cuentas = new ArrayList<>();
 
         setLayout(new BorderLayout(12, 12));
@@ -112,21 +115,32 @@ public class CuentasPanel extends JPanel {
         add(panelLista, BorderLayout.CENTER);
 
         if (institucionFinancieraService != null) {
-            JPanel panelFormulario = new JPanel(new BorderLayout());
-            panelFormulario.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createEtchedBorder(),
-                    "Registrar cuenta",
-                    TitledBorder.LEFT,
-                    TitledBorder.TOP
-            ));
-            panelFormulario.add(new RegistrarCuentaPanel(
+            JTabbedPane pestañasAlta = new JTabbedPane();
+            pestañasAlta.addTab("Cuenta", new RegistrarCuentaPanel(
                     cuentaService,
                     institucionFinancieraService,
                     monedaService,
                     perfilFinanciero,
                     usuarioId,
                     this::actualizarCuentas
-            ), BorderLayout.CENTER);
+            ));
+            pestañasAlta.addTab("Tarjeta de crédito", new RegistrarTarjetaCreditoPanel(
+                    cuentaService,
+                    institucionFinancieraService,
+                    monedaService,
+                    perfilFinanciero,
+                    usuarioId,
+                    this::actualizarCuentas
+            ));
+
+            JPanel panelFormulario = new JPanel(new BorderLayout());
+            panelFormulario.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createEtchedBorder(),
+                    "Registrar",
+                    TitledBorder.LEFT,
+                    TitledBorder.TOP
+            ));
+            panelFormulario.add(pestañasAlta, BorderLayout.CENTER);
             add(panelFormulario, BorderLayout.SOUTH);
         }
 
@@ -155,7 +169,28 @@ public class CuentasPanel extends JPanel {
     private void cargarCuentas(List<Cuenta> cuentas) {
         this.cuentas.addAll(cuentas);
         for (Cuenta cuenta : cuentas) {
-            modeloCuentas.addElement(cuenta.getNombre());
+            String etiqueta = cuenta.getNombre();
+            if (cuenta.getTipoCuenta() == TipoCuenta.TARJETA_CREDITO) {
+                etiqueta += " — Tarjeta de crédito";
+            }
+            modeloCuentas.addElement(etiqueta);
+        }
+    }
+
+    /** Adaptador pequeño para conservar el acceso al DefaultListModel sin exponerlo. */
+    private static final class DefaultListModelWrapper {
+        private final javax.swing.DefaultListModel<String> model = new javax.swing.DefaultListModel<>();
+
+        javax.swing.DefaultListModel<String> getModel() {
+            return model;
+        }
+
+        void clear() {
+            model.clear();
+        }
+
+        void addElement(String value) {
+            model.addElement(value);
         }
     }
 }
