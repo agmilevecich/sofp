@@ -183,7 +183,9 @@ public class RegistrarCuentaPanel extends JPanel {
 
     private void agregarTiposCuenta() {
         for (TipoCuenta tipoCuenta : TipoCuenta.values()) {
-            tipoCuentaComboBox.addItem(tipoCuenta);
+            if (tipoCuenta != TipoCuenta.TARJETA_CREDITO) {
+                tipoCuentaComboBox.addItem(tipoCuenta);
+            }
         }
     }
 
