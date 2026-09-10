@@ -41,6 +41,13 @@ public class GastoService {
         return registrar(cuenta, categoria, moneda, importe, fechaHora, descripcion, formaPago, usuarioId, 1);
     }
 
+    /** Registra un gasto con la cantidad indicada de cuotas usando la moneda de la cuenta. */
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, BigDecimal importe,
+                                LocalDateTime fechaHora, String descripcion,
+                                FormaPago formaPago, Long usuarioId, int cantidadCuotas) {
+        return registrar(cuenta, categoria, cuenta.getMoneda(), importe, fechaHora, descripcion, formaPago, usuarioId, cantidadCuotas);
+    }
+
     /** Registra un gasto y, si es con tarjeta de crédito, genera la cantidad indicada de cuotas sin interés. */
     public Movimiento registrar(Cuenta cuenta, Categoria categoria, Moneda moneda,
                                 BigDecimal importe, LocalDateTime fechaHora, String descripcion,
