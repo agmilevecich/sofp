@@ -31,15 +31,26 @@ public class GastoService {
     public Movimiento registrar(Cuenta cuenta, Categoria categoria, BigDecimal importe,
                                 LocalDateTime fechaHora, String descripcion,
                                 FormaPago formaPago, Long usuarioId) {
-        return registrar(cuenta, categoria, cuenta.getMoneda(), importe, fechaHora, descripcion, formaPago, usuarioId);
+        return registrar(cuenta, categoria, cuenta.getMoneda(), importe, fechaHora, descripcion, formaPago, usuarioId, 1);
     }
 
     /** Registra un gasto indicando expresamente la moneda del consumo. */
     public Movimiento registrar(Cuenta cuenta, Categoria categoria, Moneda moneda,
                                 BigDecimal importe, LocalDateTime fechaHora, String descripcion,
                                 FormaPago formaPago, Long usuarioId) {
+        return registrar(cuenta, categoria, moneda, importe, fechaHora, descripcion, formaPago, usuarioId, 1);
+    }
+
+    /** Registra un gasto y, si es con tarjeta de crédito, genera la cantidad indicada de cuotas sin interés. */
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, Moneda moneda,
+                                BigDecimal importe, LocalDateTime fechaHora, String descripcion,
+                                FormaPago formaPago, Long usuarioId, int cantidadCuotas) {
         Objects.requireNonNull(formaPago, "La forma de pago es obligatoria");
         Objects.requireNonNull(moneda, "La moneda es obligatoria");
+
+        if (formaPago == FormaPago.TARJETA_CREDITO && cantidadCuotas < 1) {
+            throw new IllegalArgumentException("La cantidad de cuotas debe ser positiva");
+        }
 
         if (formaPago == FormaPago.TARJETA_CREDITO && obligacionService == null) {
             throw new IllegalStateException("El ObligacionService es obligatorio para gastos con tarjeta de crédito");
@@ -59,6 +70,7 @@ public class GastoService {
 
         if (formaPago == FormaPago.TARJETA_CREDITO) {
             Obligacion obligacion = obligacionService.registrar(movimiento);
+            obligacion.generarCuotas(cantidadCuotas);
             if (obligacion.getMovimientoOrigen().getId() == null) {
                 throw new IllegalStateException("La obligación debe quedar asociada a un movimiento persistido");
             }
