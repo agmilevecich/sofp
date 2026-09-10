@@ -149,6 +149,30 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
 
+    @Test
+    void deberiaAplicarPagoDeTarjetaSobreLasCuotasEnOrden() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        obligacion.generarCuotas(3);
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago tarjeta", usuario.getId());
+
+        assertEquals(3, obligacion.getCuotas().size());
+        assertEquals(new BigDecimal("0.00"), obligacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals("PAGADA", obligacion.getCuotas().get(0).getEstado().name());
+        assertEquals(new BigDecimal("30000.00"), obligacion.getCuotas().get(1).getSaldoPendiente());
+        assertEquals("PARCIAL", obligacion.getCuotas().get(1).getEstado().name());
+        assertEquals(new BigDecimal("40000.00"), obligacion.getCuotas().get(2).getSaldoPendiente());
+        assertEquals("PENDIENTE", obligacion.getCuotas().get(2).getEstado().name());
+        assertEquals(new BigDecimal("70000.00"), obligacion.getSaldoPendiente());
+        assertEquals("PARCIAL", obligacion.getEstado().name());
+        assertEquals(new BigDecimal("150000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(new BigDecimal("430000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+    }
+
     private Obligacion registrarGasto(String importe) {
         Movimiento movimiento = gastoService.registrar(
                 tarjeta, categoriaCompras, ars, new BigDecimal(importe),
