@@ -111,6 +111,32 @@ class CicloFacturacionTest {
     }
 
     @Test
+    void deberiaAsignarConsumoAlCicloActualCuandoOcurreExactamenteEnElDiaDeCierre() {
+        Cuenta tarjeta = crearTarjeta(15, 5);
+
+        CicloFacturacion ciclo = tarjeta.calcularCicloFacturacion(
+                LocalDate.of(2026, 9, 15)
+        );
+
+        assertEquals(LocalDate.of(2026, 8, 16), ciclo.getFechaInicio());
+        assertEquals(LocalDate.of(2026, 9, 15), ciclo.getFechaCierre());
+        assertEquals(LocalDate.of(2026, 10, 5), ciclo.getFechaVencimiento());
+    }
+
+    @Test
+    void deberiaAsignarConsumoDelDiaPosteriorAlCierreAlCicloSiguiente() {
+        Cuenta tarjeta = crearTarjeta(15, 5);
+
+        CicloFacturacion ciclo = tarjeta.calcularCicloFacturacion(
+                LocalDate.of(2026, 9, 16)
+        );
+
+        assertEquals(LocalDate.of(2026, 9, 16), ciclo.getFechaInicio());
+        assertEquals(LocalDate.of(2026, 10, 15), ciclo.getFechaCierre());
+        assertEquals(LocalDate.of(2026, 11, 5), ciclo.getFechaVencimiento());
+    }
+
+    @Test
     void noDeberiaPermitirFechaDeConsumoNula() {
         Cuenta tarjeta = crearTarjeta(10, 25);
 
