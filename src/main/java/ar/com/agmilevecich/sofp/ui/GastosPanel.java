@@ -41,6 +41,7 @@ public class GastosPanel extends JPanel {
     private final JComboBox<Cuenta> cuentaComboBox;
     private final JComboBox<Categoria> categoriaComboBox;
     private final JComboBox<FormaPago> formaPagoComboBox;
+    private final JComboBox<Integer> cuotasComboBox;
     private final JTextField importeField;
     private final DatePicker fechaField;
     private final JTextField descripcionField;
@@ -57,6 +58,7 @@ public class GastosPanel extends JPanel {
         cuentaComboBox = new JComboBox<>();
         categoriaComboBox = new JComboBox<>();
         formaPagoComboBox = new JComboBox<>();
+        cuotasComboBox = crearCuotasComboBox();
         importeField = new JTextField(16);
         fechaField = crearFechaPicker();
         descripcionField = new JTextField(16);
@@ -93,6 +95,7 @@ public class GastosPanel extends JPanel {
         cuentaComboBox = new JComboBox<>();
         categoriaComboBox = new JComboBox<>();
         formaPagoComboBox = new JComboBox<>();
+        cuotasComboBox = crearCuotasComboBox();
         importeField = new JTextField(16);
         fechaField = crearFechaPicker();
         descripcionField = new JTextField(16);
@@ -118,6 +121,10 @@ public class GastosPanel extends JPanel {
         return formaPagoComboBox;
     }
 
+    public JComboBox<Integer> getCuotasComboBox() {
+        return cuotasComboBox;
+    }
+
     public JTextField getImporteField() {
         return importeField;
     }
@@ -132,6 +139,15 @@ public class GastosPanel extends JPanel {
 
     public JButton getRegistrarButton() {
         return registrarButton;
+    }
+
+    private JComboBox<Integer> crearCuotasComboBox() {
+        JComboBox<Integer> comboBox = new JComboBox<>();
+        for (int cantidad = 1; cantidad <= 12; cantidad++) {
+            comboBox.addItem(cantidad);
+        }
+        comboBox.setSelectedItem(1);
+        return comboBox;
     }
 
     private DatePicker crearFechaPicker() {
@@ -251,11 +267,12 @@ public class GastosPanel extends JPanel {
         agregarCampo(panelFormulario, new JLabel("Categoría"), categoriaComboBox, constraints, 2, 0);
         agregarCampo(panelFormulario, new JLabel("Forma de pago"), formaPagoComboBox, constraints, 0, 1);
         agregarCampo(panelFormulario, new JLabel("Importe"), importeField, constraints, 2, 1);
-        agregarCampo(panelFormulario, new JLabel("Fecha"), fechaField, constraints, 0, 2);
-        agregarCampo(panelFormulario, new JLabel("Descripción"), descripcionField, constraints, 2, 2);
+        agregarCampo(panelFormulario, new JLabel("Cuotas"), cuotasComboBox, constraints, 0, 2);
+        agregarCampo(panelFormulario, new JLabel("Fecha"), fechaField, constraints, 2, 2);
+        agregarCampo(panelFormulario, new JLabel("Descripción"), descripcionField, constraints, 0, 3);
 
         constraints.gridx = 0;
-        constraints.gridy = 3;
+        constraints.gridy = 4;
         constraints.gridwidth = 4;
         constraints.weightx = 1.0;
         constraints.anchor = GridBagConstraints.EAST;
@@ -322,8 +339,12 @@ public class GastosPanel extends JPanel {
         );
         LocalDateTime fechaHora = LocalDateTime.of(fecha, LocalTime.now());
         String descripcion = descripcionField.getText().trim();
+        Integer cantidadCuotas = Objects.requireNonNull(
+                cuotasComboBox.getSelectedItem(),
+                "La cantidad de cuotas es obligatoria"
+        );
 
-        gastoService.registrar(cuenta, categoria, importe, fechaHora, descripcion, formaPago, usuarioId);
+        gastoService.registrar(cuenta, categoria, importe, fechaHora, descripcion, formaPago, usuarioId, cantidadCuotas);
 
         if (onGastoRegistrado != null) {
             onGastoRegistrado.run();
@@ -337,5 +358,6 @@ public class GastosPanel extends JPanel {
         cuentaComboBox.setSelectedItem(null);
         categoriaComboBox.setSelectedItem(null);
         formaPagoComboBox.setSelectedItem(null);
+        cuotasComboBox.setSelectedItem(1);
     }
 }
