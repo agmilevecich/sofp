@@ -195,6 +195,48 @@ class GastoServiceTest {
     }
 
     @Test
+    void deberiaRegistrarCompraConTarjetaYGenerarLasCuotasIndicadas() {
+        Movimiento movimiento = gastoService.registrar(
+                cuenta,
+                categoria,
+                new BigDecimal("120000.00"),
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Compra en cuotas",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId(),
+                3
+        );
+
+        Obligacion obligacion = obligacionService
+                .buscarPorMovimientoOrigen(movimiento.getId())
+                .orElseThrow();
+
+        assertEquals(3, obligacion.getCuotas().size());
+        assertEquals(new BigDecimal("40000.00"), obligacion.getCuotas().get(0).getImporteOriginal());
+        assertEquals(new BigDecimal("40000.00"), obligacion.getCuotas().get(1).getImporteOriginal());
+        assertEquals(new BigDecimal("40000.00"), obligacion.getCuotas().get(2).getImporteOriginal());
+        assertEquals(new BigDecimal("120000.00"), obligacion.getSaldoPendiente());
+        assertEquals(EstadoObligacion.PENDIENTE, obligacion.getEstado());
+    }
+
+    @Test
+    void deberiaRechazarCantidadDeCuotasNoPositiva() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> gastoService.registrar(
+                        cuenta,
+                        categoria,
+                        new BigDecimal("120000.00"),
+                        LocalDateTime.of(2026, 9, 10, 12, 0),
+                        "Compra inválida",
+                        FormaPago.TARJETA_CREDITO,
+                        usuario.getId(),
+                        0
+                )
+        );
+    }
+
+    @Test
     void deberiaRechazarDependenciaNula() {
         assertThrows(
                 NullPointerException.class,
