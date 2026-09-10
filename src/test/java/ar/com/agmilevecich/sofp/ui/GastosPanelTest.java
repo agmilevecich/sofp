@@ -68,9 +68,12 @@ class GastosPanelTest {
         assertNotNull(panel.getCuentaComboBox());
         assertNotNull(panel.getCategoriaComboBox());
         assertNotNull(panel.getFormaPagoComboBox());
+        assertNotNull(panel.getCuotasComboBox());
         assertNotNull(panel.getImporteField());
         assertNotNull(panel.getFechaField());
         assertEquals(LocalDate.now(), panel.getFechaField().getDate());
+        assertEquals(12, panel.getCuotasComboBox().getItemCount());
+        assertEquals(1, panel.getCuotasComboBox().getSelectedItem());
         assertFalse(panel.getRegistrarButton().isEnabled());
     }
 
@@ -103,6 +106,8 @@ class GastosPanelTest {
         assertEquals(1, panel.getCategoriaComboBox().getItemCount());
         assertEquals(activaCategoria, panel.getCategoriaComboBox().getItemAt(0));
         assertEquals(5, panel.getFormaPagoComboBox().getItemCount());
+        assertEquals(12, panel.getCuotasComboBox().getItemCount());
+        assertEquals(1, panel.getCuotasComboBox().getSelectedItem());
         assertTrue(panel.getRegistrarButton().isEnabled());
     }
 
@@ -151,6 +156,60 @@ class GastosPanelTest {
         assertEquals(new BigDecimal("100"), movimientos.get(1).getImporte());
         assertEquals("Compra supermercado", movimientos.get(1).getDescripcion());
         assertEquals(LocalDate.of(2026, 9, 4), movimientos.get(1).getFechaHora().toLocalDate());
+    }
+
+    @Test
+    void deberiaRegistrarGastoConTresCuotasSeleccionadas() {
+        Usuario usuario = crearUsuario();
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta(
+                "Visa Test",
+                TipoCuenta.TARJETA_CREDITO,
+                perfil,
+                institucion,
+                moneda,
+                new BigDecimal("500000"),
+                10,
+                25
+        );
+        Categoria categoria = new Categoria("Supermercado", perfil);
+
+        persistir(usuario, perfil, institucion, moneda, cuenta, categoria);
+
+        GastosPanel panel = new GastosPanel(
+                new GastoService(movimientoService),
+                cuentaService,
+                categoriaService,
+                perfil.getId(),
+                usuario.getId()
+        );
+        panel.getCuentaComboBox().setSelectedItem(cuenta);
+        panel.getCategoriaComboBox().setSelectedItem(categoria);
+        panel.getFormaPagoComboBox().setSelectedItem(FormaPago.TARJETA_CREDITO);
+        panel.getCuotasComboBox().setSelectedItem(3);
+        panel.getImporteField().setText("1000");
+        panel.getFechaField().setDate(LocalDate.of(2026, 9, 10));
+        panel.getDescripcionField().setText("Compra en cuotas");
+
+        panel.registrarGasto();
+
+        var movimientos = movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId());
+        assertEquals(1, movimientos.size());
+        assertEquals(new BigDecimal("1000"), movimientos.get(0).getImporte());
+        assertEquals(FormaPago.TARJETA_CREDITO, movimientos.get(0).getFormaPago());
+
+        entityManager.clear();
+        var movimiento = movimientoService.buscarPorId(movimientos.get(0).getId(), usuario.getId()).orElseThrow();
+        var obligacion = movimiento.getObligacion();
+        assertNotNull(obligacion);
+        assertEquals(3, obligacion.getCuotas().size());
+        assertEquals(new BigDecimal("1000.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("333.33"), obligacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(new BigDecimal("333.33"), obligacion.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("333.34"), obligacion.getCuotas().get(2).getSaldoPendiente());
     }
 
     @Test
