@@ -38,6 +38,7 @@ class GastoServiceTest {
     private MovimientoRepository movimientoRepository;
     private Usuario usuario;
     private Cuenta cuenta;
+    private Cuenta tarjeta;
     private Categoria categoria;
 
     @BeforeEach
@@ -83,6 +84,15 @@ class GastoServiceTest {
                 institucionFinanciera,
                 moneda
         );
+        tarjeta = new Cuenta(
+                "Visa de Prueba",
+                perfilFinanciero,
+                institucionFinanciera,
+                moneda,
+                new BigDecimal("500000.00"),
+                10,
+                25
+        );
         categoria = new Categoria("Alimentos", perfilFinanciero);
 
         entityManager.getTransaction().begin();
@@ -91,6 +101,7 @@ class GastoServiceTest {
         entityManager.persist(institucionFinanciera);
         entityManager.persist(moneda);
         entityManager.persist(cuenta);
+        entityManager.persist(tarjeta);
         entityManager.persist(categoria);
         entityManager.getTransaction().commit();
     }
@@ -165,7 +176,7 @@ class GastoServiceTest {
         );
 
         Movimiento movimiento = gastoService.registrar(
-                cuenta,
+                tarjeta,
                 categoria,
                 new BigDecimal("15000.00"),
                 LocalDateTime.of(2026, 9, 7, 12, 0),
@@ -186,7 +197,8 @@ class GastoServiceTest {
         assertEquals(EstadoObligacion.PENDIENTE, obligacion.getEstado());
         assertEquals(movimiento.getId(), obligacion.getMovimientoOrigen().getId());
 
-        assertEquals(2, movimientoRepository.listarPorCuenta(cuenta.getId()).size());
+        assertEquals(1, movimientoRepository.listarPorCuenta(tarjeta.getId()).size());
+        assertEquals(1, movimientoRepository.listarPorCuenta(cuenta.getId()).size());
         assertEquals(new BigDecimal("100.00"),
                 movimientoRepository.listarPorCuenta(cuenta.getId()).stream()
                         .filter(m -> m.getTipoMovimiento() == TipoMovimiento.INGRESO)
@@ -197,7 +209,7 @@ class GastoServiceTest {
     @Test
     void deberiaRegistrarCompraConTarjetaYGenerarLasCuotasIndicadas() {
         Movimiento movimiento = gastoService.registrar(
-                cuenta,
+                tarjeta,
                 categoria,
                 new BigDecimal("120000.00"),
                 LocalDateTime.of(2026, 9, 10, 12, 0),
