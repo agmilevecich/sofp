@@ -34,6 +34,31 @@ public class ObligacionService {
         return guardar(obligacion);
     }
 
+    /** Registra una obligación y persiste sus cuotas dentro de la misma transacción. */
+    public Obligacion registrar(Movimiento movimientoOrigen, int cantidadCuotas) {
+        Objects.requireNonNull(movimientoOrigen, "El movimiento origen es obligatorio");
+        if (cantidadCuotas < 1) {
+            throw new IllegalArgumentException("La cantidad de cuotas debe ser positiva");
+        }
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+
+            Obligacion obligacion = new Obligacion(movimientoOrigen);
+            obligacion.generarCuotas(cantidadCuotas);
+            Obligacion guardada = obligacionRepository.guardar(obligacion);
+            entityManager.flush();
+            transaction.commit();
+            return guardada;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+
     public Obligacion registrarPago(Long obligacionId, BigDecimal importe) {
         Objects.requireNonNull(obligacionId, "El id de la obligación es obligatorio");
 
