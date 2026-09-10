@@ -21,6 +21,7 @@
         <class>ar.com.agmilevecich.sofp.domain.Bono</class>
         <class>ar.com.agmilevecich.sofp.domain.MovimientoActivo</class>
         <class>ar.com.agmilevecich.sofp.domain.Obligacion</class>
+        <class>ar.com.agmilevecich.sofp.domain.Cuota</class>
 
         <properties>
 
