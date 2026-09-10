@@ -71,11 +71,13 @@ class ObligacionesPanelTest {
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         monedaUsd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
         cuenta = new Cuenta(
-                "Cuenta principal",
-                TipoCuenta.CAJA_AHORRO,
+                "Tarjeta principal",
                 perfil,
                 institucion,
-                moneda
+                moneda,
+                new BigDecimal("500000.00"),
+                15,
+                10
         );
         categoria = new Categoria("Alimentos", perfil);
 
