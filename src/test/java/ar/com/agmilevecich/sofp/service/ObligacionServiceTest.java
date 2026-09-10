@@ -12,7 +12,6 @@ import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
-import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
@@ -211,11 +210,13 @@ class ObligacionServiceTest {
         );
         segundoUsuario.agregarPerfilFinanciero(segundoPerfil);
         Cuenta segundaCuenta = new Cuenta(
-                "Cuenta secundaria",
-                TipoCuenta.CAJA_AHORRO,
+                "Tarjeta secundaria",
                 segundoPerfil,
                 cuenta.getInstitucionFinanciera(),
-                cuenta.getMoneda()
+                cuenta.getMoneda(),
+                new BigDecimal("300000.00"),
+                15,
+                10
         );
         Categoria segundaCategoria = new Categoria("Otros", segundoPerfil);
 
