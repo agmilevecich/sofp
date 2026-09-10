@@ -1,202 +1,99 @@
 # SOFP — Diseño y adaptación de tarjetas de crédito
 
-## Estado — 09/09/2026
+## Estado — 10/09/2026
 
-**Rama de trabajo:** `feature/swing-shell`
+**Rama:** `feature/swing-shell`
 
-Este documento registra las decisiones y criterios definidos para incorporar tarjetas de crédito en SOFP. La documentación distingue explícitamente entre comportamiento ya implementado y funcionalidad pendiente.
+Este documento separa explícitamente lo implementado de lo pendiente.
 
-## 1. Objetivo
+## 1. Modelo
 
-Incorporar tarjetas de crédito a SOFP procurando reproducir el comportamiento de una entidad financiera real, sin copiar literalmente el modelo histórico de ControlFinanzas.
+Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. Actualmente tiene límite, día de cierre y día de vencimiento.
 
-La tarjeta debe permitir gestionar consumos, ciclos de facturación, vencimientos, límite disponible, consumos en distintas monedas, cuotas, obligaciones y pagos, conservando la arquitectura de seguridad y aislamiento de datos de SOFP.
+La deuda se representa mediante `Obligacion` y el consumo mediante `Movimiento`.
 
-## 2. Decisión arquitectónica principal
+## 2. Moneda — IMPLEMENTADO
 
-Una tarjeta de crédito será una instancia de `Cuenta` cuyo `TipoCuenta` sea `TARJETA_CREDITO`, reutilizando la infraestructura existente de cuentas, autorización, instituciones financieras, monedas y estado activo/inactivo.
+La moneda del consumo se conserva en la obligación. Una compra ARS genera obligación ARS y una compra USD genera obligación USD. No se realiza conversión automática al crear la obligación.
 
-Los datos específicos de crédito actualmente previstos son límite, día de cierre y día de vencimiento.
+`ObligacionesPanel` muestra importe y saldo pendiente con código de moneda y formato estable mediante `Locale.ROOT`.
 
-## 3. Modelo financiero
+## 3. Crédito disponible y límite — IMPLEMENTADO EN SU PRIMER CRITERIO
 
-La tarjeta representa el instrumento financiero y su capacidad de crédito. La deuda se representa mediante `Obligacion`.
+Criterio actual:
 
-Flujo conceptual:
+`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
 
-`Cuenta(TARJETA_CREDITO)` → `Movimiento` de compra → consumo de crédito → `Obligacion`
+Se valida el límite al registrar consumos y al modificar importe/tipo. Los consumos con tarjeta no afectan el saldo monetario de la cuenta.
 
-La compra con tarjeta es distinta del pago posterior. El pago debe generar la salida efectiva de dinero desde la cuenta utilizada, reducir la obligación y liberar el crédito correspondiente.
+El tratamiento multidivisa definitivo del límite todavía no está cerrado: no debe asumirse un límite USD independiente ni realizar conversiones implícitas.
 
-## 4. Regla fundamental sobre monedas — IMPLEMENTADA EN EL BLOQUE ACTUAL
+## 4. Ciclo de facturación — BASE DE DOMINIO IMPLEMENTADA
 
-La moneda del consumo debe conservarse y no debe convertirse automáticamente al crear la obligación.
+`CicloFacturacion` es un objeto de dominio no persistente.
 
-Una tarjeta puede tener consumos en ARS y USD. Por lo tanto:
+`Cuenta.calcularCicloFacturacion(LocalDate)`:
 
-`Moneda del consumo = moneda económica de la obligación originada por ese consumo`, mientras no exista una operación posterior que convierta o cancele la deuda.
+- incluye el día exacto de cierre en el ciclo que cierra ese día;
+- asigna el día posterior al ciclo siguiente;
+- calcula inicio como el día posterior al cierre anterior;
+- ajusta días inexistentes al último día real del mes;
+- calcula vencimiento según día configurado y siguiente mes cuando corresponde;
+- resuelve cambio de año.
 
-Ejemplos:
+`CicloFacturacionTest` contiene **9 tests** para estos casos.
 
-- compra ARS 120 → obligación ARS 120;
-- compra USD 120 → obligación USD 120.
+### Pendiente de integración
 
-El cierre de tarjeta no convierte automáticamente los USD a ARS.
+La lógica aún debe conectarse con el flujo real de consumos/obligaciones y posteriormente con pagos y UI. El objeto de ciclo no debe duplicarse en Swing ni en otra entidad sin necesidad.
 
-La implementación actual permite informar una `Moneda` explícita en el movimiento y `Obligacion.getMoneda()` expone la moneda del movimiento de origen.
+## 5. Vencimiento
 
-`ObligacionesPanel` muestra importe original y saldo pendiente junto con el código de moneda.
+La fecha de vencimiento ya se calcula como parte de `CicloFacturacion`. La política de días no hábiles todavía no está definida.
 
-El formato de la UI utiliza `Locale.ROOT` para que el separador decimal no dependa del locale del entorno.
+## 6. Pagos
 
-Commits del bloque:
+Los pagos de obligaciones ya existen y liberan crédito en el modelo actual. Falta profundizar el flujo específico de tarjeta, especialmente su relación con ciclos, moneda del pago y pagos en moneda diferente de la deuda.
 
-- `9b92eac` — `feat: exponer moneda de la obligacion`.
-- `47ced65` — `feat: mostrar moneda en obligaciones`.
-- `fe0aa71` — `test: verificar moneda en obligaciones`.
-- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
+## 7. Cuotas y financiación
 
-Validaciones:
+Pendiente. Debe definirse antes importe de cuota, intereses, asignación a ciclos, compromiso inicial del límite, pagos parciales, anulaciones y ajustes.
 
-- `ObligacionesPanelTest`: **4/4**.
-- Suite general: **642/642**.
+## 8. Inconsistencia pendiente de saldo
 
-## 5. Consecuencia para el modelo de datos
+Debe revisarse la diferencia documentada entre `MovimientoService` y `CuentaService`: el tratamiento de egresos con `TARJETA_CREDITO` debe ser coherente en el cálculo del saldo monetario.
 
-La moneda explícita del movimiento resuelve el primer requisito para conservar la moneda económica de consumos y obligaciones. Esto no implica que estén resueltos todos los problemas de una tarjeta multidivisa.
+## 9. Seguridad
 
-Todavía deben definirse las reglas de conversión de pagos, límite disponible multidivisa, ciclos, cuotas y financiación.
+Las operaciones de tarjeta deben respetar aislamiento por usuario/perfil y autorización en servicios/repositorios. Swing no debe ser la barrera de seguridad.
 
-No se debe resolver ninguna de esas cuestiones convirtiendo automáticamente todos los consumos a la moneda de `Cuenta`.
+## 10. UI
 
-## 6. Límite y crédito disponible
+La UI específica de tarjetas queda para después de estabilizar las reglas de dominio. Debe permitir progresivamente consultar tarjeta, límite/disponible, consumos, moneda, ciclo, cierre, vencimiento, deuda y pagos.
 
-El límite de crédito pertenece a la tarjeta, no a una obligación individual.
+## 11. Orden de trabajo actualizado
 
-Una compra válida debe comprobar que existe crédito suficiente antes de registrar el consumo.
+1. Integrar `CicloFacturacion` con consumos y obligaciones.
+2. Unificar saldo monetario de tarjetas entre `MovimientoService` y `CuentaService`.
+3. Profundizar pagos y liberación de crédito, con reglas multidivisa explícitas.
+4. Definir e implementar cuotas/financiación.
+5. Construir UI específica de tarjetas.
+6. Ampliar pruebas de seguridad, persistencia, monedas, ciclos, pagos y casos límite.
 
-Criterio conceptual:
-
-`crédito disponible = límite − crédito utilizado + saldo a favor`, si finalmente se adopta la regla de saldo a favor.
-
-Una compra financiada compromete inicialmente el importe total correspondiente al crédito, no solamente la primera cuota.
-
-### Decisión pendiente: tratamiento multidivisa del límite
-
-Todavía no se fija si SOFP utilizará un límite general compartido para todas las monedas, límites independientes por moneda, o una combinación con conversión para determinar el crédito disponible.
-
-No se debe asumir que una tarjeta posee automáticamente un límite USD independiente por el solo hecho de admitir consumos en USD.
-
-## 7. Ciclo de facturación
-
-La fecha de compra debe compararse con el cierre de la tarjeta para determinar a qué ciclo pertenece.
-
-Ejemplo conceptual:
-
-- cierre: día 10;
-- compra día 8 → ciclo que cierra el día 10;
-- compra día 11 → ciclo siguiente.
-
-La implementación deberá definir expresamente el tratamiento del día exacto de cierre y los meses de distinta duración.
-
-La lógica de ciclos y fechas debe quedar centralizada en dominio/servicio y no en Swing.
-
-## 8. Vencimiento
-
-El vencimiento se calculará a partir del ciclo correspondiente y del día de vencimiento configurado en la tarjeta.
-
-Debe contemplarse correctamente el cambio de mes y los meses cuyo último día sea anterior al día configurado.
-
-La política para días no hábiles deberá definirse cuando se implemente el cálculo.
-
-## 9. Compras en cuotas
-
-Una compra financiada debe conservar el vínculo con su operación original y sus cuotas.
-
-Criterio inicial:
-
-> Una compra de $600.000 en 6 cuotas compromete inicialmente $600.000 de límite, no $100.000.
-
-Antes de programar cuotas deberá definirse importe de cada cuota, intereses, asignación a ciclos, pagos parciales, liberación del límite ante pagos/anulaciones/ajustes y conservación del historial.
-
-## 10. Pagos de tarjeta
-
-El pago debe ser un hecho financiero independiente de la compra.
-
-Flujo conceptual:
-
-`Pago` → `Movimiento EGRESO` de la cuenta bancaria utilizada → reducción de `Obligacion` → liberación del crédito.
-
-Debe validarse usuario autorizado, pertenencia de la tarjeta al perfil, pertenencia de la cuenta bancaria al mismo perfil, fondos suficientes cuando corresponda, moneda del pago e importe aplicable a la deuda.
-
-En pagos en moneda distinta de la deuda, la conversión deberá efectuarse según una regla de cotización explícita y en el momento del pago, no al crear la obligación.
-
-La prioridad de aplicación de pagos entre obligaciones deberá ser explícita y testeable.
-
-## 11. Seguridad y aislamiento
-
-La tarjeta debe respetar el aislamiento de datos existente. Un usuario no puede registrar, consultar o consumir una tarjeta de otro perfil, pagar obligaciones de otro perfil ni utilizar una cuenta bancaria de otro perfil para pagar una tarjeta propia.
-
-Estas reglas deben permanecer en servicios/repositorios y no depender exclusivamente de Swing.
-
-## 12. Estado actual de SOFP
-
-Piezas reutilizables actualmente disponibles:
-
-- `FormaPago.TARJETA_CREDITO`;
-- `Obligacion` para representar deuda originada por una compra con tarjeta;
-- `GastoService` para coordinar gasto y obligación;
-- `MovimientoService` con soporte de moneda explícita;
-- `Cuenta` como entidad financiera central;
-- `CuentaService`;
-- autorización por `usuarioId` y aislamiento por `PerfilFinanciero`.
-
-La implementación actual de `Cuenta` contempla `TipoCuenta.TARJETA_CREDITO` y los datos específicos de crédito de límite, cierre y vencimiento.
-
-## 13. Inconsistencia pendiente de corregir
-
-Actualmente `MovimientoService` excluye los egresos con `FormaPago.TARJETA_CREDITO` del saldo monetario y de la validación de fondos, mientras que `CuentaService.calcularSaldo()` todavía calcula los movimientos sin aplicar esa misma excepción.
-
-Esta diferencia debe unificarse antes de considerar terminada la integración financiera de tarjetas.
-
-## 14. Interfaz Swing
-
-La tarjeta tendrá una experiencia específica y no deberá aparecer como una opción genérica equivalente a una cuenta bancaria común.
-
-La interfaz prevista separará conceptualmente cuentas y tarjetas de crédito y permitirá progresivamente listar tarjetas, registrar una tarjeta, consultar límite y disponible, consultar consumos, visualizar deuda separada por moneda, consultar ciclo/cierre/vencimiento, registrar y consultar pagos y posteriormente gestionar cuotas y financiación.
-
-Internamente seguirá creándose una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`.
-
-La interfaz no deberá calcular reglas financieras por sí misma.
-
-## 15. Orden de implementación propuesto
-
-1. ~~Consolidar el modelo de moneda de los movimientos/obligaciones para conservar consumos multidivisa.~~ **COMPLETADO.**
-2. Resolver el criterio de límite y disponible para ARS/USD.
-3. Unificar el cálculo de saldo monetario entre `MovimientoService` y `CuentaService`.
-4. Implementar consumo y liberación de crédito con pruebas de dominio y persistencia.
-5. Implementar ciclos y vencimientos.
-6. Implementar pagos, incluyendo pagos en la misma moneda y conversiones al pagar en otra moneda.
-7. Implementar cuotas y financiación una vez cerradas sus reglas.
-8. Incorporar el panel Swing específico de tarjetas.
-9. Agregar pruebas de seguridad, aislamiento, monedas, ciclos, pagos, límites y casos límite.
-
-## 16. Principios de implementación
+## 12. Principios
 
 - código y tests prevalecen sobre documentación;
-- cambios mínimos y coherentes con la arquitectura existente;
-- no duplicar entidades sin necesidad de negocio;
-- no esconder diferencias monetarias mediante conversiones automáticas;
-- no contabilizar dos veces un mismo hecho financiero;
-- separar instrumento financiero, consumo, deuda y pago;
-- centralizar reglas de negocio fuera de Swing;
-- mantener autorización y aislamiento en servicios/repositorios;
-- no implementar decisiones todavía abiertas como si fueran definitivas.
+- cambios mínimos;
+- no duplicar núcleos financieros;
+- no convertir monedas automáticamente para ocultar diferencias;
+- separar instrumento, consumo, deuda y pago;
+- reglas de negocio fuera de Swing;
+- no tratar decisiones abiertas como definitivas.
 
-## 17. Próximo paso técnico
+## 13. Validación actual
 
-El bloque de conservación y visualización de moneda ya está cerrado y validado.
+Suite general: **664/664**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el 09/09/2026 21:58:35 -03:00.
 
-El siguiente trabajo de tarjetas deberá comenzar revisando el código actual de `Movimiento`, `Obligacion`, `Cuenta`, `Moneda`, `MovimientoService`, `GastoService` y `CuentaService`, y sus tests, para resolver el siguiente problema mínimo y bien definido: **unificar el tratamiento del saldo de las tarjetas y establecer la regla de límite/crédito disponible sin introducir conversiones monetarias implícitas**.
+`TarjetaCreditoPagoCreditoTest`: **5/5** en la validación focalizada conocida.
 
-No construir todavía la pantalla Swing específica de tarjetas hasta que estas reglas financieras estén definidas y cubiertas por tests.
+`CicloFacturacionTest`: **9 tests** incluidos en la suite general.

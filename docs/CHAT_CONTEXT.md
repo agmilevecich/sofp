@@ -1,116 +1,78 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 09/09/2026
+## Estado actual — 10/09/2026
 
-La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar y puede quedar desactualizada; ante contradicción prevalecen código y tests.
+La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell`.
-**Último commit funcional:** `13a68fb8429d930b2137b9c9e78f7b884077f33e` — `fix: estabilizar formato de moneda en obligaciones`.
+**Rama de trabajo:** `feature/swing-shell` → `548063914ad7a3fe6ae028dad606aad57f7ca42e`.
+**Comparación:** 443 commits adelante, 0 atrás.
 
-La comparación verificada en GitHub indica **411 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
+El último commit es documental (`5480639`). El último cambio funcional es `46290786` — cierre del contexto JPA de `PosicionActivoServiceTest`.
 
-## Último bloque funcional cerrado
+## Último bloque cerrado
 
-El bloque reciente de moneda quedó completado y validado.
+Crédito disponible y límite de tarjetas, conservación de consumos sin obligación y aislamiento JPA/H2 de la suite.
 
-Los movimientos admiten moneda explícita. En compras con tarjeta de crédito, la obligación conserva la moneda económica del movimiento de origen mediante `Obligacion.getMoneda()`.
+Regla actual:
 
-Una compra en USD genera una obligación en USD y una compra en ARS genera una obligación en ARS. No se realiza conversión automática al crear la obligación.
+`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
 
-`ObligacionesPanel` muestra importe original y saldo pendiente con el código de moneda. El renderer utiliza `Locale.ROOT` para estabilizar el formato decimal independientemente del locale.
+No hay conversiones implícitas entre monedas.
 
-Commits:
+## Ciclos de facturación — YA IMPLEMENTADOS
 
-- `9b92eac` — `feat: exponer moneda de la obligacion`.
-- `47ced65` — `feat: mostrar moneda en obligaciones`.
-- `fe0aa71` — `test: verificar moneda en obligaciones`.
-- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
+`CicloFacturacion` es un objeto de dominio no persistente. `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento.
 
-## Bloques funcionales anteriores
+Casos cubiertos por `CicloFacturacionTest` (**9 tests**): consumo antes del cierre, día exacto de cierre, día posterior, vencimiento posterior al cierre, meses cortos, febrero, último día real y cambio de año, además de fecha nula.
 
-Ingresos, Gastos, Obligaciones, FormaPago, reglas de saldo, seguridad/aislamiento, categorías con movimientos, Transferencias e integración general del shell continúan implementados y validados.
+No volver a plantear ciclos como implementación desde cero. El siguiente trabajo es integrar esta lógica con consumos/obligaciones y revisar sus interacciones con pagos.
 
-Ingresos utiliza:
-
-**`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO`.**
-
-Gastos utiliza:
-
-**`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO`.**
-
-Transferencias utilizan `OperacionFinanciera` para coordinar los movimientos de origen y destino.
-
-## Arquitectura funcional
+## Arquitectura
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
-Las transferencias son la excepción semántica: la coordinación se realiza mediante `OperacionFinanciera`, que agrupa los movimientos de origen y destino.
+Gastos → `GastoService` → `MovimientoService` → `Movimiento EGRESO`.
 
-## Shell Swing
+Ingresos → `IngresoService` → `MovimientoService` → `Movimiento INGRESO`.
 
-El shell integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias mediante `MainFrame`, `SidebarPanel` y `CardLayout`.
+Transferencias → `OperacionFinancieraService` → `OperacionFinanciera` con EGRESO/INGRESO.
 
-## Reglas financieras vigentes
+## Reglas vigentes
 
-- `EGRESO` superior al saldo disponible: rechazado.
-- `EGRESO` igual al saldo disponible: permitido y deja saldo cero.
-- Las modificaciones de importe y tipo respetan fondos disponibles.
-- Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
-- `Cuenta` y `FormaPago` son conceptos distintos.
-- Una compra con tarjeta de crédito genera un egreso y una obligación.
-- La obligación conserva la moneda del movimiento de origen.
-- No se realiza conversión automática al crear la obligación.
-- Transferencias entre cuentas propias no son ingresos ni gastos; se modelan mediante `OperacionFinanciera`.
+- egreso superior al saldo: rechazado;
+- egreso igual al saldo: permitido;
+- modificaciones respetan fondos disponibles;
+- categorías con movimientos se conservan y desactivan;
+- cuenta y forma de pago son conceptos distintos;
+- tarjeta de crédito genera movimiento y obligación;
+- obligación conserva moneda del movimiento de origen;
+- crédito disponible inicial se calcula por moneda, sin conversión implícita;
+- transferencias propias no son ingresos ni gastos;
+- UI no duplica reglas de negocio.
 
-## Últimas validaciones conocidas
+## Tests
 
-### Suite general
+Suite general más reciente: `mvn test` → **664/664**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **09/09/2026 21:58:35 -03:00**, 10:04 min.
 
-`mvn test`, ejecutado el **09/09/2026 13:15:48 -03:00**:
+`TarjetaCreditoPagoCreditoTest` → **5/5** en validación focalizada conocida.
+`CicloFacturacionTest` → **9 tests** incluidos en la suite general.
 
-- **642** tests;
-- 0 failures;
-- 0 errors;
-- 0 skipped;
-- `BUILD SUCCESS`;
-- duración **09:43 min**.
+## Estado local conocido
 
-### ObligacionesPanelTest
+Después de `git syncsofp`, el usuario informó working tree sin cambios versionados, `git diff --check` sin salida y únicamente `surefire-debug.txt` sin rastrear. No agregar ese archivo al repositorio.
 
-`mvn test -Dtest=ObligacionesPanelTest`, ejecutado el **09/09/2026 13:05:03 -03:00**:
+## Próximo paso
 
-- **4** tests;
-- 0 failures;
-- 0 errors;
-- 0 skipped;
-- `BUILD SUCCESS`;
-- duración **01:20 min**.
+1. Integrar `CicloFacturacion` con consumos y obligaciones.
+2. Unificar el cálculo de saldo de tarjetas entre `MovimientoService` y `CuentaService`.
+3. Profundizar pagos/liberación de crédito y reglas multidivisa explícitas.
+4. Cuotas y financiación.
+5. UI específica de tarjetas.
+6. Pasivos/patrimonio, análisis y dashboard.
 
-## Estado Git conocido
+## Protocolo de nuevas sesiones
 
-`main` permanece en `a4be859...`. La rama de trabajo es `feature/swing-shell`. El último commit funcional es `13a68fb...`.
+Revisar siempre: rama → últimos commits → comparación con `main` → README/docs → código → tests → último resultado → próximo paso.
 
-Los commits documentales posteriores actualizan continuidad y no agregan comportamiento funcional.
-
-El usuario confirmó localmente `git diff`, `git diff --check` y `git status` con working tree limpio y rama sincronizada con `github/feature/swing-shell`.
-
-## Pendientes reales
-
-1. Ampliar pasivos y patrimonio neto.
-2. Evolucionar análisis histórico, resúmenes, evolución patrimonial, vencimientos y dashboard.
-3. Limpiar posteriormente la salida de consola de la aplicación sin perder diagnóstico.
-
-## Protocolo para nuevas sesiones
-
-1. Revisar rama actual.
-2. Revisar últimos commits.
-3. Comparar con `main`.
-4. Revisar README y documentación de continuidad.
-5. Revisar archivos modificados recientemente.
-6. Revisar tests relacionados.
-7. Identificar último cambio, último test conocido y próximo paso.
-
-Prioridad: **código → tests → commits → `main` → documentación → conversaciones anteriores**.
-
-No modificar `main`, no crear ramas nuevas salvo indicación explícita y no asumir sincronizaciones o resultados de tests no informados.
+No modificar `main`, no crear ramas nuevas salvo indicación explícita y no asumir resultados locales no informados.

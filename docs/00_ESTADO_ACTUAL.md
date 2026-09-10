@@ -2,116 +2,112 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
-## Estado verificado — 09/09/2026
+## Estado verificado — 10/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `13a68fb8429d930b2137b9c9e78f7b884077f33e`.
+**Rama de trabajo:** `feature/swing-shell` → `548063914ad7a3fe6ae028dad606aad57f7ca42e`.
 
-La comparación actual con `main` indica **411 commits adelante y 0 atrás**. No se realizó merge a `main`.
+La comparación verificada en GitHub indica **443 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
-## Último cambio funcional
+El commit `5480639` es documental; el último cambio funcional relevante es `46290786` — `fix: cerrar contexto JPA de PosicionActivoServiceTest`.
 
-- `9b92eac` — `feat: exponer moneda de la obligacion`.
-- `47ced65` — `feat: mostrar moneda en obligaciones`.
-- `fe0aa71` — `test: verificar moneda en obligaciones`.
-- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
+## Último bloque funcional cerrado
 
-El último cambio corrige el formato de moneda de `ObligacionesPanel` mediante `Locale.ROOT`, evitando que la representación dependa del locale del entorno.
+### Crédito disponible, límite de tarjeta y aislamiento JPA de tests
 
-## Estado funcional
+Está implementado y validado el criterio inicial:
 
-La Fase 8 continúa sobre el shell Swing integrado con Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias.
+`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
 
-Criterio central:
+No se realizan conversiones implícitas entre monedas.
+
+También se valida el límite al registrar consumos con `TARJETA_CREDITO`, al modificar importe/tipo y se excluyen esos consumos del saldo monetario de la cuenta. Los consumos sin obligación se conservan para el cálculo del crédito sin doble contabilización.
+
+El aislamiento de tests quedó reforzado mediante `JpaTestManager` por hilo y cierre explícito del `EntityManagerFactory` en `PosicionActivoServiceTest`.
+
+## Ciclos de facturación
+
+`CicloFacturacion` ya existe como objeto de dominio no persistente y `Cuenta.calcularCicloFacturacion(LocalDate)` ya está implementado.
+
+La lógica actual:
+
+- asigna el consumo al ciclo cuyo cierre corresponde;
+- considera el mismo día de cierre dentro del ciclo que cierra ese día;
+- envía el consumo posterior al cierre al ciclo siguiente;
+- ajusta cierre y vencimiento al último día real del mes;
+- resuelve correctamente cambios de año;
+- exige fecha de consumo no nula.
+
+`CicloFacturacionTest` cubre estos casos y actualmente contiene **9 tests**.
+
+Esto significa que ciclos y vencimientos **no deben documentarse como pendientes de implementación**. Lo pendiente es su integración con consumos, obligaciones, pagos y UI cuando corresponda.
+
+## Arquitectura funcional
 
 **paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
 
 `Movimientos` es el historial financiero común y consolidado, no una segunda fuente de verdad.
 
-## Moneda en movimientos y obligaciones
+Gastos: `GastosPanel → GastoService → MovimientoService → Movimiento EGRESO`.
 
-Los movimientos admiten moneda explícita y los flujos existentes conservan la compatibilidad con la moneda de la cuenta cuando no se informa otra.
+Ingresos: `IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
 
-En una compra con tarjeta de crédito se conserva la moneda económica del consumo. `Obligacion.getMoneda()` expone la moneda del movimiento de origen, por lo que una obligación originada en USD permanece identificada como USD y una originada en ARS como ARS.
+Transferencias: `TransferenciasPanel → OperacionFinancieraService → OperacionFinanciera`, con `EGRESO` en origen e `INGRESO` en destino.
 
-`ObligacionesPanel` muestra tanto el importe original como el saldo pendiente con el código de moneda.
+## Moneda, obligaciones y tarjetas
 
-No se realiza conversión automática ARS↔USD al crear la obligación.
+Los movimientos admiten moneda explícita. Una obligación conserva la moneda económica del movimiento de origen. No se convierte automáticamente ARS↔USD al crear la obligación.
 
-## Transferencias
+Las compras con tarjeta de crédito generan obligaciones. Las obligaciones tienen estados `PENDIENTE`, `PARCIAL` y `PAGADA` y pagos autorizados por usuario.
 
-`TransferenciasPanel` utiliza `OperacionFinancieraService` para registrar transferencias entre cuentas propias. Una transferencia genera una única `OperacionFinanciera` con un `EGRESO` en origen y un `INGRESO` en destino.
-
-## Ingresos
-
-**`IngresosPanel` → `IngresoService` → `MovimientoService` → `Movimiento` `INGRESO` → `Movimientos`.**
-
-## Gastos y FormaPago
-
-**`GastosPanel` → `GastoService` → `MovimientoService` → `Movimiento` `EGRESO` → `Movimientos`.**
-
-`FormaPago` está integrada y validada. Opciones actuales: `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`.
-
-La tarjeta de crédito dispone del modelo de obligaciones. Cuando `GastoService` recibe `TARJETA_CREDITO` y tiene `ObligacionService`, registra el movimiento de egreso y crea una `Obligacion` asociada.
-
-## Obligaciones
-
-`Obligacion` contiene `importeOriginal`, `saldoPendiente`, `estado` y relación con el `Movimiento` de origen. Estados: `PENDIENTE`, `PARCIAL` y `PAGADA`.
-
-`ObligacionService` permite listar por usuario y registrar pagos autorizados. `ObligacionesPanel` consulta, permite pagar y refresca conservando la selección.
+`ObligacionesPanel` muestra importe y saldo pendiente con código de moneda y formato decimal estable mediante `Locale.ROOT`.
 
 ## Reglas financieras vigentes
 
-- Un `EGRESO` no puede superar el saldo disponible.
-- Un egreso igual al saldo disponible está permitido y deja saldo cero.
-- Las modificaciones de importe y tipo también respetan fondos disponibles.
+- `EGRESO` superior al saldo disponible: rechazado.
+- `EGRESO` igual al saldo disponible: permitido y deja saldo cero.
+- Las modificaciones de importe y tipo respetan fondos disponibles.
 - Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
 - Cuenta y forma de pago son conceptos distintos.
 - Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación.
-- La moneda de la obligación es la moneda económica del movimiento de origen; no se convierte automáticamente al crear la obligación.
-- Las transferencias entre cuentas propias no son ingresos ni gastos; se modelan mediante `OperacionFinanciera`.
-- Los paneles especializados no deben duplicar el núcleo financiero.
+- El crédito disponible se calcula inicialmente por moneda de la tarjeta, sin conversión implícita.
+- Transferencias propias no son ingresos ni gastos.
+- La UI no debe duplicar reglas financieras.
 
-## Validación reciente
+## Validación más reciente conocida
 
-### Suite general — 09/09/2026 13:15:48 -03:00
+El usuario ejecutó `mvn test` el **09/09/2026 21:58:35 -03:00**:
 
-El usuario ejecutó `mvn test`:
+- **664/664** tests;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración **10:04 min**.
 
-- Tests run: **642**.
-- Failures: **0**.
-- Errors: **0**.
-- Skipped: **0**.
-- `BUILD SUCCESS`.
-- Duración: **09:43 min**.
-
-### ObligacionesPanelTest — 09/09/2026 13:05:03 -03:00
-
-El usuario ejecutó `mvn test -Dtest=ObligacionesPanelTest`:
-
-- Tests run: **4**.
-- Failures: **0**.
-- Errors: **0**.
-- Skipped: **0**.
-- `BUILD SUCCESS`.
-- Duración: **01:20 min**.
-
-La prueba incluye la visualización de obligaciones en USD con importe y saldo pendiente expresados en la moneda correspondiente.
+También se validaron previamente `TarjetaCreditoPagoCreditoTest` **5/5** y baterías relacionadas sin fallos.
 
 ## Estado local informado
 
-El usuario ejecutó `git diff`, `git diff --check` y `git status` el 09/09/2026 y confirmó:
+Después de `git syncsofp`, el usuario informó:
 
-- working tree limpio;
-- sin cambios para commit;
-- rama `feature/swing-shell` sincronizada con `github/feature/swing-shell`.
+- rama `feature/swing-shell` sincronizada con `github/feature/swing-shell`;
+- `git diff` sin cambios versionados;
+- `git diff --check` sin salida;
+- único archivo no rastreado: `surefire-debug.txt`.
 
-## Próximo paso
+`su​refire-debug.txt` es un artefacto local de diagnóstico y no debe agregarse al repositorio.
 
-El bloque de moneda en obligaciones queda completado y validado. Antes de implementar otro bloque se debe reconstruir nuevamente el estado desde código, tests y commits.
+## Próximo paso real
 
-El pendiente funcional de mayor nivel continúa siendo ampliar pasivos y patrimonio neto. También quedan análisis históricos, resúmenes, evolución patrimonial, vencimientos y dashboard, además del pulido posterior de salida de consola.
+Antes de avanzar sobre UI específica de tarjetas, revisar e integrar el comportamiento ya existente de `CicloFacturacion` con el flujo de consumos/obligaciones y revisar la inconsistencia pendiente del cálculo de saldo entre `MovimientoService` y `CuentaService` para tarjetas.
 
-Antes de cualquier cambio revisar código actual, clases relacionadas, servicios, repositorios, tests, reglas de negocio, últimos commits y comparación con `main`.
+Después: pagos de tarjeta más completos, cuotas/financiación, UI específica de tarjetas, pasivos/patrimonio y dashboard.
 
-Después de cambios importantes: tests específicos, relacionados y suite completa cuando corresponda; `git diff`, `git diff --check` y `git status`.
+No hacer merge a `main` automáticamente.
+
+## Protocolo de continuidad
+
+Ante una nueva sesión: rama → últimos commits → comparación con `main` → README/documentación → código → tests → último resultado conocido → próximo paso.
+
+Prioridad: **código → tests → commits → `main` → documentación → conversaciones anteriores**.

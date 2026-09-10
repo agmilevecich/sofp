@@ -1,106 +1,69 @@
 # SOFP — Tests
 
-## Estado de validación — 09/09/2026
+## Estado de validación — 10/09/2026
 
-### Validación general más reciente
+### Suite general más reciente
 
-El usuario ejecutó `mvn test` el **09/09/2026 13:15:48 -03:00**.
+El usuario ejecutó `mvn test` el **09/09/2026 21:58:35 -03:00**.
 
 Resultado:
 
-- Tests run: **642**;
+- Tests run: **664**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración: **09:43 min**.
+- duración: **10:04 min**.
 
-Esta es la suite general completa más reciente y valida la integración existente sin regresiones.
+Es la validación general más reciente conocida y no debe sustituirse por resultados anteriores de 642/642 o 650/650.
 
-### Obligaciones con moneda
+### Diagnóstico y aislamiento JPA/H2
 
-El usuario ejecutó `mvn test -Dtest=ObligacionesPanelTest` el **09/09/2026 13:05:03 -03:00**.
+La suite había presentado un único error por duplicación de `ARS` en `monedas.codigo` dentro de `TarjetaCreditoPagoCreditoTest`. El diagnóstico con forks independientes pasó 664/664 y `TarjetaCreditoPagoCreditoTest` pasó **5/5**.
 
-Resultado: **4/4**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, duración **01:20 min**.
+La causa fue reutilización de un `EntityManagerFactory`/contexto H2 entre tests. `PosicionActivoServiceTest` cerraba el `EntityManager` pero no el `EntityManagerFactory` almacenado por `JpaTestManager`.
 
-La cobertura incluye la visualización del código de moneda de la obligación tanto para el importe original como para el saldo pendiente.
+La corrección quedó en dos pasos:
 
-## Moneda en obligaciones
+- `e8f6fdb` — aislamiento del contexto JPA por hilo y base H2 de test independiente;
+- `46290786` — cierre del `EntityManagerFactory` mediante `@AfterEach` en `PosicionActivoServiceTest`.
 
-`ObligacionesPanelTest` verifica una obligación originada por un gasto con `TARJETA_CREDITO` en USD y comprueba que el renderer muestre el importe y saldo pendiente con `USD`.
+La suite posterior pasó **664/664**.
 
-La cobertura valida indirectamente que la obligación expone la moneda del movimiento de origen y que la UI no pierde esa información.
+## Ciclos de facturación
 
-El formato esperado utiliza punto decimal estable (`120.50 USD`), independientemente del locale del entorno.
+`CicloFacturacionTest` contiene **9 tests** y cubre:
 
-## Transferencias
+1. consumo anterior al cierre;
+2. consumo en el día exacto de cierre;
+3. consumo posterior al cierre;
+4. vencimiento posterior cuando el día de vencimiento es anterior al cierre;
+5. vencimiento posterior cuando coincide con el cierre;
+6. ajuste de cierre a febrero;
+7. ajuste de vencimiento al último día real del mes;
+8. cambio de año;
+9. fecha de consumo nula.
 
-`TransferenciasPanelTest` cubre construcción del formulario del shell, filtrado de cuentas y categorías activas, persistencia de una transferencia mediante `OperacionFinancieraService`, operación financiera con movimientos `EGRESO`/`INGRESO`, fecha, descripción y dependencias obligatorias.
+La lógica reside en `Cuenta.calcularCicloFacturacion(LocalDate)` y `CicloFacturacion` es un objeto de dominio no persistente.
 
-La navegación hacia el panel se valida mediante `MainFrameNavigationTest`.
+## Crédito y tarjetas
 
-## Ingresos
+La cobertura incluye límites, crédito disponible, consumo parcial, límite exacto, exceso, monedas diferentes, liberación mediante pagos y consumos sin obligación sin doble contabilización.
 
-La cobertura incluye `IngresoServiceTest`, `IngresosPanelTest` y `MainFrameNavigationTest`.
+`TarjetaCreditoPagoCreditoTest`: **5/5** en la validación focalizada conocida.
 
-El flujo probado es `IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
+## Obligaciones y moneda
 
-## Obligaciones
+La cobertura incluye `ObligacionTest`, `ObligacionJpaTest`, `ObligacionServiceTest`, `ObligacionesPanelTest` y navegación. `ObligacionesPanelTest` había validado **4/4** la visualización de moneda antes del bloque posterior de tarjeta.
 
-La cobertura incluye `ObligacionTest`, `ObligacionJpaTest`, `ObligacionServiceTest`, `ObligacionesPanelTest` y `MainFrameObligacionesTest`, además de navegación.
+## Otros bloques
 
-Los pagos autorizados por usuario utilizan el servicio y no duplican reglas de dominio en Swing.
+Continúan integrados en la suite: seguridad/aislamiento, cuentas, categorías, movimientos, fondos disponibles, Gastos, Ingresos, Transferencias, Inversiones, Reportes y shell Swing.
 
-## Gastos y tarjeta de crédito
+## Criterio de cierre
 
-`GastoServiceTest` y `GastosPanelTest` cubren gastos, forma de pago y el comportamiento de tarjeta de crédito con y sin `ObligacionService`.
+No considerar una funcionalidad terminada solamente porque compila. Cada bloque debe contemplar éxito, null cuando corresponda, entidad inexistente, reglas de negocio, persistencia, relaciones y casos límite relevantes.
 
-## Fondos insuficientes y saldo
+Después de cambios importantes: tests específicos → relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
 
-`MovimientoServiceSaldoTest`: **3/3** en la validación conocida.
-
-Casos cubiertos:
-
-1. rechazo de `EGRESO` superior al saldo disponible;
-2. aceptación de `EGRESO` exactamente igual al saldo disponible;
-3. aceptación del aumento de un `EGRESO` hasta el saldo disponible.
-
-## Movimientos y categorías
-
-`MovimientoServiceTest` y `CategoriaServiceTest` continúan cubriendo las reglas centrales de movimientos y categorías, incluyendo conservación/desactivación de categorías con movimientos.
-
-## FormaPago
-
-La cobertura incluye `EFECTIVO`, `TRANSFERENCIA`, `TARJETA_DEBITO`, `TARJETA_CREDITO` y `QR`, persistencia, modificación, selección desde `GastosPanel` y obligaciones derivadas de tarjeta de crédito.
-
-## Inversiones y reportes
-
-Las baterías existentes continúan integradas en la suite general, incluyendo cartera/activos, inversiones y reportes.
-
-## Alta de cuentas
-
-`RegistrarCuentaPanelTest` y `CuentasPanelTest` cubren construcción, dependencias, instituciones activas, monedas, alta, persistencia, identificador externo, listado autorizado, refresco y aislamiento.
-
-## Seguridad
-
-`AislamientoDatosServiceTest`: **7/7** en la validación conocida. La autorización cubre perfiles, cuentas, categorías, movimientos, operaciones financieras y posiciones/cartera.
-
-## Cobertura Swing
-
-La suite incluye los tests de `MainFrame`, layout, navegación, movimientos, categorías, inversiones, reportes, obligaciones, cuentas y los paneles especializados de gastos, ingresos, inversiones, reportes, obligaciones y transferencias.
-
-## Evolución de la suite
-
-La suite general pasó de **634 a 642 tests** en las validaciones posteriores a la incorporación de la cobertura de moneda en obligaciones.
-
-El bloque de moneda añadió un test específico de `ObligacionesPanelTest` y mantuvo la suite completa en **642/642**, sin fallos ni errores.
-
-## Criterio de validación
-
-No considerar una funcionalidad terminada solamente porque compila. Cada nuevo bloque debe validar éxito, null cuando corresponda, entidad inexistente, reglas de negocio, persistencia, relaciones y casos límite relevantes.
-
-Las comprobaciones locales `git diff`, `git diff --check` y `git status` deben ser informadas desde el entorno local; no se asumen desde GitHub.
-
-## Próximo bloque de tests
-
-La suite general y la cobertura de moneda en obligaciones están validadas. El próximo bloque de tests deberá acompañar la siguiente funcionalidad que se implemente.
+Los estados locales de Git solo se consideran confirmados cuando el usuario los informa o se verifican en el entorno correspondiente.
