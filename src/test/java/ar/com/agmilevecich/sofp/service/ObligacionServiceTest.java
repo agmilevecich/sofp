@@ -74,11 +74,13 @@ class ObligacionServiceTest {
                 TipoMoneda.FIAT
         );
         cuenta = new Cuenta(
-                "Cuenta principal",
-                TipoCuenta.CAJA_AHORRO,
+                "Tarjeta principal",
                 perfilFinanciero,
                 institucionFinanciera,
-                moneda
+                moneda,
+                new BigDecimal("500000.00"),
+                15,
+                10
         );
         categoria = new Categoria("Alimentos", perfilFinanciero);
 
