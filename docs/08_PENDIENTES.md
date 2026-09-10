@@ -3,71 +3,65 @@
 ## Estado — 10/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `548063914ad7a3fe6ae028dad606aad57f7ca42e`.
+**Rama de trabajo:** `feature/swing-shell`.
 
-GitHub verifica **443 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
+La comparación verificada antes de la actualización documental indicó **470 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
-El último commit (`5480639`) es documental. El último cambio funcional es `46290786` — `fix: cerrar contexto JPA de PosicionActivoServiceTest`.
+El último commit funcional antes de la actualización documental fue `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
 
 ## Último bloque cerrado
 
-### Crédito disponible, límite y aislamiento de tests
+### Cuotas automáticas en gastos con tarjeta
 
 **Completado y validado.**
 
-Se implementó el criterio inicial:
+`GastoService` genera automáticamente las cuotas solicitadas al registrar una compra con `TARJETA_CREDITO`. La generación se realiza dentro de la transacción de la obligación y las cuotas quedan persistidas.
 
-`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
+`PagoTarjetaServiceTest` fue corregido para utilizar el registro real con tres cuotas, eliminando la generación manual duplicada que provocaba `La obligación ya tiene cuotas generadas`.
 
-No hay conversión implícita entre monedas. Se valida el límite al registrar consumos con tarjeta y al modificar importe/tipo. Los consumos con tarjeta no afectan el saldo monetario de la cuenta. Los consumos sin obligación se consideran sin doble contabilización.
+## Validación actual conocida
 
-También se corrigió el aislamiento JPA/H2 de la suite: `JpaTestManager` mantiene el contexto por hilo y `PosicionActivoServiceTest` cierra el `EntityManagerFactory` en `@AfterEach`.
+Suite general:
 
-## Ciclos y vencimientos
+- `mvn test` — **671/671**;
+- Failures 0;
+- Errors 0;
+- Skipped 0;
+- `BUILD SUCCESS`;
+- 10/09/2026 10:39:38 -03:00.
 
-**Base de dominio ya implementada y testeada.**
+Suite relacionada:
 
-`CicloFacturacion` existe como objeto no persistente y `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento.
+- `GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest` — **32/32**;
+- Failures 0;
+- Errors 0;
+- Skipped 0;
+- `BUILD SUCCESS`;
+- 10/09/2026 13:14:29 -03:00;
+- duración 01:19 min.
 
-`CicloFacturacionTest` contiene **9 tests** para cierre exacto, ciclo siguiente, meses cortos, febrero, vencimiento posterior al cierre y cambio de año.
+Focalizados:
 
-Por lo tanto, ciclos/vencimientos ya no son una tarea de implementación desde cero. El pendiente es integrar esta lógica al flujo de consumos, obligaciones y posteriormente pagos/UI.
+- `PagoTarjetaServiceTest`: 4/4.
+- `GastosPanelTest`: 6/6.
 
 ## Pendientes en orden
 
-1. **Integrar ciclos de facturación y vencimientos con consumos/obligaciones.**
-2. **Unificar el tratamiento del saldo de tarjetas** entre `MovimientoService` y `CuentaService`, evitando que una misma regla tenga resultados distintos.
-3. **Profundizar pagos de tarjeta y liberación de crédito**, incluyendo las reglas que dependan del ciclo y moneda.
-4. **Definir e implementar cuotas y financiación.**
-5. **Construir UI específica de tarjetas**, una vez estabilizadas las reglas del dominio.
-6. **Ampliar pasivos y patrimonio neto.**
-7. **Análisis histórico, resúmenes, vencimientos y dashboard.**
-8. **Pulido de consola**, de baja prioridad.
+1. **Revisar `GastosPanelTest` y las convenciones actuales de cuentas/paneles antes de modificar la UI.** ← próximo paso.
+2. **Agregar selección explícita de tarjeta de crédito en `GastosPanel`** cuando `FormaPago.TARJETA_CREDITO` esté seleccionada.
+3. Verificar mediante tests que solo se ofrezcan cuentas activas de tipo `TARJETA_CREDITO` y que la tarjeta seleccionada sea la cuenta utilizada por `GastoService`.
+4. Integrar ciclos de facturación y vencimientos con consumos/obligaciones.
+5. Unificar el tratamiento del saldo de tarjetas entre `MovimientoService` y `CuentaService`.
+6. Profundizar pagos de tarjeta y liberación de crédito, incluyendo reglas de ciclo y moneda.
+7. Ampliar pasivos y patrimonio neto.
+8. Análisis histórico, vencimientos, resúmenes y dashboard.
+9. Pulido de consola, de baja prioridad.
 
-## Validación actual
+## Nota sobre UI de tarjetas
 
-`mvn test` — **664/664**, Failures 0, Errors 0, Skipped 0, `BUILD SUCCESS`, ejecutado por el usuario el 09/09/2026 21:58:35 -03:00, duración 10:04 min.
+Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. No se prevé crear una entidad nueva para seleccionar la tarjeta. El objetivo es que `GastosPanel` seleccione una cuenta de ese tipo y la pase a `GastoService`.
 
-## Estado local informado
-
-Tras `git syncsofp`: rama sincronizada, `git diff` sin cambios versionados, `git diff --check` sin salida y solo `surefire-debug.txt` sin rastrear. Ese archivo es un artefacto local de diagnóstico y no debe agregarse al repositorio.
-
-## Bloques cerrados relevantes
-
-- Seguridad y aislamiento de datos.
-- Categorías con movimientos.
-- Fondos insuficientes y reglas de saldo.
-- Gastos e Ingresos sobre `Movimiento`.
-- FormaPago.
-- Obligaciones y pagos.
-- Autorización de pagos.
-- UI Swing de obligaciones, ingresos, gastos y transferencias.
-- Transferencias mediante `OperacionFinanciera`.
-- Moneda explícita en movimientos y obligaciones.
-- Crédito disponible y validación de límite de tarjeta.
-- Liberación de crédito mediante pagos.
-- Ciclo de facturación en dominio y tests.
-- Aislamiento JPA/H2 de la suite.
+La UI no debe duplicar reglas financieras: el servicio continúa siendo responsable de registrar el gasto, validar y generar la obligación/cuotas.
 
 ## Integración
 
