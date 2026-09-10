@@ -130,7 +130,7 @@ class PagoTarjetaServiceTest {
                 "Pago tarjeta", usuario.getId());
 
         assertEquals(new BigDecimal("0.00"), obligacion.getSaldoPendiente());
-        assertEquals("PAGADA", obligacion.getEstadoObligacion().name());
+        assertEquals("PAGADA", obligacion.getEstado().name());
         assertEquals(new BigDecimal("80000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
         assertEquals(new BigDecimal("500000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
     }
