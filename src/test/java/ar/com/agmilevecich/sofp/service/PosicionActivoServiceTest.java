@@ -17,6 +17,7 @@ import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -26,6 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PosicionActivoServiceTest {
+
+    @AfterEach
+    void tearDown() {
+        JpaTestManager.close();
+    }
 
     @Test
     void deberiaObtenerPosicionDelActivoParaElPerfil() {
