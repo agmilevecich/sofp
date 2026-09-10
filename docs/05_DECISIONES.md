@@ -95,6 +95,9 @@ El criterio actual es `límite de crédito − consumos de tarjeta pendientes en
 ## D-031 — Aislamiento JPA de tests
 El contexto JPA/H2 de tests debe quedar aislado por hilo y cerrado explícitamente al terminar tests que gestionen su propio ciclo de vida. Esto evita contaminación entre clases de test.
 
+## D-032 — Cuotas generadas por el flujo de gasto
+Cuando un gasto con `TARJETA_CREDITO` se registra con una cantidad de cuotas, `GastoService` es responsable de generar las cuotas dentro de la transacción de la obligación. Los tests deben utilizar ese flujo productivo y no generar manualmente cuotas ya creadas.
+
 ## Actualización — 10/09/2026
 
-El bloque de crédito/límite, ciclos básicos y aislamiento JPA está implementado y validado. La suite general conocida es **664/664**.
+El bloque de crédito/límite, ciclos básicos, aislamiento JPA y cuotas iniciales está implementado y validado. La suite general conocida es **671/671** y la suite relacionada con cuotas es **32/32**.
