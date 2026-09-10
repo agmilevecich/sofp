@@ -151,8 +151,7 @@ class PagoTarjetaServiceTest {
 
     @Test
     void deberiaAplicarPagoDeTarjetaSobreLasCuotasEnOrden() {
-        Obligacion obligacion = registrarGasto("120000.00");
-        obligacion.generarCuotas(3);
+        Obligacion obligacion = registrarGasto("120000.00", 3);
 
         pagoTarjetaService.registrarPago(
                 obligacion.getId(), cuentaPagadora, categoriaPago,
@@ -174,10 +173,14 @@ class PagoTarjetaServiceTest {
     }
 
     private Obligacion registrarGasto(String importe) {
+        return registrarGasto(importe, 1);
+    }
+
+    private Obligacion registrarGasto(String importe, int cantidadCuotas) {
         Movimiento movimiento = gastoService.registrar(
                 tarjeta, categoriaCompras, ars, new BigDecimal(importe),
                 LocalDateTime.of(2026, 9, 9, 10, 0), "Compra con tarjeta",
-                FormaPago.TARJETA_CREDITO, usuario.getId());
+                FormaPago.TARJETA_CREDITO, usuario.getId(), cantidadCuotas);
         return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
     }
 }
