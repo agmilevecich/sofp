@@ -76,8 +76,7 @@ public class GastoService {
         );
 
         if (formaPago == FormaPago.TARJETA_CREDITO) {
-            Obligacion obligacion = obligacionService.registrar(movimiento);
-            obligacion.generarCuotas(cantidadCuotas);
+            Obligacion obligacion = obligacionService.registrar(movimiento, cantidadCuotas);
             if (obligacion.getMovimientoOrigen().getId() == null) {
                 throw new IllegalStateException("La obligación debe quedar asociada a un movimiento persistido");
             }
