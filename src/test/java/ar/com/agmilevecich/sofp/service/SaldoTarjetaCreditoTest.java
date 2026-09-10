@@ -2,10 +2,12 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.CicloFacturacion;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,6 +32,7 @@ class SaldoTarjetaCreditoTest {
     private EntityManager entityManager;
     private CuentaService cuentaService;
     private GastoService gastoService;
+    private ObligacionService obligacionService;
     private Usuario usuario;
     private Cuenta tarjeta;
     private Categoria categoria;
@@ -41,11 +45,10 @@ class SaldoTarjetaCreditoTest {
                 new MovimientoRepository(entityManager);
         MovimientoService movimientoService =
                 new MovimientoService(entityManager, movimientoRepository);
-        ObligacionService obligacionService =
-                new ObligacionService(
-                        entityManager,
-                        new ObligacionRepository(entityManager)
-                );
+        obligacionService = new ObligacionService(
+                entityManager,
+                new ObligacionRepository(entityManager)
+        );
         gastoService = new GastoService(movimientoService, obligacionService);
 
         cuentaService = new CuentaService(
@@ -124,5 +127,30 @@ class SaldoTarjetaCreditoTest {
                 BigDecimal.ZERO,
                 cuentaService.calcularSaldo(tarjeta.getId())
         );
+    }
+
+    @Test
+    void deberiaCalcularElCicloDeFacturacionDeLaObligacionCreadaPorUnaCompraConTarjeta() {
+        LocalDateTime fechaConsumo = LocalDateTime.of(2026, 9, 10, 12, 0);
+
+        var movimiento = gastoService.registrar(
+                tarjeta,
+                categoria,
+                new BigDecimal("15000.00"),
+                fechaConsumo,
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        Obligacion obligacion = obligacionService
+                .buscarPorMovimientoOrigen(movimiento.getId())
+                .orElseThrow();
+
+        CicloFacturacion ciclo = obligacion.getCicloFacturacion();
+
+        assertEquals(LocalDate.of(2026, 8, 16), ciclo.getFechaInicio());
+        assertEquals(LocalDate.of(2026, 9, 15), ciclo.getFechaCierre());
+        assertEquals(LocalDate.of(2026, 10, 5), ciclo.getFechaVencimiento());
     }
 }
