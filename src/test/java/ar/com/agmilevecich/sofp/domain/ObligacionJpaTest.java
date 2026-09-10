@@ -5,6 +5,7 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -172,9 +173,11 @@ class ObligacionJpaTest {
         assertEquals(new BigDecimal("40000.00"), recuperada.getCuotas().get(0).getImporteOriginal());
         assertEquals(new BigDecimal("40000.00"), recuperada.getCuotas().get(0).getSaldoPendiente());
         assertEquals(EstadoObligacion.PENDIENTE, recuperada.getCuotas().get(0).getEstado());
+        assertEquals(LocalDate.of(2026, 8, 16), recuperada.getCuotas().get(0).getFechaInicioCiclo());
+        assertEquals(LocalDate.of(2026, 9, 15), recuperada.getCuotas().get(0).getFechaCierreCiclo());
+        assertEquals(LocalDate.of(2026, 10, 10), recuperada.getCuotas().get(0).getFechaVencimiento());
         assertEquals(2, recuperada.getCuotas().get(1).getNumero());
         assertEquals(3, recuperada.getCuotas().get(2).getNumero());
-        assertEquals(LocalDateTime.of(2026, 9, 10, 12, 0).toLocalDate(), recuperada.getCuotas().get(0).getFechaInicioCiclo().isAfter(LocalDateTime.of(2026, 9, 10, 12, 0).toLocalDate()) ? null : LocalDateTime.of(2026, 9, 10, 12, 0).toLocalDate());
         assertEquals(new BigDecimal("120000.00"), recuperada.getCuotas().stream()
                 .map(Cuota::getImporteOriginal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
