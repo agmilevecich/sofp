@@ -141,6 +141,14 @@ public class GastosPanel extends JPanel {
         return registrarButton;
     }
 
+    /** Recarga las cuentas activas del perfil sin reconstruir el formulario. */
+    public void actualizarCuentas() {
+        if (cuentaService == null) {
+            return;
+        }
+        cargarCuentas();
+    }
+
     private JComboBox<Integer> crearCuotasComboBox() {
         JComboBox<Integer> comboBox = new JComboBox<>();
         for (int cantidad = 1; cantidad <= 12; cantidad++) {
@@ -215,6 +223,7 @@ public class GastosPanel extends JPanel {
     }
 
     private void cargarCuentas() {
+        cuentaComboBox.removeAllItems();
         List<Cuenta> cuentas = cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId);
         for (Cuenta cuenta : cuentas) {
             if (cuenta.isActiva()) {
