@@ -123,7 +123,7 @@ class RegistrarTarjetaCreditoPanelTest {
                 .getSingleResult();
 
         assertEquals(TipoCuenta.TARJETA_CREDITO, tarjeta.getTipoCuenta());
-        assertEquals(new java.math.BigDecimal("500000"), tarjeta.getLimiteCredito());
+        assertEquals(0, new java.math.BigDecimal("500000").compareTo(tarjeta.getLimiteCredito()));
         assertEquals(15, tarjeta.getDiaCierre());
         assertEquals(10, tarjeta.getDiaVencimiento());
         assertEquals("****1234", tarjeta.getIdentificadorExterno());
