@@ -1,55 +1,71 @@
 # SOFP — Contexto para continuar con ChatGPT
 
+## Estado actual — 10/09/2026
+
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
-## Estado — 01/09/2026
+**Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
+**Rama de trabajo:** `feature/swing-shell`.
 
-**Rama estable:** `main`.  
-Último commit integrado: `96f3d99` — `docs: cerrar historial de build de seguridad`.  
-La rama `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward.
+La última comparación verificada antes de la actualización documental indicó **470 commits adelante y 0 atrás** respecto de `main`.
 
-**Rama de trabajo:** `feature/swing-shell`.  
-**Último commit funcional previo al bloque documental:** `6621615` — `test: cubrir navegacion de reportes`.  
-La rama está **52 commits por delante de `main` y 0 commits por detrás**.
+El último commit funcional antes de esta actualización documental es `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
+
+## Último bloque funcional cerrado
+
+### Cuotas automáticas en gastos con tarjeta
+
+`GastoService` genera automáticamente la cantidad solicitada de cuotas al registrar un gasto con `FormaPago.TARJETA_CREDITO`. La generación ocurre dentro de la transacción de la obligación y las cuotas quedan persistidas.
+
+`PagoTarjetaServiceTest` se ajustó para registrar el gasto con `cantidadCuotas = 3`, en lugar de generar manualmente las cuotas después. El error anterior `La obligación ya tiene cuotas generadas` quedó resuelto.
+
+Commits recientes relevantes:
+
+- `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
+- `4ce1591` — `fix: generar cuotas dentro de la transaccion del gasto`.
+- `87fab04` — `fix: persistir cuotas al registrar obligaciones`.
+- `4092212` — `fix: corregir fixture de cuotas en GastosPanelTest`.
+- `afbfd7b` — `test: cubrir cuotas en GastoService`.
+- `3fd91b1` — `feat: integrar cuotas al registro de gastos`.
 
 ## Shell Swing — Fase 8
 
-El bloque actual está implementado en `feature/swing-shell` con `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
+El shell integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias mediante `MainFrame`, `SidebarPanel` y `CardLayout`.
 
-`MainFrame` usa `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes respetando el contexto de usuario/perfil y no duplica reglas de negocio. `ReportesPanel` utiliza el reporte de movimientos de inversión existente en `CarteraActivoService`.
+`GastosPanel` ya permite seleccionar forma de pago y cantidad de cuotas. El siguiente bloque de UI será incorporar una selección explícita de la tarjeta de crédito utilizada en una compra.
 
-## Seguridad
+## Reglas de tarjetas
 
-La auditoría transversal de seguridad y aislamiento de datos quedó completada e integrada en `main`, cubriendo perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, con autorización por propietario y cobertura transversal en `AislamientoDatosServiceTest`.
+Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límite, día de cierre y día de vencimiento.
+
+Una compra con tarjeta genera un `Movimiento EGRESO` y una `Obligacion`. La obligación conserva la moneda económica del movimiento y no hay conversión automática.
+
+El crédito disponible inicial se calcula por moneda como límite menos consumos pendientes.
+
+## Ciclos de facturación
+
+`CicloFacturacion` es un objeto de dominio no persistente. `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento y ajusta días inexistentes al último día real del mes. `CicloFacturacionTest` contiene 9 tests.
+
+Los ciclos están implementados; queda pendiente integrarlos con consumos, obligaciones y pagos.
 
 ## Tests
 
-Suite general ejecutada localmente el **01/09/2026**:
+Suite general más reciente conocida: `mvn test` → **671/671**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 10/09/2026 10:39:38 -03:00.
 
-- Tests run: **529**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **14:25 min**
-- Finalización: **19:25:53 -03:00**
+Suite relacionada más reciente: `mvn -Dtest=GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest test` → **32/32**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 10/09/2026 13:14:29 -03:00, duración 01:19 min.
 
-Validación específica de reportes: `ReportesPanelTest` **3/3**, `MainFrameReportesTest` **1/1**, total **4/4**. La suite relacionada de UI quedó en **13/13**.
+Focalizados: `PagoTarjetaServiceTest` 4/4 y `GastosPanelTest` 6/6.
 
-Una ejecución previa había detectado artefactos compilados obsoletos en `target`; la limpieza de Maven permitió la ejecución definitiva de **529/529** sin modificar código ni tests por ese motivo.
+## Próximo paso exacto
 
-Surefire mostró durante ejecuciones de UI un mensaje de espera posterior a `System.exit(0)`, pero el build terminó con `BUILD SUCCESS`, sin failures ni errors. No se modificó código especulativamente por ese mensaje.
+1. Revisar `GastosPanelTest`.
+2. Revisar `GastosPanel`, `CuentaService`, repositorio de cuentas y convenciones de `CuentasPanel`/`RegistrarCuentaPanel`.
+3. Definir el cambio mínimo para seleccionar una tarjeta de crédito explícita en `GastosPanel`.
+4. Agregar tests para tarjetas activas y selección de la tarjeta utilizada.
+5. Ejecutar tests específicos, relacionados y suite general cuando corresponda.
 
 ## Continuidad
 
-- No hacer merge automático a `main`.
-- No crear nuevas ramas para continuar este trabajo; seguir sobre `feature/swing-shell`.
-- Antes de modificar una clase, revisar implementación actual, clases relacionadas, servicios, repositorios, tests y reglas de negocio.
-- Mantener cambios pequeños y descriptivos.
-- No duplicar lógica de negocio en la UI.
-- Después de cambios importantes: tests específicos, tests relacionados y suite completa cuando corresponda; revisar diff, `git diff --check` y `git status`.
-- Ante una nueva sesión de SOFP, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
+No modificar `main` ni crear ramas nuevas salvo indicación explícita. No asumir resultados locales no informados. Después de cambios importantes revisar tests, `git diff`, `git diff --check` y `git status`.
 
-## Próximo paso
-
-El alcance actual del shell Swing queda validado. El próximo trabajo debe definirse como un nuevo bloque funcional de Fase 8, partiendo del estado real de `feature/swing-shell`.
+La documentación debe actualizarse al cerrar etapas importantes, pero siempre prevalecen código y tests actuales.
