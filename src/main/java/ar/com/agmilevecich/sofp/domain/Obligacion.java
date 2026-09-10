@@ -1,14 +1,21 @@
 package ar.com.agmilevecich.sofp.domain;
 
 import ar.com.agmilevecich.sofp.util.Validaciones;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -28,6 +35,10 @@ public class Obligacion extends EntidadAuditable {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "movimiento_origen_id", nullable = false, unique = true)
     private Movimiento movimientoOrigen;
+
+    @OneToMany(mappedBy = "obligacion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("numero ASC")
+    private List<Cuota> cuotas = new ArrayList<>();
 
     protected Obligacion() {
     }
@@ -68,6 +79,10 @@ public class Obligacion extends EntidadAuditable {
         return movimientoOrigen;
     }
 
+    public List<Cuota> getCuotas() {
+        return Collections.unmodifiableList(cuotas);
+    }
+
     /** La moneda de la obligación es la moneda económica del movimiento que la originó. */
     public Moneda getMoneda() {
         return movimientoOrigen.getMoneda();
@@ -87,6 +102,42 @@ public class Obligacion extends EntidadAuditable {
         );
     }
 
+    /**
+     * Genera cuotas iguales sin intereses. La diferencia de centavos, cuando existe,
+     * se asigna a la última cuota para que la suma coincida exactamente con el consumo.
+     */
+    public void generarCuotas(int cantidad) {
+        if (cantidad < 1) {
+            throw new IllegalArgumentException("La cantidad de cuotas debe ser positiva");
+        }
+        if (!cuotas.isEmpty()) {
+            throw new IllegalStateException("La obligación ya tiene cuotas generadas");
+        }
+
+        BigDecimal importeBase = importeOriginal.divide(
+                BigDecimal.valueOf(cantidad),
+                2,
+                RoundingMode.DOWN
+        );
+        BigDecimal importeAcumulado = BigDecimal.ZERO;
+        CicloFacturacion ciclo = getCicloFacturacion();
+
+        for (int numero = 1; numero <= cantidad; numero++) {
+            BigDecimal importeCuota = numero == cantidad
+                    ? importeOriginal.subtract(importeAcumulado)
+                    : importeBase;
+
+            cuotas.add(new Cuota(this, numero, importeCuota, ciclo));
+            importeAcumulado = importeAcumulado.add(importeCuota);
+
+            if (numero < cantidad) {
+                ciclo = movimientoOrigen.getCuenta().calcularCicloFacturacion(
+                        ciclo.getFechaCierre().plusDays(1)
+                );
+            }
+        }
+    }
+
     public void registrarPago(BigDecimal importe) {
         if (estado == EstadoObligacion.PAGADA) {
             throw new IllegalStateException("La obligación ya está pagada");
@@ -98,7 +149,21 @@ public class Obligacion extends EntidadAuditable {
             throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
         }
 
-        saldoPendiente = saldoPendiente.subtract(pago);
+        if (cuotas.isEmpty()) {
+            saldoPendiente = saldoPendiente.subtract(pago);
+        } else {
+            BigDecimal restante = pago;
+            for (Cuota cuota : cuotas) {
+                if (restante.signum() == 0) {
+                    break;
+                }
+                BigDecimal pagoCuota = restante.min(cuota.getSaldoPendiente());
+                cuota.registrarPago(pagoCuota);
+                restante = restante.subtract(pagoCuota);
+            }
+            saldoPendiente = saldoPendiente.subtract(pago);
+        }
+
         estado = saldoPendiente.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
     }
 }
