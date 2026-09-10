@@ -8,16 +8,15 @@ import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
+import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
-import javax.swing.JTabbedPane;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JList;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +24,7 @@ import java.util.Objects;
 /** Panel del módulo de cuentas. */
 public class CuentasPanel extends JPanel {
 
-    private final DefaultListModelWrapper modeloCuentas;
+    private final DefaultListModel<String> modeloCuentas;
     private final JList<String> listaCuentas;
     private final List<Cuenta> cuentas;
     private final CuentaService cuentaService;
@@ -37,8 +36,8 @@ public class CuentasPanel extends JPanel {
 
     /** Constructor del shell sin contexto de usuario. */
     public CuentasPanel() {
-        modeloCuentas = new DefaultListModelWrapper();
-        listaCuentas = new JList<>(modeloCuentas.getModel());
+        modeloCuentas = new DefaultListModel<>();
+        listaCuentas = new JList<>(modeloCuentas);
         cuentas = new ArrayList<>();
         cuentaService = null;
         institucionFinancieraService = null;
@@ -94,8 +93,8 @@ public class CuentasPanel extends JPanel {
             );
         }
 
-        modeloCuentas = new DefaultListModelWrapper();
-        listaCuentas = new JList<>(modeloCuentas.getModel());
+        modeloCuentas = new DefaultListModel<>();
+        listaCuentas = new JList<>(modeloCuentas);
         cuentas = new ArrayList<>();
 
         setLayout(new BorderLayout(12, 12));
@@ -174,23 +173,6 @@ public class CuentasPanel extends JPanel {
                 etiqueta += " — Tarjeta de crédito";
             }
             modeloCuentas.addElement(etiqueta);
-        }
-    }
-
-    /** Adaptador pequeño para conservar el acceso al DefaultListModel sin exponerlo. */
-    private static final class DefaultListModelWrapper {
-        private final javax.swing.DefaultListModel<String> model = new javax.swing.DefaultListModel<>();
-
-        javax.swing.DefaultListModel<String> getModel() {
-            return model;
-        }
-
-        void clear() {
-            model.clear();
-        }
-
-        void addElement(String value) {
-            model.addElement(value);
         }
     }
 }
