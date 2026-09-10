@@ -119,6 +119,37 @@ class GastosPanelTest {
     }
 
     @Test
+    void deberiaActualizarLasCuentasAlSolicitarRefresco() {
+        Usuario usuario = crearUsuario();
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta inicial = new Cuenta("Cuenta inicial", TipoCuenta.CAJA_AHORRO, perfil, institucion, moneda);
+        persistir(usuario, perfil, institucion, moneda, inicial);
+
+        GastosPanel panel = new GastosPanel(
+                new GastoService(movimientoService),
+                cuentaService,
+                categoriaService,
+                perfil.getId(),
+                usuario.getId()
+        );
+        assertEquals(1, panel.getCuentaComboBox().getItemCount());
+        assertEquals(inicial, panel.getCuentaComboBox().getItemAt(0));
+
+        Cuenta nueva = new Cuenta("Tarjeta nueva", perfil, institucion, moneda, new BigDecimal("500000"), 10, 25);
+        persistir(nueva);
+
+        panel.actualizarCuentas();
+
+        assertEquals(2, panel.getCuentaComboBox().getItemCount());
+        assertEquals(inicial, panel.getCuentaComboBox().getItemAt(0));
+        assertEquals(nueva, panel.getCuentaComboBox().getItemAt(1));
+        assertTrue(panel.getCuentaComboBox().getSelectedItem() == null);
+    }
+
+    @Test
     void deberiaRegistrarElGastoComoEgresoConFormaDePago() {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
