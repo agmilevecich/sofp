@@ -7,36 +7,54 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit funcional verificado: `34eb4cc51e302086375a5c745ed512d6247048ec` — `config: conectar SOFP a H2 por TCP`.
+Último commit del bloque funcional de tarjetas: `4b26734` — `test: ajustar orden de seleccion en gastos`.
 
-Antes de la actualización documental, GitHub verificó que `feature/swing-shell` estaba **495 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
+La rama de trabajo continúa separada de `main`; no se realizó merge.
 
 ## Último bloque funcional cerrado
 
-### H2 persistente por TCP
+### Selección explícita de tarjeta de crédito en Gastos
 
-La aplicación SOFP quedó configurada para conectarse a H2 mediante servidor TCP:
+`GastosPanel` filtra dinámicamente la cuenta disponible cuando la forma de pago es `TARJETA_CREDITO`.
+
+Cuando se selecciona `TARJETA_CREDITO`:
+
+- se muestran únicamente cuentas activas;
+- se muestran únicamente cuentas con `TipoCuenta.TARJETA_CREDITO`;
+- la tarjeta seleccionada se utiliza como `Cuenta` al registrar el gasto;
+- las cuentas de ahorro, corriente, efectivo u otros tipos no se mezclan en esa selección.
+
+También se agregó cobertura específica para la selección de tarjeta y se ajustó el orden de interacción de los tests de `GastosPanel` para seleccionar primero la forma de pago y luego la cuenta, que es el flujo vigente de la UI.
+
+## Validación más reciente
+
+El usuario ejecutó `mvn test` el **11/09/2026 14:10:20 -03:00**:
+
+- **688/688** tests;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- duración **12:52 min**.
+
+También se ejecutaron previamente los tests específicos de `GastosPanel` y selección de tarjeta con resultado exitoso.
+
+La validación final de Git fue informada por el usuario:
+
+- `git diff`: sin cambios;
+- `git diff --check`: sin errores;
+- `git status`: working tree limpio;
+- rama local sincronizada con `github/feature/swing-shell`.
+
+## Persistencia y H2
+
+La aplicación SOFP utiliza H2 mediante servidor TCP:
 
 `jdbc:h2:tcp://localhost/./database/sofp`
 
 Esto permite que SOFP y H2 Console utilicen simultáneamente la misma base persistente.
 
-El usuario verificó manualmente que la aplicación funciona y que H2 Console funciona desde el navegador sobre la misma base.
-
 Los tests mantienen una configuración independiente con H2 en memoria mediante su propio `src/test/resources/META-INF/persistence.xml`.
-
-## Validación más reciente
-
-El usuario ejecutó `mvn test` el **11/09/2026 13:14:41 -03:00**:
-
-- **687/687** tests;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración **18:31 min**.
-
-También se verificó manualmente SOFP + H2 Console simultáneamente.
 
 ## Arquitectura funcional vigente
 
@@ -73,16 +91,9 @@ Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límit
 
 ## Próximo paso real
 
-**Selección explícita de tarjeta de crédito en `GastosPanel`.**
+**Integración de ciclos de facturación con consumos, obligaciones y pagos.**
 
-Objetivo:
-
-- cuando la forma de pago sea `TARJETA_CREDITO`, permitir seleccionar explícitamente qué tarjeta se utiliza;
-- ofrecer únicamente cuentas activas de tipo `TARJETA_CREDITO`;
-- pasar la tarjeta seleccionada como `Cuenta` a `GastoService`;
-- cubrir con tests la selección correcta y evitar mezclar cuentas de otros tipos.
-
-Antes de implementar, revisar `GastosPanel`, `GastoService`, `CuentaService`, repositorio de cuentas y tests relacionados.
+Después deberán abordarse la unificación del saldo de tarjetas, la profundización de pagos y liberación de crédito, pasivos/patrimonio y análisis histórico/dashboard.
 
 ## Protocolo de continuidad
 
