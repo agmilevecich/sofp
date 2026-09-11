@@ -5,34 +5,32 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Antes de esta actualización documental, GitHub verificó `feature/swing-shell` en `34eb4cc`, **495 commits adelante y 0 atrás** respecto de `main`. No se realizó merge.
+El bloque de selección explícita de tarjeta de crédito quedó cerrado y validado. No se realizó merge a `main`.
 
 ## Último bloque cerrado
 
-### H2 persistente por TCP
+### Selección explícita de tarjeta de crédito en Gastos
 
 **Completado y validado.**
 
-La aplicación utiliza `jdbc:h2:tcp://localhost/./database/sofp` y puede compartir la base persistente con H2 Console.
+Cuando `FormaPago.TARJETA_CREDITO` está seleccionada, `GastosPanel` ofrece únicamente cuentas activas con `TipoCuenta.TARJETA_CREDITO`. La tarjeta seleccionada se pasa como `Cuenta` al registro del gasto.
 
-El usuario verificó manualmente SOFP + H2 Console simultáneamente y luego ejecutó la suite general con resultado **687/687**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Se agregaron tests específicos para tarjetas activas y cuentas de otros tipos, y se ajustó el orden de interacción de los tests existentes para respetar el nuevo flujo de la UI.
 
-Los tests continúan usando H2 en memoria mediante su configuración de test independiente.
+La suite general quedó en **688/688**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
 ## Pendientes en orden
 
-1. **Agregar selección explícita de tarjeta de crédito en `GastosPanel`** cuando `FormaPago.TARJETA_CREDITO` esté seleccionada.
-2. Verificar mediante tests que solo se ofrezcan tarjetas activas de tipo `TARJETA_CREDITO` y que la tarjeta seleccionada sea la cuenta utilizada por `GastoService`.
-3. Integrar ciclos de facturación y vencimientos con consumos/obligaciones.
-4. Unificar el tratamiento del saldo de tarjetas entre `MovimientoService` y `CuentaService`.
-5. Profundizar pagos de tarjeta y liberación de crédito, incluyendo reglas de ciclo y moneda.
-6. Ampliar pasivos y patrimonio neto.
-7. Análisis histórico, vencimientos, resúmenes y dashboard.
-8. Pulido de consola, de baja prioridad.
+1. **Integrar ciclos de facturación y vencimientos con consumos/obligaciones.**
+2. Unificar el tratamiento del saldo de tarjetas entre `MovimientoService` y `CuentaService`.
+3. Profundizar pagos de tarjeta y liberación de crédito, incluyendo reglas de ciclo y moneda.
+4. Ampliar pasivos y patrimonio neto.
+5. Análisis histórico, vencimientos, resúmenes y dashboard.
+6. Pulido de consola, de baja prioridad.
 
 ## Nota sobre UI de tarjetas
 
-Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. No se prevé crear una entidad nueva para seleccionar la tarjeta. El objetivo es que `GastosPanel` seleccione una cuenta de ese tipo y la pase a `GastoService`.
+Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. No se creó una entidad nueva para seleccionar la tarjeta. `GastosPanel` selecciona una cuenta de ese tipo y la pasa a `GastoService`.
 
 La UI no debe duplicar reglas financieras: el servicio continúa siendo responsable de registrar el gasto, validar y generar la obligación/cuotas.
 
