@@ -4,48 +4,42 @@
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` el **11/09/2026 14:10:20 -03:00**.
+El usuario ejecutó `mvn test` el **11/09/2026 20:11:17 -03:00**.
 
 Resultado:
 
-- Tests run: **688**;
+- Tests run: **689**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración **12:52 min**.
+- duración **10:22 min**.
 
-Esta es la suite general más reciente conocida y válida.
+### Tests relacionados del último bloque
 
-### Tests específicos del último bloque
+Se ejecutó el conjunto relacionado de obligaciones, cuotas, ciclos y servicios.
 
-Se ejecutó:
+Resultado: **49/49**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-`mvn -Dtest=GastosPanelTest,GastosPanelTarjetaCreditoTest test`
+### Último test agregado
 
-Resultado: **8/8**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-
-La cobertura de `GastosPanelTarjetaCreditoTest` verifica que, al seleccionar `TARJETA_CREDITO`, se muestren únicamente tarjetas activas y que las cuentas de otros tipos no se mezclen. También verifica el retorno a la selección general de cuentas al cambiar la forma de pago.
-
-`GastosPanelTest` mantiene el flujo de interacción vigente: seleccionar primero la forma de pago y luego la cuenta. Esto es necesario porque el cambio de forma de pago reconstruye el contenido de la selección de cuentas.
+`ObligacionCuotasTest` incorpora cobertura para una compra del `2026-12-16` con tres cuotas, verificando ciclos y vencimientos que atraviesan el fin de año y llegan hasta abril de 2027.
 
 ## Persistencia de tests
 
-Los tests utilizan su propio `src/test/resources/META-INF/persistence.xml` con H2 en memoria. La configuración de la aplicación en `src/main/resources/META-INF/persistence.xml` usa H2 TCP y no modifica el aislamiento de la suite.
+Los tests utilizan su propio `src/test/resources/META-INF/persistence.xml` con H2 en memoria. La configuración de la aplicación usa H2 TCP y no modifica el aislamiento de la suite.
 
 ## Cuotas
 
-La cobertura verifica la generación de cuotas al registrar gastos con tarjeta y el tratamiento de cuotas por `PagoTarjetaService`.
-
-`GastosPanelTest` cubre actualmente el registro de un gasto con tres cuotas utilizando el flujo real de `GastoService`, que genera automáticamente las cuotas.
+La cobertura verifica generación automática de cuotas al registrar gastos con tarjeta y el tratamiento de pagos por `PagoTarjetaService`.
 
 ## Crédito y tarjetas
 
-La cobertura incluye límites, crédito disponible, consumo parcial, límite exacto, exceso, monedas diferentes, liberación mediante pagos y consumos sin obligación sin doble contabilización.
+La cobertura incluye límites, crédito disponible, consumo parcial, límite exacto, exceso, monedas diferentes, liberación mediante pagos, consumos sin obligación y selección explícita de tarjeta activa en la UI.
 
 ## Ciclos de facturación
 
-`CicloFacturacionTest` contiene 9 tests y cubre cierre exacto, ciclo siguiente, meses cortos, febrero, vencimiento posterior al cierre, cambio de año y fecha nula.
+`CicloFacturacionTest` cubre cierre exacto, ciclo siguiente, meses cortos, febrero, vencimiento posterior al cierre, cambio de año y fecha nula. `ObligacionCuotasTest` agrega cobertura de cuotas que atraviesan el fin de año.
 
 ## Obligaciones y moneda
 
