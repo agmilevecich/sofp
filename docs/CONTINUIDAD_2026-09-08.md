@@ -1,23 +1,17 @@
 # SOFP — Continuidad 2026-09-08
 
-> Corte histórico de continuidad. Para el estado vigente utilizar `docs/00_ESTADO_ACTUAL.md` y `docs/CHAT_CONTEXT.md`, verificando siempre código, tests y Git.
+> **Corte histórico.** Este documento conserva el contexto de esa etapa. El estado vigente al 11/09/2026 está consolidado en `docs/CONTINUIDAD_2026-09-11.md`, `docs/00_ESTADO_ACTUAL.md` y `docs/CHAT_CONTEXT_FINAL.md`.
 
-## Actualización posterior — 09/09/2026
+## Registro histórico
 
-Este documento queda como registro histórico del corte del 08/09/2026. Desde ese corte, el bloque de moneda en movimientos y obligaciones fue completado.
+Este documento corresponde al corte del 08/09/2026 y a su actualización posterior del 09/09/2026. Desde entonces el proyecto evolucionó con ciclos de facturación, obligaciones, cuotas, pagos de tarjeta, UI Swing y selección explícita de tarjeta.
 
 La rama de trabajo `feature/swing-shell` continúa separada de `main`.
 
-El último commit funcional vigente pasó a ser:
+## Regla de continuidad
 
-- `13a68fb` — `fix: estabilizar formato de moneda en obligaciones`.
+No utilizar los conteos, commits ni pendientes de este corte como fuente actual. Reconstruir siempre desde GitHub y priorizar código, tests y commits actuales.
 
-El bloque agregó la conservación de moneda económica del consumo en la obligación y su visualización en `ObligacionesPanel`, con formato decimal estable mediante `Locale.ROOT`.
+## Referencia vigente
 
-Validaciones posteriores:
-
-- `mvn test -Dtest=ObligacionesPanelTest` → **4/4**, BUILD SUCCESS, 01:20 min, 09/09/2026 13:05:03 -03:00.
-- `mvn test` → **642/642**, BUILD SUCCESS, 09:43 min, 09/09/2026 13:15:48 -03:00.
-- `git diff`, `git diff --check`, `git status` → working tree limpio y rama sincronizada.
-
-Para continuar desde el estado vigente no utilizar los conteos, commits ni pendientes de este corte como fuente actual; reconstruir desde GitHub.
+Estado actual: `docs/CONTINUIDAD_2026-09-11.md`.
