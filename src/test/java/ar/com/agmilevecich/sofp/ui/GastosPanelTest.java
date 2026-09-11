@@ -178,9 +178,9 @@ class GastosPanelTest {
                 perfil.getId(),
                 usuario.getId()
         );
+        panel.getFormaPagoComboBox().setSelectedItem(FormaPago.TARJETA_DEBITO);
         panel.getCuentaComboBox().setSelectedItem(cuenta);
         panel.getCategoriaComboBox().setSelectedItem(categoria);
-        panel.getFormaPagoComboBox().setSelectedItem(FormaPago.TARJETA_DEBITO);
         panel.getImporteField().setText("100");
         panel.getFechaField().setDate(LocalDate.of(2026, 9, 4));
         panel.getDescripcionField().setText("Compra supermercado");
@@ -223,9 +223,9 @@ class GastosPanelTest {
                 perfil.getId(),
                 usuario.getId()
         );
+        panel.getFormaPagoComboBox().setSelectedItem(FormaPago.TARJETA_CREDITO);
         panel.getCuentaComboBox().setSelectedItem(cuenta);
         panel.getCategoriaComboBox().setSelectedItem(categoria);
-        panel.getFormaPagoComboBox().setSelectedItem(FormaPago.TARJETA_CREDITO);
         panel.getCuotasComboBox().setSelectedItem(3);
         panel.getImporteField().setText("1000");
         panel.getFechaField().setDate(LocalDate.of(2026, 9, 10));
