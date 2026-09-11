@@ -2,57 +2,41 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
-## Estado verificado — 10/09/2026
+## Estado verificado — 11/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-GitHub verifica que `feature/swing-shell` está **470 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
+Último commit funcional verificado: `34eb4cc51e302086375a5c745ed512d6247048ec` — `config: conectar SOFP a H2 por TCP`.
 
-Último commit funcional/documentado verificado antes de esta actualización: `51d4afe4e40a558026b17e44ae6e54085c7a908d` — `fix: ajustar test de cuotas al registro automatico`.
+Antes de la actualización documental, GitHub verificó que `feature/swing-shell` estaba **495 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
 ## Último bloque funcional cerrado
 
-### Cuotas automáticas en gastos con tarjeta
+### H2 persistente por TCP
 
-`GastoService` genera automáticamente la cantidad solicitada de cuotas al registrar un gasto con `FormaPago.TARJETA_CREDITO`. La generación de cuotas ocurre dentro de la transacción del registro de la obligación y las cuotas se persisten correctamente.
+La aplicación SOFP quedó configurada para conectarse a H2 mediante servidor TCP:
 
-Se corrigió `PagoTarjetaServiceTest` para que el escenario de tres cuotas utilice el registro real del gasto con `cantidadCuotas = 3`, en lugar de generar manualmente las cuotas después. Esto evita la excepción `La obligación ya tiene cuotas generadas` y hace que el test represente el flujo productivo actual.
+`jdbc:h2:tcp://localhost/./database/sofp`
 
-Commit:
+Esto permite que SOFP y H2 Console utilicen simultáneamente la misma base persistente.
 
-- `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
+El usuario verificó manualmente que la aplicación funciona y que H2 Console funciona desde el navegador sobre la misma base.
 
-## Validación más reciente conocida
+Los tests mantienen una configuración independiente con H2 en memoria mediante su propio `src/test/resources/META-INF/persistence.xml`.
 
-### Suite general
+## Validación más reciente
 
-El usuario ejecutó `mvn test` el **10/09/2026 10:39:38 -03:00**:
+El usuario ejecutó `mvn test` el **11/09/2026 13:14:41 -03:00**:
 
-- **671/671** tests;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`.
-
-### Suite relacionada con el último ajuste
-
-El usuario ejecutó:
-
-`mvn -Dtest=GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest test`
-
-el **10/09/2026 13:14:29 -03:00**:
-
-- **32/32** tests;
+- **687/687** tests;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración **01:19 min**.
+- duración **18:31 min**.
 
-También se verificó `PagoTarjetaServiceTest` de forma aislada: **4/4**, `BUILD SUCCESS`, 13:08:50 -03:00.
-
-`GastosPanelTest` aislado: **6/6**, `BUILD SUCCESS`.
+También se verificó manualmente SOFP + H2 Console simultáneamente.
 
 ## Arquitectura funcional vigente
 
@@ -60,7 +44,9 @@ También se verificó `PagoTarjetaServiceTest` de forma aislada: **4/4**, `BUILD
 
 Gastos: `GastosPanel → GastoService → MovimientoService → Movimiento EGRESO`.
 
-Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación. `GastoService` registra las cuotas solicitadas automáticamente.
+Ingresos: `IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
+
+Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación. `GastoService` registra automáticamente las cuotas solicitadas dentro de la transacción de la obligación.
 
 ## Moneda, obligaciones y tarjetas
 
@@ -69,6 +55,8 @@ Los movimientos admiten moneda explícita. Una obligación conserva la moneda ec
 Las obligaciones tienen estados `PENDIENTE`, `PARCIAL` y `PAGADA`. Los pagos de tarjeta están autorizados por usuario.
 
 Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límite, día de cierre y día de vencimiento.
+
+`CicloFacturacion` es un objeto de dominio no persistente y ya está implementado; queda pendiente su integración completa con consumos, obligaciones y pagos.
 
 ## Reglas financieras vigentes
 
@@ -83,27 +71,18 @@ Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límit
 - Transferencias propias no son ingresos ni gastos.
 - La UI no debe duplicar reglas financieras.
 
-## Últimos commits funcionales relevantes
-
-- `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
-- `4ce1591` — `fix: generar cuotas dentro de la transaccion del gasto`.
-- `87fab04` — `fix: persistir cuotas al registrar obligaciones`.
-- `4092212` — `fix: corregir fixture de cuotas en GastosPanelTest`.
-- `afbfd7b` — `test: cubrir cuotas en GastoService`.
-- `3fd91b1` — `feat: integrar cuotas al registro de gastos`.
-
 ## Próximo paso real
 
-Revisar `GastosPanelTest` antes de modificar la UI para resolver la selección explícita de tarjeta de crédito en `GastosPanel`.
+**Selección explícita de tarjeta de crédito en `GastosPanel`.**
 
-Objetivo previsto del próximo bloque:
+Objetivo:
 
-- mostrar/usar una selección específica de tarjetas de crédito cuando `FormaPago.TARJETA_CREDITO` esté elegida;
-- listar únicamente cuentas activas de tipo `TARJETA_CREDITO`;
+- cuando la forma de pago sea `TARJETA_CREDITO`, permitir seleccionar explícitamente qué tarjeta se utiliza;
+- ofrecer únicamente cuentas activas de tipo `TARJETA_CREDITO`;
 - pasar la tarjeta seleccionada como `Cuenta` a `GastoService`;
-- cubrir con tests que la tarjeta correcta sea la utilizada y que no se mezclen cuentas de otros tipos.
+- cubrir con tests la selección correcta y evitar mezclar cuentas de otros tipos.
 
-Antes de implementar, revisar `GastosPanelTest`, `GastosPanel`, servicios/repositorios de cuentas y convenciones de los paneles existentes.
+Antes de implementar, revisar `GastosPanel`, `GastoService`, `CuentaService`, repositorio de cuentas y tests relacionados.
 
 ## Protocolo de continuidad
 
