@@ -25,6 +25,8 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git.
 17. Integración inicial de cuotas al registro de gastos con tarjeta.
 18. Corrección de tests para respetar la generación automática de cuotas.
 19. Configuración de H2 de la aplicación mediante servidor TCP compartido con H2 Console.
+20. Selección explícita de tarjeta de crédito en `GastosPanel`.
+21. Cobertura de cuotas al cruzar el fin de año.
 
 ## Estado actual de persistencia
 
@@ -48,21 +50,22 @@ El crédito disponible se calcula inicialmente por moneda, sin conversiones impl
 
 Al registrar un gasto con tarjeta, `GastoService` genera automáticamente la cantidad solicitada de cuotas dentro de la transacción de la obligación y las cuotas quedan persistidas.
 
+`ObligacionCuotasTest` cubre además cuotas cuyo ciclo atraviesa el cambio de año.
+
 ## Validación más reciente conocida
 
-Suite general ejecutada por el usuario el **11/09/2026 13:14:41 -03:00**: **687/687**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, duración 18:31 min.
+Suite general ejecutada por el usuario el **11/09/2026 20:11:17 -03:00**: **689/689**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, duración 10:22 min.
 
-También se verificó manualmente el funcionamiento simultáneo de SOFP y H2 Console.
+Los tests relacionados del bloque de obligaciones/cuotas/servicios quedaron en **49/49**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
 ## Próximos hitos
 
-1. Selección explícita de tarjeta de crédito en `GastosPanel`.
-2. Tests de tarjetas activas y selección de la cuenta correcta.
-3. Integración de ciclos con consumos y obligaciones.
-4. Unificación del saldo monetario de tarjetas entre `MovimientoService` y `CuentaService`.
-5. Profundizar pagos y liberación de crédito.
-6. Pasivos y patrimonio neto.
-7. Análisis histórico, vencimientos, resúmenes y dashboard.
-8. Pulido de consola.
+1. Auditar los pendientes documentados contra el código y los tests actuales.
+2. Confirmar si la integración completa de ciclos con consumos, obligaciones y pagos continúa pendiente.
+3. Unificar el saldo monetario de tarjetas entre `MovimientoService` y `CuentaService` si corresponde.
+4. Profundizar pagos y liberación de crédito.
+5. Pasivos y patrimonio neto.
+6. Análisis histórico, vencimientos, resúmenes y dashboard.
+7. Pulido de consola.
 
 No hacer merge a `main` automáticamente ni crear ramas nuevas salvo indicación explícita.
