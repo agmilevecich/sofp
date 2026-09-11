@@ -7,44 +7,62 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit del bloque funcional de tarjetas: `4b26734` — `test: ajustar orden de seleccion en gastos`.
+Último commit: `44661fb` — `test: cubrir cuotas al cruzar fin de año`.
 
-La rama de trabajo continúa separada de `main`; no se realizó merge.
+GitHub verifica que la rama está **514 commits adelante y 0 atrás** respecto de `main`. No se realizó merge a `main`.
 
 ## Último bloque funcional cerrado
 
 ### Selección explícita de tarjeta de crédito en Gastos
 
-`GastosPanel` filtra dinámicamente la cuenta disponible cuando la forma de pago es `TARJETA_CREDITO`.
+`GastosPanel` filtra dinámicamente las cuentas cuando la forma de pago es `TARJETA_CREDITO`.
 
 Cuando se selecciona `TARJETA_CREDITO`:
 
 - se muestran únicamente cuentas activas;
 - se muestran únicamente cuentas con `TipoCuenta.TARJETA_CREDITO`;
 - la tarjeta seleccionada se utiliza como `Cuenta` al registrar el gasto;
-- las cuentas de ahorro, corriente, efectivo u otros tipos no se mezclan en esa selección.
+- las cuentas de otros tipos no se mezclan en esa selección.
 
-También se agregó cobertura específica para la selección de tarjeta y se ajustó el orden de interacción de los tests de `GastosPanel` para seleccionar primero la forma de pago y luego la cuenta, que es el flujo vigente de la UI.
+El flujo de UI vigente es seleccionar primero la forma de pago y luego la cuenta.
+
+## Último cambio de tests
+
+Se agregó cobertura para generación de cuotas al cruzar el fin de año:
+
+- compra: `2026-12-16`;
+- cuota 1: cierre `2027-01-15`, vencimiento `2027-02-10`;
+- cuota 2: cierre `2027-02-15`, vencimiento `2027-03-10`;
+- cuota 3: cierre `2027-03-15`, vencimiento `2027-04-10`.
 
 ## Validación más reciente
 
-El usuario ejecutó `mvn test` el **11/09/2026 14:10:20 -03:00**:
+El usuario ejecutó `mvn test` el **11/09/2026 20:11:17 -03:00**:
 
-- **688/688** tests;
+- **689/689** tests;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración **12:52 min**.
+- duración **10:22 min**.
 
-También se ejecutaron previamente los tests específicos de `GastosPanel` y selección de tarjeta con resultado exitoso.
+También se ejecutaron los tests relacionados del dominio/servicios:
 
-La validación final de Git fue informada por el usuario:
+- **49/49** tests;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`.
 
-- `git diff`: sin cambios;
-- `git diff --check`: sin errores;
+## Validación Git
+
+El usuario informó:
+
+- `git diff main...feature/swing-shell --check`: sin salida;
 - `git status`: working tree limpio;
-- rama local sincronizada con `github/feature/swing-shell`.
+- rama sincronizada con `github/feature/swing-shell`.
+
+La comparación GitHub contra `main` confirma 514 commits adelante y 0 atrás, con 109 archivos modificados respecto de `main`.
 
 ## Persistencia y H2
 
@@ -52,7 +70,7 @@ La aplicación SOFP utiliza H2 mediante servidor TCP:
 
 `jdbc:h2:tcp://localhost/./database/sofp`
 
-Esto permite que SOFP y H2 Console utilicen simultáneamente la misma base persistente.
+El servidor H2 se ejecuta en `localhost:9092` y H2 Console en `localhost:8082`. La aplicación y la consola utilizan la misma base persistente.
 
 Los tests mantienen una configuración independiente con H2 en memoria mediante su propio `src/test/resources/META-INF/persistence.xml`.
 
@@ -74,24 +92,11 @@ Las obligaciones tienen estados `PENDIENTE`, `PARCIAL` y `PAGADA`. Los pagos de 
 
 Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límite, día de cierre y día de vencimiento.
 
-`CicloFacturacion` es un objeto de dominio no persistente y ya está implementado; queda pendiente su integración completa con consumos, obligaciones y pagos.
-
-## Reglas financieras vigentes
-
-- `EGRESO` superior al saldo disponible: rechazado.
-- `EGRESO` igual al saldo disponible: permitido y deja saldo cero.
-- Las modificaciones de importe y tipo respetan fondos disponibles.
-- Categorías con movimientos se conservan y se desactivan en lugar de eliminarse físicamente.
-- Cuenta y forma de pago son conceptos distintos.
-- Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación.
-- Las cuotas se generan automáticamente al registrar el gasto cuando se solicita una cantidad mayor que una.
-- El crédito disponible se calcula inicialmente por moneda de la tarjeta, sin conversión implícita.
-- Transferencias propias no son ingresos ni gastos.
-- La UI no debe duplicar reglas financieras.
+`CicloFacturacion` es un objeto de dominio no persistente. Ya está implementado y tiene cobertura propia; queda pendiente su integración completa con consumos, obligaciones y pagos.
 
 ## Próximo paso real
 
-**Integración de ciclos de facturación con consumos, obligaciones y pagos.**
+Auditar los pendientes actuales contra el código y los 689 tests para separar pendientes funcionales reales de mejoras futuras. El siguiente bloque funcional candidato continúa siendo la integración de ciclos de facturación y vencimientos con consumos, obligaciones y pagos.
 
 Después deberán abordarse la unificación del saldo de tarjetas, la profundización de pagos y liberación de crédito, pasivos/patrimonio y análisis histórico/dashboard.
 
