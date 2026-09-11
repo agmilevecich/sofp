@@ -4,18 +4,30 @@
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` el **11/09/2026 13:14:41 -03:00**.
+El usuario ejecutó `mvn test` el **11/09/2026 14:10:20 -03:00**.
 
 Resultado:
 
-- Tests run: **687**;
+- Tests run: **688**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- duración **18:31 min**.
+- duración **12:52 min**.
 
 Esta es la suite general más reciente conocida y válida.
+
+### Tests específicos del último bloque
+
+Se ejecutó:
+
+`mvn -Dtest=GastosPanelTest,GastosPanelTarjetaCreditoTest test`
+
+Resultado: **8/8**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+La cobertura de `GastosPanelTarjetaCreditoTest` verifica que, al seleccionar `TARJETA_CREDITO`, se muestren únicamente tarjetas activas y que las cuentas de otros tipos no se mezclen. También verifica el retorno a la selección general de cuentas al cambiar la forma de pago.
+
+`GastosPanelTest` mantiene el flujo de interacción vigente: seleccionar primero la forma de pago y luego la cuenta. Esto es necesario porque el cambio de forma de pago reconstruye el contenido de la selección de cuentas.
 
 ## Persistencia de tests
 
