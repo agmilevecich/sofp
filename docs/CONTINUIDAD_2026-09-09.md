@@ -1,68 +1,21 @@
 # SOFP — Continuidad 2026-09-09
 
-## Estado
+> **Corte histórico.** El estado vigente al 11/09/2026 está consolidado en `docs/CONTINUIDAD_2026-09-11.md`, `docs/00_ESTADO_ACTUAL.md` y `docs/CHAT_CONTEXT_FINAL.md`.
 
-- Rama de trabajo: `feature/swing-shell`
-- `main`: `a4be85913847200cb70976d5266d9cbba10b3100`
-- Antes de este cierre, la rama estaba 428 commits adelante de `main` y 0 atrás. GitHub es la fuente de verdad para el conteo actual.
-- Último bloque funcional: límite y crédito disponible de tarjetas de crédito.
+## Estado histórico
 
-## Últimos cambios
+Este documento registra el bloque histórico de límite y crédito disponible de tarjetas. Ese bloque posteriormente evolucionó hacia ciclos de facturación, obligaciones, cuotas, pagos y la integración Swing.
 
-Se implementó el criterio inicial de crédito disponible para tarjetas:
+La rama de trabajo `feature/swing-shell` continúa separada de `main`.
 
-`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
+## Reglas históricas relevantes
 
-No se realizan conversiones implícitas entre monedas.
+El crédito disponible se definió inicialmente como límite de crédito menos consumos pendientes de tarjeta en la misma moneda, sin conversiones implícitas.
 
-Se incorporó:
+El bloque fue validado y posteriormente ampliado con las reglas de ciclos, obligaciones y cuotas que existen actualmente en el código.
 
-- `Cuenta.calcularCreditoDisponible(...)`.
-- `CuentaService.calcularCreditoDisponible(...)` con autorización y filtrado por moneda.
-- Validación de límite al registrar consumos con `FormaPago.TARJETA_CREDITO`.
-- Validación al modificar importe o tipo de movimiento.
-- Exclusión de consumos con tarjeta de crédito del saldo monetario de la cuenta.
-- Pruebas para consumo parcial, límite exacto, exceso de límite y consumo en moneda diferente.
+## Referencia vigente
 
-## Commits del bloque
-
-- `923e6bf` — `feat: calcular credito disponible de tarjeta`
-- `6c4049d` — `feat: exponer credito disponible de tarjeta`
-- `9f9925c` — `feat: validar limite de tarjeta en consumos`
-- `4a57efe` — `test: cubrir credito disponible de tarjeta`
-- `fab7fd1` — `test: cubrir limite y credito disponible de tarjeta`
-- `63dde05` — `fix: restaurar rollback original en CuentaService`
-
-El último commit correctivo restauró una diferencia accidental y no relacionada con la funcionalidad: `modificarMoneda` vuelve a utilizar la variable `transaction` para hacer rollback, manteniendo la convención previa.
-
-## Tests
-
-Validación específica informada por el usuario:
-
-- `CuentaTest` + `MovimientoServiceSaldoTest`: 23/23, 0 fallos, 0 errores.
-
-Suite completa informada por el usuario:
-
-- **650/650 tests**
-- 0 fallos
-- 0 errores
-- BUILD SUCCESS
-- 09/09/2026 14:35:11 -03:00
-
-El usuario indicó además `Skipped 1 message` en la salida de Maven; el resumen de resultados reportó 0 tests omitidos.
-
-## Auditoría del bloque
-
-La revisión de los diffs de GitHub confirmó que los cambios funcionales principales son aditivos y están localizados en los puntos esperados: dominio `Cuenta`, servicios de cuenta/movimiento y tests correspondientes.
-
-Se detectó y corrigió una modificación accidental no relacionada en el rollback de `CuentaService`.
-
-## Próximo paso
-
-Antes de construir la pantalla Swing específica de tarjetas, continuar con las reglas financieras del dominio.
-
-El siguiente bloque candidato es definir e implementar ciclos de facturación y vencimientos, verificando primero `Cuenta`, `Movimiento`, `Obligacion`, servicios y tests actuales.
-
-Después deberán resolverse pagos y liberación de crédito, y finalmente cuotas/financiación y UI específica de tarjetas.
+No utilizar los conteos, commits ni pendientes de este corte como fuente actual. Para continuar SOFP, reconstruir desde GitHub y utilizar `docs/CONTINUIDAD_2026-09-11.md` como referencia documental más reciente, siempre subordinada al código y tests actuales.
 
 No hacer merge a `main` automáticamente.
