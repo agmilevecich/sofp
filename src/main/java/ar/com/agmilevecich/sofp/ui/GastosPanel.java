@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.GastoService;
@@ -105,6 +106,7 @@ public class GastosPanel extends JPanel {
         cargarCuentas();
         cargarCategorias();
         cargarFormasPago();
+        formaPagoComboBox.addActionListener(evento -> actualizarCuentasSegunFormaPago());
         construirFormulario();
         registrarButton.addActionListener(evento -> registrar());
     }
@@ -227,6 +229,27 @@ public class GastosPanel extends JPanel {
         List<Cuenta> cuentas = cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId);
         for (Cuenta cuenta : cuentas) {
             if (cuenta.isActiva()) {
+                cuentaComboBox.addItem(cuenta);
+            }
+        }
+        cuentaComboBox.setSelectedItem(null);
+    }
+
+    private void actualizarCuentasSegunFormaPago() {
+        if (cuentaService == null) {
+            return;
+        }
+
+        FormaPago formaPago = (FormaPago) formaPagoComboBox.getSelectedItem();
+        if (formaPago != FormaPago.TARJETA_CREDITO) {
+            cargarCuentas();
+            return;
+        }
+
+        cuentaComboBox.removeAllItems();
+        List<Cuenta> cuentas = cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId);
+        for (Cuenta cuenta : cuentas) {
+            if (cuenta.isActiva() && cuenta.getTipoCuenta() == TipoCuenta.TARJETA_CREDITO) {
                 cuentaComboBox.addItem(cuenta);
             }
         }
