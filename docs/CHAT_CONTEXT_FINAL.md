@@ -1,32 +1,25 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 10/09/2026
+## Estado actual — 11/09/2026
 
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-La última comparación verificada antes de la actualización documental indicó **470 commits adelante y 0 atrás** respecto de `main`.
+Último commit funcional: `34eb4cc` — `config: conectar SOFP a H2 por TCP`.
 
-El último commit funcional antes de esta actualización documental es `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
+Antes de la actualización documental, GitHub verificó **495 commits adelante y 0 atrás** respecto de `main`.
 
 ## Último bloque funcional cerrado
 
-### Cuotas automáticas en gastos con tarjeta
+### H2 persistente por TCP
 
-`GastoService` genera automáticamente la cantidad solicitada de cuotas al registrar un gasto con `FormaPago.TARJETA_CREDITO`. La generación ocurre dentro de la transacción de la obligación y las cuotas quedan persistidas.
+`persistence.xml` de la aplicación utiliza `jdbc:h2:tcp://localhost/./database/sofp`.
 
-`PagoTarjetaServiceTest` se ajustó para registrar el gasto con `cantidadCuotas = 3`, en lugar de generar manualmente las cuotas después. El error anterior `La obligación ya tiene cuotas generadas` quedó resuelto.
+H2 Server se ejecuta en `localhost:9092` y H2 Console en `localhost:8082`. El usuario verificó manualmente que SOFP y H2 Console funcionan simultáneamente sobre la misma base.
 
-Commits recientes relevantes:
-
-- `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
-- `4ce1591` — `fix: generar cuotas dentro de la transaccion del gasto`.
-- `87fab04` — `fix: persistir cuotas al registrar obligaciones`.
-- `4092212` — `fix: corregir fixture de cuotas en GastosPanelTest`.
-- `afbfd7b` — `test: cubrir cuotas en GastoService`.
-- `3fd91b1` — `feat: integrar cuotas al registro de gastos`.
+El `persistence.xml` de tests mantiene H2 en memoria, por lo que la suite no depende del servidor TCP.
 
 ## Shell Swing — Fase 8
 
@@ -50,19 +43,14 @@ Los ciclos están implementados; queda pendiente integrarlos con consumos, oblig
 
 ## Tests
 
-Suite general más reciente conocida: `mvn test` → **671/671**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 10/09/2026 10:39:38 -03:00.
-
-Suite relacionada más reciente: `mvn -Dtest=GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest test` → **32/32**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 10/09/2026 13:14:29 -03:00, duración 01:19 min.
-
-Focalizados: `PagoTarjetaServiceTest` 4/4 y `GastosPanelTest` 6/6.
+Suite general más reciente conocida: `mvn test` → **687/687**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 11/09/2026 13:14:41 -03:00, duración 18:31 min.
 
 ## Próximo paso exacto
 
-1. Revisar `GastosPanelTest`.
-2. Revisar `GastosPanel`, `CuentaService`, repositorio de cuentas y convenciones de `CuentasPanel`/`RegistrarCuentaPanel`.
-3. Definir el cambio mínimo para seleccionar una tarjeta de crédito explícita en `GastosPanel`.
-4. Agregar tests para tarjetas activas y selección de la tarjeta utilizada.
-5. Ejecutar tests específicos, relacionados y suite general cuando corresponda.
+1. Revisar `GastosPanel`, `GastoService`, `CuentaService`, repositorio de cuentas y tests relacionados.
+2. Definir el cambio mínimo para seleccionar una tarjeta de crédito explícita en `GastosPanel`.
+3. Agregar tests para tarjetas activas, cuentas de otros tipos y selección de la tarjeta utilizada.
+4. Ejecutar tests específicos, relacionados y suite general cuando corresponda.
 
 ## Continuidad
 
