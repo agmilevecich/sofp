@@ -1,28 +1,27 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 10/09/2026
+## Estado actual — 11/09/2026
 
 La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Comparación verificada antes de la actualización documental:** 470 commits adelante, 0 atrás.
 
-Último commit funcional previo a la actualización documental: `51d4afe` — `fix: ajustar test de cuotas al registro automatico`.
+Último commit funcional: `34eb4cc` — `config: conectar SOFP a H2 por TCP`.
+
+Antes de la actualización documental, GitHub verificó **495 commits adelante y 0 atrás** respecto de `main`.
 
 ## Último bloque cerrado
 
-Cuotas automáticas en gastos con tarjeta.
+### H2 persistente por TCP
 
-`GastoService` genera las cuotas solicitadas al registrar una compra con `TARJETA_CREDITO`, dentro de la transacción de la obligación, y las cuotas quedan persistidas.
+La aplicación usa:
 
-`PagoTarjetaServiceTest` fue corregido para registrar el gasto directamente con `cantidadCuotas = 3`, en lugar de generar manualmente cuotas sobre una obligación que ya las tenía. Esto eliminó el error `La obligación ya tiene cuotas generadas`.
+`jdbc:h2:tcp://localhost/./database/sofp`
 
-## Ciclos de facturación — YA IMPLEMENTADOS
+H2 Server corre en `localhost:9092` y H2 Console en `localhost:8082`. El usuario verificó que SOFP y H2 Console funcionan simultáneamente sobre la misma base.
 
-`CicloFacturacion` es un objeto de dominio no persistente. `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento.
-
-`CicloFacturacionTest` cubre 9 escenarios. Los ciclos no deben plantearse como implementación desde cero; queda pendiente su integración con consumos/obligaciones/pagos.
+Los tests usan su propio `persistence.xml` con H2 en memoria.
 
 ## Arquitectura
 
@@ -50,20 +49,15 @@ Transferencias → `OperacionFinancieraService` → `OperacionFinanciera` con EG
 
 ## Tests
 
-Suite general más reciente conocida: `mvn test` → **671/671**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **10/09/2026 10:39:38 -03:00**.
-
-Suite relacionada más reciente: `GastosPanelTest,GastoServiceTest,ObligacionTest,ObligacionCuotasTest,PagoTarjetaServiceTest` → **32/32**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **10/09/2026 13:14:29 -03:00**, duración 01:19 min.
-
-Focalizados: `PagoTarjetaServiceTest` 4/4 y `GastosPanelTest` 6/6.
+Suite general más reciente: `mvn test` → **687/687**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **11/09/2026 13:14:41 -03:00**, duración 18:31 min.
 
 ## Próximo paso
 
-1. Revisar `GastosPanelTest` y las convenciones actuales de cuentas/paneles.
-2. Implementar selección explícita de tarjeta de crédito en `GastosPanel` cuando la forma de pago sea `TARJETA_CREDITO`.
-3. Cubrir que solo aparezcan tarjetas activas y que la tarjeta seleccionada sea la cuenta usada por `GastoService`.
-4. Integrar `CicloFacturacion` con consumos y obligaciones.
-5. Unificar el cálculo de saldo de tarjetas entre `MovimientoService` y `CuentaService`.
-6. Profundizar pagos/liberación de crédito, pasivos/patrimonio, análisis y dashboard.
+1. Implementar selección explícita de tarjeta de crédito en `GastosPanel` cuando la forma de pago sea `TARJETA_CREDITO`.
+2. Cubrir que solo aparezcan tarjetas activas y que la tarjeta seleccionada sea la cuenta usada por `GastoService`.
+3. Integrar `CicloFacturacion` con consumos y obligaciones.
+4. Unificar el cálculo de saldo de tarjetas entre `MovimientoService` y `CuentaService`.
+5. Profundizar pagos/liberación de crédito, pasivos/patrimonio, análisis y dashboard.
 
 ## Protocolo de nuevas sesiones
 
