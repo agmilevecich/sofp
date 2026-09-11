@@ -98,6 +98,11 @@ El contexto JPA/H2 de tests debe quedar aislado por hilo y cerrado explícitamen
 ## D-032 — Cuotas generadas por el flujo de gasto
 Cuando un gasto con `TARJETA_CREDITO` se registra con una cantidad de cuotas, `GastoService` es responsable de generar las cuotas dentro de la transacción de la obligación. Los tests deben utilizar ese flujo productivo y no generar manualmente cuotas ya creadas.
 
-## Actualización — 10/09/2026
+## D-033 — H2 de la aplicación por TCP y tests aislados
+La aplicación utiliza H2 mediante servidor TCP con `jdbc:h2:tcp://localhost/./database/sofp`, permitiendo compartir la base persistente entre SOFP y H2 Console. Los tests conservan un `persistence.xml` separado con H2 en memoria y no dependen del servidor TCP.
 
-El bloque de crédito/límite, ciclos básicos, aislamiento JPA y cuotas iniciales está implementado y validado. La suite general conocida es **671/671** y la suite relacionada con cuotas es **32/32**.
+## Actualización — 11/09/2026
+
+El bloque H2 TCP quedó implementado y validado manualmente. La suite general posterior ejecutada por el usuario fue **687/687**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+El próximo bloque funcional es la selección explícita de tarjeta de crédito en `GastosPanel`.
