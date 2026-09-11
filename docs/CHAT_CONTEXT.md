@@ -7,21 +7,27 @@ La fuente de verdad es el código, los tests y los commits actuales. `docs/` es 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit funcional: `34eb4cc` — `config: conectar SOFP a H2 por TCP`.
+Último commit funcional: `44661fb` — `test: cubrir cuotas al cruzar fin de año`.
 
-Antes de la actualización documental, GitHub verificó **495 commits adelante y 0 atrás** respecto de `main`.
+GitHub verifica 514 commits adelante y 0 atrás respecto de `main`. No se realizó merge.
 
 ## Último bloque cerrado
 
-### H2 persistente por TCP
+### Selección explícita de tarjeta de crédito en Gastos
+
+Cuando se selecciona `FormaPago.TARJETA_CREDITO`, `GastosPanel` filtra las cuentas para mostrar únicamente cuentas activas con `TipoCuenta.TARJETA_CREDITO`. La tarjeta elegida se utiliza como `Cuenta` al registrar el gasto.
+
+## Último cambio de cobertura
+
+`ObligacionCuotasTest` cubre el cruce de fin de año: compra `2026-12-16`, tres cuotas y ciclos/vencimientos hasta abril de 2027.
+
+## Persistencia y H2
 
 La aplicación usa:
 
 `jdbc:h2:tcp://localhost/./database/sofp`
 
-H2 Server corre en `localhost:9092` y H2 Console en `localhost:8082`. El usuario verificó que SOFP y H2 Console funcionan simultáneamente sobre la misma base.
-
-Los tests usan su propio `persistence.xml` con H2 en memoria.
+H2 Server corre en `localhost:9092` y H2 Console en `localhost:8082`. Los tests usan su propio `persistence.xml` con H2 en memoria.
 
 ## Arquitectura
 
@@ -30,8 +36,6 @@ Los tests usan su propio `persistence.xml` con H2 en memoria.
 Gastos → `GastoService` → `MovimientoService` → `Movimiento EGRESO`.
 
 Ingresos → `IngresoService` → `MovimientoService` → `Movimiento INGRESO`.
-
-Transferencias → `OperacionFinancieraService` → `OperacionFinanciera` con EGRESO/INGRESO.
 
 ## Reglas vigentes
 
@@ -49,15 +53,16 @@ Transferencias → `OperacionFinancieraService` → `OperacionFinanciera` con EG
 
 ## Tests
 
-Suite general más reciente: `mvn test` → **687/687**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **11/09/2026 13:14:41 -03:00**, duración 18:31 min.
+Suite general más reciente: `mvn test` → **689/689**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **11/09/2026 20:11:17 -03:00**, duración 10:22 min.
+
+Tests relacionados del bloque de obligaciones/cuotas: **49/49**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
 ## Próximo paso
 
-1. Implementar selección explícita de tarjeta de crédito en `GastosPanel` cuando la forma de pago sea `TARJETA_CREDITO`.
-2. Cubrir que solo aparezcan tarjetas activas y que la tarjeta seleccionada sea la cuenta usada por `GastoService`.
-3. Integrar `CicloFacturacion` con consumos y obligaciones.
-4. Unificar el cálculo de saldo de tarjetas entre `MovimientoService` y `CuentaService`.
-5. Profundizar pagos/liberación de crédito, pasivos/patrimonio, análisis y dashboard.
+1. Auditar los pendientes documentados contra el código y los 689 tests actuales.
+2. Si sigue siendo necesario, integrar `CicloFacturacion` con consumos, obligaciones y pagos mediante el cambio mínimo.
+3. Cubrir reglas de ciclo, fechas de cierre/vencimiento, relaciones y casos límite.
+4. Ejecutar tests específicos, relacionados y suite general cuando corresponda.
 
 ## Protocolo de nuevas sesiones
 
