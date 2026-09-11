@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.domain;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,6 +31,26 @@ class ObligacionCuotasTest {
         assertEquals(9, obligacion.getCuotas().get(0).getFechaCierreCiclo().getMonthValue());
         assertEquals(10, obligacion.getCuotas().get(1).getFechaCierreCiclo().getMonthValue());
         assertEquals(11, obligacion.getCuotas().get(2).getFechaCierreCiclo().getMonthValue());
+    }
+
+    @Test
+    void deberiaGenerarCuotasCorrectasAlCruzarFinDeAnio() {
+        Movimiento movimiento = crearMovimiento(new BigDecimal("120000.00"), LocalDateTime.of(2026, 12, 16, 12, 0));
+        Obligacion obligacion = new Obligacion(movimiento);
+
+        obligacion.generarCuotas(3);
+
+        assertEquals(LocalDate.of(2026, 12, 16), obligacion.getCuotas().get(0).getFechaInicioCiclo());
+        assertEquals(LocalDate.of(2027, 1, 15), obligacion.getCuotas().get(0).getFechaCierreCiclo());
+        assertEquals(LocalDate.of(2027, 2, 10), obligacion.getCuotas().get(0).getFechaVencimiento());
+
+        assertEquals(LocalDate.of(2027, 1, 16), obligacion.getCuotas().get(1).getFechaInicioCiclo());
+        assertEquals(LocalDate.of(2027, 2, 15), obligacion.getCuotas().get(1).getFechaCierreCiclo());
+        assertEquals(LocalDate.of(2027, 3, 10), obligacion.getCuotas().get(1).getFechaVencimiento());
+
+        assertEquals(LocalDate.of(2027, 2, 16), obligacion.getCuotas().get(2).getFechaInicioCiclo());
+        assertEquals(LocalDate.of(2027, 3, 15), obligacion.getCuotas().get(2).getFechaCierreCiclo());
+        assertEquals(LocalDate.of(2027, 4, 10), obligacion.getCuotas().get(2).getFechaVencimiento());
     }
 
     @Test
