@@ -41,14 +41,14 @@ public class ObligacionService {
             throw new IllegalArgumentException("La cantidad de cuotas debe ser positiva");
         }
 
+        if (entityManager.getTransaction().isActive()) {
+            return registrarEnTransaccion(movimientoOrigen, cantidadCuotas);
+        }
+
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-
-            Obligacion obligacion = new Obligacion(movimientoOrigen);
-            obligacion.generarCuotas(cantidadCuotas);
-            Obligacion guardada = obligacionRepository.guardar(obligacion);
-            entityManager.flush();
+            Obligacion guardada = registrarEnTransaccion(movimientoOrigen, cantidadCuotas);
             transaction.commit();
             return guardada;
         } catch (RuntimeException e) {
@@ -57,6 +57,14 @@ public class ObligacionService {
             }
             throw e;
         }
+    }
+
+    private Obligacion registrarEnTransaccion(Movimiento movimientoOrigen, int cantidadCuotas) {
+        Obligacion obligacion = new Obligacion(movimientoOrigen);
+        obligacion.generarCuotas(cantidadCuotas);
+        Obligacion guardada = obligacionRepository.guardar(obligacion);
+        entityManager.flush();
+        return guardada;
     }
 
     public Obligacion registrarPago(Long obligacionId, BigDecimal importe) {
