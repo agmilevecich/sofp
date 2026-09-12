@@ -3,10 +3,11 @@
 ## Estado verificado
 
 - Rama de trabajo: `feature/swing-shell`.
+- Rama documental de continuidad: `docs/continuidad-sofp`.
 - `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
 - Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
 - No se realizó merge a `main`.
-- La rama `docs/continuidad-sofp` histórica ya no existe actualmente en GitHub; esta consolidación queda registrada en la rama de trabajo para no perder continuidad.
+- La rama documental `docs/continuidad-sofp` fue recreada desde el estado más reciente de `feature/swing-shell` para recuperar el canal dedicado de continuidad.
 
 ## Validación conocida
 
