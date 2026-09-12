@@ -1,53 +1,53 @@
 # SOFP — Tests
 
-## Estado de validación — 11/09/2026
+## Estado de validación — 12/09/2026
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` el **11/09/2026 20:11:17 -03:00**.
+El usuario ejecutó `mvn test` y obtuvo:
 
-Resultado:
-
-- Tests run: **689**;
+- Tests run: **690**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración **10:22 min**.
+- `BUILD SUCCESS`.
 
-### Tests relacionados del último bloque
+Este resultado reemplaza al histórico 689/689 documentado el 11/09/2026.
 
-Se ejecutó el conjunto relacionado de obligaciones, cuotas, ciclos y servicios.
+## Cobertura funcional relevante
 
-Resultado: **49/49**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+La suite incluye seguridad/aislamiento, cuentas, categorías, movimientos, fondos disponibles, Gastos, Ingresos, Transferencias, Inversiones, Reportes, shell Swing, obligaciones, cuotas, tarjetas y pagos.
 
-### Último test agregado
+### Cuotas y ciclos
 
-`ObligacionCuotasTest` incorpora cobertura para una compra del `2026-12-16` con tres cuotas, verificando ciclos y vencimientos que atraviesan el fin de año y llegan hasta abril de 2027.
+`CicloFacturacionTest` cubre cierres, meses cortos, febrero, vencimiento, fechas nulas y cambio de año.
 
-## Persistencia de tests
+`ObligacionCuotasTest` cubre una compra del `2026-12-16` con tres cuotas que atraviesan el fin de año.
 
-Los tests utilizan su propio `src/test/resources/META-INF/persistence.xml` con H2 en memoria. La configuración de la aplicación usa H2 TCP y no modifica el aislamiento de la suite.
+### Atomicidad de compra con tarjeta
 
-## Cuotas
+Existe cobertura para el caso en que falla la creación de la obligación después de registrar el movimiento. El objetivo es confirmar rollback conjunto.
 
-La cobertura verifica generación automática de cuotas al registrar gastos con tarjeta y el tratamiento de pagos por `PagoTarjetaService`.
+### Pagos de tarjeta
 
-## Crédito y tarjetas
+`PagoTarjetaServiceTest` cubre el servicio coordinador y las reglas de saldo, moneda, autorización y pagos parciales/totales existentes.
 
-La cobertura incluye límites, crédito disponible, consumo parcial, límite exacto, exceso, monedas diferentes, liberación mediante pagos, consumos sin obligación y selección explícita de tarjeta activa en la UI.
+## Gaps detectados por la auditoría
 
-## Ciclos de facturación
+Se deben agregar tests antes o junto con cada mejora:
 
-`CicloFacturacionTest` cubre cierre exacto, ciclo siguiente, meses cortos, febrero, vencimiento posterior al cierre, cambio de año y fecha nula. `ObligacionCuotasTest` agrega cobertura de cuotas que atraviesan el fin de año.
-
-## Obligaciones y moneda
-
-La cobertura incluye `ObligacionTest`, `ObligacionJpaTest`, `ObligacionServiceTest`, `ObligacionesPanelTest` y navegación. Las obligaciones conservan la moneda económica del movimiento de origen.
-
-## Otros bloques
-
-Continúan integrados en la suite: seguridad/aislamiento, cuentas, categorías, movimientos, fondos disponibles, Gastos, Ingresos, Transferencias, Inversiones, Reportes y shell Swing.
+1. movimiento origen de obligación: impedir cambio de importe;
+2. movimiento origen de obligación: impedir cambio de fecha/hora;
+3. movimiento origen de obligación: impedir cambio de tipo;
+4. movimiento origen de obligación: impedir eliminación;
+5. persistencia consistente después de cada rechazo;
+6. acceso directo no autorizado a `ObligacionService`;
+7. pago desde UI debe registrar salida real de fondos;
+8. pago desde UI debe respetar moneda, saldo, perfil y pago parcial/total;
+9. cambios de tipo/moneda de `Cuenta` con historial financiero;
+10. reglas de pago respecto de ciclo, vencimiento y días no hábiles cuando sean definidas;
+11. escenarios multidivisa de tarjeta una vez definida la regla;
+12. casos límite de financiación cuando se implemente.
 
 ## Criterio de cierre
 
