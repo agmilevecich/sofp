@@ -174,6 +174,12 @@ public class MovimientoService {
     }
 
     private Movimiento guardar(Movimiento movimiento) {
+        if (entityManager.getTransaction().isActive()) {
+            Movimiento guardado = movimientoRepository.guardar(movimiento);
+            entityManager.flush();
+            return guardado;
+        }
+
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
