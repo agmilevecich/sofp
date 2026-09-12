@@ -1,51 +1,140 @@
 # SOFP — Pendientes
 
-## Estado — 11/09/2026
+## Estado — 12/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit: `44661fb` — `test: cubrir cuotas al cruzar fin de año`.
+Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
 
-GitHub verifica que `feature/swing-shell` está 514 commits adelante y 0 atrás respecto de `main`. No se realizó merge.
+La rama de trabajo continúa separada de `main`.
 
-La suite completa más reciente es **689/689**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite general más reciente informada por el usuario: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-## Último bloque cerrado
+## Bloques cerrados
 
-### Selección explícita de tarjeta de crédito en Gastos
+- Selección explícita de tarjeta activa en `GastosPanel`.
+- Generación de cuotas al registrar gastos con tarjeta.
+- Cuotas que cruzan el fin de año.
+- Atomicidad de compra con tarjeta: movimiento + obligación.
+- Coordinación transaccional de movimientos y obligaciones.
+- Pago coordinado de tarjeta en `PagoTarjetaService`.
+- Cálculo base de ciclos de facturación.
+- Configuración de JAR ejecutable y copia de dependencias.
 
-Completado y validado. Cuando `FormaPago.TARJETA_CREDITO` está seleccionada, `GastosPanel` ofrece únicamente cuentas activas con `TipoCuenta.TARJETA_CREDITO`. La tarjeta seleccionada se pasa como `Cuenta` al registro del gasto.
+## Auditoría: pendientes reales en orden
 
-## Último bloque de cobertura cerrado
+### P0 — 1. Proteger movimientos que originan obligaciones
 
-### Cuotas al cruzar fin de año
+`MovimientoService` todavía permite modificar importe, fecha/hora, tipo de movimiento o eliminar un movimiento que puede ser origen de una obligación.
 
-`ObligacionCuotasTest` cubre ahora una compra del `2026-12-16` con tres cuotas y verifica correctamente los ciclos y vencimientos de enero, febrero, marzo y abril de 2027.
+Esto puede dejar inconsistentes el movimiento, la obligación, sus cuotas y el ciclo derivado.
 
-El bloque de tests relacionados quedó en **49/49** y la suite general en **689/689**, ambos con `BUILD SUCCESS`.
+Cambio mínimo previsto:
 
-## Pendientes en orden
+- detectar si el movimiento tiene una obligación de origen;
+- bloquear modificación de importe;
+- bloquear modificación de fecha/hora;
+- bloquear cambio de tipo;
+- bloquear eliminación;
+- conservar cambios descriptivos que no alteren la identidad económica.
 
-1. **Integrar ciclos de facturación y vencimientos con consumos, obligaciones y pagos.**
-2. Auditar y unificar el tratamiento del saldo de tarjetas entre `MovimientoService` y `CuentaService`.
-3. Profundizar pagos de tarjeta y liberación de crédito, incluyendo reglas de ciclo y moneda.
-4. Ampliar pasivos y patrimonio neto.
-5. Análisis histórico, vencimientos, resúmenes y dashboard.
-6. Pulido de consola, de baja prioridad.
+Tests mínimos:
 
-## Estado de la etapa Swing Shell
+- modificar importe con obligación;
+- modificar fecha/hora con obligación;
+- modificar tipo con obligación;
+- eliminar movimiento con obligación;
+- verificar persistencia y estado final.
 
-La etapa tiene el shell principal implementado, integración de gastos con tarjeta, obligaciones/cuotas y cobertura amplia de UI, dominio, servicios y persistencia.
+### P0 — 2. Integrar pago real de tarjeta en UI
 
-Antes de iniciar otro cambio funcional se debe auditar cada pendiente contra el código y los tests actuales. No asumir que un pendiente documental continúa siendo necesario si el código ya lo resolvió.
+`PagoTarjetaService` ya coordina en una única transacción la salida real de fondos y la reducción de deuda. La UI todavía no utiliza ese flujo completo: `ObligacionesPanel` llama directamente a `ObligacionService.registrarPago(...)`.
 
-## Integración
+Trabajo:
 
-No hacer merge a `main` automáticamente ni crear ramas nuevas salvo indicación explícita.
+- incorporar selección de cuenta pagadora;
+- incorporar selección de categoría;
+- utilizar `PagoTarjetaService` desde UI;
+- conservar autorización por perfil;
+- verificar moneda, saldo suficiente, pago parcial y total;
+- verificar que un pago fallido no deje deuda ni movimiento monetario parcialmente aplicados.
 
-Antes de cerrar un bloque: tests específicos → relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status` → documentación.
+### P0 — 3. Cerrar superficies públicas de ObligacionService
 
-## Continuidad
+Revisar métodos sin `usuarioId` que permiten consultar o modificar obligaciones. La autorización no debe depender de que la UI llame correctamente al overload autorizado.
 
-En una nueva sesión reconstruir siempre desde GitHub: rama → commits → comparación con `main` → README/docs → código → tests → último resultado conocido → próximo paso.
+Trabajo:
+
+- convertir en internos los métodos de coordinación que no deban ser públicos; o
+- exigir `usuarioId` en operaciones expuestas;
+- mantener aislamiento por perfil;
+- agregar pruebas directas de intento de acceso cruzado.
+
+### P1 — 4. Proteger cambios estructurales de Cuenta
+
+Revisar `CuentaService` para impedir cambios de tipo o moneda cuando ya existe historial financiero que haga incompatible la modificación.
+
+Definir primero la regla mínima compatible con el dominio actual y luego cubrirla con tests.
+
+### P1 — 5. Completar ciclo de facturación durante el pago
+
+La generación de ciclos/cuotas está implementada. Falta decidir cómo se comportan pagos respecto de vencimiento, mora, gracia, días no hábiles y orden temporal.
+
+No implementar reglas de negocio no decididas.
+
+### P1 — 6. Definir multidivisa de tarjetas
+
+Actualmente el consumo y la obligación conservan su moneda y el pago exige coincidencia de moneda. Falta definir cómo se comporta el límite de una tarjeta frente a consumos en monedas diferentes.
+
+No introducir conversiones implícitas.
+
+### P1 — 7. Financiamiento avanzado
+
+Pendiente definir e implementar, cuando corresponda:
+
+- intereses;
+- CFT/costo financiero;
+- cuotas variables;
+- adelantos;
+- refinanciación;
+- anulaciones/reversiones;
+- ajustes.
+
+### P2 — 8. UI específica de tarjetas
+
+Una vez estabilizado dominio/servicios:
+
+- límite y disponible;
+- consumos;
+- ciclos;
+- cierres y vencimientos;
+- deuda;
+- pagos reales.
+
+### P2 — 9. Pasivos, patrimonio y análisis
+
+Ampliar pasivos/patrimonio neto y posteriormente histórico, vencimientos, resúmenes y dashboard.
+
+### P3 — 10. Pulido de consola
+
+Prioridad baja. No debe interferir con reglas financieras ni servicios.
+
+## Orden de ejecución recomendado
+
+1. Integridad movimiento ↔ obligación.
+2. Autorización/superficie pública de obligaciones.
+3. Integración de pago real en UI.
+4. Integridad de tipo/moneda de cuentas.
+5. Reglas de ciclo aplicadas al pago.
+6. Multidivisa.
+7. Financiamiento avanzado.
+8. UI específica de tarjetas.
+9. Pasivos/patrimonio y análisis.
+10. Pulido.
+
+## Regla de cierre
+
+Para cada bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status` → documentación.
+
+No considerar terminado un bloque porque compila. No modificar tests para hacerlos pasar.
