@@ -7,6 +7,8 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -63,25 +65,43 @@ public class GastoService {
             throw new IllegalStateException("El ObligacionService es obligatorio para gastos con tarjeta de crédito");
         }
 
-        Movimiento movimiento = movimientoService.registrar(
-                cuenta,
-                categoria,
-                moneda,
-                TipoMovimiento.EGRESO,
-                importe,
-                fechaHora,
-                descripcion,
-                formaPago,
-                usuarioId
-        );
+        EntityManager entityManager = movimientoService.entityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+        boolean transaccionPropia = !transaction.isActive();
 
-        if (formaPago == FormaPago.TARJETA_CREDITO) {
-            Obligacion obligacion = obligacionService.registrar(movimiento, cantidadCuotas);
-            if (obligacion.getMovimientoOrigen().getId() == null) {
-                throw new IllegalStateException("La obligación debe quedar asociada a un movimiento persistido");
+        try {
+            if (transaccionPropia) {
+                transaction.begin();
             }
-        }
 
-        return movimiento;
+            Movimiento movimiento = movimientoService.registrar(
+                    cuenta,
+                    categoria,
+                    moneda,
+                    TipoMovimiento.EGRESO,
+                    importe,
+                    fechaHora,
+                    descripcion,
+                    formaPago,
+                    usuarioId
+            );
+
+            if (formaPago == FormaPago.TARJETA_CREDITO) {
+                Obligacion obligacion = obligacionService.registrar(movimiento, cantidadCuotas);
+                if (obligacion.getMovimientoOrigen().getId() == null) {
+                    throw new IllegalStateException("La obligación debe quedar asociada a un movimiento persistido");
+                }
+            }
+
+            if (transaccionPropia) {
+                transaction.commit();
+            }
+            return movimiento;
+        } catch (RuntimeException e) {
+            if (transaccionPropia && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 }
