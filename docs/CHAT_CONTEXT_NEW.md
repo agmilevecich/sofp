@@ -1,55 +1,54 @@
 # SOFP — Contexto para continuar con ChatGPT
 
+## Estado — 12/09/2026
+
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
-## Estado — 01/09/2026
+**Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
+**Rama de trabajo:** `feature/swing-shell`.
 
-**Rama estable:** `main`.  
-Último commit integrado: `96f3d99` — `docs: cerrar historial de build de seguridad`.  
-La rama `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward.
+Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
 
-**Rama de trabajo:** `feature/swing-shell`.  
-**Último commit funcional previo al bloque documental:** `6621615` — `test: cubrir navegacion de reportes`.  
-La rama está **52 commits por delante de `main` y 0 commits por detrás**.
+Suite general más reciente informada: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-## Shell Swing — Fase 8
+## Estado consolidado
 
-El bloque actual está implementado en `feature/swing-shell` con `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
+La Fase 8 Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. La compra con tarjeta es atómica y tiene cobertura de rollback. `PagoTarjetaService` coordina el pago real de deuda con la salida de fondos. H2 de aplicación usa TCP y los tests usan H2 en memoria aislado. El JAR ejecutable está configurado y probado.
 
-`MainFrame` usa `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes respetando el contexto de usuario/perfil y no duplica reglas de negocio. `ReportesPanel` utiliza el reporte de movimientos de inversión existente en `CarteraActivoService`.
+## Auditoría — trabajo pendiente
 
-## Seguridad
+### P0
 
-La auditoría transversal de seguridad y aislamiento de datos quedó completada e integrada en `main`, cubriendo perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, con autorización por propietario y cobertura transversal en `AislamientoDatosServiceTest`.
+1. Proteger movimiento origen de obligación frente a cambio de importe, fecha/hora, tipo y eliminación.
+2. Revisar superficies públicas de `ObligacionService` sin `usuarioId`.
+3. Integrar `PagoTarjetaService` en `ObligacionesPanel`, con cuenta pagadora y categoría.
 
-## Tests
+### P1
 
-Suite general ejecutada localmente el **01/09/2026**:
+4. Proteger cambios de tipo/moneda de `Cuenta` cuando exista historial.
+5. Definir reglas de ciclo aplicadas al pago: vencimiento, mora, gracia y días no hábiles.
+6. Definir multidivisa de tarjetas sin conversiones implícitas.
+7. Definir financiación avanzada.
 
-- Tests run: **529**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **14:25 min**
-- Finalización: **19:25:53 -03:00**
+### P2/P3
 
-Validación específica de reportes: `ReportesPanelTest` **3/3**, `MainFrameReportesTest` **1/1**, total **4/4**. La suite relacionada de UI quedó en **13/13**.
+8. UI específica de tarjetas.
+9. Pasivos, patrimonio, histórico, vencimientos, resúmenes y dashboard.
+10. Pulido de consola.
 
-Una ejecución previa había detectado artefactos compilados obsoletos en `target`; la limpieza de Maven permitió la ejecución definitiva de **529/529** sin modificar código ni tests por ese motivo.
+## Ya implementado
 
-Surefire mostró durante ejecuciones de UI un mensaje de espera posterior a `System.exit(0)`, pero el build terminó con `BUILD SUCCESS`, sin failures ni errors. No se modificó código especulativamente por ese mensaje.
+- selección explícita de tarjeta activa en Gastos;
+- generación automática de cuotas;
+- ciclos de facturación y cruce de año;
+- atomicidad de compra con tarjeta;
+- pago coordinado en servicio;
+- criterio actual de crédito disponible;
+- H2 TCP;
+- JAR ejecutable.
 
-## Continuidad
+## Regla de continuidad
 
-- No hacer merge automático a `main`.
-- No crear nuevas ramas para continuar este trabajo; seguir sobre `feature/swing-shell`.
-- Antes de modificar una clase, revisar implementación actual, clases relacionadas, servicios, repositorios, tests y reglas de negocio.
-- Mantener cambios pequeños y descriptivos.
-- No duplicar lógica de negocio en la UI.
-- Después de cambios importantes: tests específicos, tests relacionados y suite completa cuando corresponda; revisar diff, `git diff --check` y `git status`.
-- Ante una nueva sesión de SOFP, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
+Antes de cada cambio: revisar implementación, clases relacionadas, repositorios, tests y reglas de negocio. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
 
-## Próximo paso
-
-El alcance actual del shell Swing queda validado. El próximo trabajo debe definirse como un nuevo bloque funcional de Fase 8, partiendo del estado real de `feature/swing-shell`.
+No modificar `main`, no asumir resultados locales no informados y no considerar terminado un bloque solo porque compila.
