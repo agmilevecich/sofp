@@ -1,71 +1,49 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 11/09/2026
+## Estado actual — 12/09/2026
 
-La fuente de verdad es el código, los tests y los commits actuales. `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
+La fuente de verdad es el código, los tests y Git. `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit funcional: `44661fb` — `test: cubrir cuotas al cruzar fin de año`.
+Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
 
-GitHub verifica 514 commits adelante y 0 atrás respecto de `main`. No se realizó merge.
+Suite general más reciente informada: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-## Último bloque cerrado
+## Estado consolidado
 
-### Selección explícita de tarjeta de crédito en Gastos
+La Fase 8 Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas en una operación coordinada. El pago coordinado existe en `PagoTarjetaService`. Los ciclos de facturación y cuotas ya cubren cambio de año.
 
-Cuando se selecciona `FormaPago.TARJETA_CREDITO`, `GastosPanel` filtra las cuentas para mostrar únicamente cuentas activas con `TipoCuenta.TARJETA_CREDITO`. La tarjeta elegida se utiliza como `Cuenta` al registrar el gasto.
+H2 aplicación: `jdbc:h2:tcp://localhost/./database/sofp`. Tests: H2 memoria independiente.
 
-## Último cambio de cobertura
+## Auditoría y próximos cambios
 
-`ObligacionCuotasTest` cubre el cruce de fin de año: compra `2026-12-16`, tres cuotas y ciclos/vencimientos hasta abril de 2027.
+P0:
 
-## Persistencia y H2
+1. Proteger movimientos origen de obligaciones frente a cambios de importe, fecha/hora, tipo y eliminación.
+2. Revisar operaciones públicas de `ObligacionService` que no reciben `usuarioId`.
+3. Integrar `PagoTarjetaService` en `ObligacionesPanel` para registrar salida real de fondos junto con el pago de deuda.
 
-La aplicación usa:
+P1:
 
-`jdbc:h2:tcp://localhost/./database/sofp`
+4. Proteger cambios de tipo/moneda de `Cuenta` cuando exista historial financiero.
+5. Definir reglas de ciclo aplicadas al pago: vencimiento, mora, gracia y días no hábiles.
+6. Definir multidivisa de tarjetas sin conversiones implícitas.
+7. Definir financiación avanzada.
 
-H2 Server corre en `localhost:9092` y H2 Console en `localhost:8082`. Los tests usan su propio `persistence.xml` con H2 en memoria.
+P2/P3:
 
-## Arquitectura
+8. UI específica de tarjetas.
+9. Pasivos, patrimonio, histórico, vencimientos, resúmenes y dashboard.
+10. Pulido de consola.
 
-**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
+## Reglas
 
-Gastos → `GastoService` → `MovimientoService` → `Movimiento EGRESO`.
+No duplicar reglas de negocio en Swing. Mantener autorización en servicios/repositorios. No inventar reglas multidivisa o de mora. Cada bloque debe incluir tests y validación de persistencia cuando corresponda.
 
-Ingresos → `IngresoService` → `MovimientoService` → `Movimiento INGRESO`.
+## Continuidad
 
-## Reglas vigentes
+Reconstruir siempre desde GitHub antes de cambios: rama → commits → comparación con `main` → documentación → código → tests → último resultado → próximo paso.
 
-- egreso superior al saldo: rechazado;
-- egreso igual al saldo: permitido;
-- modificaciones respetan fondos disponibles;
-- categorías con movimientos se conservan y desactivan;
-- cuenta y forma de pago son conceptos distintos;
-- tarjeta de crédito genera movimiento y obligación;
-- las cuotas solicitadas se generan automáticamente al registrar el gasto;
-- obligación conserva moneda del movimiento de origen;
-- crédito disponible inicial se calcula por moneda, sin conversión implícita;
-- transferencias propias no son ingresos ni gastos;
-- UI no duplica reglas de negocio.
-
-## Tests
-
-Suite general más reciente: `mvn test` → **689/689**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el **11/09/2026 20:11:17 -03:00**, duración 10:22 min.
-
-Tests relacionados del bloque de obligaciones/cuotas: **49/49**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-
-## Próximo paso
-
-1. Auditar los pendientes documentados contra el código y los 689 tests actuales.
-2. Si sigue siendo necesario, integrar `CicloFacturacion` con consumos, obligaciones y pagos mediante el cambio mínimo.
-3. Cubrir reglas de ciclo, fechas de cierre/vencimiento, relaciones y casos límite.
-4. Ejecutar tests específicos, relacionados y suite general cuando corresponda.
-
-## Protocolo de nuevas sesiones
-
-Revisar siempre: rama → últimos commits → comparación con `main` → README/docs → código → tests → último resultado → próximo paso.
-
-No modificar `main`, no crear ramas nuevas salvo indicación explícita y no asumir resultados locales no informados.
+No modificar `main`, no asumir resultados locales no informados y no considerar terminado un bloque porque compila.
