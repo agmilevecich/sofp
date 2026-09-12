@@ -1,69 +1,87 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 11/09/2026
+## Estado actual — 12/09/2026
 
-La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
+La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit: `44661fb` — `test: cubrir cuotas al cruzar fin de año`.
+Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
 
-GitHub verifica 514 commits adelante y 0 atrás respecto de `main`. No se realizó merge.
+No se realizó merge a `main`.
 
-## Último bloque funcional cerrado
+## Validación más reciente
 
-### Selección explícita de tarjeta de crédito
+Suite general informada por el usuario: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Cuando se selecciona `FormaPago.TARJETA_CREDITO`, `GastosPanel` filtra la selección de cuentas para mostrar únicamente cuentas activas con `TipoCuenta.TARJETA_CREDITO`.
+El JAR ejecutable fue probado con `java -Dsofp.dev=true -jar target/SOFP-1.0-SNAPSHOT.jar`.
 
-La tarjeta elegida se utiliza como `Cuenta` al registrar el gasto. Las cuentas de otros tipos no se mezclan en esa selección.
+## Estado funcional
 
-## Última cobertura cerrada
+- Shell Swing integrado.
+- Gastos con selección explícita de tarjeta activa.
+- Compra con tarjeta → movimiento + obligación + cuotas.
+- Atomicidad de compra con tarjeta implementada y testeada.
+- Ciclos y cuotas con cruce de año implementados.
+- Pago coordinado de tarjeta implementado en `PagoTarjetaService`.
+- Moneda explícita en movimientos y obligaciones; sin conversión automática.
+- H2 de aplicación por TCP y tests aislados en H2 memoria.
+- JAR ejecutable configurado.
 
-`ObligacionCuotasTest` cubre el cruce de fin de año para una compra del `2026-12-16` con tres cuotas, incluyendo ciclos y vencimientos hasta abril de 2027.
+## Auditoría vigente
 
-## Persistencia y H2
+### P0 — Integridad movimiento ↔ obligación
 
-`persistence.xml` de la aplicación utiliza `jdbc:h2:tcp://localhost/./database/sofp`.
+Bloquear modificación de importe, fecha/hora, tipo y eliminación de un movimiento que sea origen de una obligación. Agregar tests de cada caso y verificar persistencia.
 
-H2 Server se ejecuta en `localhost:9092` y H2 Console en `localhost:8082`.
+### P0 — Autorización de obligaciones
 
-El `persistence.xml` de tests mantiene H2 en memoria, por lo que la suite no depende del servidor TCP.
+Revisar operaciones públicas de `ObligacionService` sin `usuarioId`. Hacer internos los métodos de coordinación o exigir autorización explícita en operaciones públicas.
 
-## Shell Swing — Fase 8
+### P0 — Pago real en UI
 
-El shell integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias mediante `MainFrame`, `SidebarPanel` y `CardLayout`.
+`ObligacionesPanel` debe dejar de registrar solamente la reducción de deuda y pasar a usar `PagoTarjetaService`, con cuenta pagadora y categoría. El flujo debe registrar salida real de fondos y deuda en la misma transacción.
 
-`GastosPanel` permite seleccionar forma de pago, cantidad de cuotas y, para `TARJETA_CREDITO`, la tarjeta activa utilizada.
+### P1 — Integridad de Cuenta
 
-## Reglas de tarjetas y ciclos
+Revisar cambios de tipo y moneda de cuentas con historial financiero.
 
-Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límite, día de cierre y día de vencimiento.
+### P1 — Ciclo aplicado al pago
 
-Una compra con tarjeta genera un `Movimiento EGRESO` y una `Obligacion`. La obligación conserva la moneda económica del movimiento y no hay conversión automática.
+Definir antes de implementar reglas de vencimiento, mora, gracia y días no hábiles.
 
-El crédito disponible inicial se calcula por moneda como límite menos consumos pendientes.
+### P1 — Multidivisa
 
-`CicloFacturacion` es un objeto de dominio no persistente. `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento y ajusta días inexistentes al último día real del mes.
+Definir tratamiento definitivo del límite de tarjeta frente a consumos en distintas monedas. No introducir conversiones implícitas.
 
-Los ciclos están implementados; queda pendiente verificar e integrar completamente su uso con consumos, obligaciones y pagos.
+### P1 — Financiación avanzada
 
-## Tests
+Intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones y ajustes.
 
-Suite general más reciente conocida: `mvn test` → **689/689**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 11/09/2026 20:11:17 -03:00, duración 10:22 min.
+### P2 — UI específica de tarjetas
 
-Tests relacionados del bloque de obligaciones/cuotas: **49/49**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Límite/disponible, consumos, ciclos, vencimientos, deuda y pagos reales.
 
-## Próximo paso exacto
+### P2 — Pasivos/patrimonio y análisis
 
-1. Auditar los pendientes documentados contra el código y los tests actuales.
-2. Confirmar si la integración de `CicloFacturacion` continúa siendo un pendiente funcional real.
-3. Si corresponde, definir el cambio mínimo y sus tests.
-4. Ejecutar tests específicos, relacionados y suite general.
+Pasivos, patrimonio neto, histórico, vencimientos, resúmenes y dashboard.
 
-## Continuidad
+## Orden exacto para continuar
 
-No modificar `main` ni crear ramas nuevas salvo indicación explícita. No asumir resultados locales no informados. Después de cambios importantes revisar tests, `git diff`, `git diff --check` y `git status`.
+1. Movimiento ↔ obligación.
+2. Autorización de `ObligacionService`.
+3. Pago real desde UI.
+4. Integridad de `Cuenta`.
+5. Reglas de ciclo durante pagos.
+6. Multidivisa.
+7. Financiación.
+8. UI específica.
+9. Pasivos/patrimonio/análisis.
+10. Pulido.
 
-La documentación se actualiza al cerrar etapas importantes, pero siempre prevalecen código y tests actuales.
+## Protocolo
+
+Antes de cada bloque: revisar implementación, clases relacionadas, repositorios, tests y reglas de negocio. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
+
+No modificar `main`, no asumir tests locales no informados y no considerar cerrada una funcionalidad solo porque compila.
