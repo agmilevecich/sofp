@@ -1,6 +1,6 @@
 # SOFP — Historial del proyecto
 
-## Estado documental — 11/09/2026
+## Estado documental — 12/09/2026
 
 Los estados técnicos deben verificarse siempre contra código, tests y Git.
 
@@ -27,14 +27,15 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git.
 19. Configuración de H2 de la aplicación mediante servidor TCP compartido con H2 Console.
 20. Selección explícita de tarjeta de crédito en `GastosPanel`.
 21. Cobertura de cuotas al cruzar el fin de año.
+22. Atomicidad de compra con tarjeta mediante coordinación transaccional de movimiento y obligación.
+23. Configuración de JAR ejecutable y dependencias runtime.
+24. Auditoría funcional transversal del modelo de tarjeta, obligaciones, pagos, autorización y mutabilidad.
 
 ## Estado actual de persistencia
 
 La aplicación utiliza `jdbc:h2:tcp://localhost/./database/sofp`.
 
 H2 Server se ejecuta en `localhost:9092` y H2 Console en `localhost:8082`.
-
-SOFP y H2 Console fueron probados simultáneamente sobre la misma base persistente.
 
 Los tests continúan aislados con su `persistence.xml` de test y H2 en memoria.
 
@@ -46,26 +47,51 @@ La deuda se representa mediante `Obligacion`. La moneda económica del consumo s
 
 El crédito disponible se calcula inicialmente por moneda, sin conversiones implícitas.
 
-`CicloFacturacion` es un objeto de dominio no persistente. `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento y ajusta días inexistentes al último día real del mes.
+`CicloFacturacion` es un objeto de dominio no persistente. Calcula inicio, cierre y vencimiento y resuelve meses cortos y cambio de año.
 
-Al registrar un gasto con tarjeta, `GastoService` genera automáticamente la cantidad solicitada de cuotas dentro de la transacción de la obligación y las cuotas quedan persistidas.
-
-`ObligacionCuotasTest` cubre además cuotas cuyo ciclo atraviesa el cambio de año.
+Al registrar un gasto con tarjeta, `GastoService` genera automáticamente las cuotas dentro de la transacción de la obligación.
 
 ## Validación más reciente conocida
 
-Suite general ejecutada por el usuario el **11/09/2026 20:11:17 -03:00**: **689/689**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, duración 10:22 min.
+Suite general informada por el usuario: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Los tests relacionados del bloque de obligaciones/cuotas/servicios quedaron en **49/49**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+## Auditoría del 12/09/2026
 
-## Próximos hitos
+### Hallazgos críticos
 
-1. Auditar los pendientes documentados contra el código y los tests actuales.
-2. Confirmar si la integración completa de ciclos con consumos, obligaciones y pagos continúa pendiente.
-3. Unificar el saldo monetario de tarjetas entre `MovimientoService` y `CuentaService` si corresponde.
-4. Profundizar pagos y liberación de crédito.
-5. Pasivos y patrimonio neto.
-6. Análisis histórico, vencimientos, resúmenes y dashboard.
-7. Pulido de consola.
+- Un movimiento que origina una obligación todavía puede ser modificado estructuralmente o eliminado; esto puede romper la consistencia entre movimiento, obligación, cuotas y ciclo.
+- La UI de obligaciones todavía no utiliza el flujo completo de `PagoTarjetaService`; existe riesgo de reducir deuda sin registrar la salida real de fondos si se usa el servicio directo incorrecto.
+- `ObligacionService` conserva operaciones públicas sin `usuarioId` que pueden permitir bypass de autorización si se invocan directamente.
 
-No hacer merge a `main` automáticamente ni crear ramas nuevas salvo indicación explícita.
+### Hallazgos importantes
+
+- `CuentaService` permite cambios de tipo/moneda que deben revisarse cuando existe historial financiero.
+- El ciclo de facturación está bien resuelto para creación de obligaciones/cuotas, pero aún no define todas las reglas de pago, mora, gracia y días no hábiles.
+- El tratamiento multidivisa definitivo del límite de tarjetas sigue abierto.
+- La financiación actual es de cuotas simples; intereses, CFT, refinanciación, adelantos, anulaciones y ajustes siguen pendientes.
+
+### Elementos ya consolidados
+
+- atomicidad básica de compra con tarjeta;
+- generación automática de cuotas;
+- cruce de fin de año;
+- base de ciclos de facturación;
+- criterio inicial de crédito disponible;
+- flujo coordinado de pago en servicio;
+- H2 TCP;
+- JAR ejecutable.
+
+## Próxima secuencia de trabajo
+
+1. Integridad movimiento ↔ obligación.
+2. Autorización y superficie pública de `ObligacionService`.
+3. Integración del pago real en UI.
+4. Integridad de tipo/moneda de cuentas.
+5. Reglas de ciclo aplicadas al pago.
+6. Multidivisa de tarjetas.
+7. Financiación avanzada.
+8. UI específica de tarjetas.
+9. Pasivos/patrimonio y análisis.
+10. Pulido de consola.
+
+No hacer merge a `main` automáticamente.
