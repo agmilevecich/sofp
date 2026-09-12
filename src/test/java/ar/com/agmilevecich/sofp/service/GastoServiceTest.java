@@ -255,4 +255,38 @@ class GastoServiceTest {
                 () -> new GastoService(movimientoService, null)
         );
     }
+
+    @Test
+    void deberiaRevertirMovimientoSiFallaLaCreacionDeLaObligacion() {
+        ObligacionService obligacionServiceFallido = new ObligacionService(
+                entityManager,
+                new ObligacionRepository(entityManager)
+        ) {
+            @Override
+            public Obligacion registrar(Movimiento movimientoOrigen, int cantidadCuotas) {
+                throw new IllegalStateException("Fallo simulado al crear la obligación");
+            }
+        };
+
+        GastoService gastoServiceAtomico = new GastoService(
+                movimientoService,
+                obligacionServiceFallido
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> gastoServiceAtomico.registrar(
+                        tarjeta,
+                        categoria,
+                        new BigDecimal("15000.00"),
+                        LocalDateTime.of(2026, 9, 12, 12, 0),
+                        "Compra que debe revertirse",
+                        FormaPago.TARJETA_CREDITO,
+                        usuario.getId()
+                )
+        );
+
+        assertEquals(0, movimientoRepository.listarPorCuenta(tarjeta.getId()).size());
+        assertEquals(0, obligacionService.listarTodas().size());
+    }
 }
