@@ -36,6 +36,10 @@ public class MovimientoService {
         this.obligacionRepository = Objects.requireNonNull(obligacionRepository, "El repositorio de obligaciones es obligatorio");
     }
 
+    EntityManager entityManager() {
+        return entityManager;
+    }
+
     public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
                                 BigDecimal importe, LocalDateTime fechaHora, String descripcion,
                                 Long usuarioId) {
