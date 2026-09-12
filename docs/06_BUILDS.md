@@ -1,56 +1,46 @@
 # SOFP — Historial de Builds
 
-## Build actual — cierre de cobertura de obligaciones/cuotas
+## Build actual — cierre de etapa y auditoría
 
-**Estado: COMPLETADO Y VALIDADO.**
+**Estado: VALIDADO.**
 
-Último commit: `44661fb` — `test: cubrir cuotas al cruzar fin de año`.
+Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
 
-El último cambio agregó cobertura de cuotas al cruzar el fin de año, manteniendo el comportamiento existente de ciclos de facturación.
+El build actual configura un JAR ejecutable con `Main-Class` y copia de dependencias runtime a `target/lib`.
 
-## Validación — 11/09/2026
+El usuario verificó el arranque con:
 
-Suite general ejecutada por el usuario:
+`java -Dsofp.dev=true -jar target/SOFP-1.0-SNAPSHOT.jar`
+
+## Validación más reciente
+
+Suite general más reciente informada por el usuario:
 
 - `mvn test`;
-- **689/689**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- duración **10:22 min**;
-- finalización **20:11:17 -03:00**.
-
-Validación relacionada previa al cierre:
-
-- **49/49** tests de obligaciones/cuotas/servicios;
+- **690/690**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`.
 
-## Persistencia y H2
-
-La aplicación SOFP utiliza H2 mediante servidor TCP con:
-
-`jdbc:h2:tcp://localhost/./database/sofp`
-
-SOFP y H2 Console utilizan la misma base persistente. Los tests conservan su propio `persistence.xml` con H2 en memoria.
+El conteo 690 reemplaza al histórico 689 documentado el 11/09/2026.
 
 ## Bloques funcionales consolidados
 
-Fondos insuficientes, categorías con movimientos, Gastos, Ingresos, FormaPago, Obligaciones/pagos, autorización por usuario, Transferencias, moneda explícita, crédito/límite de tarjeta, ciclos básicos de facturación, cuotas/financiación inicial, selección explícita de tarjeta de crédito y cobertura de cuotas al cruzar año.
+Fondos insuficientes, categorías con movimientos, Gastos, Ingresos, FormaPago, Obligaciones/pagos, autorización por usuario, Transferencias, moneda explícita, crédito/límite de tarjeta, ciclos básicos de facturación, cuotas, atomicidad de compra con tarjeta, selección explícita de tarjeta, H2 TCP y JAR ejecutable.
 
-## Fase 8 — Swing
+## Auditoría posterior
 
-La Fase 8 integra Inicio, Cuentas, Categorías, Ingresos, Gastos, Movimientos, Inversiones, Reportes, Obligaciones y Transferencias mediante `MainFrame`, `SidebarPanel` y `CardLayout`.
+La auditoría del estado actual detectó como próximos bloques principales:
 
-`GastosPanel` permite seleccionar forma de pago, cantidad de cuotas y, para `TARJETA_CREDITO`, la tarjeta activa utilizada.
+1. proteger movimientos que originan obligaciones;
+2. cerrar superficies públicas de `ObligacionService` que puedan bypassar autorización;
+3. integrar `PagoTarjetaService` en `ObligacionesPanel` y completar el flujo real de pago;
+4. proteger cambios estructurales de tipo/moneda de cuentas con historial;
+5. definir reglas de ciclo aplicadas al pago;
+6. definir tratamiento multidivisa de tarjetas;
+7. financiación avanzada y UI específica.
 
-## Próximo bloque
+La auditoría también confirmó que no deben seguir figurando como pendientes independientes la generación básica de cuotas, la atomicidad básica de compra, la configuración del JAR y la base de ciclos/cuotas.
 
-Auditar los pendientes contra el código actual. El candidato funcional principal es integrar ciclos de facturación y vencimientos con consumos, obligaciones y pagos, si la auditoría confirma que continúa pendiente.
-
-Después: unificación del saldo de tarjetas, profundización de pagos/liberación de crédito, pasivos/patrimonio y análisis histórico/dashboard.
-
-No hacer merge a `main` automáticamente.
+No se modificó código funcional como consecuencia de esta auditoría.
