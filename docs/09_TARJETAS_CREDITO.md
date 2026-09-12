@@ -1,6 +1,6 @@
 # SOFP — Diseño y adaptación de tarjetas de crédito
 
-## Estado — 10/09/2026
+## Estado — 12/09/2026
 
 **Rama:** `feature/swing-shell`
 
@@ -8,124 +8,99 @@ Este documento separa explícitamente lo implementado de lo pendiente.
 
 ## 1. Modelo
 
-Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. Actualmente tiene límite, día de cierre y día de vencimiento.
+Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. Tiene límite, día de cierre y día de vencimiento.
 
 La deuda se representa mediante `Obligacion` y el consumo mediante `Movimiento`.
 
-El pago coordinado de una tarjeta se representa mediante un egreso real sobre la cuenta pagadora y la reducción de la `Obligacion` asociada.
+## 2. Moneda — IMPLEMENTADO CON REGLA ABIERTA DE LÍMITE
 
-## 2. Moneda — IMPLEMENTADO
+La moneda del consumo se conserva en la obligación. Una compra ARS genera obligación ARS y una compra USD genera obligación USD. No se realiza conversión automática.
 
-La moneda del consumo se conserva en la obligación. Una compra ARS genera obligación ARS y una compra USD genera obligación USD. No se realiza conversión automática al crear la obligación.
+Los pagos coordinados requieren coincidencia de moneda entre deuda y cuenta pagadora.
 
-`ObligacionesPanel` muestra importe y saldo pendiente con código de moneda y formato estable mediante `Locale.ROOT`.
+El tratamiento multidivisa definitivo del límite de la tarjeta todavía no está cerrado.
 
-Los pagos coordinados de tarjeta requieren que la cuenta pagadora y la obligación utilicen la misma moneda. No se realiza conversión automática entre monedas.
-
-## 3. Crédito disponible y límite — IMPLEMENTADO EN SU PRIMER CRITERIO
+## 3. Crédito disponible — IMPLEMENTADO EN SU CRITERIO ACTUAL
 
 Criterio actual:
 
-`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`
+`crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda correspondiente`
 
-Se valida el límite al registrar consumos y al modificar importe/tipo. Los consumos con tarjeta no afectan el saldo monetario de la cuenta.
+Las compras con tarjeta no reducen el saldo monetario de la cuenta como si fueran salidas inmediatas de fondos.
 
-Los pagos de obligaciones reducen el saldo pendiente y, por lo tanto, liberan nuevamente crédito disponible.
+Los pagos reducen la obligación y liberan crédito.
 
-El tratamiento multidivisa definitivo del límite todavía no está cerrado: no debe asumirse un límite USD independiente ni realizar conversiones implícitas.
-
-## 4. Ciclo de facturación — BASE DE DOMINIO IMPLEMENTADA E INTEGRADA EN LA OBLIGACIÓN
+## 4. Ciclo de facturación — IMPLEMENTADO PARA CONSUMOS Y CUOTAS
 
 `CicloFacturacion` es un objeto de dominio no persistente.
 
-`Cuenta.calcularCicloFacturacion(LocalDate)`:
+`Cuenta.calcularCicloFacturacion(LocalDate)` resuelve cierre exacto, ciclo siguiente, meses cortos, vencimiento y cambio de año.
 
-- incluye el día exacto de cierre en el ciclo que cierra ese día;
-- asigna el día posterior al ciclo siguiente;
-- calcula inicio como el día posterior al cierre anterior;
-- ajusta días inexistentes al último día real del mes;
-- calcula vencimiento según día configurado y siguiente mes cuando corresponde;
-- resuelve cambio de año.
+`Obligacion.getCicloFacturacion()` deriva el ciclo desde cuenta + fecha del movimiento de origen.
 
-`Obligacion.getCicloFacturacion()` deriva el ciclo a partir de la cuenta y fecha del movimiento de origen, sin duplicar la información del ciclo en la obligación.
+La generación de cuotas ya utiliza este dominio y existe cobertura de cruce de año.
 
-`CicloFacturacionTest` contiene **11 tests** para estos casos.
+Pendiente: definir reglas específicas del pago frente al ciclo, vencimiento, mora/gracia y días no hábiles.
 
-La integración con el flujo de consumo/obligación ya está realizada. La relación del pago con el ciclo todavía no se persiste como dato independiente.
-
-## 5. Vencimiento
-
-La fecha de vencimiento se calcula como parte de `CicloFacturacion` y puede consultarse desde la obligación mediante su ciclo de facturación.
-
-La política de días no hábiles todavía no está definida.
-
-## 6. Pagos — IMPLEMENTADO EN FLUJO COORDINADO
+## 5. Pagos — SERVICIO COORDINADO IMPLEMENTADO; UI PENDIENTE
 
 `PagoTarjetaService` coordina en una única transacción:
 
 1. localizar y autorizar la obligación;
-2. validar la cuenta pagadora, categoría, perfil financiero y moneda;
-3. verificar que la cuenta pagadora esté activa;
-4. verificar que el importe sea positivo y no supere el saldo pendiente;
-5. verificar saldo monetario suficiente en la cuenta pagadora;
-6. registrar un egreso `Movimiento` en la cuenta pagadora;
-7. registrar el pago sobre la `Obligacion`;
-8. confirmar ambas modificaciones en la misma transacción.
+2. validar cuenta pagadora, categoría, perfil y moneda;
+3. validar cuenta activa;
+4. validar importe y saldo pendiente;
+5. validar fondos;
+6. registrar egreso real en la cuenta pagadora;
+7. registrar pago sobre la obligación;
+8. confirmar ambas operaciones juntas.
 
-El pago puede ser parcial o total. Un pago total deja la obligación en estado `PAGADA` y libera nuevamente el crédito utilizado por la tarjeta.
+Puede realizar pagos parciales o totales.
 
-Los pagos en moneda diferente de la deuda se rechazan explícitamente; no existe conversión automática.
+**Gap actual:** `ObligacionesPanel` todavía llama directamente a `ObligacionService.registrarPago(...)` y `Main` no integra el servicio coordinador completo. La UI debe incorporar cuenta pagadora y categoría y utilizar `PagoTarjetaService`.
 
-La operación mantiene separadas la cuenta pagadora, el consumo de tarjeta, la obligación y el movimiento monetario que representa la salida real de fondos.
+## 6. Integridad movimiento ↔ obligación — PENDIENTE CRÍTICO
 
-La implementación actual no crea un movimiento monetario de destino sobre la tarjeta: el pago se registra como salida de fondos de la cuenta pagadora y reducción de la obligación.
+Un movimiento origen de una obligación no debe poder cambiar importe, fecha/hora, tipo ni ser eliminado sin una política explícita de actualización coordinada.
 
-## 7. Cuotas y financiación
+La implementación actual todavía permite caminos de modificación/eliminación desde `MovimientoService`. Esto puede dejar obligación, cuotas y ciclo en estado inconsistente.
 
-Pendiente. Debe definirse antes importe de cuota, intereses, asignación a ciclos, compromiso inicial del límite, pagos parciales, anulaciones y ajustes.
+Próximo cambio mínimo: bloquear estas modificaciones estructurales cuando existe una obligación de origen y agregar tests de persistencia.
 
-## 8. Saldo monetario — UNIFICADO
+## 7. Seguridad de API — PENDIENTE CRÍTICO
 
-El tratamiento de los consumos con `TARJETA_CREDITO` es coherente entre `MovimientoService` y `CuentaService`: las compras con tarjeta no reducen el saldo monetario de la cuenta, porque generan una obligación y afectan el crédito disponible de la tarjeta.
+Revisar métodos públicos de `ObligacionService` sin `usuarioId`. Las operaciones de consulta/modificación expuestas no deben permitir bypass de autorización por invocación directa del servicio.
 
-Los egresos ordinarios sí reducen el saldo monetario y los ingresos lo incrementan.
+## 8. Cuotas y financiación
 
-## 9. Seguridad
+Las cuotas simples están implementadas y se generan automáticamente. Sigue pendiente la financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones y ajustes.
 
-Las operaciones de tarjeta deben respetar aislamiento por usuario/perfil y autorización en servicios/repositorios. Swing no debe ser la barrera de seguridad.
+## 9. Saldo monetario
 
-`PagoTarjetaService` valida la pertenencia de la obligación, cuenta pagadora y categoría al mismo perfil financiero antes de modificar datos.
+La auditoría confirmó que el criterio actual es coherente: consumos con tarjeta no reducen el saldo monetario de la cuenta; los egresos ordinarios sí. El consumo de tarjeta afecta la obligación y el crédito disponible.
 
-## 10. UI
+## 10. UI específica
 
-La UI específica de tarjetas queda para después de estabilizar las reglas de dominio. Debe permitir progresivamente consultar tarjeta, límite/disponible, consumos, moneda, ciclo, cierre, vencimiento, deuda y pagos.
+Pendiente una UI completa para consultar límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos reales.
 
-## 11. Orden de trabajo actualizado
+## 11. Cuenta — INTEGRIDAD PENDIENTE
 
-1. ~~Integrar `CicloFacturacion` con consumos y obligaciones.~~ **Completado.**
-2. ~~Unificar saldo monetario de tarjetas entre `MovimientoService` y `CuentaService`.~~ **Completado.**
-3. ~~Implementar flujo coordinado de pagos y liberación de crédito.~~ **Completado en su primera versión.**
-4. Profundizar reglas de pagos, especialmente relación con ciclos y reglas multidivisa que puedan requerirse.
-5. Definir e implementar cuotas/financiación.
-6. Construir UI específica de tarjetas.
-7. Ampliar pruebas de seguridad, persistencia, monedas, ciclos, pagos y casos límite.
+Revisar `CuentaService` para evitar cambios de tipo o moneda que vuelvan incoherente un historial financiero existente.
 
-## 12. Principios
+## 12. Orden de trabajo
 
-- código y tests prevalecen sobre documentación;
-- cambios mínimos;
-- no duplicar núcleos financieros;
-- no convertir monedas automáticamente para ocultar diferencias;
-- separar instrumento, consumo, deuda y pago;
-- reglas de negocio fuera de Swing;
-- no tratar decisiones abiertas como definitivas.
+1. Proteger movimiento origen de obligación.
+2. Cerrar superficies públicas de `ObligacionService`.
+3. Integrar pago real en UI.
+4. Proteger tipo/moneda de `Cuenta` con historial.
+5. Definir reglas de ciclo durante pagos.
+6. Definir multidivisa de tarjetas.
+7. Implementar financiación avanzada.
+8. Construir UI específica de tarjetas.
+9. Pasivos/patrimonio y análisis.
 
 ## 13. Validación actual
 
-Suite general: **671/671**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, ejecutada el 10/09/2026 10:39:38 -03:00.
+Suite general informada por el usuario: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-`PagoTarjetaServiceTest`: **3/3** en la validación focalizada.
-
-Tests relacionados (`TarjetaCreditoPagoCreditoTest`, `SaldoTarjetaCreditoTest`, `GastoServiceTest`): **11/11**, 0 failures, 0 errors, 0 skipped.
-
-`CicloFacturacionTest`: **11/11** tests incluidos en la suite general.
+El servicio coordinador de pagos y la atomicidad de compra cuentan con cobertura específica; los gaps de UI y mutabilidad descritos arriba requieren nuevos tests antes de considerarse cerrados.
