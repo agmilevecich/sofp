@@ -34,73 +34,44 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 26. Integración del pago coordinado de tarjeta en `ObligacionesPanel`.
 27. Integración de `PagoTarjetaService` en `MainFrame` y `Main`.
 28. Cobertura de pago real desde UI y saldo de la cuenta pagadora.
-29. Cierre de la superficie pública de `ObligacionService`: se eliminó el registro de pagos sin `usuarioId` y la API pública exige autorización explícita.
+29. Cierre de la superficie pública de `ObligacionService`: se eliminó el registro de pagos sin `usuarioId`.
+30. Auditoría transversal de integridad de `Cuenta`: revisión de mutabilidad de tipo/moneda, historial financiero, datos específicos de tarjeta y moneda económica de movimientos.
 
-## Estado actual de persistencia
+## Auditoría de `Cuenta` — resultado 13/09/2026
 
-La aplicación utiliza `jdbc:h2:tcp://localhost/./database/sofp`.
+La auditoría revisó el agregado `Cuenta`, sus servicios y repositorio, `TipoCuenta`, `Moneda`, el eje `Movimiento`, `GastoService`, `OperacionFinanciera` y `MovimientoActivo`, junto con la cobertura de tests relacionada.
 
-H2 Server se ejecuta en `localhost:9092` y H2 Console en `localhost:8082`.
+No se modificó código durante la auditoría.
 
-Los tests continúan aislados con su `persistence.xml` de test y H2 en memoria.
+Hallazgos confirmados:
 
-## Estado actual de tarjetas y cuotas
+- tipo y moneda de cuenta son mutables y `CuentaService` no verifica historial antes de modificarlos;
+- convertir una cuenta común en tarjeta no garantiza por sí solo límite/cierre/vencimiento completos;
+- salir de tarjeta hacia otro tipo no tiene política explícita para los datos de crédito existentes;
+- cambiar moneda con historial requiere protección para preservar la interpretación histórica;
+- la moneda del `Movimiento` es económica y puede diferir de la moneda estructural de la cuenta en consumos de tarjeta;
+- transferencias entre cuentas ya exigen misma moneda.
 
-Una tarjeta es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. Dispone de límite, día de cierre y día de vencimiento.
+Conclusión: el siguiente cambio debe ser una protección mínima y explícita de estas invariantes, sin introducir conversiones automáticas ni destruir el soporte multidivisa de consumos de tarjeta.
 
-La deuda se representa mediante `Obligacion`, vinculada uno-a-uno al `Movimiento` de origen. El origen debe ser un egreso de una cuenta de tarjeta.
+## Estado de validación
 
-La moneda económica del consumo se conserva desde `Movimiento` hacia la obligación y no se convierte automáticamente.
+Último `mvn test` informado: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-El crédito disponible se calcula inicialmente por moneda, sin conversiones implícitas.
+Suite relacionada: **69/69**, `BUILD SUCCESS`.
 
-`CicloFacturacion` es un objeto de dominio no persistente. Calcula inicio, cierre y vencimiento y resuelve meses cortos y cambio de año.
+`ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
 
-Al registrar un gasto con tarjeta, `GastoService` genera automáticamente las cuotas dentro de la transacción de la obligación.
+No se ejecutaron nuevos tests durante la auditoría de Cuenta.
 
-El pago coordinado mediante `PagoTarjetaService` valida propiedad/perfil, cuenta pagadora, categoría, estado activo, moneda, importe y fondos; luego registra el movimiento real de salida y reduce la obligación en una única transacción.
+## Pendientes
 
-El registro directo de pagos mediante `ObligacionService` exige ahora `usuarioId` y valida que la obligación pertenezca al perfil del usuario antes de modificarla.
-
-## Validación más reciente conocida
-
-Suite general informada por el usuario el 13/09/2026: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-
-Suite relacionada de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
-
-Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
-
-Tests específicos de `ObligacionService`: **9/9**, `BUILD SUCCESS`.
-
-## Estado de auditoría
-
-### Hallazgos ya cerrados
-
-- integridad estructural del movimiento origen de obligación;
-- pago real desde UI mediante `PagoTarjetaService`;
-- integración del coordinador en la aplicación;
-- cobertura del flujo UI y actualización del saldo de la cuenta pagadora;
-- superficie pública de `ObligacionService` para registrar pagos: requiere `usuarioId` y mantiene aislamiento por perfil.
-
-### Hallazgos todavía abiertos
-
-- cambios estructurales de tipo/moneda de `Cuenta` con historial;
-- reglas de pago asociadas a ciclo, vencimiento, mora, gracia y días no hábiles;
-- tratamiento multidivisa definitivo del límite de tarjetas;
-- financiación avanzada;
-- UI específica de tarjetas;
-- pasivos/patrimonio y análisis;
-- gestión de entidades financieras;
-- pulido de consola.
-
-## Próxima secuencia de trabajo
-
-1. Integridad de tipo/moneda de `Cuenta`.
-2. Reglas de ciclo aplicadas al pago.
-3. Multidivisa de tarjetas.
-4. Financiación avanzada.
+1. Implementar y testear la integridad estructural de `Cuenta`.
+2. Definir reglas de ciclo durante el pago.
+3. Definir multidivisa de tarjetas.
+4. Financiamiento avanzado.
 5. UI específica de tarjetas.
-6. Pasivos/patrimonio y análisis.
+6. Pasivos, patrimonio y análisis.
 7. Gestión de entidades financieras.
 8. Pulido de consola.
 
