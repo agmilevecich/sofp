@@ -7,116 +7,73 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Último commit verificado:** `00beeb17fcd781e039374dd5cf7f40ca60a39db4` — `fix: evitar moneda duplicada en test de integridad`.
 **Último cambio funcional:** `e5fbe0f9064841e2a03a671c0bf877e1897e8289` — `fix: proteger integridad estructural de cuentas`.
+**Último commit de código/tests verificado:** `00beeb17fcd781e039374dd5cf7f40ca60a39db4` — `fix: evitar moneda duplicada en test de integridad`.
 
-Los commits posteriores al cambio funcional corresponden a adaptación/corrección de tests y documentación. La rama de trabajo continúa separada de `main`; no se realizó merge.
+La documentación de esta auditoría se realiza sobre `feature/swing-shell`; no se modifica `main` ni se hace merge automático.
 
 ## Último bloque cerrado
 
 ### Integridad estructural de `Cuenta`
 
-Se implementó la protección mínima derivada de la auditoría transversal de `Cuenta`.
+Se protege la integridad histórica: una cuenta con movimientos no puede cambiar de tipo ni de moneda, y la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`. La autorización por usuario se mantiene y no se impone igualdad universal entre moneda estructural de cuenta y moneda económica de movimiento.
 
-`CuentaService.modificarTipoCuenta(...)` rechaza cambios de tipo cuando existen movimientos financieros y, mediante su validación específica, rechaza las transiciones genéricas hacia o desde `TARJETA_CREDITO`.
+## Auditoría completada — ciclo de facturación y pago
 
-`CuentaService.modificarMoneda(...)` rechaza cambios de moneda cuando existen movimientos financieros.
+Se revisaron `Cuenta`, `CicloFacturacion`, `Cuota`, `Obligacion`, `PagoTarjetaService`, `CuentaService` y los tests disponibles relacionados con tarjeta/obligaciones/pagos.
 
-La autorización por usuario se mantiene en ambas operaciones. No se introdujeron conversiones automáticas ni se alteró la posibilidad de que un movimiento de tarjeta tenga una moneda económica distinta de la moneda estructural de la cuenta.
+### Reglas actualmente implementadas
 
-### Cobertura agregada
+1. Una tarjeta posee `diaCierre` y `diaVencimiento` y valida ambos entre 1 y 31.
+2. El ciclo se calcula a partir de la fecha del consumo.
+3. Un consumo en o antes del cierre pertenece al ciclo que cierra ese mes; un consumo posterior pertenece al ciclo que cierra el mes siguiente.
+4. El inicio del ciclo es el día posterior al cierre anterior.
+5. Si el día configurado no existe en un mes, se usa el último día real del mes.
+6. El vencimiento se ubica después del cierre; si el día de vencimiento no puede estar en el mismo mes por ser menor/igual al cierre o no existir, pasa al mes siguiente y se ajusta al último día real cuando corresponde.
+7. `CicloFacturacion` garantiza `inicio <= cierre < vencimiento`.
+8. Al generar cuotas, cada cuota conserva persistentemente inicio, cierre y vencimiento del ciclo calculado.
+9. Las cuotas se aplican en orden ascendente y admiten pagos parciales.
+10. `PagoTarjetaService` registra el pago como un egreso real de la cuenta pagadora y exige misma moneda entre cuenta pagadora y obligación.
 
-Se incorporó `CuentaServiceIntegridadTest` para cubrir:
+### Hallazgos de la auditoría temporal
 
-- rechazo de cambio de tipo con movimientos;
-- rechazo de cambio de moneda con movimientos;
-- cambio entre tipos no tarjeta sin historial;
-- rechazo de transiciones hacia/desde `TARJETA_CREDITO` por la API genérica.
+**A. No existe todavía una regla temporal en el pago.** `PagoTarjetaService` recibe `fechaHora`, pero actualmente solo la usa como fecha del nuevo movimiento. No comprueba si el pago es anterior al consumo, anterior/al día del vencimiento, posterior al vencimiento o futuro.
+
+**B. No existe concepto de mora.** No hay estado, marca, cálculo ni evento que distinga pago en término de pago tardío.
+
+**C. No existe período de gracia.** No hay atributo ni regla para tolerancia posterior al vencimiento.
+
+**D. No existe calendario de días no hábiles.** El vencimiento se calcula exclusivamente por día de mes. No se desplaza por sábado, domingo ni feriados.
+
+**E. No existe fecha efectiva de pago separada de la fecha/hora del movimiento.** El sistema tiene una única `fechaHora` para el movimiento de pago.
+
+**F. No existe regla de pago futuro.** La API no impide registrar un pago con fecha posterior al momento real de la operación.
+
+**G. El orden de aplicación de cuotas es correcto pero no temporal.** `Obligacion.registrarPago` aplica siempre desde la cuota 1 en adelante, independientemente de la fecha del pago y de los vencimientos individuales. Esto preserva el orden de cuotas existente, pero no representa todavía una política de mora por cuota.
+
+**H. Existe un riesgo de estabilidad histórica del ciclo.** `Cuota` persiste sus fechas, pero `Obligacion.getCicloFacturacion()` vuelve a calcular el ciclo usando la configuración actual de `Cuenta`. Por lo tanto, si después de crear una compra se modificaran `diaCierre` o `diaVencimiento`, el ciclo derivado de la obligación podría cambiar mientras las cuotas ya generadas conservarían sus fechas originales.
+
+**I. La configuración de crédito es mutable sin una protección histórica equivalente a tipo/moneda.** `Cuenta.configurarDatosCredito(...)` puede cambiar límite, cierre y vencimiento. La API pública actual de `CuentaService` no expone una operación específica para esa modificación, pero el dominio permite la mutación directa. Antes de usar el ciclo como dato histórico inmutable debe definirse cómo se protege esta configuración una vez que existen consumos/ciclos.
+
+**J. No se detectó lógica de intereses, punitorios, CFT ni recargos en este bloque.** Esto es correcto como separación de alcance: esas reglas pertenecen al bloque de financiación avanzada y no deben inventarse dentro de la auditoría temporal.
+
+### Resultado de auditoría
+
+El cálculo básico de ciclos y vencimientos está implementado y es coherente para meses cortos y cruces de año, pero **la aplicación temporal del pago todavía no está implementada**. El modelo actual permite registrar pagos sin distinguir en término/tardío, sin gracia y sin calendario de días no hábiles.
+
+No se realizaron cambios de código durante esta auditoría porque las reglas de negocio faltantes no están definidas en el código actual y agregarlas por inferencia introduciría comportamiento financiero inventado.
 
 ## Validación más reciente conocida
 
-El usuario ejecutó la suite relacionada el 13/09/2026 y obtuvo:
+El usuario ejecutó `mvn test` y obtuvo **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado el 13/09/2026 a las 19:00:15 -03:00.
 
-- **154/154** tests;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- tiempo informado: **22:18 min**;
-- finalizado a las **17:58:12 -03:00**.
-
-La suite completa `mvn test` fue ejecutada posteriormente y obtuvo:
-
-- **700/700** tests;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- tiempo informado: **46:17 min**;
-- finalizado a las **19:00:15 -03:00**.
-
-La validación específica inmediatamente anterior de `CuentaServiceIntegridadTest,CuentaServiceTest` obtuvo **66/66**, `BUILD SUCCESS`.
-
-La validación final de Git informada por el usuario mostró `git syncsofp` correcto, `git diff` vacío, `git diff --check` sin salida, `git status` limpio y la rama sincronizada con GitHub y Bitbucket.
-
-## Arquitectura funcional vigente
-
-**paneles especializados → servicios específicos → núcleo financiero central basado en `Movimiento`.**
-
-Gastos: `GastosPanel → GastoService → MovimientoService → Movimiento EGRESO`.
-
-Ingresos: `IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
-
-Una compra con `TARJETA_CREDITO` genera movimiento de egreso + obligación + cuotas dentro de la coordinación transaccional correspondiente.
-
-El pago de tarjeta se coordina mediante `PagoTarjetaService`: cuenta pagadora + movimiento de salida + actualización de obligación.
-
-## Persistencia y H2
-
-La aplicación utiliza `jdbc:h2:tcp://localhost/./database/sofp`.
-
-H2 Server: `localhost:9092`. H2 Console: `localhost:8082`.
-
-Los tests mantienen un `persistence.xml` independiente con H2 en memoria.
-
-## Tarjetas, moneda y ciclos
-
-Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límite, cierre y vencimiento.
-
-`Obligacion` es una relación uno-a-uno con el `Movimiento` de origen. El origen debe ser un `EGRESO` de una cuenta de tarjeta. La obligación conserva importe original, saldo pendiente, moneda, fecha y ciclo derivados del movimiento.
-
-Los movimientos tienen moneda explícita. No existe conversión automática ARS↔USD.
-
-El pago de tarjeta exige coincidencia de moneda entre obligación y cuenta pagadora.
-
-## Integridad de `Cuenta` — cierre 13/09/2026
-
-La auditoría transversal previa identificó tres riesgos principales: mutabilidad de tipo con historial, mutabilidad de moneda con historial y transiciones genéricas incompletas hacia/desde tarjeta. La implementación mínima ya quedó aplicada y validada.
-
-Reglas vigentes:
-
-1. una cuenta con movimientos financieros no puede cambiar de tipo;
-2. una cuenta con movimientos financieros no puede cambiar de moneda;
-3. la API genérica de cambio de tipo no permite transiciones hacia o desde `TARJETA_CREDITO`;
-4. las operaciones continúan verificando pertenencia/autorización del usuario;
-5. no se impone igualdad universal entre moneda de cuenta y moneda de movimiento, preservando consumos de tarjeta en moneda económica extranjera;
-6. las transferencias entre cuentas continúan exigiendo misma moneda.
-
-La política más avanzada para crear/configurar una tarjeta y para futuras migraciones específicas de datos de crédito queda separada de esta protección estructural. No se limpian ni migran datos implícitamente.
+La suite relacionada de `Cuenta` obtuvo **154/154**, y los tests específicos de integridad **66/66**, todos con `BUILD SUCCESS`.
 
 ## Estado de pendientes reales
 
-### P0 — Cerrado
+### P1 — Auditoría temporal completada; implementación pendiente de reglas explícitas
 
-API pública de obligaciones y autorización: el overload de `ObligacionService.registrarPago` sin `usuarioId` fue eliminado.
-
-### P1 — Cerrado: integridad estructural de `Cuenta`
-
-La protección de tipo/moneda y las transiciones genéricas hacia/desde tarjeta quedó implementada y cubierta por tests. Suite relacionada: **154/154**. Suite completa: **700/700**.
-
-### P1 — Ciclo de facturación aplicado al pago
-
-Definir y probar comportamiento respecto de vencimiento, mora, gracia, días no hábiles y orden temporal.
+El próximo bloque funcional deberá convertir los hallazgos anteriores en reglas de negocio comprobables y tests. La auditoría ya dejó identificados todos los puntos temporales relevantes: fecha mínima de pago, vencimiento, mora, gracia, días no hábiles, fecha efectiva, pagos futuros y aplicación a cuotas.
 
 ### P1 — Multidivisa de tarjetas
 
