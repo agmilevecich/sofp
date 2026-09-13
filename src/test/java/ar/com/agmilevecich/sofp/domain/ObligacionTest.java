@@ -184,11 +184,13 @@ class ObligacionTest {
         );
 
         Cuenta cuenta = new Cuenta(
-                "Caja de Ahorro",
-                TipoCuenta.CAJA_AHORRO,
+                "Tarjeta",
                 perfil,
                 banco,
-                moneda
+                moneda,
+                new BigDecimal("500000.00"),
+                15,
+                10
         );
 
         Categoria categoria = new Categoria(
