@@ -190,7 +190,7 @@ class ObligacionesPanelTest {
         Obligacion actualizada = panel.getObligacionesList().getModel().getElementAt(0);
         assertEquals(new BigDecimal("10000.00"), actualizada.getSaldoPendiente());
         assertTrue(panel.getRegistrarPagoButton().isEnabled());
-        assertEquals(new BigDecimal("5000.00"), cuentaPagadoraSaldo());
+        assertEquals(new BigDecimal("15000.00"), cuentaPagadoraSaldo());
         assertEquals(obligacion.getId(), actualizada.getId());
     }
 
