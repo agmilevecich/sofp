@@ -4,98 +4,48 @@
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` y obtuvo:
-
-- Tests run: **696**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- tiempo: **21:14 min**.
+El usuario ejecutó `mvn test` y obtuvo **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 21:14 min.
 
 ### Suite relacionada de obligaciones/pagos/UI
 
-- **69/69**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- tiempo: **10:17 min**.
+**69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 10:17 min. Durante esta ejecución Surefire informó un warning por demora en la terminación de la JVM después de `System.exit(0)`, sin fallo de tests.
 
-Durante esta ejecución Surefire informó un warning por demora en la terminación de la JVM después de `System.exit(0)`, pero la ejecución terminó con `BUILD SUCCESS` y 69/69 tests correctos.
+### Tests específicos
 
-### Tests específicos de UI de pago
+- UI de pago: **6/6**, `BUILD SUCCESS`.
+- `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`, finalizado 13/09/2026 16:22:17 -03:00.
 
-- **6/6**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`.
+## Auditoría de `Cuenta` — cobertura actual
 
-### Tests específicos de `ObligacionService`
+La revisión transversal incluyó `CuentaTest`, `CuentaServiceTest`, `MovimientoServiceTest` y `OperacionFinancieraServiceTest`, además de las implementaciones de dominio, servicios y repositorios relacionados.
 
-- **9/9**;
-- Failures: **0**;
-- Errors: **0**;
-- Skipped: **0**;
-- `BUILD SUCCESS`;
-- finalizado el **13/09/2026 16:22:17 -03:00**.
+Cobertura existente relevante:
 
-## Cobertura funcional relevante
+- creación de cuenta común y tarjeta;
+- validación de límite y días de tarjeta;
+- cambio de moneda, institución y tipo en dominio;
+- modificación de tipo/moneda mediante `CuentaService`;
+- persistencia de modificaciones;
+- cálculo de saldo;
+- movimientos ordenados por cuenta;
+- autorización por propietario en operaciones públicas;
+- transferencias con validación de misma moneda;
+- gastos con moneda económica explícita, necesaria para consumos de tarjeta en moneda extranjera.
 
-La suite incluye seguridad/aislamiento, cuentas, categorías, movimientos, fondos disponibles, Gastos, Ingresos, Transferencias, Inversiones, Reportes, shell Swing, obligaciones, cuotas, tarjetas y pagos.
+Gap confirmado:
 
-### Autorización de pagos de obligaciones
+- no existe test que intente modificar tipo o moneda después de crear movimientos históricos;
+- no existe protección actual contra convertir una cuenta común en tarjeta sin datos de crédito completos;
+- no existe una política testeada para los datos de crédito al convertir una tarjeta a otro tipo.
 
-`ObligacionService` ya no expone un `registrarPago` que permita modificar una obligación sin `usuarioId`.
+La auditoría no modificó tests y no se ejecutó una nueva suite durante esta revisión. Por lo tanto, 696/696, 69/69 y 9/9 siguen siendo los últimos resultados informados por el usuario y no constituyen una validación posterior a esta auditoría.
 
-`ObligacionServiceTest` cubre pagos parciales/totales, sobrepago, obligación inexistente, ID nulo y autorización por usuario/perfil. Los tests fueron adaptados a la API autorizada y la suite específica pasó 9/9.
+## Criterio para el próximo cambio
 
-### Integridad movimiento ↔ obligación
+Los tests deberán cubrir, como mínimo, cuenta sin historial, cuenta con movimientos, cambio de tipo, cambio de moneda, tarjeta y autorización. También deberán preservar el caso válido de consumo de tarjeta cuya moneda económica difiere de la moneda estructural de la cuenta.
 
-`MovimientoObligacionIntegridadTest` cubre:
-
-1. bloqueo de modificación de importe del movimiento origen;
-2. bloqueo de modificación de fecha/hora;
-3. bloqueo de modificación de tipo;
-4. bloqueo de eliminación;
-5. conservación de cambios permitidos de descripción y observaciones.
-
-Los tests verifican además la persistencia del movimiento y la obligación en estado consistente.
-
-### Cuotas y ciclos
-
-`CicloFacturacionTest` cubre cierres, meses cortos, febrero, vencimiento, fechas nulas y cambio de año.
-
-`ObligacionCuotasTest` cubre una compra del `2026-12-16` con tres cuotas que atraviesan el fin de año.
-
-### Atomicidad de compra con tarjeta
-
-Existe cobertura para rollback conjunto cuando falla la creación de la obligación después de registrar el movimiento.
-
-### Pagos de tarjeta
-
-`PagoTarjetaServiceTest` cubre el servicio coordinador y las reglas de saldo, moneda, autorización y pagos parciales/totales existentes.
-
-`ObligacionesPanelPagoTarjetaTest` cubre el flujo real desde UI: selección de cuenta pagadora/categoría, pago parcial y movimiento de salida de fondos.
-
-`ObligacionesPanelTest` verifica actualización de la obligación y saldo de la cuenta pagadora después del pago.
-
-## Gaps de tests pendientes
-
-Los pendientes se corresponden ahora con funcionalidades todavía no implementadas o reglas aún no definidas:
-
-1. acceso cruzado adicional sobre otras operaciones públicas de `ObligacionService`, si la auditoría posterior identifica alguna superficie pendiente;
-2. cambios de tipo/moneda de `Cuenta` con historial financiero;
-3. reglas de pago respecto de ciclo, vencimiento, mora, gracia y días no hábiles cuando sean definidas;
-4. escenarios multidivisa de tarjeta una vez definida la regla;
-5. casos límite de financiación avanzada;
-6. tests del futuro panel de gestión de entidades financieras cuando se implemente.
+No modificar tests solamente para hacerlos pasar. La regla debe derivarse del dominio actual y validarse con persistencia y relaciones.
 
 ## Criterio de cierre
 
-No considerar una funcionalidad terminada solamente porque compila. Cada bloque debe contemplar éxito, null cuando corresponda, entidad inexistente, reglas de negocio, persistencia, relaciones y casos límite relevantes.
-
-Después de cambios importantes: tests específicos → relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status`.
-
-Los estados locales de Git solo se consideran confirmados cuando el usuario los informa o se verifican en el entorno correspondiente.
+Después del cambio: tests específicos → relacionados → suite general → `git diff` → `git diff --check` → `git status` → documentación.
