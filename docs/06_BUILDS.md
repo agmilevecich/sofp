@@ -4,43 +4,46 @@
 
 **Estado: VALIDADO.**
 
-Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
+Último commit funcional de la etapa: `1fd43d5` — `fix: proteger movimientos origen de obligaciones`.
 
-El build actual configura un JAR ejecutable con `Main-Class` y copia de dependencias runtime a `target/lib`.
-
-El usuario verificó el arranque con:
-
-`java -Dsofp.dev=true -jar target/SOFP-1.0-SNAPSHOT.jar`
+El commit posterior `87014d3` agrega la cobertura específica de integridad movimiento ↔ obligación.
 
 ## Validación más reciente
 
-Suite general más reciente informada por el usuario:
+Suite general más reciente informada por el usuario el 13/09/2026:
 
 - `mvn test`;
-- **690/690**;
+- **695/695**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- tiempo informado: **15:39 min**.
+
+La validación relacionada anterior también fue exitosa:
+
+- `mvn -Dtest=MovimientoServiceTest,MovimientoObligacionIntegridadTest test`;
+- **55/55**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`.
 
-El conteo 690 reemplaza al histórico 689 documentado el 11/09/2026.
-
 ## Bloques funcionales consolidados
 
-Fondos insuficientes, categorías con movimientos, Gastos, Ingresos, FormaPago, Obligaciones/pagos, autorización por usuario, Transferencias, moneda explícita, crédito/límite de tarjeta, ciclos básicos de facturación, cuotas, atomicidad de compra con tarjeta, selección explícita de tarjeta, H2 TCP y JAR ejecutable.
+Fondos insuficientes, categorías con movimientos, Gastos, Ingresos, FormaPago, Obligaciones/pagos, autorización por usuario, Transferencias, moneda explícita, crédito/límite de tarjeta, ciclos básicos de facturación, cuotas, atomicidad de compra con tarjeta, integridad del movimiento origen de obligación, selección explícita de tarjeta, H2 TCP y JAR ejecutable.
 
 ## Auditoría posterior
 
-La auditoría del estado actual detectó como próximos bloques principales:
+La auditoría del estado actual deja como próximos bloques principales:
 
-1. proteger movimientos que originan obligaciones;
-2. cerrar superficies públicas de `ObligacionService` que puedan bypassar autorización;
-3. integrar `PagoTarjetaService` en `ObligacionesPanel` y completar el flujo real de pago;
-4. proteger cambios estructurales de tipo/moneda de cuentas con historial;
-5. definir reglas de ciclo aplicadas al pago;
-6. definir tratamiento multidivisa de tarjetas;
-7. financiación avanzada y UI específica.
+1. cerrar superficies públicas de `ObligacionService` que puedan bypassar autorización;
+2. integrar `PagoTarjetaService` en `ObligacionesPanel` y completar el flujo real de pago;
+3. proteger cambios estructurales de tipo/moneda de cuentas con historial;
+4. definir reglas de ciclo aplicadas al pago;
+5. definir tratamiento multidivisa de tarjetas;
+6. financiación avanzada y UI específica.
 
-La auditoría también confirmó que no deben seguir figurando como pendientes independientes la generación básica de cuotas, la atomicidad básica de compra, la configuración del JAR y la base de ciclos/cuotas.
+La protección de movimientos que originan obligaciones ya no figura como pendiente: está implementada y validada con tests específicos y suite completa.
 
-No se modificó código funcional como consecuencia de esta auditoría.
+No se modificó `main`.
