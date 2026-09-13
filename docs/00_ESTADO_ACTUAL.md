@@ -134,6 +134,20 @@ No existe todavía un panel específico para registrar/gestionar entidades finan
 - integración de `PagoTarjetaService` en `Main`/`MainFrame`: implementada;
 - JAR ejecutable: implementado y verificado manualmente.
 
+## Protocolo de continuidad y sincronización documental
+
+La documentación de continuidad se trabaja sobre **la rama activa de desarrollo**. `docs/continuidad-sofp` no es una segunda rama de desarrollo ni una línea independiente de cambios funcionales: es la rama de referencia para conservar la continuidad documental.
+
+Reglas:
+
+1. Los cambios de código y las actualizaciones de continuidad se realizan sobre la rama de trabajo activa (`feature/...` o la que corresponda). No modificar `main` automáticamente.
+2. Al cerrar una etapa importante, actualizar los documentos de continuidad en la rama activa junto con el estado real de código, tests y commits.
+3. Después de actualizar la documentación, alinear `docs/continuidad-sofp` con la rama activa mediante **fast-forward** cuando sea posible. Si las historias divergieron, primero realizar un **rebase** de la rama documental sobre la rama activa y luego un `merge --ff-only`.
+4. Evitar merge commits únicamente para integrar documentación de continuidad. El objetivo es mantener una historia lineal entre la rama activa y `docs/continuidad-sofp`.
+5. Verificar después de la alineación que ambas ramas apunten al mismo commit y que no exista divergencia.
+6. Antes de una nueva sesión, reconstruir el estado desde GitHub priorizando: código actual → tests → commits → `main` → documentación → conversaciones anteriores.
+7. Si la documentación contradice al código o los tests, prevalecen siempre código y tests.
+
 ## Protocolo de continuidad
 
 Ante una nueva sesión: rama → últimos commits → comparación con `main` → README/docs → código → tests → último resultado conocido → próximo paso.
