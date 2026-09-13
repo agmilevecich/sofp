@@ -26,45 +26,33 @@ public class Obligacion extends EntidadAuditable {
 
     @Column(name = "importe_original", nullable = false, precision = 19, scale = 2)
     private BigDecimal importeOriginal;
-
     @Column(name = "saldo_pendiente", nullable = false, precision = 19, scale = 2)
     private BigDecimal saldoPendiente;
-
     @Column(nullable = false, length = 20)
     @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
     private EstadoObligacion estado;
-
     @Column(name = "fecha_inicio_ciclo", nullable = false)
     private LocalDate fechaInicioCiclo;
-
     @Column(name = "fecha_cierre_ciclo", nullable = false)
     private LocalDate fechaCierreCiclo;
-
     @Column(name = "fecha_vencimiento", nullable = false)
     private LocalDate fechaVencimiento;
-
     @Column(name = "dias_gracia", nullable = false)
     private int diasGracia;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "movimiento_origen_id", nullable = false, unique = true)
     private Movimiento movimientoOrigen;
-
     @OneToMany(mappedBy = "obligacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("numero ASC")
     private List<Cuota> cuotas = new ArrayList<>();
 
-    protected Obligacion() {
-    }
+    protected Obligacion() {}
 
     public Obligacion(Movimiento movimientoOrigen) {
         this.movimientoOrigen = Objects.requireNonNull(movimientoOrigen, "El movimiento de origen es obligatorio");
-        if (movimientoOrigen.getTipoMovimiento() != TipoMovimiento.EGRESO) {
-            throw new IllegalArgumentException("El movimiento de origen debe ser un egreso");
-        }
-        if (movimientoOrigen.getFormaPago() != FormaPago.TARJETA_CREDITO) {
-            throw new IllegalArgumentException("El movimiento de origen debe utilizar tarjeta de crédito");
-        }
+        if (movimientoOrigen.getTipoMovimiento() != TipoMovimiento.EGRESO) throw new IllegalArgumentException("El movimiento de origen debe ser un egreso");
+        if (movimientoOrigen.getFormaPago() != FormaPago.TARJETA_CREDITO) throw new IllegalArgumentException("El movimiento de origen debe utilizar tarjeta de crédito");
         this.importeOriginal = Validaciones.importePositivo(movimientoOrigen.getImporte(), "El importe original es obligatorio");
         CicloFacturacion ciclo = movimientoOrigen.getCuenta().calcularCicloFacturacion(movimientoOrigen.getFechaHora().toLocalDate());
         this.fechaInicioCiclo = ciclo.getFechaInicio();
@@ -83,11 +71,17 @@ public class Obligacion extends EntidadAuditable {
     public Moneda getMoneda() { return movimientoOrigen.getMoneda(); }
     public LocalDateTime getFechaOrigen() { return movimientoOrigen.getFechaHora(); }
 
-    public CicloFacturacion getCicloFacturacion() {
-        return new CicloFacturacion(fechaInicioCiclo, fechaCierreCiclo, fechaVencimiento);
-    }
+    public CicloFacturacion getCicloFacturacion() { return new CicloFacturacion(fechaInicioCiclo, fechaCierreCiclo, fechaVencimiento); }
 
     public LocalDate getFechaLimitePago() {
+        if (!cuotas.isEmpty()) {
+            return cuotas.stream()
+                    .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
+                    .findFirst()
+                    .map(Cuota::getFechaVencimiento)
+                    .orElse(fechaVencimiento)
+                    .plusDays(diasGracia);
+        }
         return fechaVencimiento.plusDays(diasGracia);
     }
 
@@ -106,9 +100,7 @@ public class Obligacion extends EntidadAuditable {
             BigDecimal importeCuota = numero == cantidad ? importeOriginal.subtract(importeAcumulado) : importeBase;
             cuotas.add(new Cuota(this, numero, importeCuota, ciclo));
             importeAcumulado = importeAcumulado.add(importeCuota);
-            if (numero < cantidad) {
-                ciclo = movimientoOrigen.getCuenta().calcularCicloFacturacion(ciclo.getFechaCierre().plusDays(1));
-            }
+            if (numero < cantidad) ciclo = movimientoOrigen.getCuenta().calcularCicloFacturacion(ciclo.getFechaCierre().plusDays(1));
         }
     }
 
@@ -116,9 +108,8 @@ public class Obligacion extends EntidadAuditable {
         if (estado == EstadoObligacion.PAGADA) throw new IllegalStateException("La obligación ya está pagada");
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
         if (pago.compareTo(saldoPendiente) > 0) throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
-        if (cuotas.isEmpty()) {
-            saldoPendiente = saldoPendiente.subtract(pago);
-        } else {
+        if (cuotas.isEmpty()) saldoPendiente = saldoPendiente.subtract(pago);
+        else {
             BigDecimal restante = pago;
             for (Cuota cuota : cuotas) {
                 if (restante.signum() == 0) break;
