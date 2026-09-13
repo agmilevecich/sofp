@@ -76,7 +76,7 @@ No se implementó ninguna de estas reglas por inferencia. La auditoría queda ce
 
 Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Suite relacionada `CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154`, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite relacionada `CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
 Suite completa `mvn test`: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
