@@ -4,6 +4,7 @@ import ar.com.agmilevecich.sofp.util.Validaciones;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Objects;
@@ -33,6 +34,9 @@ public class Cuenta extends EntidadAuditable {
 
     @Column(name = "dia_vencimiento")
     private Integer diaVencimiento;
+
+    @Column(name = "dias_gracia", nullable = false)
+    private Integer diasGracia = 0;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "perfil_financiero_id", nullable = false)
@@ -80,6 +84,7 @@ public class Cuenta extends EntidadAuditable {
     public BigDecimal getLimiteCredito() { return limiteCredito; }
     public Integer getDiaCierre() { return diaCierre; }
     public Integer getDiaVencimiento() { return diaVencimiento; }
+    public Integer getDiasGracia() { return diasGracia; }
     public PerfilFinanciero getPerfilFinanciero() { return perfilFinanciero; }
     public InstitucionFinanciera getInstitucionFinanciera() { return institucionFinanciera; }
     public Moneda getMoneda() { return moneda; }
@@ -103,19 +108,22 @@ public class Cuenta extends EntidadAuditable {
     }
 
     public void configurarDatosCredito(BigDecimal limiteCredito, Integer diaCierre, Integer diaVencimiento) {
+        configurarDatosCredito(limiteCredito, diaCierre, diaVencimiento, 0);
+    }
+
+    public void configurarDatosCredito(BigDecimal limiteCredito,
+                                       Integer diaCierre,
+                                       Integer diaVencimiento,
+                                       Integer diasGracia) {
         this.limiteCredito = Objects.requireNonNull(limiteCredito, "El límite de crédito es obligatorio");
         if (limiteCredito.signum() <= 0) {
             throw new IllegalArgumentException("El límite de crédito debe ser positivo");
         }
         this.diaCierre = validarDia(diaCierre, "El día de cierre es obligatorio");
         this.diaVencimiento = validarDia(diaVencimiento, "El día de vencimiento es obligatorio");
+        this.diasGracia = validarDiasGracia(diasGracia);
     }
 
-    /**
-     * Calcula el ciclo de facturación al que pertenece un consumo.
-     * Los días configurados se ajustan al último día real del mes cuando
-     * dicho día no existe, sin realizar conversiones de moneda.
-     */
     public CicloFacturacion calcularCicloFacturacion(LocalDate fechaConsumo) {
         validarConfiguracionCredito();
         Objects.requireNonNull(fechaConsumo, "La fecha de consumo es obligatoria");
@@ -144,7 +152,18 @@ public class Cuenta extends EntidadAuditable {
         if (diaVencimiento <= diaCierre || diaVencimiento > mesVencimiento.lengthOfMonth()) {
             mesVencimiento = mesVencimiento.plusMonths(1);
         }
-        return fechaDelMes(mesVencimiento, diaVencimiento);
+        LocalDate vencimiento = fechaDelMes(mesVencimiento, diaVencimiento);
+        return ajustarDiaHabil(vencimiento);
+    }
+
+    private LocalDate ajustarDiaHabil(LocalDate fecha) {
+        if (fecha.getDayOfWeek() == DayOfWeek.SATURDAY) {
+            return fecha.plusDays(2);
+        }
+        if (fecha.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            return fecha.plusDays(1);
+        }
+        return fecha;
     }
 
     private LocalDate fechaCierre(int year, int month) {
@@ -159,6 +178,7 @@ public class Cuenta extends EntidadAuditable {
         Objects.requireNonNull(limiteCredito, "El límite de crédito es obligatorio");
         Objects.requireNonNull(diaCierre, "El día de cierre es obligatorio");
         Objects.requireNonNull(diaVencimiento, "El día de vencimiento es obligatorio");
+        Objects.requireNonNull(diasGracia, "Los días de gracia son obligatorios");
     }
 
     public BigDecimal calcularCreditoDisponible(BigDecimal creditoUtilizado) {
@@ -176,6 +196,14 @@ public class Cuenta extends EntidadAuditable {
             throw new IllegalArgumentException("El día debe estar entre 1 y 31");
         }
         return dia;
+    }
+
+    private int validarDiasGracia(Integer diasGracia) {
+        Objects.requireNonNull(diasGracia, "Los días de gracia son obligatorios");
+        if (diasGracia < 0) {
+            throw new IllegalArgumentException("Los días de gracia no pueden ser negativos");
+        }
+        return diasGracia;
     }
 
     public void activar() { this.activa = true; }
