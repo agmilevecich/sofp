@@ -2,63 +2,61 @@
 
 ## Cierre de etapa — 13/09/2026
 
-**Estado: VALIDADO para la etapa de autorización; auditoría de Cuenta terminada sin cambios de código.**
+**Estado: VALIDADO para la etapa de integridad estructural de Cuenta.**
 
-Últimos commits funcionales de la etapa de autorización de obligaciones:
+Cambio funcional principal:
 
-- `a2a96bb13a0d342e2ccfb6f7302ae791c1dd8147` — `fix: exigir usuario al registrar pagos de obligaciones`;
-- `2813fa34c953f4f6408903c1e3b4fc2e7f3b58c5` — `test: adaptar pagos de obligaciones a usuario autorizado`.
+- `e5fbe0f9064841e2a03a671c0bf877e1897e8289` — `fix: proteger integridad estructural de cuentas`.
 
-Los commits posteriores son de documentación de continuidad.
+Commits posteriores de tests:
+
+- `2c19e35afb51f088952fba5270bdd7ba40b0ab91` — `test: cubrir integridad estructural de cuentas`;
+- `439fda5d7fb3b914ab33453b90ce2cf31f3b867a` — `fix: corregir constructor de Usuario en test de integridad`;
+- `00beeb17fcd781e039374dd5cf7f40ca60a39db4` — `fix: evitar moneda duplicada en test de integridad`.
 
 ## Validaciones informadas por el usuario
 
-### Tests específicos de UI
+### Tests específicos de integridad
 
-`ObligacionesPanelTest,ObligacionesPanelPagoTarjetaTest`: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-
-### `ObligacionServiceTest`
-
-**9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 16:22:17 -03:00.
+`mvn -Dtest=CuentaServiceIntegridadTest,CuentaServiceTest test`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; 09:19 min; finalizado 13/09/2026 17:31:57 -03:00.
 
 ### Suite relacionada
 
-`PagoTarjetaServiceTest,ObligacionServiceTest,MovimientoServiceTest,ObligacionesPanelTest,ObligacionesPanelPagoTarjetaTest,MainFrameObligacionesTest`: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; 10:17 min; finalizado 13/09/2026 16:35:14 -03:00.
-
-La ejecución mostró un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, pero terminó con `BUILD SUCCESS` y sin tests fallidos.
+`CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; 22:18 min; finalizado 13/09/2026 17:58:12 -03:00.
 
 ### Suite completa
 
-`mvn test`: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; 21:14 min; finalizado 13/09/2026 14:09:41 -03:00.
+`mvn test`: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; 46:17 min; finalizado 13/09/2026 19:00:15 -03:00.
 
-No se ejecutó una nueva suite completa después del cierre de autorización. 696/696 es el último resultado general informado.
+Este resultado general incrementa la cobertura total conocida de 696 a 700 tests.
 
-## Auditoría de integridad de `Cuenta` — 13/09/2026
+### Validaciones previas relevantes
 
-Se revisaron `Cuenta`, `CuentaService`, `CuentaRepository`, `TipoCuenta`, `Moneda`, `Movimiento`, `MovimientoRepository`, `MovimientoService`, `GastoService`, `OperacionFinanciera`, `MovimientoActivo` y los tests relevantes.
+- `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
+- Suite de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
+- Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
 
-Resultado: **auditoría terminada; no se modificó código ni se ejecutaron nuevos tests durante la auditoría.**
+## Integridad de `Cuenta` — cierre
 
-Hallazgos:
+La implementación protege:
 
-1. `CuentaService.modificarTipoCuenta` y `modificarMoneda` no verifican historial financiero antes de modificar la cuenta.
-2. `Cuenta.cambiarTipoCuenta` permite convertir una cuenta común en `TARJETA_CREDITO` sin configurar límite/cierre/vencimiento, y permite salir de tarjeta sin una política para los datos de crédito existentes.
-3. Cambiar moneda con historial puede hacer que la moneda estructural actual de la cuenta deje de representar correctamente su historial.
-4. `Movimiento` posee moneda propia y `GastoService` permite una moneda económica distinta para consumos con tarjeta; por eso no corresponde imponer igualdad cuenta/moneda indiscriminadamente.
-5. `OperacionFinancieraService` sí exige misma moneda para transferencias entre cuentas.
-6. `CuentaRepository` mantiene responsabilidad de persistencia y no introduce reglas de negocio de tipo/moneda.
+1. cambio de tipo cuando existen movimientos financieros;
+2. cambio de moneda cuando existen movimientos financieros;
+3. transiciones genéricas hacia/desde `TARJETA_CREDITO` mediante `modificarTipoCuenta`;
+4. autorización por propietario en las operaciones públicas.
 
-Conclusión: el siguiente cambio debe proteger tipo/moneda cuando exista historial y resolver explícitamente la coherencia de los datos de tarjeta al cambiar de tipo. No se debe introducir una regla genérica que elimine la capacidad de registrar consumos de tarjeta en moneda extranjera.
+No se impuso igualdad universal entre moneda de cuenta y moneda de movimiento. Se conserva el caso válido de consumos de tarjeta con moneda económica extranjera.
+
+La cobertura nueva verifica cuenta con historial, cuenta sin historial, tarjeta y persistencia/servicios relacionados.
 
 ## Próximos bloques
 
-1. implementar y testear la regla mínima de integridad de `Cuenta` definida por esta auditoría;
-2. definir reglas de ciclo aplicadas al pago;
-3. definir multidivisa;
-4. financiación avanzada;
-5. UI específica de tarjetas;
-6. pasivos/patrimonio y análisis;
-7. gestión de entidades financieras;
-8. pulido de consola.
+1. definir y testear reglas de ciclo aplicadas al pago;
+2. definir multidivisa de tarjetas;
+3. financiación avanzada;
+4. UI específica de tarjetas;
+5. pasivos/patrimonio y análisis;
+6. gestión de entidades financieras;
+7. pulido de consola.
 
 No se modificó `main`.
