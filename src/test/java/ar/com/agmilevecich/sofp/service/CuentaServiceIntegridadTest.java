@@ -108,7 +108,7 @@ class CuentaServiceIntegridadTest {
     }
 
     private Datos persistirCuenta(TipoCuenta tipo, String nombreUsuario) {
-        Usuario usuario = new Usuario(nombreUsuario, "clave-segura");
+        Usuario usuario = new Usuario("Ariel", "Integridad", nombreUsuario + "@example.com", "clave-segura");
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera("Banco", TipoInstitucionFinanciera.BANCO);
@@ -127,7 +127,7 @@ class CuentaServiceIntegridadTest {
     }
 
     private Datos persistirCuentaTarjeta(String nombreUsuario) {
-        Usuario usuario = new Usuario(nombreUsuario, "clave-segura");
+        Usuario usuario = new Usuario("Ariel", "Integridad", nombreUsuario + "@example.com", "clave-segura");
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera("Banco", TipoInstitucionFinanciera.BANCO);
