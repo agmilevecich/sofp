@@ -13,8 +13,6 @@ El usuario ejecutó `mvn test` y obtuvo:
 - `BUILD SUCCESS`;
 - tiempo: **21:14 min**.
 
-Este resultado reemplaza al anterior 695/695.
-
 ### Suite relacionada de obligaciones/pagos/UI
 
 - **69/69**;
@@ -22,7 +20,9 @@ Este resultado reemplaza al anterior 695/695.
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- tiempo: **06:28 min**.
+- tiempo: **10:17 min**.
+
+Durante esta ejecución Surefire informó un warning por demora en la terminación de la JVM después de `System.exit(0)`, pero la ejecución terminó con `BUILD SUCCESS` y 69/69 tests correctos.
 
 ### Tests específicos de UI de pago
 
@@ -30,12 +30,26 @@ Este resultado reemplaza al anterior 695/695.
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
+- `BUILD SUCCESS`.
+
+### Tests específicos de `ObligacionService`
+
+- **9/9**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
 - `BUILD SUCCESS`;
-- tiempo: **01:44 min**.
+- finalizado el **13/09/2026 16:22:17 -03:00**.
 
 ## Cobertura funcional relevante
 
 La suite incluye seguridad/aislamiento, cuentas, categorías, movimientos, fondos disponibles, Gastos, Ingresos, Transferencias, Inversiones, Reportes, shell Swing, obligaciones, cuotas, tarjetas y pagos.
+
+### Autorización de pagos de obligaciones
+
+`ObligacionService` ya no expone un `registrarPago` que permita modificar una obligación sin `usuarioId`.
+
+`ObligacionServiceTest` cubre pagos parciales/totales, sobrepago, obligación inexistente, ID nulo y autorización por usuario/perfil. Los tests fueron adaptados a la API autorizada y la suite específica pasó 9/9.
 
 ### Integridad movimiento ↔ obligación
 
@@ -71,7 +85,7 @@ Existe cobertura para rollback conjunto cuando falla la creación de la obligaci
 
 Los pendientes se corresponden ahora con funcionalidades todavía no implementadas o reglas aún no definidas:
 
-1. acceso directo no autorizado a `ObligacionService`;
+1. acceso cruzado adicional sobre otras operaciones públicas de `ObligacionService`, si la auditoría posterior identifica alguna superficie pendiente;
 2. cambios de tipo/moneda de `Cuenta` con historial financiero;
 3. reglas de pago respecto de ciclo, vencimiento, mora, gracia y días no hábiles cuando sean definidas;
 4. escenarios multidivisa de tarjeta una vez definida la regla;
