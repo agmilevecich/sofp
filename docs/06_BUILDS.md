@@ -4,10 +4,16 @@
 
 **Estado: VALIDADO.**
 
-Último commit funcional de la etapa: `13dea0441718f73ddead9c3d39c35068d2a8962d` — `feat: integrar pago de tarjeta en obligaciones`.
+Últimos commits de la etapa de autorización de obligaciones:
 
-La integración se completó posteriormente con:
+- `a2a96bb13a0d342e2ccfb6f7302ae791c1dd8147` — `fix: exigir usuario al registrar pagos de obligaciones`;
+- `2813fa34c953f4f6408903c1e3b4fc2e7f3b58c5` — `test: adaptar pagos de obligaciones a usuario autorizado`.
 
+Estos commits cierran el P0 de la superficie pública de `ObligacionService`: ya no existe el overload público de registro de pagos sin `usuarioId` y los tests utilizan la API autorizada.
+
+La etapa anterior de integración del pago de tarjeta incluyó:
+
+- `13dea0441718f73ddead9c3d39c35068d2a8962d` — integración del pago en obligaciones;
 - `a28fce274cbb99f6f3f7226964ff4c3af15e8e99` — integración del servicio en `MainFrame`;
 - `a47419f23b084f3beaec9c8035596ed1689740c2` — conexión desde `Main`;
 - `8c397eaf7246f5bbc42a24278c71fb4a11692eac` — test de pago desde UI;
@@ -21,13 +27,22 @@ La integración se completó posteriormente con:
 
 ### Tests específicos de UI
 
-- `ObligacionesPanelTest,ObligacionesPanelPagoTarjetaTest`;
+`ObligacionesPanelTest,ObligacionesPanelPagoTarjetaTest`:
+
 - **6/6**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
+- `BUILD SUCCESS`.
+
+### `ObligacionServiceTest`
+
+- **9/9**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
 - `BUILD SUCCESS`;
-- tiempo: **01:44 min**.
+- finalizado el **13/09/2026 16:22:17 -03:00**.
 
 ### Suite relacionada
 
@@ -38,7 +53,10 @@ La integración se completó posteriormente con:
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`;
-- tiempo: **06:28 min**.
+- tiempo: **10:17 min**;
+- finalizado el **13/09/2026 16:35:14 -03:00**.
+
+La ejecución mostró un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, pero terminó con `BUILD SUCCESS` y sin tests fallidos.
 
 ### Suite completa
 
@@ -52,9 +70,11 @@ La integración se completó posteriormente con:
 - tiempo: **21:14 min**;
 - finalizado el **13/09/2026 14:09:41 -03:00**.
 
+No se ejecutó una nueva suite completa después del cierre de autorización; 696/696 es el último resultado general informado.
+
 ### Verificaciones Git
 
-El usuario ejecutó `git syncsofp`, `git diff`, `git diff --check` y `git status`.
+Después de los cambios de código, el usuario ejecutó `git syncsofp`, `git diff`, `git diff --check` y `git status`.
 
 Resultado informado:
 
@@ -69,16 +89,17 @@ Resultado informado:
 
 Fondos insuficientes, categorías con movimientos, Gastos, Ingresos, FormaPago, Obligaciones/pagos, autorización por usuario, Transferencias, moneda explícita, crédito/límite de tarjeta, ciclos básicos de facturación, cuotas, atomicidad de compra con tarjeta, integridad del movimiento origen de obligación, selección explícita de tarjeta, pago real de tarjeta desde UI, H2 TCP y JAR ejecutable.
 
+La autorización de pagos de `ObligacionService` queda consolidada: el registro público requiere `usuarioId` y valida el perfil propietario.
+
 ## Próximos bloques
 
-1. cerrar superficies públicas de `ObligacionService` que puedan bypassar autorización;
-2. proteger cambios estructurales de tipo/moneda de cuentas con historial;
-3. definir reglas de ciclo aplicadas al pago;
-4. definir tratamiento multidivisa de tarjetas;
-5. financiación avanzada;
-6. UI específica de tarjetas;
-7. pasivos, patrimonio y análisis;
-8. gestión de entidades financieras;
-9. pulido de consola.
+1. proteger cambios estructurales de tipo/moneda de cuentas con historial;
+2. definir reglas de ciclo aplicadas al pago;
+3. definir tratamiento multidivisa de tarjetas;
+4. financiación avanzada;
+5. UI específica de tarjetas;
+6. pasivos, patrimonio y análisis;
+7. gestión de entidades financieras;
+8. pulido de consola.
 
 No se modificó `main`.
