@@ -6,8 +6,9 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
+**Rama documental de continuidad:** `docs/continuidad-sofp`.
 
-**Último commit:** `41ebb2b14b79efe5c61926d95306820dcd7069ea` — `test: corregir saldo esperado en pago de tarjeta`.
+**Último commit de código:** `41ebb2b14b79efe5c61926d95306820dcd7069ea` — `test: corregir saldo esperado en pago de tarjeta`.
 
 La rama de trabajo continúa separada de `main`; no se realizó merge.
 
