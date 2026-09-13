@@ -67,28 +67,6 @@ public class ObligacionService {
         return guardada;
     }
 
-    public Obligacion registrarPago(Long obligacionId, BigDecimal importe) {
-        Objects.requireNonNull(obligacionId, "El id de la obligación es obligatorio");
-
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
-            transaction.begin();
-
-            Obligacion obligacion = obligacionRepository.buscarPorId(obligacionId)
-                    .orElseThrow(() -> new IllegalArgumentException("La obligación no existe"));
-
-            obligacion.registrarPago(importe);
-            entityManager.flush();
-            transaction.commit();
-            return obligacion;
-        } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
-    }
-
     /** Registra un pago verificando que la obligación pertenezca al usuario autorizado. */
     public Obligacion registrarPago(Long obligacionId, BigDecimal importe, Long usuarioId) {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
