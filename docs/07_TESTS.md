@@ -6,13 +6,32 @@
 
 El usuario ejecutó `mvn test` y obtuvo:
 
-- Tests run: **695**;
+- Tests run: **696**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
-- `BUILD SUCCESS`.
+- `BUILD SUCCESS`;
+- tiempo: **21:14 min**.
 
-Este resultado incorpora los 5 tests de `MovimientoObligacionIntegridadTest` y reemplaza al anterior 690/690.
+Este resultado reemplaza al anterior 695/695.
+
+### Suite relacionada de obligaciones/pagos/UI
+
+- **69/69**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- tiempo: **06:28 min**.
+
+### Tests específicos de UI de pago
+
+- **6/6**;
+- Failures: **0**;
+- Errors: **0**;
+- Skipped: **0**;
+- `BUILD SUCCESS`;
+- tiempo: **01:44 min**.
 
 ## Cobertura funcional relevante
 
@@ -28,7 +47,7 @@ La suite incluye seguridad/aislamiento, cuentas, categorías, movimientos, fondo
 4. bloqueo de eliminación;
 5. conservación de cambios permitidos de descripción y observaciones.
 
-Los tests verifican además la persistencia del movimiento y la obligación en estado consistente después de los rechazos.
+Los tests verifican además la persistencia del movimiento y la obligación en estado consistente.
 
 ### Cuotas y ciclos
 
@@ -38,23 +57,26 @@ Los tests verifican además la persistencia del movimiento y la obligación en e
 
 ### Atomicidad de compra con tarjeta
 
-Existe cobertura para el caso en que falla la creación de la obligación después de registrar el movimiento. El objetivo es confirmar rollback conjunto.
+Existe cobertura para rollback conjunto cuando falla la creación de la obligación después de registrar el movimiento.
 
 ### Pagos de tarjeta
 
 `PagoTarjetaServiceTest` cubre el servicio coordinador y las reglas de saldo, moneda, autorización y pagos parciales/totales existentes.
 
-## Gaps detectados por la auditoría
+`ObligacionesPanelPagoTarjetaTest` cubre el flujo real desde UI: selección de cuenta pagadora/categoría, pago parcial y movimiento de salida de fondos.
 
-Los pendientes de tests quedan ahora reducidos a las funcionalidades todavía no implementadas o a las reglas aún no definidas:
+`ObligacionesPanelTest` verifica actualización de la obligación y saldo de la cuenta pagadora después del pago.
+
+## Gaps de tests pendientes
+
+Los pendientes se corresponden ahora con funcionalidades todavía no implementadas o reglas aún no definidas:
 
 1. acceso directo no autorizado a `ObligacionService`;
-2. pago desde UI debe registrar salida real de fondos;
-3. pago desde UI debe respetar moneda, saldo, perfil y pago parcial/total;
-4. cambios de tipo/moneda de `Cuenta` con historial financiero;
-5. reglas de pago respecto de ciclo, vencimiento y días no hábiles cuando sean definidas;
-6. escenarios multidivisa de tarjeta una vez definida la regla;
-7. casos límite de financiación cuando se implemente.
+2. cambios de tipo/moneda de `Cuenta` con historial financiero;
+3. reglas de pago respecto de ciclo, vencimiento, mora, gracia y días no hábiles cuando sean definidas;
+4. escenarios multidivisa de tarjeta una vez definida la regla;
+5. casos límite de financiación avanzada;
+6. tests del futuro panel de gestión de entidades financieras cuando se implemente.
 
 ## Criterio de cierre
 

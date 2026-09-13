@@ -1,8 +1,8 @@
 # SOFP — Historial del proyecto
 
-## Estado documental — 12/09/2026
+## Estado documental — 13/09/2026
 
-Los estados técnicos deben verificarse siempre contra código, tests y Git.
+Los estados técnicos deben verificarse siempre contra código, tests y Git. Este documento registra hitos; no reemplaza la inspección del estado real.
 
 ## Hitos principales
 
@@ -30,6 +30,10 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git.
 22. Atomicidad de compra con tarjeta mediante coordinación transaccional de movimiento y obligación.
 23. Configuración de JAR ejecutable y dependencias runtime.
 24. Auditoría funcional transversal del modelo de tarjeta, obligaciones, pagos, autorización y mutabilidad.
+25. Protección de movimientos que originan obligaciones frente a cambios estructurales y eliminación.
+26. Integración del pago coordinado de tarjeta en `ObligacionesPanel`.
+27. Integración de `PagoTarjetaService` en `MainFrame` y `Main`.
+28. Cobertura de pago real desde UI y saldo de la cuenta pagadora.
 
 ## Estado actual de persistencia
 
@@ -43,7 +47,9 @@ Los tests continúan aislados con su `persistence.xml` de test y H2 en memoria.
 
 Una tarjeta es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. Dispone de límite, día de cierre y día de vencimiento.
 
-La deuda se representa mediante `Obligacion`. La moneda económica del consumo se conserva desde `Movimiento` hacia la obligación y no se convierte automáticamente.
+La deuda se representa mediante `Obligacion`, vinculada uno-a-uno al `Movimiento` de origen. El origen debe ser un egreso de una cuenta de tarjeta.
+
+La moneda económica del consumo se conserva desde `Movimiento` hacia la obligación y no se convierte automáticamente.
 
 El crédito disponible se calcula inicialmente por moneda, sin conversiones implícitas.
 
@@ -51,47 +57,47 @@ El crédito disponible se calcula inicialmente por moneda, sin conversiones impl
 
 Al registrar un gasto con tarjeta, `GastoService` genera automáticamente las cuotas dentro de la transacción de la obligación.
 
+El pago coordinado mediante `PagoTarjetaService` valida propiedad/perfil, cuenta pagadora, categoría, estado activo, moneda, importe y fondos; luego registra el movimiento real de salida y reduce la obligación en una única transacción.
+
 ## Validación más reciente conocida
 
-Suite general informada por el usuario: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite general informada por el usuario el 13/09/2026: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-## Auditoría del 12/09/2026
+Suite relacionada de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
 
-### Hallazgos críticos
+Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
 
-- Un movimiento que origina una obligación todavía puede ser modificado estructuralmente o eliminado; esto puede romper la consistencia entre movimiento, obligación, cuotas y ciclo.
-- La UI de obligaciones todavía no utiliza el flujo completo de `PagoTarjetaService`; existe riesgo de reducir deuda sin registrar la salida real de fondos si se usa el servicio directo incorrecto.
-- `ObligacionService` conserva operaciones públicas sin `usuarioId` que pueden permitir bypass de autorización si se invocan directamente.
+## Estado de auditoría
 
-### Hallazgos importantes
+### Hallazgos ya cerrados
 
-- `CuentaService` permite cambios de tipo/moneda que deben revisarse cuando existe historial financiero.
-- El ciclo de facturación está bien resuelto para creación de obligaciones/cuotas, pero aún no define todas las reglas de pago, mora, gracia y días no hábiles.
-- El tratamiento multidivisa definitivo del límite de tarjetas sigue abierto.
-- La financiación actual es de cuotas simples; intereses, CFT, refinanciación, adelantos, anulaciones y ajustes siguen pendientes.
+- integridad estructural del movimiento origen de obligación;
+- pago real desde UI mediante `PagoTarjetaService`;
+- integración del coordinador en la aplicación;
+- cobertura del flujo UI y actualización del saldo de la cuenta pagadora.
 
-### Elementos ya consolidados
+### Hallazgos todavía abiertos
 
-- atomicidad básica de compra con tarjeta;
-- generación automática de cuotas;
-- cruce de fin de año;
-- base de ciclos de facturación;
-- criterio inicial de crédito disponible;
-- flujo coordinado de pago en servicio;
-- H2 TCP;
-- JAR ejecutable.
+- superficies públicas de `ObligacionService` sin `usuarioId`;
+- cambios estructurales de tipo/moneda de `Cuenta` con historial;
+- reglas de pago asociadas a ciclo, vencimiento, mora, gracia y días no hábiles;
+- tratamiento multidivisa definitivo del límite de tarjetas;
+- financiación avanzada;
+- UI específica de tarjetas;
+- pasivos/patrimonio y análisis;
+- gestión de entidades financieras;
+- pulido de consola.
 
 ## Próxima secuencia de trabajo
 
-1. Integridad movimiento ↔ obligación.
-2. Autorización y superficie pública de `ObligacionService`.
-3. Integración del pago real en UI.
-4. Integridad de tipo/moneda de cuentas.
-5. Reglas de ciclo aplicadas al pago.
-6. Multidivisa de tarjetas.
-7. Financiación avanzada.
-8. UI específica de tarjetas.
-9. Pasivos/patrimonio y análisis.
-10. Pulido de consola.
+1. Autorización y superficie pública de `ObligacionService`.
+2. Integridad de tipo/moneda de `Cuenta`.
+3. Reglas de ciclo aplicadas al pago.
+4. Multidivisa de tarjetas.
+5. Financiación avanzada.
+6. UI específica de tarjetas.
+7. Pasivos/patrimonio y análisis.
+8. Gestión de entidades financieras.
+9. Pulido de consola.
 
 No hacer merge a `main` automáticamente.

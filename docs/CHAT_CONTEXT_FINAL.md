@@ -1,21 +1,25 @@
-# SOFP — Contexto para continuar con ChatGPT
+# SOFP — Contexto final de continuidad
 
-## Estado actual — 12/09/2026
+## Estado — 13/09/2026
 
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
+**Último commit:** `41ebb2b14b79efe5c61926d95306820dcd7069ea` — `test: corregir saldo esperado en pago de tarjeta`.
 
 No se realizó merge a `main`.
 
 ## Validación más reciente
 
-Suite general informada por el usuario: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite general informada por el usuario: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-El JAR ejecutable fue probado con `java -Dsofp.dev=true -jar target/SOFP-1.0-SNAPSHOT.jar`.
+Suite relacionada de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
+
+Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
+
+El usuario informó `git syncsofp`, `git diff`, `git diff --check` y `git status` correctos, con working tree limpio y rama sincronizada.
 
 ## Estado funcional
 
@@ -24,24 +28,19 @@ El JAR ejecutable fue probado con `java -Dsofp.dev=true -jar target/SOFP-1.0-SNA
 - Compra con tarjeta → movimiento + obligación + cuotas.
 - Atomicidad de compra con tarjeta implementada y testeada.
 - Ciclos y cuotas con cruce de año implementados.
+- Protección de movimientos origen de obligaciones implementada y testeada.
 - Pago coordinado de tarjeta implementado en `PagoTarjetaService`.
+- Pago real desde `ObligacionesPanel` integrado y testeado.
+- `PagoTarjetaService` conectado en `MainFrame` y `Main`.
 - Moneda explícita en movimientos y obligaciones; sin conversión automática.
 - H2 de aplicación por TCP y tests aislados en H2 memoria.
 - JAR ejecutable configurado.
 
-## Auditoría vigente
-
-### P0 — Integridad movimiento ↔ obligación
-
-Bloquear modificación de importe, fecha/hora, tipo y eliminación de un movimiento que sea origen de una obligación. Agregar tests de cada caso y verificar persistencia.
+## Pendientes
 
 ### P0 — Autorización de obligaciones
 
-Revisar operaciones públicas de `ObligacionService` sin `usuarioId`. Hacer internos los métodos de coordinación o exigir autorización explícita en operaciones públicas.
-
-### P0 — Pago real en UI
-
-`ObligacionesPanel` debe dejar de registrar solamente la reducción de deuda y pasar a usar `PagoTarjetaService`, con cuenta pagadora y categoría. El flujo debe registrar salida real de fondos y deuda en la misma transacción.
+Revisar operaciones públicas de `ObligacionService` sin `usuarioId`. Hacer internos los métodos de coordinación o exigir autorización explícita en operaciones públicas y agregar cobertura de acceso cruzado.
 
 ### P1 — Integridad de Cuenta
 
@@ -67,18 +66,25 @@ Límite/disponible, consumos, ciclos, vencimientos, deuda y pagos reales.
 
 Pasivos, patrimonio neto, histórico, vencimientos, resúmenes y dashboard.
 
+### P2/P3 — Gestión de entidades financieras
+
+Todavía no existe un panel específico. Definir e implementar cuando corresponda.
+
+### P3 — Pulido
+
+Mejoras de consola y presentación, sin interferir con reglas financieras.
+
 ## Orden exacto para continuar
 
-1. Movimiento ↔ obligación.
-2. Autorización de `ObligacionService`.
-3. Pago real desde UI.
-4. Integridad de `Cuenta`.
-5. Reglas de ciclo durante pagos.
-6. Multidivisa.
-7. Financiación.
-8. UI específica.
-9. Pasivos/patrimonio/análisis.
-10. Pulido.
+1. Autorización de `ObligacionService`.
+2. Integridad de `Cuenta`.
+3. Reglas de ciclo durante pagos.
+4. Multidivisa.
+5. Financiación.
+6. UI específica.
+7. Pasivos/patrimonio/análisis.
+8. Gestión de entidades financieras.
+9. Pulido.
 
 ## Protocolo
 

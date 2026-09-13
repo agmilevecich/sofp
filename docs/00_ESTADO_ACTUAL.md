@@ -1,47 +1,45 @@
 # SOFP — Estado actual
 
-> Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
+> Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar y puede quedar desactualizada.
 
 ## Estado verificado — 13/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit: `87014d3` — `test: cubrir integridad movimiento-obligacion`.
+**Último commit:** `41ebb2b14b79efe5c61926d95306820dcd7069ea` — `test: corregir saldo esperado en pago de tarjeta`.
 
 La rama de trabajo continúa separada de `main`; no se realizó merge.
 
-## Últimos bloques cerrados
+## Último bloque cerrado
 
-### Integridad movimiento ↔ obligación
+### Pago real de tarjeta integrado en la UI
 
-`MovimientoService` bloquea modificaciones estructurales y eliminación de un `Movimiento` que es origen de una `Obligacion`: importe, fecha/hora y tipo no pueden cambiarse y el movimiento no puede eliminarse. Se mantienen permitidos los cambios descriptivos de descripción y observaciones.
+`ObligacionesPanel` utiliza `PagoTarjetaService` para coordinar el pago. La UI permite seleccionar cuenta pagadora y categoría, valida la selección y registra el pago mediante el servicio coordinador.
 
-`MovimientoObligacionIntegridadTest` cubre estos rechazos y verifica que movimiento y obligación permanezcan persistidos en estado consistente. También cubre que descripción y observaciones continúen siendo modificables.
+El flujo realiza en una operación transaccional la reducción de la obligación y el movimiento `EGRESO` de la cuenta pagadora. El movimiento de pago utiliza `FormaPago.TRANSFERENCIA`, por lo que reduce el saldo monetario de la cuenta pagadora.
 
-### Cuotas al cruzar fin de año
+La integración de la aplicación se completa en `Main`, que crea `PagoTarjetaService` y lo inyecta en `MainFrame` y `ObligacionesPanel`.
 
-`ObligacionCuotasTest` cubre una compra del `2026-12-16` con tres cuotas y verifica ciclos/vencimientos hasta abril de 2027.
-
-### Atomicidad de compra con tarjeta
-
-`GastoService` coordina movimiento + obligación dentro de una única transacción cuando el medio es `TARJETA_CREDITO`. Existe cobertura de rollback cuando falla la creación de la obligación.
-
-### JAR ejecutable
-
-`pom.xml` configura `maven-jar-plugin` y `maven-dependency-plugin` para generar un JAR ejecutable con `Main` y dependencias en `target/lib`. El usuario verificó el arranque con `java -Dsofp.dev=true -jar target/SOFP-1.0-SNAPSHOT.jar`.
+La cobertura UI incluye el pago parcial y la comprobación de la salida real de fondos. Se mantiene la autorización por perfil/usuario en los servicios.
 
 ## Validación más reciente conocida
 
 El usuario ejecutó `mvn test` el 13/09/2026 y obtuvo:
 
-- **695/695** tests;
+- **696/696** tests;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
-- `BUILD SUCCESS`.
+- `BUILD SUCCESS`;
+- tiempo informado: **21:14 min**.
 
-Este resultado incorpora los 5 tests nuevos de integridad movimiento ↔ obligación.
+Validaciones relacionadas informadas:
+
+- suite de servicios/dominio/UI de obligaciones y pagos: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`;
+- tests específicos de `ObligacionesPanel` y pago de tarjeta: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+El usuario también informó que `git syncsofp`, `git diff`, `git diff --check` y `git status` terminaron correctamente; el árbol de trabajo quedó limpio y sincronizado con GitHub.
 
 ## Arquitectura funcional vigente
 
@@ -51,9 +49,11 @@ Gastos: `GastosPanel → GastoService → MovimientoService → Movimiento EGRES
 
 Ingresos: `IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
 
-Una compra con `TARJETA_CREDITO` genera un movimiento de egreso y una obligación. Las cuotas se generan automáticamente por el flujo de gasto.
+Una compra con `TARJETA_CREDITO` genera movimiento de egreso + obligación + cuotas dentro de la coordinación transaccional correspondiente.
 
-`MovimientoService`, `ObligacionService` y `GastoService` permiten coordinar transacciones cuando forman parte de una operación compuesta.
+El pago de tarjeta se coordina mediante `PagoTarjetaService`: cuenta pagadora + movimiento de salida + actualización de obligación.
+
+`MovimientoService`, `ObligacionService` y `GastoService` participan en las coordinaciones transaccionales necesarias según la operación.
 
 ## Persistencia y H2
 
@@ -69,65 +69,74 @@ Los tests mantienen un `persistence.xml` independiente con H2 en memoria.
 
 Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`, límite, cierre y vencimiento.
 
-Los movimientos tienen moneda explícita. La obligación conserva la moneda económica del movimiento de origen. No hay conversión automática ARS↔USD.
+`Obligacion` es una relación uno-a-uno con el `Movimiento` de origen. El origen debe ser un `EGRESO` de una cuenta de tarjeta. La obligación conserva importe original, saldo pendiente, moneda, fecha y ciclo derivados del movimiento.
+
+Los movimientos tienen moneda explícita. No existe conversión automática ARS↔USD.
+
+El pago de tarjeta exige coincidencia de moneda entre obligación y cuenta pagadora.
 
 El crédito disponible se calcula según el criterio actual de límite menos consumos pendientes en la moneda correspondiente.
 
-`CicloFacturacion` es un objeto de dominio no persistente y `Cuenta.calcularCicloFacturacion(LocalDate)` resuelve cierres, meses cortos y cambio de año. La generación de cuotas ya utiliza esta información. La política completa del ciclo sobre pagos, mora y días no hábiles sigue abierta.
+`CicloFacturacion` es un objeto de dominio no persistente y `Cuenta.calcularCicloFacturacion(LocalDate)` resuelve cierres, meses cortos y cambio de año. La generación de cuotas ya utiliza esta información.
 
-## Auditoría de continuidad — 13/09/2026
+## Integridad movimiento ↔ obligación
 
-La auditoría contra el código y tests actuales actualizó los pendientes documentales. Los siguientes puntos son ahora los principales trabajos pendientes.
+`MovimientoService` bloquea modificaciones estructurales y eliminación de un `Movimiento` que es origen de una `Obligacion`: importe, fecha/hora y tipo no pueden cambiarse y el movimiento no puede eliminarse. Se mantienen permitidos los cambios descriptivos de descripción y observaciones.
 
-### P0 — Pago de tarjeta integrado a UI
+`MovimientoObligacionIntegridadTest` cubre estos rechazos y la persistencia consistente de movimiento y obligación.
 
-`PagoTarjetaService` ya coordina correctamente cuenta pagadora + movimiento de salida + pago de obligación en una transacción. Sin embargo, `ObligacionesPanel` todavía utiliza directamente `ObligacionService.registrarPago(...)` y `Main` no integra `PagoTarjetaService`.
-
-La UI todavía no completa el flujo real de pago porque debe seleccionar cuenta pagadora y categoría y utilizar el servicio coordinador. Este punto es funcionalmente crítico para evitar reducir deuda sin registrar la salida real de fondos.
+## Estado de pendientes reales
 
 ### P0 — API pública de obligaciones y autorización
 
-Existen operaciones de `ObligacionService` sin `usuarioId` que permiten consultar o modificar obligaciones directamente. Deben revisarse las superficies públicas para que la autorización por perfil no pueda ser bypass mediante el servicio.
+Revisar las operaciones de `ObligacionService` que todavía pueden invocarse sin `usuarioId`. La autorización por perfil no debe poder bypassarse mediante un método público de coordinación.
 
-Objetivo: hacer internos los métodos de coordinación que no deban ser públicos o exigir `usuarioId` en las operaciones expuestas a la UI.
+Objetivo: hacer internos los métodos de coordinación que no deban exponerse o exigir autorización explícita en las operaciones públicas.
 
 ### P1 — Integridad de Cuenta
 
-`CuentaService` permite modificar tipo y moneda de una cuenta aun cuando puede existir historial financiero asociado. Debe definirse y aplicar una regla que impida cambios estructurales incompatibles con operaciones históricas relevantes.
+Revisar cambios de tipo y moneda de una cuenta cuando ya existe historial financiero y definir la regla mínima compatible con el dominio actual.
 
-### P1 — Ciclo de facturación completo
+### P1 — Ciclo de facturación aplicado al pago
 
-La base de dominio y la generación de cuotas están implementadas. Falta definir y probar el comportamiento del ciclo durante el pago: vencimiento, mora/gracia, días no hábiles y relación temporal entre cuotas y pagos. No se deben inventar reglas antes de decidirlas.
+Definir y probar comportamiento respecto de vencimiento, mora, gracia, días no hábiles y orden temporal. No inventar reglas antes de decidirlas.
 
 ### P1 — Multidivisa de tarjetas
 
-La moneda del movimiento y de la obligación está definida y los pagos requieren coincidencia de moneda. Sigue pendiente el tratamiento definitivo de una tarjeta y su límite frente a consumos en monedas distintas. No realizar conversiones implícitas.
+Definir el tratamiento definitivo del límite de una tarjeta frente a consumos en monedas diferentes. No introducir conversiones implícitas.
 
 ### P1 — Financiación avanzada
 
-Las cuotas actuales son iguales salvo corrección de centavos. Quedan fuera intereses, CFT, refinanciación, adelantos, anulaciones y ajustes.
+Quedan fuera del alcance actual: intereses, CFT/costo financiero, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
 
 ### P2 — UI específica de tarjetas
 
-Después de estabilizar dominio y servicios: límite/disponible, consumos, ciclos, vencimientos, deuda y pagos reales.
+Después de estabilizar dominio y servicios: límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos reales.
 
 ### P2 — Pasivos, patrimonio y análisis
 
-Ampliar pasivos/patrimonio neto y luego resúmenes, vencimientos, histórico y dashboard.
+Ampliar pasivos/patrimonio neto y luego histórico, vencimientos, resúmenes y dashboard.
+
+### P2/P3 — Gestión de entidades financieras
+
+No existe todavía un panel específico para registrar/gestionar entidades financieras. Queda pendiente definir e implementar cuando corresponda.
 
 ## Qué ya no debe figurar como pendiente independiente
 
 - integridad del movimiento origen de obligación: implementada y testeada;
-- integración básica de `CicloFacturacion` con consumos/obligaciones: ya existe;
-- generación automática de cuotas: ya existe;
-- unificación básica del saldo monetario de tarjeta: auditada como coherente;
+- integración básica de `CicloFacturacion` con consumos/obligaciones: implementada;
+- generación automática de cuotas: implementada;
+- cuotas que cruzan fin de año: testeadas;
 - atomicidad básica de compra con tarjeta: implementada y testeada;
+- pago coordinado de tarjeta en servicio: implementado y testeado;
+- pago real de tarjeta desde la UI: implementado y testeado;
+- integración de `PagoTarjetaService` en `Main`/`MainFrame`: implementada;
 - JAR ejecutable: implementado y verificado manualmente.
 
 ## Protocolo de continuidad
 
-Ante una nueva sesión: rama → últimos commits → comparación con `main` → documentación → código → tests → último resultado conocido → próximo paso.
+Ante una nueva sesión: rama → últimos commits → comparación con `main` → README/docs → código → tests → último resultado conocido → próximo paso.
 
 Prioridad: **código → tests → commits → `main` → documentación → conversaciones anteriores**.
 
-No modificar `main` automáticamente. No asumir resultados locales no informados.
+No modificar `main` automáticamente. No asumir resultados locales no informados. No considerar terminada una tarea solo porque compila.
