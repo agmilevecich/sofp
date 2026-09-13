@@ -4,48 +4,39 @@
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` y obtuvo **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 21:14 min.
+El usuario ejecutó `mvn test` y obtuvo **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 46:17 min, finalizado 19:00:15 -03:00.
 
-### Suite relacionada de obligaciones/pagos/UI
+### Suite relacionada de `Cuenta`
 
-**69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 10:17 min. Durante esta ejecución Surefire informó un warning por demora en la terminación de la JVM después de `System.exit(0)`, sin fallo de tests.
+`CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 22:18 min, finalizado 17:58:12 -03:00.
 
-### Tests específicos
+### Tests específicos de integridad
 
-- UI de pago: **6/6**, `BUILD SUCCESS`.
-- `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`, finalizado 13/09/2026 16:22:17 -03:00.
+`CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 09:19 min, finalizado 17:31:57 -03:00.
 
-## Auditoría de `Cuenta` — cobertura actual
+`CuentaServiceIntegridadTest` agrega cobertura específica para:
 
-La revisión transversal incluyó `CuentaTest`, `CuentaServiceTest`, `MovimientoServiceTest` y `OperacionFinancieraServiceTest`, además de las implementaciones de dominio, servicios y repositorios relacionados.
+- rechazo de cambio de tipo con movimientos financieros;
+- rechazo de cambio de moneda con movimientos financieros;
+- cambio entre tipos no tarjeta cuando no existe historial;
+- rechazo de transiciones hacia/desde `TARJETA_CREDITO` mediante la API genérica.
 
-Cobertura existente relevante:
+La corrección de integridad mantiene la autorización por usuario y no introduce una igualdad universal entre moneda de cuenta y moneda de movimiento.
 
-- creación de cuenta común y tarjeta;
-- validación de límite y días de tarjeta;
-- cambio de moneda, institución y tipo en dominio;
-- modificación de tipo/moneda mediante `CuentaService`;
-- persistencia de modificaciones;
-- cálculo de saldo;
-- movimientos ordenados por cuenta;
-- autorización por propietario en operaciones públicas;
-- transferencias con validación de misma moneda;
-- gastos con moneda económica explícita, necesaria para consumos de tarjeta en moneda extranjera.
+## Validaciones previas relevantes
 
-Gap confirmado:
+- Suite de obligaciones/pagos/UI: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
+- UI de pago de tarjeta: **6/6**, `BUILD SUCCESS`.
 
-- no existe test que intente modificar tipo o moneda después de crear movimientos históricos;
-- no existe protección actual contra convertir una cuenta común en tarjeta sin datos de crédito completos;
-- no existe una política testeada para los datos de crédito al convertir una tarjeta a otro tipo.
+La suite relacionada de obligaciones había mostrado previamente un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, sin fallo de tests.
 
-La auditoría no modificó tests y no se ejecutó una nueva suite durante esta revisión. Por lo tanto, 696/696, 69/69 y 9/9 siguen siendo los últimos resultados informados por el usuario y no constituyen una validación posterior a esta auditoría.
+## Criterio de cierre de la etapa
 
-## Criterio para el próximo cambio
+La etapa de integridad de `Cuenta` se considera validada porque se ejecutaron tests específicos, suite relacionada y suite completa, todos con `BUILD SUCCESS` y sin failures/errors/skips.
 
-Los tests deberán cubrir, como mínimo, cuenta sin historial, cuenta con movimientos, cambio de tipo, cambio de moneda, tarjeta y autorización. También deberán preservar el caso válido de consumo de tarjeta cuya moneda económica difiere de la moneda estructural de la cuenta.
+La validación final de Git también fue correcta: `git syncsofp` sin cambios pendientes, `git diff` vacío, `git diff --check` sin salida y `git status` limpio.
 
-No modificar tests solamente para hacerlos pasar. La regla debe derivarse del dominio actual y validarse con persistencia y relaciones.
+## Próximo foco de tests
 
-## Criterio de cierre
-
-Después del cambio: tests específicos → relacionados → suite general → `git diff` → `git diff --check` → `git status` → documentación.
+El siguiente bloque deberá definir primero las reglas de ciclo aplicadas al pago y luego cubrirlas con tests de dominio/servicio, incluyendo vencimiento, mora, gracia, días no hábiles y orden temporal según las reglas que se adopten.
