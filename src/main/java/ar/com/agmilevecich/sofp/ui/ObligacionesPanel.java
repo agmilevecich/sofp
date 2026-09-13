@@ -1,12 +1,18 @@
 package ar.com.agmilevecich.sofp.ui;
 
+import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.EstadoObligacion;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
+import ar.com.agmilevecich.sofp.service.CategoriaService;
+import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
+import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -30,44 +37,84 @@ public class ObligacionesPanel extends JPanel {
             DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
 
     private final ObligacionService obligacionService;
+    private final PagoTarjetaService pagoTarjetaService;
+    private final CuentaService cuentaService;
+    private final CategoriaService categoriaService;
+    private final Long perfilFinancieroId;
     private final Long usuarioId;
     private final JList<Obligacion> obligacionesList;
+    private final JComboBox<Cuenta> cuentaPagadoraCombo;
+    private final JComboBox<Categoria> categoriaCombo;
     private final JTextField importePagoField;
     private final JButton registrarPagoButton;
 
     /** Constructor del shell sin contexto de usuario. */
     public ObligacionesPanel() {
         obligacionService = null;
+        pagoTarjetaService = null;
+        cuentaService = null;
+        categoriaService = null;
+        perfilFinancieroId = null;
         usuarioId = null;
         obligacionesList = new JList<>();
+        cuentaPagadoraCombo = new JComboBox<>();
+        categoriaCombo = new JComboBox<>();
         importePagoField = new JTextField(12);
         registrarPagoButton = new JButton("Registrar pago");
         construirPanel();
         registrarPagoButton.setEnabled(false);
     }
 
+    /** Constructor de compatibilidad para consulta de obligaciones sin pago coordinado. */
     public ObligacionesPanel(ObligacionService obligacionService, Long usuarioId) {
+        this(obligacionService, null, null, null, null, usuarioId);
+    }
+
+    public ObligacionesPanel(ObligacionService obligacionService,
+                             PagoTarjetaService pagoTarjetaService,
+                             CuentaService cuentaService,
+                             CategoriaService categoriaService,
+                             Long perfilFinancieroId,
+                             Long usuarioId) {
         this.obligacionService = Objects.requireNonNull(
                 obligacionService,
                 "El ObligacionService es obligatorio"
         );
+        this.pagoTarjetaService = pagoTarjetaService;
+        this.cuentaService = cuentaService;
+        this.categoriaService = categoriaService;
+        this.perfilFinancieroId = perfilFinancieroId;
         this.usuarioId = Objects.requireNonNull(
                 usuarioId,
                 "El id del usuario es obligatorio"
         );
         obligacionesList = new JList<>();
+        cuentaPagadoraCombo = new JComboBox<>();
+        categoriaCombo = new JComboBox<>();
         importePagoField = new JTextField(12);
         registrarPagoButton = new JButton("Registrar pago");
 
         configurarLista();
+        configurarCombos();
         construirPanel();
         obligacionesList.addListSelectionListener(evento -> actualizarEstadoBoton());
         registrarPagoButton.addActionListener(evento -> registrarPago());
+        if (pagoTarjetaService != null && cuentaService != null && categoriaService != null && perfilFinancieroId != null) {
+            refrescarCuentasYCategorias();
+        }
         refrescar();
     }
 
     public JList<Obligacion> getObligacionesList() {
         return obligacionesList;
+    }
+
+    public JComboBox<Cuenta> getCuentaPagadoraCombo() {
+        return cuentaPagadoraCombo;
+    }
+
+    public JComboBox<Categoria> getCategoriaCombo() {
+        return categoriaCombo;
     }
 
     public JTextField getImportePagoField() {
@@ -105,14 +152,51 @@ public class ObligacionesPanel extends JPanel {
         actualizarEstadoBoton();
     }
 
-    /** Registra el pago seleccionado sin mostrar diálogos, para permitir su prueba desde la UI. */
+    /** Recarga las cuentas y categorías disponibles para registrar pagos coordinados. */
+    public void refrescarCuentasYCategorias() {
+        if (cuentaService == null || categoriaService == null || perfilFinancieroId == null || usuarioId == null) {
+            return;
+        }
+
+        cuentaPagadoraCombo.removeAllItems();
+        for (Cuenta cuenta : cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId)) {
+            cuentaPagadoraCombo.addItem(cuenta);
+        }
+
+        categoriaCombo.removeAllItems();
+        for (Categoria categoria : categoriaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId)) {
+            categoriaCombo.addItem(categoria);
+        }
+    }
+
+    /** Registra el pago seleccionado mediante el servicio coordinador, sin mostrar diálogos. */
     void registrarPagoSeleccionado() {
+        if (pagoTarjetaService == null) {
+            throw new IllegalStateException("El pago coordinado de tarjeta no está configurado");
+        }
         Obligacion obligacion = Objects.requireNonNull(
                 obligacionesList.getSelectedValue(),
                 "La obligación es obligatoria"
         );
+        Cuenta cuentaPagadora = Objects.requireNonNull(
+                cuentaPagadoraCombo.getSelectedItem(),
+                "La cuenta pagadora es obligatoria"
+        );
+        Categoria categoria = Objects.requireNonNull(
+                categoriaCombo.getSelectedItem(),
+                "La categoría es obligatoria"
+        );
         BigDecimal importe = new BigDecimal(importePagoField.getText().trim());
-        obligacionService.registrarPago(obligacion.getId(), importe, usuarioId);
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(),
+                cuentaPagadora,
+                categoria,
+                importe,
+                LocalDateTime.now(),
+                "Pago de tarjeta",
+                usuarioId
+        );
         refrescar();
     }
 
@@ -146,6 +230,39 @@ public class ObligacionesPanel extends JPanel {
         });
     }
 
+    private void configurarCombos() {
+        cuentaPagadoraCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Cuenta cuenta) {
+                    setText(cuenta.getNombre() + " | " + cuenta.getMoneda().getCodigo());
+                }
+                return this;
+            }
+        });
+        categoriaCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Categoria categoria) {
+                    setText(categoria.getNombre());
+                }
+                return this;
+            }
+        });
+    }
+
     private void construirPanel() {
         setLayout(new BorderLayout(12, 12));
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
@@ -167,6 +284,28 @@ public class ObligacionesPanel extends JPanel {
 
         constraints.gridx = 0;
         constraints.gridy = 0;
+        panelPago.add(new JLabel("Cuenta pagadora"), constraints);
+
+        constraints.gridx = 1;
+        constraints.weightx = 1.0;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        panelPago.add(cuentaPagadoraCombo, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 0.0;
+        constraints.fill = GridBagConstraints.NONE;
+        panelPago.add(new JLabel("Categoría"), constraints);
+
+        constraints.gridx = 1;
+        constraints.weightx = 1.0;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        panelPago.add(categoriaCombo, constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        constraints.weightx = 0.0;
+        constraints.fill = GridBagConstraints.NONE;
         panelPago.add(new JLabel("Importe"), constraints);
 
         constraints.gridx = 1;
@@ -185,7 +324,10 @@ public class ObligacionesPanel extends JPanel {
     private void actualizarEstadoBoton() {
         Obligacion seleccionada = obligacionesList.getSelectedValue();
         registrarPagoButton.setEnabled(
-                seleccionada != null
+                pagoTarjetaService != null
+                        && cuentaPagadoraCombo.getSelectedItem() != null
+                        && categoriaCombo.getSelectedItem() != null
+                        && seleccionada != null
                         && seleccionada.getEstado() != EstadoObligacion.PAGADA
         );
     }
