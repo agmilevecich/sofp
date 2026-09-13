@@ -9,7 +9,7 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 **Último cambio funcional:** `e5fbe0f` — `fix: proteger integridad estructural de cuentas`.
 **Último commit de código/tests verificado:** `00beeb1` — `fix: evitar moneda duplicada en test de integridad`.
-**Último commit documental de esta etapa:** `2fdd1262` — actualización del contexto final con la auditoría temporal.
+**Último commit documental:** `8b3566b5` — corrección final del historial de auditoría.
 
 No se realizó merge a `main`.
 
@@ -19,7 +19,7 @@ Suite general informada: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SU
 
 Suite relacionada de Cuenta: **154/154**, `BUILD SUCCESS`.
 
-Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66`, `BUILD SUCCESS`.
+Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, `BUILD SUCCESS`.
 
 Validaciones anteriores relevantes: `ObligacionServiceTest` **9/9**, suite de obligaciones/pagos/UI **69/69**, UI de pago **6/6**.
 
