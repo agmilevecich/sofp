@@ -35,44 +35,39 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 27. Integración de `PagoTarjetaService` en `MainFrame` y `Main`.
 28. Cobertura de pago real desde UI y saldo de la cuenta pagadora.
 29. Cierre de la superficie pública de `ObligacionService`: se eliminó el registro de pagos sin `usuarioId`.
-30. Auditoría transversal de integridad de `Cuenta`: revisión de mutabilidad de tipo/moneda, historial financiero, datos específicos de tarjeta y moneda económica de movimientos.
+30. Auditoría transversal de integridad de `Cuenta`.
+31. Implementación y validación de la integridad estructural de `Cuenta`.
 
-## Auditoría de `Cuenta` — resultado 13/09/2026
+## Integridad de `Cuenta` — cierre 13/09/2026
 
-La auditoría revisó el agregado `Cuenta`, sus servicios y repositorio, `TipoCuenta`, `Moneda`, el eje `Movimiento`, `GastoService`, `OperacionFinanciera` y `MovimientoActivo`, junto con la cobertura de tests relacionada.
+La implementación protege los cambios estructurales que pueden invalidar el historial financiero:
 
-No se modificó código durante la auditoría.
+- se bloquea el cambio de tipo cuando existen movimientos;
+- se bloquea el cambio de moneda cuando existen movimientos;
+- la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`;
+- se mantiene la autorización por usuario;
+- se conserva el soporte para consumos de tarjeta con moneda económica distinta de la moneda estructural de la cuenta.
 
-Hallazgos confirmados:
-
-- tipo y moneda de cuenta son mutables y `CuentaService` no verifica historial antes de modificarlos;
-- convertir una cuenta común en tarjeta no garantiza por sí solo límite/cierre/vencimiento completos;
-- salir de tarjeta hacia otro tipo no tiene política explícita para los datos de crédito existentes;
-- cambiar moneda con historial requiere protección para preservar la interpretación histórica;
-- la moneda del `Movimiento` es económica y puede diferir de la moneda estructural de la cuenta en consumos de tarjeta;
-- transferencias entre cuentas ya exigen misma moneda.
-
-Conclusión: el siguiente cambio debe ser una protección mínima y explícita de estas invariantes, sin introducir conversiones automáticas ni destruir el soporte multidivisa de consumos de tarjeta.
+Se agregó `CuentaServiceIntegridadTest` y se corrigieron sus datos de prueba para respetar el constructor real de `Usuario` y la unicidad de `Moneda.codigo`.
 
 ## Estado de validación
 
-Último `mvn test` informado: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Suite relacionada: **69/69**, `BUILD SUCCESS`.
+Suite relacionada `CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-`ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
+Suite completa `mvn test`: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-No se ejecutaron nuevos tests durante la auditoría de Cuenta.
+Validación final de Git: `git syncsofp` correcto, `git diff` vacío, `git diff --check` sin salida y `git status` limpio; `feature/swing-shell` sincronizada con GitHub y Bitbucket.
 
 ## Pendientes
 
-1. Implementar y testear la integridad estructural de `Cuenta`.
-2. Definir reglas de ciclo durante el pago.
-3. Definir multidivisa de tarjetas.
-4. Financiamiento avanzado.
-5. UI específica de tarjetas.
-6. Pasivos, patrimonio y análisis.
-7. Gestión de entidades financieras.
-8. Pulido de consola.
+1. Definir reglas de ciclo durante el pago.
+2. Definir multidivisa de tarjetas.
+3. Financiamiento avanzado.
+4. UI específica de tarjetas.
+5. Pasivos, patrimonio y análisis.
+6. Gestión de entidades financieras.
+7. Pulido de consola.
 
 No hacer merge a `main` automáticamente.
