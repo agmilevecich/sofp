@@ -12,11 +12,16 @@ import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
+import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
+import ar.com.agmilevecich.sofp.service.CategoriaService;
+import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.GastoService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
+import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +42,13 @@ class ObligacionesPanelTest {
     private EntityManager entityManager;
     private ObligacionService obligacionService;
     private GastoService gastoService;
+    private CuentaService cuentaService;
+    private CategoriaService categoriaService;
+    private PagoTarjetaService pagoTarjetaService;
     private Usuario usuario;
+    private PerfilFinanciero perfil;
     private Cuenta cuenta;
+    private Cuenta cuentaPagadora;
     private Categoria categoria;
     private Moneda monedaUsd;
 
@@ -53,6 +63,20 @@ class ObligacionesPanelTest {
                 entityManager,
                 new ObligacionRepository(entityManager)
         );
+        cuentaService = new CuentaService(
+                new CuentaRepository(entityManager),
+                new MovimientoRepository(entityManager),
+                entityManager
+        );
+        categoriaService = new CategoriaService(
+                entityManager,
+                new CategoriaRepository(entityManager)
+        );
+        pagoTarjetaService = new PagoTarjetaService(
+                entityManager,
+                new MovimientoRepository(entityManager),
+                new ObligacionRepository(entityManager)
+        );
         gastoService = new GastoService(movimientoService, obligacionService);
 
         usuario = new Usuario(
@@ -61,7 +85,7 @@ class ObligacionesPanelTest {
                 "juan.panel." + System.nanoTime() + "@test.com",
                 "hash"
         );
-        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
 
         InstitucionFinanciera institucion = new InstitucionFinanciera(
@@ -79,6 +103,13 @@ class ObligacionesPanelTest {
                 15,
                 10
         );
+        cuentaPagadora = new Cuenta(
+                "Caja de ahorro",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucion,
+                moneda
+        );
         categoria = new Categoria("Alimentos", perfil);
 
         entityManager.getTransaction().begin();
@@ -88,6 +119,7 @@ class ObligacionesPanelTest {
         entityManager.persist(moneda);
         entityManager.persist(monedaUsd);
         entityManager.persist(cuenta);
+        entityManager.persist(cuentaPagadora);
         entityManager.persist(categoria);
         entityManager.getTransaction().commit();
     }
@@ -107,7 +139,7 @@ class ObligacionesPanelTest {
     void deberiaMostrarSoloLasObligacionesDelUsuario() {
         Obligacion obligacion = crearObligacion(new BigDecimal("15000.00"));
 
-        ObligacionesPanel panel = new ObligacionesPanel(obligacionService, usuario.getId());
+        ObligacionesPanel panel = crearPanel();
 
         assertEquals(1, panel.getObligacionesList().getModel().getSize());
         assertEquals(obligacion.getId(), panel.getObligacionesList().getModel().getElementAt(0).getId());
@@ -127,7 +159,7 @@ class ObligacionesPanelTest {
         );
 
         Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
-        ObligacionesPanel panel = new ObligacionesPanel(obligacionService, usuario.getId());
+        ObligacionesPanel panel = crearPanel();
 
         Component renderer = panel.getObligacionesList().getCellRenderer().getListCellRendererComponent(
                 panel.getObligacionesList(),
@@ -144,11 +176,14 @@ class ObligacionesPanelTest {
 
     @Test
     void deberiaRegistrarPagoYRefrescarSaldo() throws Exception {
+        movimientoServiceRegistrarIngresoParaPago();
         Obligacion obligacion = crearObligacion(new BigDecimal("15000.00"));
-        ObligacionesPanel panel = new ObligacionesPanel(obligacionService, usuario.getId());
+        ObligacionesPanel panel = crearPanel();
 
         SwingUtilities.invokeAndWait(() -> {
             panel.getObligacionesList().setSelectedIndex(0);
+            panel.getCuentaPagadoraCombo().setSelectedItem(cuentaPagadora);
+            panel.getCategoriaCombo().setSelectedItem(categoria);
             panel.getImportePagoField().setText("5000.00");
         });
 
@@ -157,6 +192,8 @@ class ObligacionesPanelTest {
         Obligacion actualizada = panel.getObligacionesList().getModel().getElementAt(0);
         assertEquals(new BigDecimal("10000.00"), actualizada.getSaldoPendiente());
         assertTrue(panel.getRegistrarPagoButton().isEnabled());
+        assertEquals(new BigDecimal("5000.00"), cuentaPagadoraSaldo());
+        assertEquals(obligacion.getId(), actualizada.getId());
     }
 
     @Test
@@ -165,10 +202,40 @@ class ObligacionesPanelTest {
         Obligacion obligacion = obligacionService.listarPorUsuario(usuario.getId()).get(0);
         obligacionService.registrarPago(obligacion.getId(), new BigDecimal("15000.00"), usuario.getId());
 
-        ObligacionesPanel panel = new ObligacionesPanel(obligacionService, usuario.getId());
+        ObligacionesPanel panel = crearPanel();
         SwingUtilities.invokeAndWait(() -> panel.getObligacionesList().setSelectedIndex(0));
 
         assertFalse(panel.getRegistrarPagoButton().isEnabled());
+    }
+
+    private ObligacionesPanel crearPanel() {
+        return new ObligacionesPanel(
+                obligacionService,
+                pagoTarjetaService,
+                cuentaService,
+                categoriaService,
+                perfil.getId(),
+                usuario.getId()
+        );
+    }
+
+    private void movimientoServiceRegistrarIngresoParaPago() {
+        new MovimientoService(
+                entityManager,
+                new MovimientoRepository(entityManager)
+        ).registrar(
+                cuentaPagadora,
+                categoria,
+                new BigDecimal("20000.00"),
+                LocalDateTime.of(2026, 9, 8, 9, 0),
+                "Fondos para pago",
+                FormaPago.TRANSFERENCIA,
+                usuario.getId()
+        );
+    }
+
+    private BigDecimal cuentaPagadoraSaldo() {
+        return cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId());
     }
 
     private Obligacion crearObligacion(BigDecimal importe) {
