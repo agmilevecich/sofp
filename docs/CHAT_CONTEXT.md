@@ -6,17 +6,21 @@ La fuente de verdad es el código, los tests y Git. `docs/` es documentación au
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Rama documental de continuidad:** `docs/continuidad-sofp`.
 
-**Último commit de código:** `41ebb2b14b79efe5c61926d95306820dcd7069ea` — `test: corregir saldo esperado en pago de tarjeta`.
+**Últimos commits funcionales:**
 
-No se realizó merge a `main`.
+- `a2a96bb` — `fix: exigir usuario al registrar pagos de obligaciones`;
+- `2813fa3` — `test: adaptar pagos de obligaciones a usuario autorizado`.
+
+Los commits posteriores de documentación actualizan el estado de continuidad en la rama activa. No se realizó merge a `main`.
 
 ## Validación más reciente
 
 Suite general informada por el usuario: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Suite relacionada: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite específica de `ObligacionService`: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+Suite relacionada: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`. En esa ejecución apareció un warning de Surefire por demora en la terminación de la JVM, sin fallo de tests.
 
 Tests específicos de UI de pago: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
@@ -28,27 +32,27 @@ La Fase 8 Swing está integrada. Gastos con tarjeta generan movimiento + obligac
 
 El pago desde UI selecciona cuenta pagadora y categoría y registra salida real de fondos junto con la reducción de deuda mediante el servicio coordinador.
 
+`ObligacionService` ya no expone el registro de pagos sin usuario: la operación pública exige `usuarioId` y valida que la obligación pertenezca al perfil autorizado.
+
 H2 aplicación: `jdbc:h2:tcp://localhost/./database/sofp`. Tests: H2 memoria independiente.
 
 ## Pendientes reales
 
-P0:
-
-1. Revisar operaciones públicas de `ObligacionService` que no reciben `usuarioId`, para impedir bypass de autorización.
+P0: ninguno en el bloque de autorización de obligaciones; queda cerrado.
 
 P1:
 
-2. Proteger cambios de tipo/moneda de `Cuenta` cuando exista historial financiero.
-3. Definir reglas de ciclo aplicadas al pago: vencimiento, mora, gracia y días no hábiles.
-4. Definir multidivisa de tarjetas sin conversiones implícitas.
-5. Definir financiación avanzada.
+1. Proteger cambios de tipo/moneda de `Cuenta` cuando exista historial financiero.
+2. Definir reglas de ciclo aplicadas al pago: vencimiento, mora, gracia y días no hábiles.
+3. Definir multidivisa de tarjetas sin conversiones implícitas.
+4. Definir financiación avanzada.
 
 P2/P3:
 
-6. UI específica de tarjetas.
-7. Pasivos, patrimonio, histórico, vencimientos, resúmenes y dashboard.
-8. Gestión de entidades financieras: todavía no existe un panel específico; queda pendiente de definición e implementación.
-9. Pulido de consola.
+5. UI específica de tarjetas.
+6. Pasivos, patrimonio, histórico, vencimientos, resúmenes y dashboard.
+7. Gestión de entidades financieras: todavía no existe un panel específico; queda pendiente de definición e implementación.
+8. Pulido de consola.
 
 ## Reglas
 
@@ -58,8 +62,10 @@ No duplicar reglas de negocio en Swing. Mantener autorización en servicios/repo
 
 Reconstruir siempre desde GitHub antes de cambios: rama → commits → comparación con `main` → documentación → código → tests → último resultado → próximo paso.
 
+La documentación de continuidad se actualiza sobre la rama activa. No mantener una rama documental permanente separada salvo que se cree temporalmente para una necesidad concreta.
+
 No modificar `main`, no asumir resultados locales no informados y no considerar terminado un bloque porque compila.
 
 ## Próximo paso recomendado
 
-Auditar y cerrar la superficie pública de `ObligacionService`. Antes de modificarla, revisar implementación, repositorios, clases relacionadas y tests actuales, manteniendo el cambio mínimo.
+Auditar `CuentaService` y las entidades relacionadas para definir la protección mínima de cambios de tipo/moneda cuando exista historial financiero. Antes de modificarla, revisar implementación, repositorios, relaciones y tests actuales, manteniendo el cambio mínimo y sin inventar reglas de negocio.
