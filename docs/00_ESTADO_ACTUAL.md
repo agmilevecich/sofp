@@ -6,23 +6,22 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Rama documental de continuidad:** `docs/continuidad-sofp`.
 
-**Último commit de código:** `41ebb2b14b79efe5c61926d95306820dcd7069ea` — `test: corregir saldo esperado en pago de tarjeta`.
+**Último commit de código:** `2813fa34c953f4f6408903c1e3b4fc2e7f3b58c5` — `test: adaptar pagos de obligaciones a usuario autorizado`.
 
 La rama de trabajo continúa separada de `main`; no se realizó merge.
 
 ## Último bloque cerrado
 
-### Pago real de tarjeta integrado en la UI
+### Autorización de pagos en `ObligacionService`
 
-`ObligacionesPanel` utiliza `PagoTarjetaService` para coordinar el pago. La UI permite seleccionar cuenta pagadora y categoría, valida la selección y registra el pago mediante el servicio coordinador.
+Se eliminó de la API pública el overload `registrarPago(Long obligacionId, BigDecimal importe)` que permitía registrar pagos sin identificar al usuario.
 
-El flujo realiza en una operación transaccional la reducción de la obligación y el movimiento `EGRESO` de la cuenta pagadora. El movimiento de pago utiliza `FormaPago.TRANSFERENCIA`, por lo que reduce el saldo monetario de la cuenta pagadora.
+El registro de pagos expuesto por `ObligacionService` exige ahora `usuarioId` y mantiene la validación de pertenencia de la obligación al perfil del usuario antes de modificarla.
 
-La integración de la aplicación se completa en `Main`, que crea `PagoTarjetaService` y lo inyecta en `MainFrame` y `ObligacionesPanel`.
+Los tests de `ObligacionServiceTest` fueron adaptados a la API autorizada. La cobertura existente de intento de acceso no autorizado se mantiene.
 
-La cobertura UI incluye el pago parcial y la comprobación de la salida real de fondos. Se mantiene la autorización por perfil/usuario en los servicios.
+Con esto queda cerrado el P0 correspondiente a la superficie pública de pagos de `ObligacionService`.
 
 ## Validación más reciente conocida
 
@@ -37,8 +36,9 @@ El usuario ejecutó `mvn test` el 13/09/2026 y obtuvo:
 
 Validaciones relacionadas informadas:
 
-- suite de servicios/dominio/UI de obligaciones y pagos: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`;
+- `PagoTarjetaServiceTest,ObligacionServiceTest,MovimientoServiceTest,ObligacionesPanelTest,ObligacionesPanelPagoTarjetaTest,MainFrameObligacionesTest`: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; durante el cierre apareció además un warning de Surefire por demora en la terminación de la JVM, sin convertir el proceso en fallo.
 - tests específicos de `ObligacionesPanel` y pago de tarjeta: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `ObligacionServiceTest`: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
 El usuario también informó que `git syncsofp`, `git diff`, `git diff --check` y `git status` terminaron correctamente; el árbol de trabajo quedó limpio y sincronizado con GitHub.
 
@@ -88,11 +88,9 @@ El crédito disponible se calcula según el criterio actual de límite menos con
 
 ## Estado de pendientes reales
 
-### P0 — API pública de obligaciones y autorización
+### P0 — Cerrado: API pública de obligaciones y autorización
 
-Revisar las operaciones de `ObligacionService` que todavía pueden invocarse sin `usuarioId`. La autorización por perfil no debe poder bypassarse mediante un método público de coordinación.
-
-Objetivo: hacer internos los métodos de coordinación que no deban exponerse o exigir autorización explícita en las operaciones públicas.
+El overload público de `ObligacionService.registrarPago` sin `usuarioId` fue eliminado. El registro público de pagos exige usuario y valida el perfil propietario de la obligación.
 
 ### P1 — Integridad de Cuenta
 
@@ -122,6 +120,10 @@ Ampliar pasivos/patrimonio neto y luego histórico, vencimientos, resúmenes y d
 
 No existe todavía un panel específico para registrar/gestionar entidades financieras. Queda pendiente definir e implementar cuando corresponda.
 
+### P3 — Pulido de consola
+
+Prioridad baja. No debe interferir con reglas financieras ni servicios.
+
 ## Qué ya no debe figurar como pendiente independiente
 
 - integridad del movimiento origen de obligación: implementada y testeada;
@@ -132,21 +134,21 @@ No existe todavía un panel específico para registrar/gestionar entidades finan
 - pago coordinado de tarjeta en servicio: implementado y testeado;
 - pago real de tarjeta desde la UI: implementado y testeado;
 - integración de `PagoTarjetaService` en `Main`/`MainFrame`: implementada;
+- autorización del registro de pagos en `ObligacionService`: cerrada y testeada;
 - JAR ejecutable: implementado y verificado manualmente.
 
 ## Protocolo de continuidad y sincronización documental
 
-La documentación de continuidad se trabaja sobre **la rama activa de desarrollo**. `docs/continuidad-sofp` no es una segunda rama de desarrollo ni una línea independiente de cambios funcionales: es la rama de referencia para conservar la continuidad documental.
+La documentación de continuidad se trabaja sobre **la rama activa de desarrollo**. La antigua rama `docs/continuidad-sofp` no forma parte de las ramas activas del repositorio; la continuidad se conserva en los documentos versionados dentro de la rama de trabajo.
 
 Reglas:
 
 1. Los cambios de código y las actualizaciones de continuidad se realizan sobre la rama de trabajo activa (`feature/...` o la que corresponda). No modificar `main` automáticamente.
 2. Al cerrar una etapa importante, actualizar los documentos de continuidad en la rama activa junto con el estado real de código, tests y commits.
-3. Después de actualizar la documentación, alinear `docs/continuidad-sofp` con la rama activa mediante **fast-forward** cuando sea posible. Si las historias divergieron, primero realizar un **rebase** de la rama documental sobre la rama activa y luego un `merge --ff-only`.
-4. Evitar merge commits únicamente para integrar documentación de continuidad. El objetivo es mantener una historia lineal entre la rama activa y `docs/continuidad-sofp`.
-5. Verificar después de la alineación que ambas ramas apunten al mismo commit y que no exista divergencia.
-6. Antes de una nueva sesión, reconstruir el estado desde GitHub priorizando: código actual → tests → commits → `main` → documentación → conversaciones anteriores.
-7. Si la documentación contradice al código o los tests, prevalecen siempre código y tests.
+3. Si se crea temporalmente una rama documental, debe considerarse auxiliar y eliminarse al finalizar su propósito, sin convertirla en una segunda línea de desarrollo.
+4. Evitar merge commits únicamente para integrar documentación de continuidad. El objetivo es mantener una historia lineal en la rama activa.
+5. Antes de una nueva sesión, reconstruir el estado desde GitHub priorizando: código actual → tests → commits → `main` → documentación → conversaciones anteriores.
+6. Si la documentación contradice al código o los tests, prevalecen siempre código y tests.
 
 ## Protocolo de continuidad
 
