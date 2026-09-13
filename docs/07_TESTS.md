@@ -1,22 +1,34 @@
 # SOFP — Tests
 
-## Estado de validación — 12/09/2026
+## Estado de validación — 13/09/2026
 
 ### Suite general más reciente
 
 El usuario ejecutó `mvn test` y obtuvo:
 
-- Tests run: **690**;
+- Tests run: **695**;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`.
 
-Este resultado reemplaza al histórico 689/689 documentado el 11/09/2026.
+Este resultado incorpora los 5 tests de `MovimientoObligacionIntegridadTest` y reemplaza al anterior 690/690.
 
 ## Cobertura funcional relevante
 
 La suite incluye seguridad/aislamiento, cuentas, categorías, movimientos, fondos disponibles, Gastos, Ingresos, Transferencias, Inversiones, Reportes, shell Swing, obligaciones, cuotas, tarjetas y pagos.
+
+### Integridad movimiento ↔ obligación
+
+`MovimientoObligacionIntegridadTest` cubre:
+
+1. bloqueo de modificación de importe del movimiento origen;
+2. bloqueo de modificación de fecha/hora;
+3. bloqueo de modificación de tipo;
+4. bloqueo de eliminación;
+5. conservación de cambios permitidos de descripción y observaciones.
+
+Los tests verifican además la persistencia del movimiento y la obligación en estado consistente después de los rechazos.
 
 ### Cuotas y ciclos
 
@@ -34,20 +46,15 @@ Existe cobertura para el caso en que falla la creación de la obligación despu�
 
 ## Gaps detectados por la auditoría
 
-Se deben agregar tests antes o junto con cada mejora:
+Los pendientes de tests quedan ahora reducidos a las funcionalidades todavía no implementadas o a las reglas aún no definidas:
 
-1. movimiento origen de obligación: impedir cambio de importe;
-2. movimiento origen de obligación: impedir cambio de fecha/hora;
-3. movimiento origen de obligación: impedir cambio de tipo;
-4. movimiento origen de obligación: impedir eliminación;
-5. persistencia consistente después de cada rechazo;
-6. acceso directo no autorizado a `ObligacionService`;
-7. pago desde UI debe registrar salida real de fondos;
-8. pago desde UI debe respetar moneda, saldo, perfil y pago parcial/total;
-9. cambios de tipo/moneda de `Cuenta` con historial financiero;
-10. reglas de pago respecto de ciclo, vencimiento y días no hábiles cuando sean definidas;
-11. escenarios multidivisa de tarjeta una vez definida la regla;
-12. casos límite de financiación cuando se implemente.
+1. acceso directo no autorizado a `ObligacionService`;
+2. pago desde UI debe registrar salida real de fondos;
+3. pago desde UI debe respetar moneda, saldo, perfil y pago parcial/total;
+4. cambios de tipo/moneda de `Cuenta` con historial financiero;
+5. reglas de pago respecto de ciclo, vencimiento y días no hábiles cuando sean definidas;
+6. escenarios multidivisa de tarjeta una vez definida la regla;
+7. casos límite de financiación cuando se implemente.
 
 ## Criterio de cierre
 
