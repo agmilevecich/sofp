@@ -131,7 +131,7 @@ class CuentaServiceIntegridadTest {
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera("Banco", TipoInstitucionFinanciera.BANCO);
-        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Moneda moneda = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
         Cuenta cuenta = new Cuenta(
                 "Tarjeta",
                 perfil,
