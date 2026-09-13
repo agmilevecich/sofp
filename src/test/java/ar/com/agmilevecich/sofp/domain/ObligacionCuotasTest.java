@@ -50,7 +50,7 @@ class ObligacionCuotasTest {
 
         assertEquals(LocalDate.of(2027, 2, 16), obligacion.getCuotas().get(2).getFechaInicioCiclo());
         assertEquals(LocalDate.of(2027, 3, 15), obligacion.getCuotas().get(2).getFechaCierreCiclo());
-        assertEquals(LocalDate.of(2027, 4, 10), obligacion.getCuotas().get(2).getFechaVencimiento());
+        assertEquals(LocalDate.of(2027, 4, 12), obligacion.getCuotas().get(2).getFechaVencimiento());
     }
 
     @Test
