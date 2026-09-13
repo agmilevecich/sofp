@@ -223,6 +223,7 @@ public class CuentaService {
         validarIds(cuentaId, usuarioId);
         Objects.requireNonNull(tipoCuenta, "El tipo de cuenta es obligatorio");
         Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
+        validarCambioTipoCuenta(cuenta, tipoCuenta);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
@@ -259,6 +260,9 @@ public class CuentaService {
         validarIds(cuentaId, usuarioId);
         Objects.requireNonNull(moneda, "La moneda es obligatoria");
         Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
+        if (!Objects.equals(cuenta.getMoneda().getId(), moneda.getId()) && tieneMovimientos(cuentaId)) {
+            throw new IllegalArgumentException("No se puede cambiar la moneda de una cuenta con movimientos financieros");
+        }
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
@@ -328,6 +332,23 @@ public class CuentaService {
     private void validarIds(Long cuentaId, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+    }
+
+    private boolean tieneMovimientos(Long cuentaId) {
+        return !movimientoRepository.listarPorCuenta(cuentaId).isEmpty();
+    }
+
+    private void validarCambioTipoCuenta(Cuenta cuenta, TipoCuenta nuevoTipo) {
+        if (cuenta.getTipoCuenta() == nuevoTipo) {
+            return;
+        }
+        if (tieneMovimientos(cuenta.getId())) {
+            throw new IllegalArgumentException("No se puede cambiar el tipo de una cuenta con movimientos financieros");
+        }
+        if (cuenta.getTipoCuenta() == TipoCuenta.TARJETA_CREDITO
+                || nuevoTipo == TipoCuenta.TARJETA_CREDITO) {
+            throw new IllegalArgumentException("El tipo de tarjeta de crédito debe gestionarse con su configuración específica");
+        }
     }
 
     public void eliminar(Long cuentaId, Long usuarioId) {
