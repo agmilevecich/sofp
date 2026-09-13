@@ -8,20 +8,45 @@ El usuario ejecutó `mvn test` y obtuvo **700/700**, 0 failures, 0 errors, 0 ski
 
 ### Suite relacionada de `Cuenta`
 
-`CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 22:18 min, finalizado 17:58:12 -03:00.
+`CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
 ### Tests específicos de integridad
 
-`CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 09:19 min, finalizado 17:31:57 -03:00.
+`CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-`CuentaServiceIntegridadTest` agrega cobertura específica para:
+## Cobertura temporal auditada
 
-- rechazo de cambio de tipo con movimientos financieros;
-- rechazo de cambio de moneda con movimientos financieros;
-- cambio entre tipos no tarjeta cuando no existe historial;
-- rechazo de transiciones hacia/desde `TARJETA_CREDITO` mediante la API genérica.
+La auditoría revisó el comportamiento existente de:
 
-La corrección de integridad mantiene la autorización por usuario y no introduce una igualdad universal entre moneda de cuenta y moneda de movimiento.
+- cálculo del ciclo de facturación desde la fecha del consumo;
+- cierre en el mes del consumo o en el siguiente según el día configurado;
+- ajuste a último día real del mes;
+- vencimiento posterior al cierre;
+- cruce de año;
+- generación y persistencia de fechas de cuotas;
+- aplicación de pagos en orden de cuota;
+- pagos parciales;
+- coordinación del pago real con el movimiento de salida.
+
+También se verificó la ausencia actual de tests/reglas para:
+
+- pago con fecha anterior al consumo;
+- pago posterior al vencimiento tratado como mora;
+- período de gracia;
+- fines de semana;
+- feriados;
+- fecha efectiva de pago separada de fecha/hora del movimiento;
+- pagos con fecha futura;
+- cambio histórico de cierre/vencimiento después de consumos;
+- impacto temporal de pagos parciales sobre cuotas vencidas.
+
+La auditoría no agrega tests que expresen reglas todavía indefinidas. Los tests deberán incorporarse cuando esas reglas de negocio queden establecidas.
+
+## Resultado de la auditoría
+
+El modelo tiene cobertura suficiente para el cálculo básico de ciclos, pero no existe todavía una política temporal de pagos. Por lo tanto, no corresponde declarar tests de mora, gracia o días no hábiles como faltantes de implementación accidental: son reglas de negocio aún no definidas.
+
+Además, se identificó un punto de integridad histórica que deberá cubrirse: las fechas de una `Cuota` quedan persistidas, mientras `Obligacion.getCicloFacturacion()` recalcula el ciclo desde la configuración actual de la tarjeta. También deberá definirse cómo se protege `configurarDatosCredito(...)` después de existir historial.
 
 ## Validaciones previas relevantes
 
@@ -29,14 +54,6 @@ La corrección de integridad mantiene la autorización por usuario y no introduc
 - `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
 - UI de pago de tarjeta: **6/6**, `BUILD SUCCESS`.
 
-La suite relacionada de obligaciones había mostrado previamente un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, sin fallo de tests.
+## Criterio para el próximo bloque
 
-## Criterio de cierre de la etapa
-
-La etapa de integridad de `Cuenta` se considera validada porque se ejecutaron tests específicos, suite relacionada y suite completa, todos con `BUILD SUCCESS` y sin failures/errors/skips.
-
-La validación final de Git también fue correcta: `git syncsofp` sin cambios pendientes, `git diff` vacío, `git diff --check` sin salida y `git status` limpio.
-
-## Próximo foco de tests
-
-El siguiente bloque deberá definir primero las reglas de ciclo aplicadas al pago y luego cubrirlas con tests de dominio/servicio, incluyendo vencimiento, mora, gracia, días no hábiles y orden temporal según las reglas que se adopten.
+Primero deben existir reglas temporales explícitas y luego tests de dominio/servicio que las fijen. La validación deberá seguir el flujo: tests específicos → relacionados → suite completa → diff → diff-check → status → documentación.
