@@ -34,6 +34,7 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 26. Integración del pago coordinado de tarjeta en `ObligacionesPanel`.
 27. Integración de `PagoTarjetaService` en `MainFrame` y `Main`.
 28. Cobertura de pago real desde UI y saldo de la cuenta pagadora.
+29. Cierre de la superficie pública de `ObligacionService`: se eliminó el registro de pagos sin `usuarioId` y la API pública exige autorización explícita.
 
 ## Estado actual de persistencia
 
@@ -59,6 +60,8 @@ Al registrar un gasto con tarjeta, `GastoService` genera automáticamente las cu
 
 El pago coordinado mediante `PagoTarjetaService` valida propiedad/perfil, cuenta pagadora, categoría, estado activo, moneda, importe y fondos; luego registra el movimiento real de salida y reduce la obligación en una única transacción.
 
+El registro directo de pagos mediante `ObligacionService` exige ahora `usuarioId` y valida que la obligación pertenezca al perfil del usuario antes de modificarla.
+
 ## Validación más reciente conocida
 
 Suite general informada por el usuario el 13/09/2026: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
@@ -67,6 +70,8 @@ Suite relacionada de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
 
 Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
 
+Tests específicos de `ObligacionService`: **9/9**, `BUILD SUCCESS`.
+
 ## Estado de auditoría
 
 ### Hallazgos ya cerrados
@@ -74,11 +79,11 @@ Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
 - integridad estructural del movimiento origen de obligación;
 - pago real desde UI mediante `PagoTarjetaService`;
 - integración del coordinador en la aplicación;
-- cobertura del flujo UI y actualización del saldo de la cuenta pagadora.
+- cobertura del flujo UI y actualización del saldo de la cuenta pagadora;
+- superficie pública de `ObligacionService` para registrar pagos: requiere `usuarioId` y mantiene aislamiento por perfil.
 
 ### Hallazgos todavía abiertos
 
-- superficies públicas de `ObligacionService` sin `usuarioId`;
 - cambios estructurales de tipo/moneda de `Cuenta` con historial;
 - reglas de pago asociadas a ciclo, vencimiento, mora, gracia y días no hábiles;
 - tratamiento multidivisa definitivo del límite de tarjetas;
@@ -90,14 +95,13 @@ Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
 
 ## Próxima secuencia de trabajo
 
-1. Autorización y superficie pública de `ObligacionService`.
-2. Integridad de tipo/moneda de `Cuenta`.
-3. Reglas de ciclo aplicadas al pago.
-4. Multidivisa de tarjetas.
-5. Financiación avanzada.
-6. UI específica de tarjetas.
-7. Pasivos/patrimonio y análisis.
-8. Gestión de entidades financieras.
-9. Pulido de consola.
+1. Integridad de tipo/moneda de `Cuenta`.
+2. Reglas de ciclo aplicadas al pago.
+3. Multidivisa de tarjetas.
+4. Financiación avanzada.
+5. UI específica de tarjetas.
+6. Pasivos/patrimonio y análisis.
+7. Gestión de entidades financieras.
+8. Pulido de consola.
 
 No hacer merge a `main` automáticamente.
