@@ -141,6 +141,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
         validarSaldoDisponible(movimiento.getCuenta(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.modificarTipoMovimiento(tipoMovimiento));
@@ -150,6 +151,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(importe, "El importe es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
         validarSaldoDisponible(movimiento.getCuenta(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.cambiarImporte(importe));
@@ -159,12 +161,14 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
         return modificar(movimiento, () -> movimiento.cambiarFechaHora(fechaHora));
     }
 
     public void eliminar(Long movimientoId, Long usuarioId) {
         validarIds(movimientoId, usuarioId);
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
@@ -174,6 +178,12 @@ public class MovimientoService {
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
+        }
+    }
+
+    private void validarMovimientoSinObligacion(Movimiento movimiento) {
+        if (obligacionRepository.buscarPorMovimientoOrigen(movimiento.getId()).isPresent()) {
+            throw new IllegalArgumentException("No se puede modificar ni eliminar un movimiento que es origen de una obligación");
         }
     }
 
