@@ -11,6 +11,7 @@ import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
@@ -130,6 +131,7 @@ class ObligacionesPanelPagoTarjetaTest {
         movimientoService.registrar(
                 cuentaPagadora,
                 categoria,
+                TipoMovimiento.INGRESO,
                 new BigDecimal("20000.00"),
                 LocalDateTime.of(2026, 9, 13, 10, 0),
                 "Ingreso para pago",
@@ -137,10 +139,10 @@ class ObligacionesPanelPagoTarjetaTest {
                 usuario.getId()
         );
 
-        MovimientoService movimientoDeTarjetaService = movimientoService;
-        var movimientoTarjeta = movimientoDeTarjetaService.registrar(
+        var movimientoTarjeta = movimientoService.registrar(
                 tarjeta,
                 categoria,
+                TipoMovimiento.EGRESO,
                 new BigDecimal("8000.00"),
                 LocalDateTime.of(2026, 9, 12, 12, 0),
                 "Compra con tarjeta",
