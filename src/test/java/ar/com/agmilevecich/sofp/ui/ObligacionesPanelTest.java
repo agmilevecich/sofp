@@ -11,6 +11,7 @@ import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
@@ -40,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ObligacionesPanelTest {
 
     private EntityManager entityManager;
+    private MovimientoService movimientoService;
     private ObligacionService obligacionService;
     private GastoService gastoService;
     private CuentaService cuentaService;
@@ -55,17 +57,13 @@ class ObligacionesPanelTest {
     @BeforeEach
     void setUp() {
         entityManager = JpaTestManager.createEntityManager();
-        MovimientoService movimientoService = new MovimientoService(
-                entityManager,
-                new MovimientoRepository(entityManager)
-        );
-        obligacionService = new ObligacionService(
-                entityManager,
-                new ObligacionRepository(entityManager)
-        );
+        MovimientoRepository movimientoRepository = new MovimientoRepository(entityManager);
+        ObligacionRepository obligacionRepository = new ObligacionRepository(entityManager);
+        movimientoService = new MovimientoService(entityManager, movimientoRepository);
+        obligacionService = new ObligacionService(entityManager, obligacionRepository);
         cuentaService = new CuentaService(
                 new CuentaRepository(entityManager),
-                new MovimientoRepository(entityManager),
+                movimientoRepository,
                 entityManager
         );
         categoriaService = new CategoriaService(
@@ -74,8 +72,8 @@ class ObligacionesPanelTest {
         );
         pagoTarjetaService = new PagoTarjetaService(
                 entityManager,
-                new MovimientoRepository(entityManager),
-                new ObligacionRepository(entityManager)
+                movimientoRepository,
+                obligacionRepository
         );
         gastoService = new GastoService(movimientoService, obligacionService);
 
@@ -220,12 +218,10 @@ class ObligacionesPanelTest {
     }
 
     private void movimientoServiceRegistrarIngresoParaPago() {
-        new MovimientoService(
-                entityManager,
-                new MovimientoRepository(entityManager)
-        ).registrar(
+        movimientoService.registrar(
                 cuentaPagadora,
                 categoria,
+                TipoMovimiento.INGRESO,
                 new BigDecimal("20000.00"),
                 LocalDateTime.of(2026, 9, 8, 9, 0),
                 "Fondos para pago",
