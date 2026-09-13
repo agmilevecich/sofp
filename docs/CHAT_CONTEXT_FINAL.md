@@ -7,68 +7,59 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Últimos commits funcionales:** `a2a96bb` y `2813fa3`, cierre de autorización de pagos de `ObligacionService`. Los commits posteriores registrados en esta etapa son de documentación.
+**Último cambio funcional:** `e5fbe0f` — `fix: proteger integridad estructural de cuentas`.
+**Último commit verificado antes de esta actualización documental:** `00beeb1` — `fix: evitar moneda duplicada en test de integridad`.
+
+No se realizó merge a `main`.
 
 ## Validación más reciente
 
-Suite general informada: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite general informada: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 13/09/2026 19:00:15 -03:00.
 
-Suite `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
+Suite relacionada de Cuenta: **154/154**, `BUILD SUCCESS`.
 
-Suite relacionada de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
+Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, `BUILD SUCCESS`.
 
-Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
+Validaciones anteriores relevantes: `ObligacionServiceTest` **9/9**, suite de obligaciones/pagos/UI **69/69**, UI de pago **6/6**.
 
-La suite relacionada mostró un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, pero terminó correctamente.
+## Integridad de Cuenta — bloque cerrado
 
-## Auditoría de Cuenta — terminada el 13/09/2026
+Se implementó y validó la protección estructural derivada de la auditoría de `Cuenta`.
 
-Se completó la revisión del eje `Cuenta`: dominio, servicio, repositorio, tipos, moneda, movimientos, gastos, operaciones financieras y tests relacionados. No se modificó código durante la auditoría.
+Reglas vigentes:
 
-Conclusiones definitivas:
+- con historial financiero no se puede cambiar el tipo de cuenta;
+- con historial financiero no se puede cambiar la moneda;
+- la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`;
+- se mantiene autorización por usuario;
+- no se impone igualdad universal entre moneda de cuenta y moneda de movimiento, preservando consumos de tarjeta en moneda económica extranjera.
 
-- tipo y moneda de `Cuenta` son mutables y actualmente no se verifica historial antes de modificarlos;
-- una cuenta puede convertirse a `TARJETA_CREDITO` sin configurar automáticamente sus datos de crédito obligatorios;
-- no existe política explícita para los datos de crédito al salir de tarjeta;
-- cambiar moneda con historial requiere protección para no alterar la interpretación histórica;
-- `Movimiento` tiene moneda propia y los consumos de tarjeta pueden conservar una moneda económica distinta de la cuenta;
-- las transferencias entre cuentas ya exigen misma moneda;
-- el repositorio de cuentas no introduce reglas de negocio.
-
-Regla base para el próximo cambio: bloquear cambios estructurales de tipo/moneda cuando exista historial financiero, y definir explícitamente la transición hacia/desde tarjeta. No introducir conversiones automáticas ni romper el soporte de consumos de tarjeta en moneda extranjera.
+La implementación no realiza conversiones automáticas ni limpia/migra datos de crédito implícitamente.
 
 ## Pendientes
 
-### P1 — Integridad de Cuenta
+### P1
 
-Implementar la regla de la auditoría con tests de cuenta sin historial, con historial, tarjeta, persistencia y autorización.
-
-### P1 — Ciclo aplicado al pago
-
-Definir vencimiento, mora, gracia y días no hábiles antes de implementar.
-
-### P1 — Multidivisa
-
-Definir tratamiento del límite de tarjeta frente a consumos en monedas distintas.
-
-### P1 — Financiación avanzada
-
-Intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones y ajustes.
+1. Definir reglas de ciclo durante el pago.
+2. Definir multidivisa de tarjetas.
+3. Financiamiento avanzado.
 
 ### P2/P3
 
-UI específica de tarjetas; pasivos/patrimonio/análisis; gestión de entidades financieras; pulido de consola.
+4. UI específica de tarjetas.
+5. Pasivos, patrimonio y análisis.
+6. Gestión de entidades financieras.
+7. Pulido de consola.
 
 ## Orden exacto
 
-1. Integridad de `Cuenta`.
-2. Reglas de ciclo durante pagos.
-3. Multidivisa.
-4. Financiación.
-5. UI específica.
-6. Pasivos/patrimonio/análisis.
-7. Gestión de entidades financieras.
-8. Pulido.
+1. Reglas de ciclo durante pagos.
+2. Multidivisa.
+3. Financiamiento.
+4. UI específica.
+5. Pasivos/patrimonio/análisis.
+6. Gestión de entidades financieras.
+7. Pulido.
 
 ## Protocolo
 
