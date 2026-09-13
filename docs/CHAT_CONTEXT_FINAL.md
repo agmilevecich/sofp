@@ -7,82 +7,59 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Últimos commits funcionales:**
-
-- `a2a96bb` — `fix: exigir usuario al registrar pagos de obligaciones`;
-- `2813fa3` — `test: adaptar pagos de obligaciones a usuario autorizado`.
-
-Los commits posteriores de documentación registran el cierre del bloque. No se realizó merge a `main`.
+**Últimos commits funcionales:** `a2a96bb` y `2813fa3`, cierre de autorización de pagos de `ObligacionService`. Los commits posteriores registrados en esta etapa son de documentación.
 
 ## Validación más reciente
 
-Suite general informada por el usuario: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite general informada: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Suite específica de `ObligacionService`: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
 
-Suite relacionada de obligaciones/pagos/UI: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite relacionada de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
 
-Tests específicos de UI de pago: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
 
-La suite relacionada mostró un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, pero terminó con `BUILD SUCCESS` y sin tests fallidos.
+La suite relacionada mostró un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, pero terminó correctamente.
 
-El usuario informó `git syncsofp`, `git diff`, `git diff --check` y `git status` correctos, con working tree limpio y rama sincronizada.
+## Auditoría de Cuenta — terminada el 13/09/2026
 
-## Estado funcional
+Se completó la revisión del eje `Cuenta`: dominio, servicio, repositorio, tipos, moneda, movimientos, gastos, operaciones financieras y tests relacionados. No se modificó código durante la auditoría.
 
-- Shell Swing integrado.
-- Gastos con selección explícita de tarjeta activa.
-- Compra con tarjeta → movimiento + obligación + cuotas.
-- Atomicidad de compra con tarjeta implementada y testeada.
-- Ciclos y cuotas con cruce de año implementados.
-- Protección de movimientos origen de obligaciones implementada y testeada.
-- Pago coordinado de tarjeta implementado en `PagoTarjetaService`.
-- Pago real desde `ObligacionesPanel` integrado y testeado.
-- `PagoTarjetaService` conectado en `MainFrame` y `Main`.
-- Moneda explícita en movimientos y obligaciones; sin conversión automática.
-- `ObligacionService` exige `usuarioId` para registrar pagos y valida el perfil propietario.
-- H2 de aplicación por TCP y tests aislados en H2 memoria.
-- JAR ejecutable configurado.
+Conclusiones definitivas:
+
+- tipo y moneda de `Cuenta` son mutables y actualmente no se verifica historial antes de modificarlos;
+- una cuenta puede convertirse a `TARJETA_CREDITO` sin configurar automáticamente sus datos de crédito obligatorios;
+- no existe política explícita para los datos de crédito al salir de tarjeta;
+- cambiar moneda con historial requiere protección para no alterar la interpretación histórica;
+- `Movimiento` tiene moneda propia y los consumos de tarjeta pueden conservar una moneda económica distinta de la cuenta;
+- las transferencias entre cuentas ya exigen misma moneda;
+- el repositorio de cuentas no introduce reglas de negocio.
+
+Regla base para el próximo cambio: bloquear cambios estructurales de tipo/moneda cuando exista historial financiero, y definir explícitamente la transición hacia/desde tarjeta. No introducir conversiones automáticas ni romper el soporte de consumos de tarjeta en moneda extranjera.
 
 ## Pendientes
 
-### P0 — Cerrado
-
-Autorización de pagos en `ObligacionService`: eliminado el overload público sin `usuarioId`; la operación de registro de pago exige usuario autorizado.
-
 ### P1 — Integridad de Cuenta
 
-Revisar cambios de tipo y moneda de cuentas con historial financiero.
+Implementar la regla de la auditoría con tests de cuenta sin historial, con historial, tarjeta, persistencia y autorización.
 
 ### P1 — Ciclo aplicado al pago
 
-Definir antes de implementar reglas de vencimiento, mora, gracia y días no hábiles.
+Definir vencimiento, mora, gracia y días no hábiles antes de implementar.
 
 ### P1 — Multidivisa
 
-Definir tratamiento definitivo del límite de tarjeta frente a consumos en distintas monedas. No introducir conversiones implícitas.
+Definir tratamiento del límite de tarjeta frente a consumos en monedas distintas.
 
 ### P1 — Financiación avanzada
 
 Intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones y ajustes.
 
-### P2 — UI específica de tarjetas
+### P2/P3
 
-Límite/disponible, consumos, ciclos, vencimientos, deuda y pagos reales.
+UI específica de tarjetas; pasivos/patrimonio/análisis; gestión de entidades financieras; pulido de consola.
 
-### P2 — Pasivos/patrimonio y análisis
-
-Pasivos, patrimonio neto, histórico, vencimientos, resúmenes y dashboard.
-
-### P2/P3 — Gestión de entidades financieras
-
-Todavía no existe un panel específico. Definir e implementar cuando corresponda.
-
-### P3 — Pulido
-
-Mejoras de consola y presentación, sin interferir con reglas financieras.
-
-## Orden exacto para continuar
+## Orden exacto
 
 1. Integridad de `Cuenta`.
 2. Reglas de ciclo durante pagos.
