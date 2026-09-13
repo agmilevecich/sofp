@@ -2,16 +2,22 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
-## Estado verificado — 12/09/2026
+## Estado verificado — 13/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-Último commit: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
+Último commit: `87014d3` — `test: cubrir integridad movimiento-obligacion`.
 
 La rama de trabajo continúa separada de `main`; no se realizó merge.
 
 ## Últimos bloques cerrados
+
+### Integridad movimiento ↔ obligación
+
+`MovimientoService` bloquea modificaciones estructurales y eliminación de un `Movimiento` que es origen de una `Obligacion`: importe, fecha/hora y tipo no pueden cambiarse y el movimiento no puede eliminarse. Se mantienen permitidos los cambios descriptivos de descripción y observaciones.
+
+`MovimientoObligacionIntegridadTest` cubre estos rechazos y verifica que movimiento y obligación permanezcan persistidos en estado consistente. También cubre que descripción y observaciones continúen siendo modificables.
 
 ### Cuotas al cruzar fin de año
 
@@ -27,15 +33,15 @@ La rama de trabajo continúa separada de `main`; no se realizó merge.
 
 ## Validación más reciente conocida
 
-El usuario ejecutó `mvn test` y obtuvo:
+El usuario ejecutó `mvn test` el 13/09/2026 y obtuvo:
 
-- **690/690** tests;
+- **695/695** tests;
 - Failures: **0**;
 - Errors: **0**;
 - Skipped: **0**;
 - `BUILD SUCCESS`.
 
-El último resultado informado es posterior a la documentación histórica del 11/09 y prevalece sobre los conteos anteriores de 689 tests.
+Este resultado incorpora los 5 tests nuevos de integridad movimiento ↔ obligación.
 
 ## Arquitectura funcional vigente
 
@@ -69,17 +75,9 @@ El crédito disponible se calcula según el criterio actual de límite menos con
 
 `CicloFacturacion` es un objeto de dominio no persistente y `Cuenta.calcularCicloFacturacion(LocalDate)` resuelve cierres, meses cortos y cambio de año. La generación de cuotas ya utiliza esta información. La política completa del ciclo sobre pagos, mora y días no hábiles sigue abierta.
 
-## Auditoría de continuidad — 12/09/2026
+## Auditoría de continuidad — 13/09/2026
 
-La auditoría contra el código y tests actuales determinó que varios pendientes documentales anteriores ya no representan el estado real. Los siguientes puntos son ahora los principales trabajos pendientes.
-
-### P0 — Integridad movimiento ↔ obligación
-
-Un movimiento que origina una obligación de tarjeta todavía puede ser modificado o eliminado por caminos de `MovimientoService` que permiten cambiar importe, fecha/hora, tipo o eliminar el movimiento. La obligación conserva datos derivados que pueden quedar inconsistentes.
-
-Regla propuesta para el próximo cambio mínimo: bloquear modificaciones estructurales y eliminación de un movimiento que sea origen de una obligación; mantener permitidos los cambios descriptivos que no alteren la identidad económica.
-
-Tests pendientes: importe, fecha/hora, tipo y eliminación, incluyendo persistencia y rollback/estado final.
+La auditoría contra el código y tests actuales actualizó los pendientes documentales. Los siguientes puntos son ahora los principales trabajos pendientes.
 
 ### P0 — Pago de tarjeta integrado a UI
 
@@ -119,6 +117,7 @@ Ampliar pasivos/patrimonio neto y luego resúmenes, vencimientos, histórico y d
 
 ## Qué ya no debe figurar como pendiente independiente
 
+- integridad del movimiento origen de obligación: implementada y testeada;
 - integración básica de `CicloFacturacion` con consumos/obligaciones: ya existe;
 - generación automática de cuotas: ya existe;
 - unificación básica del saldo monetario de tarjeta: auditada como coherente;
