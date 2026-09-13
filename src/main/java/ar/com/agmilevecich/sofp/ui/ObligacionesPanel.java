@@ -179,11 +179,11 @@ public class ObligacionesPanel extends JPanel {
                 "La obligación es obligatoria"
         );
         Cuenta cuentaPagadora = Objects.requireNonNull(
-                cuentaPagadoraCombo.getSelectedItem(),
+                (Cuenta) cuentaPagadoraCombo.getSelectedItem(),
                 "La cuenta pagadora es obligatoria"
         );
         Categoria categoria = Objects.requireNonNull(
-                categoriaCombo.getSelectedItem(),
+                (Categoria) categoriaCombo.getSelectedItem(),
                 "La categoría es obligatoria"
         );
         BigDecimal importe = new BigDecimal(importePagoField.getText().trim());
