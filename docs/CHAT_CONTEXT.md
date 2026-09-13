@@ -8,7 +8,8 @@ La fuente de verdad es el código, los tests y Git. `docs/` es documentación au
 **Rama de trabajo:** `feature/swing-shell`.
 
 **Último cambio funcional:** `e5fbe0f` — `fix: proteger integridad estructural de cuentas`.
-**Último commit verificado antes de esta actualización documental:** `00beeb1` — `fix: evitar moneda duplicada en test de integridad`.
+**Último commit de código/tests verificado:** `00beeb1` — `fix: evitar moneda duplicada en test de integridad`.
+**Último commit documental:** `a090d152` — cierre documental de auditoría de ciclos.
 
 No se realizó merge a `main`.
 
@@ -16,45 +17,57 @@ No se realizó merge a `main`.
 
 Suite general informada por el usuario: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 46:17 min, finalizada 13/09/2026 19:00:15 -03:00.
 
-Suite relacionada de Cuenta: **154/154**, `BUILD SUCCESS`, 22:18 min.
+Suite relacionada de Cuenta: **154/154**, `BUILD SUCCESS`.
 
-Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, `BUILD SUCCESS`, 09:19 min.
+Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, `BUILD SUCCESS`.
 
-Las validaciones de obligaciones/pagos/UI anteriores continúan vigentes: `ObligacionServiceTest` **9/9**, suite relacionada **69/69**, UI de pago **6/6**.
-
-El usuario informó además `git syncsofp`, `git diff`, `git diff --check` y `git status` correctos, con working tree limpio y rama sincronizada.
+Validaciones anteriores relevantes: `ObligacionServiceTest` **9/9**, suite de obligaciones/pagos/UI **69/69**, UI de pago **6/6**.
 
 ## Estado consolidado
 
-La Fase 8 Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. El pago coordinado existe en `PagoTarjetaService` y está integrado en `ObligacionesPanel`, `MainFrame` y `Main`.
+La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. El pago coordinado existe en `PagoTarjetaService` y está integrado en la UI.
 
 `ObligacionService` exige `usuarioId` para registrar pagos y valida el perfil propietario.
 
-`CuentaService` ahora protege la integridad estructural: no permite cambiar tipo ni moneda cuando existen movimientos y la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`.
+`CuentaService` protege la integridad estructural: no permite cambiar tipo ni moneda cuando existen movimientos y la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`.
 
-H2 aplicación: `jdbc:h2:tcp://localhost/./database/sofp`. Tests: H2 memoria independiente.
+## Auditoría temporal completada
 
-## Integridad de Cuenta — bloque cerrado
+La auditoría del ciclo de facturación aplicado al pago quedó cerrada documentalmente.
 
-Se implementó la regla mínima derivada de la auditoría previa.
+### Existe actualmente
 
-Cobertura:
+- cálculo de ciclo por fecha de consumo y día de cierre;
+- ajuste de fechas al último día real del mes;
+- vencimiento posterior al cierre;
+- cruce de año;
+- fechas de ciclo/vencimiento persistidas en `Cuota`;
+- pagos parciales;
+- aplicación de pagos en orden ascendente de cuota;
+- movimiento real de salida al pagar;
+- coincidencia de moneda entre obligación y cuenta pagadora.
 
-- cuenta con historial: tipo y moneda no pueden modificarse;
-- cuenta sin historial: se permite cambio entre tipos no tarjeta;
-- transición hacia/desde `TARJETA_CREDITO` por la API genérica: rechazada;
-- autorización por usuario: preservada;
-- moneda económica extranjera de consumos de tarjeta: preservada.
+### Falta actualmente
 
-No se introducen conversiones automáticas ni limpieza/migración implícita de datos de crédito.
+- validación de pago anterior al consumo;
+- clasificación en término/mora;
+- gracia;
+- fines de semana/feriados;
+- fecha efectiva separada;
+- rechazo de fechas futuras;
+- regla temporal para pagos parciales sobre cuotas vencidas;
+- protección histórica de cierre/vencimiento después de existir consumos;
+- estabilidad histórica de `Obligacion.getCicloFacturacion()` frente a cambios posteriores de configuración.
+
+Se detectó específicamente que las cuotas guardan sus fechas, pero `Obligacion.getCicloFacturacion()` recalcula desde la configuración actual de la tarjeta. También se verificó que `Cuenta.configurarDatosCredito(...)` es mutable y no tiene todavía una política histórica equivalente a la protección aplicada a tipo/moneda.
+
+No se modificó código durante la auditoría. No se inventaron reglas de mora, gracia ni días no hábiles. Intereses y financiación avanzada permanecen fuera de alcance.
 
 ## Pendientes reales
 
-P0: ninguno en el bloque de autorización de obligaciones ni en integridad estructural de Cuenta.
-
 P1:
 
-1. Definir reglas de ciclo aplicadas al pago.
+1. Implementar las reglas temporales de pago una vez fijadas explícitamente.
 2. Definir multidivisa de tarjetas.
 3. Definir financiación avanzada.
 
@@ -67,7 +80,7 @@ P2/P3:
 
 ## Reglas
 
-No duplicar reglas de negocio en Swing. Mantener autorización en servicios. No inventar reglas multidivisa o de mora. Cada bloque debe incluir tests y validación de persistencia cuando corresponda.
+No duplicar reglas de negocio en Swing. Mantener autorización en servicios. No inventar reglas multidivisa, mora, gracia o calendario. Cada bloque debe incluir tests y validación de persistencia cuando corresponda.
 
 ## Continuidad
 
