@@ -8,7 +8,8 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 **Rama de trabajo:** `feature/swing-shell`.
 
 **Último cambio funcional:** `e5fbe0f` — `fix: proteger integridad estructural de cuentas`.
-**Último commit verificado antes de esta actualización documental:** `00beeb1` — `fix: evitar moneda duplicada en test de integridad`.
+**Último commit de código/tests verificado:** `00beeb1` — `fix: evitar moneda duplicada en test de integridad`.
+**Último commit documental de esta etapa:** `2fdd1262` — actualización del contexto final con la auditoría temporal.
 
 No se realizó merge a `main`.
 
@@ -18,7 +19,7 @@ Suite general informada: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SU
 
 Suite relacionada de Cuenta: **154/154**, `BUILD SUCCESS`.
 
-Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, `BUILD SUCCESS`.
+Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66`, `BUILD SUCCESS`.
 
 Validaciones anteriores relevantes: `ObligacionServiceTest` **9/9**, suite de obligaciones/pagos/UI **69/69**, UI de pago **6/6**.
 
@@ -32,15 +33,31 @@ Reglas vigentes:
 - con historial financiero no se puede cambiar la moneda;
 - la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`;
 - se mantiene autorización por usuario;
-- no se impone igualdad universal entre moneda de cuenta y moneda de movimiento, preservando consumos de tarjeta en moneda económica extranjera.
+- no se impone igualdad universal entre moneda de cuenta y moneda de movimiento.
 
-La implementación no realiza conversiones automáticas ni limpia/migra datos de crédito implícitamente.
+## Auditoría de ciclo y pago — bloque auditado al 100%
+
+La auditoría comprobó que el cálculo básico del ciclo está implementado: fecha de consumo, cierre, inicio, vencimiento, meses de distinta duración y cruce de año. Las cuotas guardan sus fechas y los pagos se aplican en orden ascendente con soporte parcial.
+
+También quedaron identificados y documentados todos los huecos temporales relevantes del código actual:
+
+1. no se valida pago anterior al consumo;
+2. no existe estado de pago en término/mora;
+3. no existe gracia;
+4. no existe calendario de días no hábiles;
+5. no existe fecha efectiva separada;
+6. se aceptan fechas futuras;
+7. no existe regla temporal específica para pagos parciales sobre cuotas vencidas;
+8. `Obligacion.getCicloFacturacion()` recalcula con la configuración actual, mientras las cuotas ya generadas conservan fechas persistidas;
+9. `Cuenta.configurarDatosCredito(...)` puede mutar cierre/vencimiento sin una política histórica específica.
+
+No se agregaron reglas financieras por inferencia. Intereses, punitorios, CFT y refinanciación pertenecen al bloque de financiación avanzada.
 
 ## Pendientes
 
 ### P1
 
-1. Definir reglas de ciclo durante el pago.
+1. Implementar las reglas temporales de pago una vez definidas explícitamente.
 2. Definir multidivisa de tarjetas.
 3. Financiamiento avanzado.
 
@@ -53,7 +70,7 @@ La implementación no realiza conversiones automáticas ni limpia/migra datos de
 
 ## Orden exacto
 
-1. Reglas de ciclo durante pagos.
+1. Reglas temporales de pago.
 2. Multidivisa.
 3. Financiamiento.
 4. UI específica.
