@@ -6,19 +6,25 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Rama documental de continuidad:** `docs/continuidad-sofp`.
 
-**Último commit de código:** `41ebb2b14b79efe5c61926d95306820dcd7069ea` — `test: corregir saldo esperado en pago de tarjeta`.
+**Últimos commits funcionales:**
 
-No se realizó merge a `main`.
+- `a2a96bb` — `fix: exigir usuario al registrar pagos de obligaciones`;
+- `2813fa3` — `test: adaptar pagos de obligaciones a usuario autorizado`.
+
+Los commits posteriores de documentación registran el cierre del bloque. No se realizó merge a `main`.
 
 ## Validación más reciente
 
 Suite general informada por el usuario: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Suite relacionada de obligaciones/pagos/UI: **69/69**, `BUILD SUCCESS`.
+Suite específica de `ObligacionService`: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
+Suite relacionada de obligaciones/pagos/UI: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+Tests específicos de UI de pago: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+La suite relacionada mostró un warning de Surefire por demora en la terminación de la JVM después de `System.exit(0)`, pero terminó con `BUILD SUCCESS` y sin tests fallidos.
 
 El usuario informó `git syncsofp`, `git diff`, `git diff --check` y `git status` correctos, con working tree limpio y rama sincronizada.
 
@@ -34,14 +40,15 @@ El usuario informó `git syncsofp`, `git diff`, `git diff --check` y `git status
 - Pago real desde `ObligacionesPanel` integrado y testeado.
 - `PagoTarjetaService` conectado en `MainFrame` y `Main`.
 - Moneda explícita en movimientos y obligaciones; sin conversión automática.
+- `ObligacionService` exige `usuarioId` para registrar pagos y valida el perfil propietario.
 - H2 de aplicación por TCP y tests aislados en H2 memoria.
 - JAR ejecutable configurado.
 
 ## Pendientes
 
-### P0 — Autorización de obligaciones
+### P0 — Cerrado
 
-Revisar operaciones públicas de `ObligacionService` sin `usuarioId`. Hacer internos los métodos de coordinación o exigir autorización explícita en operaciones públicas y agregar cobertura de acceso cruzado.
+Autorización de pagos en `ObligacionService`: eliminado el overload público sin `usuarioId`; la operación de registro de pago exige usuario autorizado.
 
 ### P1 — Integridad de Cuenta
 
@@ -77,18 +84,17 @@ Mejoras de consola y presentación, sin interferir con reglas financieras.
 
 ## Orden exacto para continuar
 
-1. Autorización de `ObligacionService`.
-2. Integridad de `Cuenta`.
-3. Reglas de ciclo durante pagos.
-4. Multidivisa.
-5. Financiación.
-6. UI específica.
-7. Pasivos/patrimonio/análisis.
-8. Gestión de entidades financieras.
-9. Pulido.
+1. Integridad de `Cuenta`.
+2. Reglas de ciclo durante pagos.
+3. Multidivisa.
+4. Financiación.
+5. UI específica.
+6. Pasivos/patrimonio/análisis.
+7. Gestión de entidades financieras.
+8. Pulido.
 
 ## Protocolo
 
 Antes de cada bloque: revisar implementación, clases relacionadas, repositorios, tests y reglas de negocio. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
 
-No modificar `main`, no asumir tests locales no informados y no considerar cerrada una funcionalidad solo porque compila.
+La documentación de continuidad se actualiza sobre la rama activa. No modificar `main`, no asumir tests locales no informados y no considerar cerrada una funcionalidad solo porque compila.
