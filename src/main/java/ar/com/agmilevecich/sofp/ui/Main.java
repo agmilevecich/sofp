@@ -22,6 +22,7 @@ import ar.com.agmilevecich.sofp.service.MonedaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
+import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
 import ar.com.agmilevecich.sofp.service.PerfilFinancieroService;
 import ar.com.agmilevecich.sofp.service.UsuarioService;
 import jakarta.persistence.EntityManager;
@@ -132,6 +133,11 @@ public class Main {
                 entityManager,
                 obligacionRepository
         );
+        PagoTarjetaService pagoTarjetaService = new PagoTarjetaService(
+                entityManager,
+                movimientoRepository,
+                obligacionRepository
+        );
         OperacionFinancieraService operacionFinancieraService = new OperacionFinancieraService(
                 entityManager,
                 movimientoRepository,
@@ -148,7 +154,8 @@ public class Main {
                 perfil,
                 usuario.getId(),
                 obligacionService,
-                operacionFinancieraService
+                operacionFinancieraService,
+                pagoTarjetaService
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
