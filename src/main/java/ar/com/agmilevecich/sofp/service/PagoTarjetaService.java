@@ -56,6 +56,7 @@ public class PagoTarjetaService {
             validarPropietario(usuarioId, obligacion);
             validarPropietario(usuarioId, cuentaPagadora);
             validarPropietario(usuarioId, categoria);
+            validarFechaPago(obligacion, fechaHora);
             if (!cuentaPagadora.isActiva()) {
                 throw new IllegalArgumentException("No se puede pagar desde una cuenta desactivada");
             }
@@ -78,14 +79,8 @@ public class PagoTarjetaService {
             }
 
             Movimiento movimientoPago = new Movimiento(
-                    cuentaPagadora,
-                    categoria,
-                    cuentaPagadora.getMoneda(),
-                    TipoMovimiento.EGRESO,
-                    importe,
-                    fechaHora,
-                    descripcion,
-                    FormaPago.TRANSFERENCIA
+                    cuentaPagadora, categoria, cuentaPagadora.getMoneda(), TipoMovimiento.EGRESO,
+                    importe, fechaHora, descripcion, FormaPago.TRANSFERENCIA
             );
 
             obligacion.registrarPago(importe);
@@ -94,10 +89,18 @@ public class PagoTarjetaService {
             transaction.commit();
             return obligacion;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+            if (transaction.isActive()) transaction.rollback();
             throw e;
+        }
+    }
+
+    private void validarFechaPago(Obligacion obligacion, LocalDateTime fechaHora) {
+        LocalDateTime fechaOrigen = obligacion.getFechaOrigen();
+        if (fechaHora.isBefore(fechaOrigen)) {
+            throw new IllegalArgumentException("La fecha de pago no puede ser anterior al consumo que origina la obligación");
+        }
+        if (fechaHora.isAfter(LocalDateTime.now())) {
+            throw new IllegalArgumentException("La fecha de pago no puede ser futura");
         }
     }
 
@@ -105,36 +108,22 @@ public class PagoTarjetaService {
         BigDecimal saldo = BigDecimal.ZERO;
         List<Movimiento> movimientos = movimientoRepository.listarPorCuenta(cuenta.getId());
         for (Movimiento movimiento : movimientos) {
-            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
-                saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
-                    && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) {
-                saldo = saldo.subtract(movimiento.getImporte());
-            }
+            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) saldo = saldo.add(movimiento.getImporte());
+            else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) saldo = saldo.subtract(movimiento.getImporte());
         }
         return saldo;
     }
 
     private void validarPropietario(Long usuarioId, Obligacion obligacion) {
-        Long propietarioId = obligacion.getMovimientoOrigen()
-                .getCuenta()
-                .getPerfilFinanciero()
-                .getUsuario()
-                .getId();
-        if (!Objects.equals(propietarioId, usuarioId)) {
-            throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
-        }
+        Long propietarioId = obligacion.getMovimientoOrigen().getCuenta().getPerfilFinanciero().getUsuario().getId();
+        if (!Objects.equals(propietarioId, usuarioId)) throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
     }
 
     private void validarPropietario(Long usuarioId, Cuenta cuenta) {
-        if (!Objects.equals(cuenta.getPerfilFinanciero().getUsuario().getId(), usuarioId)) {
-            throw new IllegalArgumentException("El usuario no es propietario de la cuenta");
-        }
+        if (!Objects.equals(cuenta.getPerfilFinanciero().getUsuario().getId(), usuarioId)) throw new IllegalArgumentException("El usuario no es propietario de la cuenta");
     }
 
     private void validarPropietario(Long usuarioId, Categoria categoria) {
-        if (!Objects.equals(categoria.getPerfilFinanciero().getUsuario().getId(), usuarioId)) {
-            throw new IllegalArgumentException("El usuario no es propietario de la categoría");
-        }
+        if (!Objects.equals(categoria.getPerfilFinanciero().getUsuario().getId(), usuarioId)) throw new IllegalArgumentException("El usuario no es propietario de la categoría");
     }
 }
