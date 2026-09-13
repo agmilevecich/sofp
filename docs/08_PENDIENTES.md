@@ -5,104 +5,94 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Último commit de código/documentación:** `0cfbcab221256ae9bafdab171dc103a22d0e7eb4` — `docs: actualizar tests tras cierre de autorizacion`.
+**Último commit funcional:** `2813fa34c953f4f6408903c1e3b4fc2e7f3b58c5`.
+Los commits posteriores registrados en esta etapa son de documentación.
 
-La rama de trabajo continúa separada de `main`.
-
-Suite general más reciente informada por el usuario: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-Suite específica de `ObligacionService`: **9/9**, `BUILD SUCCESS`.
+Suite general más reciente informada: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite `ObligacionServiceTest`: **9/9**, `BUILD SUCCESS`.
 Suite relacionada: **69/69**, `BUILD SUCCESS`.
 
 ## Bloques cerrados
 
 - Selección explícita de tarjeta activa en `GastosPanel`.
-- Generación de cuotas al registrar gastos con tarjeta.
-- Cuotas que cruzan el fin de año.
-- Atomicidad de compra con tarjeta: movimiento + obligación.
-- Coordinación transaccional de movimientos y obligaciones.
-- Pago coordinado de tarjeta en `PagoTarjetaService`.
-- Pago real de tarjeta desde `ObligacionesPanel`.
+- Generación de cuotas y cruce de año.
+- Atomicidad de compra con tarjeta.
+- Pago coordinado y pago real desde UI.
 - Integración de `PagoTarjetaService` en `Main`/`MainFrame`.
-- Cálculo base de ciclos de facturación.
-- Protección de movimientos que originan obligaciones.
+- Protección de movimientos origen de obligaciones.
 - Tests de integridad movimiento ↔ obligación.
-- Configuración de JAR ejecutable y copia de dependencias.
-- Autorización del registro de pagos en `ObligacionService`: el API público exige `usuarioId` y valida pertenencia al perfil.
+- JAR ejecutable y dependencias runtime.
+- Autorización del registro de pagos en `ObligacionService`.
 
-## Auditoría: pendientes reales en orden
+## Auditoría de `Cuenta` — terminada
 
-### P0 — Cerrado: superficies públicas de `ObligacionService`
+La auditoría transversal del eje de cuentas quedó terminada sin cambios de código.
 
-El overload público `registrarPago(Long obligacionId, BigDecimal importe)` fue eliminado. El registro de pagos requiere ahora `usuarioId`, evitando el bypass de autorización mediante una API pública sin contexto de usuario.
+Se revisaron: `Cuenta`, `CuentaService`, `CuentaRepository`, `TipoCuenta`, `Moneda`, `Movimiento`, `MovimientoRepository`, `MovimientoService`, `GastoService`, `OperacionFinanciera`, `MovimientoActivo`, `CuentaTest`, `CuentaServiceTest`, `MovimientoServiceTest` y `OperacionFinancieraServiceTest`.
 
-La cobertura de `ObligacionServiceTest` quedó adaptada a la API autorizada y validada con **9/9** tests.
+Conclusiones:
 
-### P1 — 1. Proteger cambios estructurales de `Cuenta`
+1. `modificarTipoCuenta` y `modificarMoneda` no bloquean actualmente modificaciones cuando existen movimientos históricos.
+2. `cambiarTipoCuenta` puede crear un estado incompleto al convertir una cuenta común en tarjeta, porque los datos de crédito no se configuran automáticamente.
+3. Cambiar moneda con historial puede romper la interpretación histórica de la cuenta.
+4. No debe imponerse una igualdad universal entre moneda de cuenta y moneda de movimiento: los consumos de tarjeta pueden conservar una moneda económica distinta.
+5. Las transferencias entre cuentas ya exigen misma moneda.
+6. El repositorio de cuentas no contiene reglas de negocio de tipo/moneda.
 
-Revisar `CuentaService` para impedir cambios de tipo o moneda cuando ya existe historial financiero que haga incompatible la modificación.
+## Pendientes reales en orden
 
-Definir primero la regla mínima compatible con el dominio actual y luego cubrirla con tests.
+### P1 — 1. Integridad estructural de `Cuenta`
 
-### P1 — 2. Completar ciclo de facturación durante el pago
+Implementar la regla derivada de la auditoría:
 
-La generación de ciclos/cuotas está implementada. Falta decidir cómo se comportan pagos respecto de vencimiento, mora, gracia, días no hábiles y orden temporal.
+- bloquear cambio de tipo cuando exista historial financiero;
+- bloquear cambio de moneda cuando exista historial financiero;
+- impedir estados incompletos al convertir hacia/desde `TARJETA_CREDITO`;
+- mantener autorización por usuario;
+- conservar el caso válido de consumos de tarjeta en moneda económica extranjera;
+- agregar tests de cuenta sin historial, con historial, tarjeta, persistencia y autorización.
 
-No implementar reglas de negocio no decididas.
+La política exacta de los datos de crédito al cambiar de tipo debe quedar explícita en el dominio; no limpiar ni inventar datos implícitamente.
 
-### P1 — 3. Definir multidivisa de tarjetas
+### P1 — 2. Ciclo aplicado al pago
 
-Actualmente el consumo y la obligación conservan su moneda y el pago exige coincidencia de moneda. Falta definir cómo se comporta el límite de una tarjeta frente a consumos en monedas diferentes.
+Definir vencimiento, mora, gracia, días no hábiles y orden temporal antes de implementar.
 
-No introducir conversiones implícitas.
+### P1 — 3. Multidivisa de tarjetas
+
+Definir tratamiento definitivo del límite frente a consumos en monedas diferentes. No introducir conversiones implícitas.
 
 ### P1 — 4. Financiamiento avanzado
 
-Pendiente definir e implementar, cuando corresponda:
-
-- intereses;
-- CFT/costo financiero;
-- cuotas variables;
-- adelantos;
-- refinanciación;
-- anulaciones/reversiones;
-- ajustes.
+Intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
 
 ### P2 — 5. UI específica de tarjetas
 
-Una vez estabilizado dominio/servicios:
-
-- límite y disponible;
-- consumos;
-- ciclos;
-- cierres y vencimientos;
-- deuda;
-- pagos reales.
+Límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos reales.
 
 ### P2 — 6. Pasivos, patrimonio y análisis
 
-Ampliar pasivos/patrimonio neto y posteriormente histórico, vencimientos, resúmenes y dashboard.
+Pasivos, patrimonio neto, histórico, vencimientos, resúmenes y dashboard.
 
 ### P2/P3 — 7. Gestión de entidades financieras
 
-No existe todavía un panel específico para registrar y gestionar entidades financieras. Queda pendiente definir e implementar cuando corresponda.
+Todavía no existe un panel específico para registrar y gestionar entidades financieras.
 
 ### P3 — 8. Pulido de consola
 
-Prioridad baja. No debe interferir con reglas financieras ni servicios.
+Prioridad baja.
 
-## Orden de ejecución recomendado
+## Orden de ejecución
 
-1. Integridad de tipo/moneda de cuentas.
-2. Reglas de ciclo aplicadas al pago.
+1. Integridad de `Cuenta`.
+2. Reglas de ciclo durante pagos.
 3. Multidivisa.
-4. Financiamiento avanzado.
-5. UI específica de tarjetas.
-6. Pasivos/patrimonio y análisis.
+4. Financiamiento.
+5. UI específica.
+6. Pasivos/patrimonio/análisis.
 7. Gestión de entidades financieras.
 8. Pulido.
 
 ## Regla de cierre
 
-Para cada bloque: tests específicos → tests relacionados → suite general cuando corresponda → `git diff` → `git diff --check` → `git status` → documentación.
-
-No considerar terminado un bloque porque compila. No modificar tests para hacerlos pasar.
+Tests específicos → relacionados → suite general → `git diff` → `git diff --check` → `git status` → documentación.
