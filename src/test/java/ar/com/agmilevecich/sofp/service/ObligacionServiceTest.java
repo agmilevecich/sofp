@@ -110,7 +110,8 @@ class ObligacionServiceTest {
 
         Obligacion actualizada = obligacionService.registrarPago(
                 obligacion.getId(),
-                new BigDecimal("5000.00")
+                new BigDecimal("5000.00"),
+                usuario.getId()
         );
 
         assertEquals(new BigDecimal("10000.00"), actualizada.getSaldoPendiente());
@@ -133,7 +134,8 @@ class ObligacionServiceTest {
 
         Obligacion actualizada = obligacionService.registrarPago(
                 obligacion.getId(),
-                new BigDecimal("15000.00")
+                new BigDecimal("15000.00"),
+                usuario.getId()
         );
 
         assertEquals(BigDecimal.ZERO.setScale(2), actualizada.getSaldoPendiente());
@@ -158,7 +160,8 @@ class ObligacionServiceTest {
                 IllegalArgumentException.class,
                 () -> obligacionService.registrarPago(
                         obligacion.getId(),
-                        new BigDecimal("16000.00")
+                        new BigDecimal("16000.00"),
+                        usuario.getId()
                 )
         );
 
@@ -178,7 +181,8 @@ class ObligacionServiceTest {
                 IllegalArgumentException.class,
                 () -> obligacionService.registrarPago(
                         999999L,
-                        new BigDecimal("1000.00")
+                        new BigDecimal("1000.00"),
+                        usuario.getId()
                 )
         );
     }
@@ -189,7 +193,8 @@ class ObligacionServiceTest {
                 NullPointerException.class,
                 () -> obligacionService.registrarPago(
                         null,
-                        new BigDecimal("1000.00")
+                        new BigDecimal("1000.00"),
+                        usuario.getId()
                 )
         );
     }
