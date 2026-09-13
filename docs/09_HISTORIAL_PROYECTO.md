@@ -10,7 +10,7 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 2. Consolidación de `Movimiento` como núcleo financiero común.
 3. Implementación de operaciones financieras e inversiones.
 4. Auditoría transversal de seguridad y aislamiento por usuario/perfil.
-5. Construcción del shell Swing de la Fase 8.
+5. Construcción del shell Swing.
 6. Integración de cuentas, categorías, movimientos, inversiones y reportes.
 7. Gastos e Ingresos como paneles especializados sobre `Movimiento`.
 8. Integración de `FormaPago`.
@@ -27,7 +27,7 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 19. Configuración de H2 de la aplicación mediante servidor TCP compartido con H2 Console.
 20. Selección explícita de tarjeta de crédito en `GastosPanel`.
 21. Cobertura de cuotas al cruzar el fin de año.
-22. Atomicidad de compra con tarjeta mediante coordinación transaccional de movimiento y obligación.
+22. Atomicidad de compra con tarjeta mediante coordinación transaccional.
 23. Configuración de JAR ejecutable y dependencias runtime.
 24. Auditoría funcional transversal del modelo de tarjeta, obligaciones, pagos, autorización y mutabilidad.
 25. Protección de movimientos que originan obligaciones frente a cambios estructurales y eliminación.
@@ -37,32 +37,52 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 29. Cierre de la superficie pública de `ObligacionService`: se eliminó el registro de pagos sin `usuarioId`.
 30. Auditoría transversal de integridad de `Cuenta`.
 31. Implementación y validación de la integridad estructural de `Cuenta`.
+32. **Auditoría completa del ciclo de facturación aplicado al pago.**
 
-## Integridad de `Cuenta` — cierre 13/09/2026
+## Auditoría temporal — cierre documental 13/09/2026
 
-La implementación protege los cambios estructurales que pueden invalidar el historial financiero:
+Se revisaron las clases de dominio y servicio responsables del ciclo y pago: `Cuenta`, `CicloFacturacion`, `Cuota`, `Obligacion`, `PagoTarjetaService` y `CuentaService`, junto con los tests relacionados.
 
-- se bloquea el cambio de tipo cuando existen movimientos;
-- se bloquea el cambio de moneda cuando existen movimientos;
-- la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`;
-- se mantiene la autorización por usuario;
-- se conserva el soporte para consumos de tarjeta con moneda económica distinta de la moneda estructural de la cuenta.
+### Confirmado como implementado
 
-Se agregó `CuentaServiceIntegridadTest` y se corrigieron sus datos de prueba para respetar el constructor real de `Usuario` y la unicidad de `Moneda.codigo`.
+- cálculo del ciclo según fecha de consumo y cierre;
+- inicio posterior al cierre anterior;
+- cierre en mes actual o siguiente según consumo;
+- ajuste a último día real del mes;
+- vencimiento posterior al cierre;
+- cruce de año;
+- persistencia de fechas de las cuotas;
+- pagos parciales y aplicación en orden ascendente;
+- movimiento real de salida para el pago;
+- coincidencia de moneda entre obligación y cuenta pagadora.
+
+### Confirmado como no implementado
+
+- validación temporal del pago respecto del consumo;
+- clasificación en término/mora;
+- período de gracia;
+- ajuste por fines de semana y feriados;
+- fecha efectiva independiente;
+- rechazo de fechas futuras;
+- tratamiento temporal de pagos parciales sobre cuotas vencidas;
+- protección histórica de `diaCierre`/`diaVencimiento` después de existir consumos;
+- congelamiento del ciclo de una obligación sin cuotas frente a cambios posteriores de configuración.
+
+### Decisión de alcance
+
+No se implementó ninguna de estas reglas por inferencia. La auditoría queda cerrada identificando exactamente qué existe y qué falta. Intereses, punitorios, CFT, refinanciación y demás financiación avanzada permanecen fuera de este bloque.
 
 ## Estado de validación
 
 Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Suite relacionada `CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite relacionada `CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154`, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
 Suite completa `mvn test`: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Validación final de Git: `git syncsofp` correcto, `git diff` vacío, `git diff --check` sin salida y `git status` limpio; `feature/swing-shell` sincronizada con GitHub y Bitbucket.
-
 ## Pendientes
 
-1. Definir reglas de ciclo durante el pago.
+1. Implementar las reglas temporales de pago una vez fijadas explícitamente.
 2. Definir multidivisa de tarjetas.
 3. Financiamiento avanzado.
 4. UI específica de tarjetas.
