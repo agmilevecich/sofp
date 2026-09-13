@@ -12,60 +12,70 @@ La fuente de verdad es el código, los tests y Git. `docs/` es documentación au
 - `a2a96bb` — `fix: exigir usuario al registrar pagos de obligaciones`;
 - `2813fa3` — `test: adaptar pagos de obligaciones a usuario autorizado`.
 
-Los commits posteriores de documentación actualizan el estado de continuidad en la rama activa. No se realizó merge a `main`.
+Los commits posteriores son de documentación de continuidad. No se realizó merge a `main`.
 
 ## Validación más reciente
 
 Suite general informada por el usuario: **696/696**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-Suite específica de `ObligacionService`: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Suite específica de `ObligacionService`: **9/9**, `BUILD SUCCESS`.
 
-Suite relacionada: **69/69**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`. En esa ejecución apareció un warning de Surefire por demora en la terminación de la JVM, sin fallo de tests.
+Suite relacionada: **69/69**, `BUILD SUCCESS`; con warning de Surefire por demora de terminación de JVM, sin fallo de tests.
 
-Tests específicos de UI de pago: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Tests específicos de UI de pago: **6/6**, `BUILD SUCCESS`.
 
-El usuario informó además que `git syncsofp`, `git diff`, `git diff --check` y `git status` dejaron la rama sincronizada y el working tree limpio.
+El usuario informó además `git syncsofp`, `git diff`, `git diff --check` y `git status` correctos, con working tree limpio y rama sincronizada.
 
 ## Estado consolidado
 
-La Fase 8 Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas en una operación coordinada. El pago coordinado existe en `PagoTarjetaService` y ya está integrado en `ObligacionesPanel`, `MainFrame` y `Main`.
+La Fase 8 Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. El pago coordinado existe en `PagoTarjetaService` y está integrado en `ObligacionesPanel`, `MainFrame` y `Main`.
 
-El pago desde UI selecciona cuenta pagadora y categoría y registra salida real de fondos junto con la reducción de deuda mediante el servicio coordinador.
-
-`ObligacionService` ya no expone el registro de pagos sin usuario: la operación pública exige `usuarioId` y valida que la obligación pertenezca al perfil autorizado.
+`ObligacionService` exige `usuarioId` para registrar pagos y valida el perfil propietario.
 
 H2 aplicación: `jdbc:h2:tcp://localhost/./database/sofp`. Tests: H2 memoria independiente.
 
+## Auditoría de Cuenta completada
+
+Se revisaron `Cuenta`, `CuentaService`, `CuentaRepository`, `TipoCuenta`, `Moneda`, `Movimiento`, `MovimientoRepository`, `MovimientoService`, `GastoService`, `OperacionFinanciera`, `MovimientoActivo` y los tests relacionados.
+
+No se modificó código.
+
+Hallazgos:
+
+1. `CuentaService` permite modificar tipo y moneda sin comprobar historial financiero.
+2. Una cuenta puede pasar a `TARJETA_CREDITO` sin garantizar automáticamente límite, cierre y vencimiento.
+3. No existe política para los datos de crédito al salir de tarjeta hacia otro tipo.
+4. Cambiar moneda con historial puede romper la interpretación del histórico.
+5. La moneda de `Movimiento` es propia y puede diferir de la moneda estructural de la cuenta en consumos de tarjeta; no debe eliminarse ese caso válido.
+6. Las transferencias entre cuentas ya exigen misma moneda.
+7. `CuentaRepository` no contiene reglas de negocio de tipo/moneda.
+
+Regla base para implementar: proteger cambios estructurales con historial y hacer explícita la política de transición hacia/desde tarjeta. No introducir conversiones implícitas ni reglas que impidan consumos de tarjeta en moneda extranjera.
+
 ## Pendientes reales
 
-P0: ninguno en el bloque de autorización de obligaciones; queda cerrado.
+P0: ninguno en el bloque de autorización de obligaciones.
 
 P1:
 
-1. Proteger cambios de tipo/moneda de `Cuenta` cuando exista historial financiero.
-2. Definir reglas de ciclo aplicadas al pago: vencimiento, mora, gracia y días no hábiles.
-3. Definir multidivisa de tarjetas sin conversiones implícitas.
+1. Implementar la integridad de `Cuenta` conforme a la auditoría.
+2. Definir reglas de ciclo aplicadas al pago.
+3. Definir multidivisa de tarjetas.
 4. Definir financiación avanzada.
 
 P2/P3:
 
 5. UI específica de tarjetas.
 6. Pasivos, patrimonio, histórico, vencimientos, resúmenes y dashboard.
-7. Gestión de entidades financieras: todavía no existe un panel específico; queda pendiente de definición e implementación.
+7. Gestión de entidades financieras.
 8. Pulido de consola.
 
 ## Reglas
 
-No duplicar reglas de negocio en Swing. Mantener autorización en servicios/repositorios. No inventar reglas multidivisa o de mora. Cada bloque debe incluir tests y validación de persistencia cuando corresponda.
+No duplicar reglas de negocio en Swing. Mantener autorización en servicios. No inventar reglas multidivisa o de mora. Cada bloque debe incluir tests y validación de persistencia cuando corresponda.
 
 ## Continuidad
 
 Reconstruir siempre desde GitHub antes de cambios: rama → commits → comparación con `main` → documentación → código → tests → último resultado → próximo paso.
 
-La documentación de continuidad se actualiza sobre la rama activa. No mantener una rama documental permanente separada salvo que se cree temporalmente para una necesidad concreta.
-
-No modificar `main`, no asumir resultados locales no informados y no considerar terminado un bloque porque compila.
-
-## Próximo paso recomendado
-
-Auditar `CuentaService` y las entidades relacionadas para definir la protección mínima de cambios de tipo/moneda cuando exista historial financiero. Antes de modificarla, revisar implementación, repositorios, relaciones y tests actuales, manteniendo el cambio mínimo y sin inventar reglas de negocio.
+La documentación se actualiza sobre la rama activa. No modificar `main` y no asumir resultados locales no informados.
