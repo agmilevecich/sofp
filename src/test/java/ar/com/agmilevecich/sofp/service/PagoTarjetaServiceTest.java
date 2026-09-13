@@ -27,6 +27,8 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PagoTarjetaServiceTest {
 
@@ -45,38 +47,22 @@ class PagoTarjetaServiceTest {
     @BeforeEach
     void setUp() {
         entityManager = JpaTestManager.createEntityManager();
-
         MovimientoRepository movimientoRepository = new MovimientoRepository(entityManager);
         ObligacionRepository obligacionRepository = new ObligacionRepository(entityManager);
-        MovimientoService movimientoService = new MovimientoService(
-                entityManager, movimientoRepository, obligacionRepository);
+        MovimientoService movimientoService = new MovimientoService(entityManager, movimientoRepository, obligacionRepository);
         obligacionService = new ObligacionService(entityManager, obligacionRepository);
         gastoService = new GastoService(movimientoService, obligacionService);
-        cuentaService = new CuentaService(
-                new CuentaRepository(entityManager), movimientoRepository,
-                obligacionRepository, entityManager);
-        pagoTarjetaService = new PagoTarjetaService(
-                entityManager, movimientoRepository, obligacionRepository);
-
-        usuario = new Usuario(
-                "Juan", "Pérez",
-                "pago.tarjeta." + System.nanoTime() + "@test.com", "hash");
+        cuentaService = new CuentaService(new CuentaRepository(entityManager), movimientoRepository, obligacionRepository, entityManager);
+        pagoTarjetaService = new PagoTarjetaService(entityManager, movimientoRepository, obligacionRepository);
+        usuario = new Usuario("Juan", "Pérez", "pago.tarjeta." + System.nanoTime() + "@test.com", "hash");
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
-
-        InstitucionFinanciera institucion = new InstitucionFinanciera(
-                "Banco de Prueba", TipoInstitucionFinanciera.BANCO);
+        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco de Prueba", TipoInstitucionFinanciera.BANCO);
         ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
-
-        tarjeta = new Cuenta(
-                "Visa", perfil, institucion, ars,
-                new BigDecimal("500000.00"), 10, 25);
-        cuentaPagadora = new Cuenta(
-                "Caja de ahorro", TipoCuenta.CAJA_AHORRO,
-                perfil, institucion, ars);
+        tarjeta = new Cuenta("Visa", perfil, institucion, ars, new BigDecimal("500000.00"), 10, 25);
+        cuentaPagadora = new Cuenta("Caja de ahorro", TipoCuenta.CAJA_AHORRO, perfil, institucion, ars);
         categoriaCompras = new Categoria("Compras", perfil);
         categoriaPago = new Categoria("Pago tarjeta", perfil);
-
         entityManager.getTransaction().begin();
         entityManager.persist(usuario);
         entityManager.persist(perfil);
@@ -86,19 +72,14 @@ class PagoTarjetaServiceTest {
         entityManager.persist(cuentaPagadora);
         entityManager.persist(categoriaCompras);
         entityManager.persist(categoriaPago);
-        entityManager.persist(new Movimiento(
-                cuentaPagadora, categoriaPago, TipoMovimiento.INGRESO,
-                new BigDecimal("200000.00"),
-                LocalDateTime.of(2026, 9, 1, 9, 0), "Saldo inicial"));
+        entityManager.persist(new Movimiento(cuentaPagadora, categoriaPago, TipoMovimiento.INGRESO, new BigDecimal("200000.00"), LocalDateTime.of(2026, 9, 1, 9, 0), "Saldo inicial"));
         entityManager.getTransaction().commit();
     }
 
     @AfterEach
     void tearDown() {
         if (entityManager != null && entityManager.isOpen()) {
-            if (entityManager.getTransaction().isActive()) {
-                entityManager.getTransaction().rollback();
-            }
+            if (entityManager.getTransaction().isActive()) entityManager.getTransaction().rollback();
             entityManager.close();
         }
         JpaTestManager.close();
@@ -107,13 +88,7 @@ class PagoTarjetaServiceTest {
     @Test
     void deberiaRegistrarPagoParcialYDescontarloDeLaCuentaPagadora() {
         Obligacion obligacion = registrarGasto("120000.00");
-
-        pagoTarjetaService.registrarPago(
-                obligacion.getId(), cuentaPagadora, categoriaPago,
-                new BigDecimal("50000.00"),
-                LocalDateTime.of(2026, 9, 10, 10, 0),
-                "Pago tarjeta", usuario.getId());
-
+        pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("50000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId());
         assertEquals(new BigDecimal("70000.00"), obligacion.getSaldoPendiente());
         assertEquals(new BigDecimal("150000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
         assertEquals(new BigDecimal("430000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
@@ -122,13 +97,7 @@ class PagoTarjetaServiceTest {
     @Test
     void deberiaRegistrarPagoCompletoYDejarLaObligacionPagada() {
         Obligacion obligacion = registrarGasto("120000.00");
-
-        pagoTarjetaService.registrarPago(
-                obligacion.getId(), cuentaPagadora, categoriaPago,
-                new BigDecimal("120000.00"),
-                LocalDateTime.of(2026, 9, 10, 10, 0),
-                "Pago tarjeta", usuario.getId());
-
+        pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("120000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId());
         assertEquals(new BigDecimal("0.00"), obligacion.getSaldoPendiente());
         assertEquals("PAGADA", obligacion.getEstado().name());
         assertEquals(new BigDecimal("80000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
@@ -138,13 +107,7 @@ class PagoTarjetaServiceTest {
     @Test
     void deberiaRechazarPagoQueSupereLosFondosDeLaCuentaPagadora() {
         Obligacion obligacion = registrarGasto("120000.00");
-
-        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPago(
-                obligacion.getId(), cuentaPagadora, categoriaPago,
-                new BigDecimal("200001.00"),
-                LocalDateTime.of(2026, 9, 10, 10, 0),
-                "Pago tarjeta", usuario.getId()));
-
+        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("200001.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId()));
         assertEquals(new BigDecimal("120000.00"), obligacion.getSaldoPendiente());
         assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
@@ -152,13 +115,7 @@ class PagoTarjetaServiceTest {
     @Test
     void deberiaAplicarPagoDeTarjetaSobreLasCuotasEnOrden() {
         Obligacion obligacion = registrarGasto("120000.00", 3);
-
-        pagoTarjetaService.registrarPago(
-                obligacion.getId(), cuentaPagadora, categoriaPago,
-                new BigDecimal("50000.00"),
-                LocalDateTime.of(2026, 9, 10, 10, 0),
-                "Pago tarjeta", usuario.getId());
-
+        pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("50000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId());
         assertEquals(3, obligacion.getCuotas().size());
         assertEquals(new BigDecimal("0.00"), obligacion.getCuotas().get(0).getSaldoPendiente());
         assertEquals("PAGADA", obligacion.getCuotas().get(0).getEstado().name());
@@ -172,15 +129,41 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("430000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
     }
 
-    private Obligacion registrarGasto(String importe) {
-        return registrarGasto(importe, 1);
+    @Test
+    void noDeberiaPermitirPagoAnteriorAlConsumo() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("1000.00"), LocalDateTime.of(2026, 9, 8, 23, 59), "Pago anticipado", usuario.getId()));
     }
 
+    @Test
+    void noDeberiaPermitirPagoFuturo() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("1000.00"), LocalDateTime.now().plusDays(1), "Pago futuro", usuario.getId()));
+    }
+
+    @Test
+    void deberiaConservarElCicloHistoricoAunqueCambieLaConfiguracionDeLaTarjeta() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        var cicloOriginal = obligacion.getCicloFacturacion();
+        tarjeta.configurarDatosCredito(new BigDecimal("500000.00"), 20, 5);
+        var cicloActual = obligacion.getCicloFacturacion();
+        assertEquals(cicloOriginal.getFechaInicio(), cicloActual.getFechaInicio());
+        assertEquals(cicloOriginal.getFechaCierre(), cicloActual.getFechaCierre());
+        assertEquals(cicloOriginal.getFechaVencimiento(), cicloActual.getFechaVencimiento());
+    }
+
+    @Test
+    void deberiaConsiderarLaGraciaAlEvaluarMora() {
+        tarjeta.configurarDatosCredito(new BigDecimal("500000.00"), 10, 25, 3);
+        Obligacion obligacion = registrarGasto("120000.00");
+        assertFalse(obligacion.estaEnMora(obligacion.getFechaLimitePago()));
+        assertTrue(obligacion.estaEnMora(obligacion.getFechaLimitePago().plusDays(1)));
+    }
+
+    private Obligacion registrarGasto(String importe) { return registrarGasto(importe, 1); }
+
     private Obligacion registrarGasto(String importe, int cantidadCuotas) {
-        Movimiento movimiento = gastoService.registrar(
-                tarjeta, categoriaCompras, ars, new BigDecimal(importe),
-                LocalDateTime.of(2026, 9, 9, 10, 0), "Compra con tarjeta",
-                FormaPago.TARJETA_CREDITO, usuario.getId(), cantidadCuotas);
+        Movimiento movimiento = gastoService.registrar(tarjeta, categoriaCompras, ars, new BigDecimal(importe), LocalDateTime.of(2026, 9, 9, 10, 0), "Compra con tarjeta", FormaPago.TARJETA_CREDITO, usuario.getId(), cantidadCuotas);
         return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
     }
 }
