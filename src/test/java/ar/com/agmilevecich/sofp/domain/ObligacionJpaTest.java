@@ -42,11 +42,13 @@ class ObligacionJpaTest {
         );
 
         Cuenta cuenta = new Cuenta(
-                "Caja de Ahorro",
-                TipoCuenta.CAJA_AHORRO,
+                "Visa",
                 perfil,
                 banco,
-                moneda
+                moneda,
+                new BigDecimal("500000.00"),
+                15,
+                10
         );
 
         Categoria categoria = new Categoria(
@@ -175,7 +177,7 @@ class ObligacionJpaTest {
         assertEquals(EstadoObligacion.PENDIENTE, recuperada.getCuotas().get(0).getEstado());
         assertEquals(LocalDate.of(2026, 8, 16), recuperada.getCuotas().get(0).getFechaInicioCiclo());
         assertEquals(LocalDate.of(2026, 9, 15), recuperada.getCuotas().get(0).getFechaCierreCiclo());
-        assertEquals(LocalDate.of(2026, 10, 10), recuperada.getCuotas().get(0).getFechaVencimiento());
+        assertEquals(LocalDate.of(2026, 10, 12), recuperada.getCuotas().get(0).getFechaVencimiento());
         assertEquals(2, recuperada.getCuotas().get(1).getNumero());
         assertEquals(3, recuperada.getCuotas().get(2).getNumero());
         assertEquals(new BigDecimal("120000.00"), recuperada.getCuotas().stream()
