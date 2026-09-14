@@ -1,6 +1,6 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 14/09/2026
+## Estado auditado — 14/09/2026
 
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
 
@@ -9,7 +9,7 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 **Último bloque funcional:** reglas temporales de ciclos y pagos de tarjeta.
 **Último commit funcional/test:** `3a001a57` — `test: adaptar persistencia de obligaciones a reglas temporales`.
-**Último bloque documental:** actualización integral de continuidad posterior a ese cierre.
+**Último bloque documental:** auditoría integral posterior al cierre temporal.
 
 No se realizó merge a `main`.
 
@@ -44,29 +44,47 @@ La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligaci�
 
 No están implementados calendario de feriados, fecha efectiva separada del movimiento, intereses, punitorios, CFT ni refinanciación.
 
-## Integridad y persistencia
+## Resultado de auditoría integral
 
-El movimiento origen de una obligación está protegido frente a cambios estructurales que romperían la correspondencia histórica. Los tests verifican que los valores originales persisten cuando una modificación prohibida es rechazada.
+La arquitectura general está consolidada y no requiere rehacerse.
 
-La adaptación de `ObligacionJpaTest` utiliza una cuenta de crédito real y refleja el vencimiento efectivo de fin de semana.
+El principal hueco funcional es la multidivisa. Se confirmaron:
+
+1. saldos de cuenta que pueden mezclar monedas;
+2. validación de fondos que utiliza ese saldo mezclado;
+3. consumos de tarjeta en moneda distinta que no tienen una regla completa de impacto sobre el límite;
+4. pagos que exigen misma moneda y todavía no cuentan con liquidación/conversión explícita.
+
+No se deben introducir conversiones implícitas. Primero deben definirse moneda de liquidación, tasa, fecha/fuente de cotización y representación de saldos por moneda.
+
+Hallazgos secundarios: validar rango de `Moneda.cantidadDecimales`, definir política de eliminación de cuentas con historial, evaluar `Clock` y migraciones/versionado de esquema para una futura etapa no local.
+
+La auditoría completa está en `docs/11_AUDITORIA_INTEGRAL.md`.
 
 ## Pendientes reales
 
-P1:
+P0/P1:
 
-1. Multidivisa de tarjetas.
-2. Financiación avanzada.
-3. Evaluar abstracción de reloj (`Clock`) para hacer determinista la validación de fechas futuras.
+1. Resolver multidivisa de tarjetas por moneda.
+2. Cubrir saldos, fondos, crédito y pagos multidivisa con tests.
 
-P2/P3:
+P2:
 
-4. UI específica de tarjetas.
-5. Pasivos, patrimonio y análisis.
-6. Gestión de entidades financieras.
-7. Pulido de consola.
+3. Robustez de `Moneda`.
+4. Política de eliminación histórica de cuentas.
+5. Abstracción `Clock`.
+6. Migraciones/versionado de esquema si corresponde.
+
+P3:
+
+7. Financiación avanzada.
+8. UI específica de tarjetas.
+9. Pasivos, patrimonio y análisis.
+10. Gestión de entidades financieras.
+11. Pulido de consola.
 
 ## Protocolo
 
-Antes de cada bloque: reconstruir desde GitHub rama → últimos commits → comparación con `main` → documentación → implementación → clases relacionadas → tests → último resultado informado. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
+Antes de cada bloque: reconstruir desde GitHub rama → últimos commits → comparación con `main` → documentación → implementación → clases relacionadas → tests → auditoría vigente → último resultado informado. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
 
 La documentación de continuidad se actualiza sobre la rama activa. No modificar `main`, no asumir tests locales no informados y no considerar cerrada una funcionalidad solo porque compila.
