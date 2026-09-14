@@ -119,8 +119,20 @@ Los días de gracia pertenecen a la configuración de crédito y por defecto son
 ## D-039 — Compatibilidad con datos existentes
 Los nuevos campos temporales se mantienen nullable cuando es necesario para no romper datos existentes. Los valores históricos ausentes utilizan fallback; `diasGracia` nulo se interpreta como 0.
 
+## D-040 — Auditoría integral de multidivisa antes de implementar conversiones
+La moneda explícita del movimiento se conserva, pero el sistema actual no puede mezclar monedas en saldos ni resolver correctamente el límite de una tarjeta ante consumos en moneda distinta. No se agregan conversiones implícitas hasta definir moneda de liquidación, tasa, fecha/fuente de cotización y representación del saldo por moneda.
+
+## D-041 — Saldos siempre deben ser monetariamente comparables
+No se debe sumar ni comparar `BigDecimal` de monedas distintas como si fueran una única magnitud. Cualquier cálculo de saldo, fondos disponibles, crédito o deuda debe estar filtrado por moneda o respaldado por una conversión explícita y trazable.
+
+## D-042 — La financiación avanzada es un bloque independiente
+Intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes no se mezclan con la implementación básica de ciclos ni con la solución de multidivisa.
+
+## D-043 — Documentación arquitectónica no puede contradecir el código
+El roadmap y los documentos de continuidad deben actualizarse cuando una fase cambia de estado. El código, tests y commits actuales prevalecen siempre sobre documentación histórica.
+
 ## Actualización — 14/09/2026
 
 El bloque temporal de ciclos y pagos quedó implementado y validado. La adaptación de `ObligacionJpaTest` quedó en `3a001a57c435237e62ab04f6c09a0657ff24fcb2`. La suite completa posterior informada por el usuario fue **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
 
-El próximo bloque requiere definición explícita de multidivisa de tarjetas y financiación avanzada. Calendario de feriados, fecha efectiva separada y recargos financieros permanecen fuera de alcance.
+La auditoría integral confirmó que la arquitectura general no requiere rehacerse. El próximo bloque funcional debe resolver multidivisa de forma explícita, empezando por saldos y límites por moneda, sin conversiones implícitas.
