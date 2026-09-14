@@ -22,6 +22,10 @@ La adaptación de `ObligacionJpaTest` usa una cuenta de crédito real en el fixt
 
 Se protege cambio de tipo/moneda con movimientos y transiciones hacia/desde `TARJETA_CREDITO`.
 
+## Historial documental
+
+Los builds y validaciones anteriores continúan siendo parte del historial del proyecto. Este documento registra el estado de cierre más reciente sin reemplazar el historial técnico conservado en Git.
+
 ## Próximo bloque
 
 Definir antes de implementar: multidivisa de tarjetas y financiación avanzada. Quedan fuera del bloque temporal actual calendario de feriados, fecha efectiva independiente y recargos financieros.
