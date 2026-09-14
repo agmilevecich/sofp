@@ -147,8 +147,11 @@ public class CuentaService {
 
     BigDecimal calcularSaldo(Long cuentaId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
-        Cuenta cuenta = obtenerCuenta(cuentaId);
-        return calcularSaldoInterno(cuentaId, cuenta.getMoneda());
+        Optional<Cuenta> cuenta = cuentaRepository.buscarPorId(cuentaId);
+        if (cuenta.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return calcularSaldoInterno(cuentaId, cuenta.get().getMoneda());
     }
 
     List<EvolucionSaldoCuenta> obtenerEvolucionSaldo(Long cuentaId) {
@@ -297,7 +300,7 @@ public class CuentaService {
             transaction.commit();
             return actualizada;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
+            if (transaction.isActive()) entityManager.getTransaction().rollback();
             throw e;
         }
     }
