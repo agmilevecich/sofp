@@ -122,7 +122,8 @@ class CuentaServiceCoberturaTest {
 
         cuentaService.eliminar(cuentaId, datos.usuario().getId());
 
-        assertTrue(cuentaService.buscarPorId(cuentaId, datos.usuario().getId()).isEmpty());
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.buscarPorId(cuentaId, datos.usuario().getId()));
     }
 
     @Test
@@ -229,7 +230,7 @@ class CuentaServiceCoberturaTest {
         Datos datos = persistirBase("tipo-id-nulo");
 
         assertThrows(NullPointerException.class,
-                () -> cuentaService.modificarTipoCuenta(null, datos.usuario().getId(), TipoCuenta.CUENTA_CORRIENTE));
+                () -> cuentaService.modificarTipoCuenta(null, datos.usuario().getId(), TipoCuenta.CAJA_AHORRO));
     }
 
     @Test
@@ -237,7 +238,7 @@ class CuentaServiceCoberturaTest {
         Datos datos = persistirCuenta("tipo-usuario-nulo");
 
         assertThrows(NullPointerException.class,
-                () -> cuentaService.modificarTipoCuenta(datos.cuenta().getId(), null, TipoCuenta.CUENTA_CORRIENTE));
+                () -> cuentaService.modificarTipoCuenta(datos.cuenta().getId(), null, TipoCuenta.CAJA_AHORRO));
     }
 
     @Test
@@ -251,7 +252,9 @@ class CuentaServiceCoberturaTest {
     @Test
     void deberiaRechazarModificarInstitucionConIdNulo() {
         Datos datos = persistirBase("institucion-id-nulo");
-        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Nuevo", TipoInstitucionFinanciera.BANCO);
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Nuevo", TipoInstitucionFinanciera.BANCO);
+        persistir(institucion);
 
         assertThrows(NullPointerException.class,
                 () -> cuentaService.modificarInstitucionFinanciera(null, datos.usuario().getId(), institucion));
@@ -260,7 +263,9 @@ class CuentaServiceCoberturaTest {
     @Test
     void deberiaRechazarModificarInstitucionConUsuarioNulo() {
         Datos datos = persistirCuenta("institucion-usuario-nulo");
-        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Nuevo", TipoInstitucionFinanciera.BANCO);
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Nuevo", TipoInstitucionFinanciera.BANCO);
+        persistir(institucion);
 
         assertThrows(NullPointerException.class,
                 () -> cuentaService.modificarInstitucionFinanciera(datos.cuenta().getId(), null, institucion));
@@ -271,25 +276,28 @@ class CuentaServiceCoberturaTest {
         Datos datos = persistirCuenta("institucion-nula");
 
         assertThrows(NullPointerException.class,
-                () -> cuentaService.modificarInstitucionFinanciera(datos.cuenta().getId(), datos.usuario().getId(), null));
+                () -> cuentaService.modificarInstitucionFinanciera(
+                        datos.cuenta().getId(), datos.usuario().getId(), null));
     }
 
     @Test
     void deberiaRechazarModificarMonedaConIdNulo() {
         Datos datos = persistirBase("moneda-id-nulo");
-        Moneda usd = nuevaMonedaUsd();
+        Moneda moneda = nuevaMoneda("USD");
+        persistir(moneda);
 
         assertThrows(NullPointerException.class,
-                () -> cuentaService.modificarMoneda(null, datos.usuario().getId(), usd));
+                () -> cuentaService.modificarMoneda(null, datos.usuario().getId(), moneda));
     }
 
     @Test
     void deberiaRechazarModificarMonedaConUsuarioNulo() {
         Datos datos = persistirCuenta("moneda-usuario-nulo");
-        Moneda usd = nuevaMonedaUsd();
+        Moneda moneda = nuevaMoneda("USD");
+        persistir(moneda);
 
         assertThrows(NullPointerException.class,
-                () -> cuentaService.modificarMoneda(datos.cuenta().getId(), null, usd));
+                () -> cuentaService.modificarMoneda(datos.cuenta().getId(), null, moneda));
     }
 
     @Test
@@ -297,7 +305,8 @@ class CuentaServiceCoberturaTest {
         Datos datos = persistirCuenta("moneda-nula");
 
         assertThrows(NullPointerException.class,
-                () -> cuentaService.modificarMoneda(datos.cuenta().getId(), datos.usuario().getId(), null));
+                () -> cuentaService.modificarMoneda(
+                        datos.cuenta().getId(), datos.usuario().getId(), null));
     }
 
     @Test
@@ -349,105 +358,110 @@ class CuentaServiceCoberturaTest {
     }
 
     @Test
-    void deberiaRechazarOperacionesDeUsuarioNoPropietario() {
-        Datos datos = persistirCuenta("propietario");
-        Usuario otroUsuario = persistirUsuario("otro-usuario");
-        Long cuentaId = datos.cuenta().getId();
-        Long otroUsuarioId = otroUsuario.getId();
-        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Otro", TipoInstitucionFinanciera.BANCO);
-        persistir(institucion);
-        Moneda usd = nuevaMonedaUsd();
+    void deberiaRechazarOperacionesDeOtraCuenta() {
+        Datos propietario = persistirCuenta("propietario");
+        Datos otro = persistirCuenta("otro");
 
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.buscarPorId(cuentaId, otroUsuarioId));
+                () -> cuentaService.buscarPorId(propietario.cuenta().getId(), otro.usuario().getId()));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.modificarNombre(cuentaId, otroUsuarioId, "No permitido"));
+                () -> cuentaService.modificarNombre(propietario.cuenta().getId(), otro.usuario().getId(), "Nuevo"));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.modificarIdentificadorExterno(cuentaId, otroUsuarioId, "CBU"));
+                () -> cuentaService.modificarIdentificadorExterno(
+                        propietario.cuenta().getId(), otro.usuario().getId(), "CBU"));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.modificarTipoCuenta(cuentaId, otroUsuarioId, TipoCuenta.CUENTA_CORRIENTE));
+                () -> cuentaService.modificarTipoCuenta(
+                        propietario.cuenta().getId(), otro.usuario().getId(), TipoCuenta.CUENTA_CORRIENTE));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.modificarInstitucionFinanciera(cuentaId, otroUsuarioId, institucion));
+                () -> cuentaService.modificarInstitucionFinanciera(
+                        propietario.cuenta().getId(), otro.usuario().getId(), propietario.cuenta().getInstitucionFinanciera()));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.modificarMoneda(cuentaId, otroUsuarioId, usd));
+                () -> cuentaService.modificarMoneda(
+                        propietario.cuenta().getId(), otro.usuario().getId(), propietario.cuenta().getMoneda()));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.activar(cuentaId, otroUsuarioId));
+                () -> cuentaService.activar(propietario.cuenta().getId(), otro.usuario().getId()));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.desactivar(cuentaId, otroUsuarioId));
+                () -> cuentaService.desactivar(propietario.cuenta().getId(), otro.usuario().getId()));
         assertThrows(IllegalArgumentException.class,
-                () -> cuentaService.eliminar(cuentaId, otroUsuarioId));
+                () -> cuentaService.eliminar(propietario.cuenta().getId(), otro.usuario().getId()));
     }
 
     @Test
     void deberiaRechazarOperacionesSobreCuentaInexistente() {
-        Datos datos = persistirBase("cuenta-inexistente");
-        Long usuarioId = datos.usuario().getId();
-        Long cuentaId = 999999L;
-        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Nuevo", TipoInstitucionFinanciera.BANCO);
-        persistir(institucion);
-        Moneda usd = nuevaMonedaUsd();
+        Datos datos = persistirBase("inexistente");
+        Long cuentaId = 999L;
 
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.buscarPorId(cuentaId, usuarioId));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.modificarNombre(cuentaId, usuarioId, "Nuevo"));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.modificarIdentificadorExterno(cuentaId, usuarioId, "CBU"));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.modificarTipoCuenta(cuentaId, usuarioId, TipoCuenta.CUENTA_CORRIENTE));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.modificarInstitucionFinanciera(cuentaId, usuarioId, institucion));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.modificarMoneda(cuentaId, usuarioId, usd));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.activar(cuentaId, usuarioId));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.desactivar(cuentaId, usuarioId));
-        assertThrows(IllegalArgumentException.class, () -> cuentaService.eliminar(cuentaId, usuarioId));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.buscarPorId(cuentaId, datos.usuario().getId()));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.modificarNombre(cuentaId, datos.usuario().getId(), "Nuevo"));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.modificarIdentificadorExterno(cuentaId, datos.usuario().getId(), "CBU"));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.modificarTipoCuenta(cuentaId, datos.usuario().getId(), TipoCuenta.CUENTA_CORRIENTE));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.modificarInstitucionFinanciera(
+                        cuentaId, datos.usuario().getId(), datos.institucion()));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.modificarMoneda(cuentaId, datos.usuario().getId(), datos.moneda()));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.activar(cuentaId, datos.usuario().getId()));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.desactivar(cuentaId, datos.usuario().getId()));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.eliminar(cuentaId, datos.usuario().getId()));
     }
 
-    private Datos persistirCuenta(String identificador) {
-        Datos base = persistirBase(identificador);
-        Cuenta cuenta = nuevaCuenta(base, "Cuenta test");
+    private Datos persistirCuenta(String email) {
+        Datos datos = persistirBase(email);
+        Cuenta cuenta = nuevaCuenta(datos, "Cuenta test");
         persistir(cuenta);
-        return base.conCuenta(cuenta);
+        return new Datos(datos.usuario(), datos.perfil(), datos.institucion(), datos.moneda(), cuenta);
     }
 
-    private Datos persistirBase(String identificador) {
-        Usuario usuario = persistirUsuario(identificador);
-        PerfilFinanciero perfil = new PerfilFinanciero("Perfil test", usuario);
-        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
-        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+    private Datos persistirBase(String email) {
+        Usuario usuario = new Usuario("Ariel", "Test", email, "clave-segura");
+        persistir(usuario);
 
-        entityManager.getTransaction().begin();
-        entityManager.persist(perfil);
-        entityManager.persist(institucion);
-        entityManager.persist(moneda);
-        entityManager.getTransaction().commit();
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil test", usuario);
+        persistir(perfil);
+
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Test", TipoInstitucionFinanciera.BANCO);
+        persistir(institucion);
+
+        Moneda moneda = nuevaMoneda("ARS");
+        persistir(moneda);
 
         return new Datos(usuario, perfil, institucion, moneda, null);
-    }
-
-    private Usuario persistirUsuario(String identificador) {
-        Usuario usuario = new Usuario(
-                "Ariel", "Test", identificador + "@example.com", "clave-segura");
-        entityManager.getTransaction().begin();
-        entityManager.persist(usuario);
-        entityManager.getTransaction().commit();
-        return usuario;
     }
 
     private Cuenta nuevaCuenta(Datos datos, String nombre) {
         return new Cuenta(
                 nombre,
                 TipoCuenta.CAJA_AHORRO,
-                datos.perfil(),
+                datos.moneda(),
                 datos.institucion(),
-                datos.moneda());
+                datos.perfil());
     }
 
-    private Moneda nuevaMonedaUsd() {
-        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
-        persistir(usd);
-        return usd;
+    private Moneda nuevaMoneda(String codigo) {
+        return new Moneda(codigo, codigo.equals("ARS") ? "Peso argentino" : "Dólar estadounidense",
+                TipoMoneda.FIAT, 2);
     }
 
     private void persistir(Object entidad) {
-        entityManager.getTransaction().begin();
-        entityManager.persist(entidad);
-        entityManager.getTransaction().commit();
+        var transaction = entityManager.getTransaction();
+        transaction.begin();
+        try {
+            entityManager.persist(entidad);
+            transaction.commit();
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     private record Datos(
@@ -456,9 +470,5 @@ class CuentaServiceCoberturaTest {
             InstitucionFinanciera institucion,
             Moneda moneda,
             Cuenta cuenta) {
-
-        Datos conCuenta(Cuenta cuenta) {
-            return new Datos(usuario, perfil, institucion, moneda, cuenta);
-        }
     }
 }
