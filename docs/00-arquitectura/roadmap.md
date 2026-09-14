@@ -1,5 +1,9 @@
 # Roadmap del proyecto
 
+## Estado auditado — 14/09/2026
+
+La fuente de verdad es el código, los tests y los commits actuales. Este roadmap es documentación auxiliar y debe actualizarse cuando el código avance.
+
 ## Fase 1: Infraestructura
 
 Definir la estructura inicial del proyecto, la configuración de persistencia y las verificaciones básicas de conexión.
@@ -20,106 +24,108 @@ Persistir el modelo de dominio y establecer los mecanismos necesarios para consu
 
 ## Fase 4: Operaciones financieras
 
-Implementar `OperacionFinanciera` y su asociación con los movimientos resultantes. En el estado actual, los efectos monetarios se registran mediante `Movimiento`, que pertenece a una `Cuenta`. La operación puede agrupar hasta dos movimientos y constituye el contexto de negocio de esos movimientos.
-
-La evolución posterior incorporó movimientos específicos para posiciones de activos mediante `MovimientoActivo`, asociados a `OperacionFinanciera`. Este modelo ya forma parte del dominio implementado.
+Implementar `OperacionFinanciera` y su asociación con los movimientos resultantes. Los efectos monetarios se registran mediante `Movimiento`, que pertenece a una `Cuenta`. La evolución posterior incorporó `MovimientoActivo` para posiciones de activos.
 
 **Estado:** cerrada.
 
 ## Fase 5: Saldos y posiciones
 
-Implementar el cálculo de saldos de cuentas a partir de sus movimientos y el cálculo de posiciones de activos a partir de sus movimientos específicos.
+Implementar cálculo de saldos de cuentas y posiciones de activos.
 
-El dominio actual incluye `PosicionActivo`, que permite obtener cantidad, costo de adquisición y precio promedio de una posición, y `CarteraActivoService`, que consolida las posiciones de todos los activos de un perfil. También se incorporó `ValorizacionPosicionActivo` y la valorización de las posiciones de una cartera a partir de precios actuales.
+El dominio actual incluye posiciones, costo promedio, consolidación, valorización y aislamiento por perfil financiero.
 
-### Estado actual de la Fase 5
-
-- Cálculo de posición por activo: implementado.
-- Costo promedio de adquisición: implementado.
-- Consolidación de posiciones de cartera: implementado.
-- Valorización de una posición: implementado.
-- Valorización de la cartera: implementado.
-- Pruebas unitarias y de integración asociadas: implementadas.
-- Aislamiento de posición por perfil financiero: implementado.
-- Fase 5 funcional: **cerrada y validada**.
+**Estado:** cerrada y validada.
 
 ## Fase 6: Reportes
 
-Incorporar consultas y reportes de cartera, composición de activos, movimientos y evolución de saldos.
+Incorporar reportes de cartera, composición, movimientos y evolución histórica de saldos.
 
-La Fase 6 cuenta con reporte consolidado, composición detallada, reporte de movimientos de cartera y evolución histórica de saldos. `ReporteCarteraActivo` permite representar el costo total, valor actual total y ganancia o pérdida total de una cartera a partir de sus valorizaciones, y también expone el detalle de composición de cada posición según su participación porcentual sobre el valor actual total. `DetalleMovimientoCarteraActivo` representa cada movimiento de activo con sus datos relevantes e importe calculado. `CarteraActivoService` integra estas funcionalidades mediante la obtención del reporte, la composición y los movimientos del perfil.
+El estado actual incluye reporte consolidado, composición detallada, movimientos de cartera y evolución histórica de saldos.
 
-La evolución histórica de saldo se representa mediante `EvolucionSaldoCuenta` y se integra en `CuentaService.obtenerEvolucionSaldo(Long)`, generando puntos con el saldo acumulado después de cada movimiento en orden cronológico determinista.
-
-### Estado actual de la Fase 6
-
-- Reporte consolidado de cartera: implementado.
-- Integración del reporte en `CarteraActivoService`: implementada.
-- Pruebas del reporte consolidado: implementadas.
-- Pruebas de integración del reporte desde el servicio: implementadas.
-- Composición detallada de activos: implementada.
-- Integración de la composición en `CarteraActivoService`: implementada.
-- Pruebas de composición detallada: implementadas.
-- Integración del reporte de movimientos en `CarteraActivoService`: implementada.
-- Evolución histórica de saldos: implementada.
-- Suite histórica al cierre de Fase 6: **480/480 tests en verde**.
-- Fase 6: **cerrada, validada e integrada en `main` mediante fast-forward**.
+**Estado:** cerrada y validada.
 
 ## Fase 7: Seguridad
 
-Agregar autenticación, autorización y controles de acceso para proteger la información de cada usuario.
+Agregar autenticación, autorización y aislamiento de información por usuario/perfil.
 
-### Estado actual de la Fase 7
+La auditoría transversal de seguridad y aislamiento está implementada e integrada en `main`. Las operaciones financieras, cuentas, categorías, movimientos y posiciones cuentan con controles de propietario según corresponda.
 
-La auditoría transversal de seguridad y aislamiento de datos está **cerrada, validada e integrada en `main`**.
+**Estado:** cerrada.
 
-Se completaron:
+## Fase 8: Interfaz de usuario Swing
 
-- autorización de operaciones financieras;
-- autorización de operaciones mutables de cuentas, categorías y movimientos;
-- aislamiento de lecturas por ID y listados;
-- protección de altas de cuentas, categorías, movimientos y perfiles;
-- aislamiento de posiciones y cartera por perfil/usuario;
-- cierre de caminos internos que podían saltar validaciones públicas;
-- cobertura transversal mediante `AislamientoDatosServiceTest`.
+La Fase 8 **ya está en implementación**. La rama de trabajo `feature/swing-shell` contiene shell Swing y paneles funcionales integrados con servicios.
 
-Validación final local del 31/08/2026:
+Ya están integrados, entre otros:
 
-- `AislamientoDatosServiceTest`: **7/7**;
-- suite general: **512/512 tests en verde**;
-- Failures: 0;
-- Errors: 0;
-- Skipped: 0;
-- `BUILD SUCCESS`.
+- shell principal y navegación;
+- cuentas;
+- categorías;
+- ingresos;
+- gastos;
+- movimientos;
+- inversiones;
+- obligaciones;
+- pagos de tarjeta desde UI.
 
-La feature `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward hasta `75d0a18` y publicada en GitHub y Bitbucket.
-
-**Fase 7: cerrada.**
-
-## Fase 8: Interfaz de usuario
-
-Incorporar la interfaz Swing sobre el dominio y servicios ya consolidados.
+La separación UI → servicios → dominio/repositorios se mantiene.
 
 ### Estado actual de la Fase 8
 
-La implementación de Swing todavía no comenzó.
+- Shell Swing: implementado.
+- Navegación: implementada.
+- Integración con servicios: implementada.
+- Gastos e ingresos: implementados.
+- Obligaciones y pagos de tarjeta: implementados.
+- UI específica completa de tarjetas: pendiente.
 
-El primer bloque deberá partir de la estructura real existente en `src/main/java`, revisar las clases y servicios disponibles, y definir una arquitectura mínima de UI sin duplicar lógica de negocio.
+**Fase 8: activa.**
 
-Primer objetivo previsto: shell principal de Swing, navegación y área central para módulos, manteniendo la separación entre UI y servicios.
+## Bloque transversal actual: tarjetas de crédito
 
-**Fase 8: próxima etapa.**
+El modelo de tarjeta, obligaciones, cuotas simples, pagos coordinados, ciclos históricos, vencimientos de fin de semana, gracia, mora, autorización e integridad histórica están implementados y validados.
+
+La auditoría integral del 14/09/2026 detectó que la **multidivisa todavía no está cerrada**. Los problemas concretos son:
+
+- los cálculos de saldo pueden mezclar monedas;
+- la validación de fondos puede mezclar monedas;
+- un consumo en moneda distinta de la tarjeta no tiene una regla completa de impacto sobre el límite;
+- no existe todavía una regla explícita de liquidación/conversión para pagos entre monedas.
+
+No se deben agregar conversiones implícitas. Primero se debe definir moneda de liquidación, tasa, fecha/fuente de cotización y representación de saldos por moneda.
 
 ## Fase 9: Optimización
 
 Optimizar consultas, cálculo de saldos, rendimiento general y experiencia de uso a medida que aumente el volumen de información.
 
-## Estado del roadmap
+**Estado:** futura.
 
-Las Fases 1 a 7 están cerradas e integradas en `main` según su evolución documentada.
+## Próximos bloques identificados por la auditoría
 
-La validación global vigente es **512/512 tests en verde**.
+### P0/P1
 
-La etapa activa siguiente es **Fase 8 — Interfaz de usuario Swing**.
+1. Resolver multidivisa de tarjetas de forma coherente por moneda.
+2. Cubrirla con tests específicos y relacionados.
 
-Cualquier nueva sesión de trabajo debe reconstruir el estado desde el código, tests, commits y `main` antes de modificar código.
+### P2
+
+3. Robustecer validación de `Moneda.cantidadDecimales`.
+4. Definir política de eliminación de cuentas con historial.
+5. Evaluar `Clock` para determinismo temporal.
+6. Evaluar migraciones/versionado de esquema para una futura etapa no local.
+
+### P3
+
+7. Financiación avanzada.
+8. UI específica de tarjetas.
+9. Pasivos, patrimonio y análisis.
+10. Gestión de entidades financieras.
+11. Pulido de consola.
+
+## Validación global conocida
+
+La última suite informada por el usuario es **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 13/09/2026 22:05:14 -03:00.
+
+## Regla de continuidad
+
+Cualquier nueva sesión debe reconstruir el estado desde código, tests y commits de GitHub antes de modificar código. `docs/` no reemplaza esa verificación.
