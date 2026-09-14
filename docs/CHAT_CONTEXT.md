@@ -1,27 +1,25 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado actual — 13/09/2026
+## Estado actual — 14/09/2026
 
-La fuente de verdad es el código, los tests y Git. `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
+La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Último cambio funcional:** `e5fbe0f` — `fix: proteger integridad estructural de cuentas`.
-**Último commit de código/tests verificado:** `00beeb1` — `fix: evitar moneda duplicada en test de integridad`.
-**Último commit documental:** `a090d152` — cierre documental de auditoría de ciclos.
+**Último bloque funcional:** reglas temporales de ciclos y pagos de tarjeta.
+**Último commit funcional/test:** `3a001a57` — `test: adaptar persistencia de obligaciones a reglas temporales`.
+**Último bloque documental:** actualización integral de continuidad posterior a ese cierre.
 
 No se realizó merge a `main`.
 
 ## Validación más reciente
 
-Suite general informada por el usuario: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 46:17 min, finalizada 13/09/2026 19:00:15 -03:00.
+Suite general informada por el usuario: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 13/09/2026 22:05:14 -03:00.
 
-Suite relacionada de Cuenta: **154/154**, `BUILD SUCCESS`.
+`ObligacionJpaTest`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 13/09/2026 21:12:49 -03:00.
 
-Tests específicos `CuentaServiceIntegridadTest,CuentaServiceTest`: **66/66**, `BUILD SUCCESS`.
-
-Validaciones anteriores relevantes: `ObligacionServiceTest` **9/9**, suite de obligaciones/pagos/UI **69/69**, UI de pago **6/6**.
+Validaciones anteriores relevantes: integridad de `Cuenta` **66/66** específicos y **154/154** relacionados; `ObligacionServiceTest` **9/9**; suite de obligaciones/pagos/UI **69/69**; UI de pago **6/6**.
 
 ## Estado consolidado
 
@@ -31,59 +29,44 @@ La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligaci�
 
 `CuentaService` protege la integridad estructural: no permite cambiar tipo ni moneda cuando existen movimientos y la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`.
 
-## Auditoría temporal completada
+## Reglas temporales implementadas
 
-La auditoría del ciclo de facturación aplicado al pago quedó cerrada documentalmente.
+- ciclo histórico de la obligación persistido al crearla;
+- fechas de ciclo persistidas en cuotas;
+- vencimiento de sábado/domingo desplazado al lunes;
+- días de gracia configurables, por defecto 0;
+- mora evaluada sobre vencimiento efectivo más gracia;
+- pago anterior al consumo rechazado;
+- pago futuro rechazado;
+- pagos parciales aplicados en orden ascendente de cuotas;
+- estabilidad histórica frente a cambios posteriores de configuración cuando existen datos persistidos;
+- compatibilidad con obligaciones antiguas mediante campos nullable/fallback.
 
-### Existe actualmente
+No están implementados calendario de feriados, fecha efectiva separada del movimiento, intereses, punitorios, CFT ni refinanciación.
 
-- cálculo de ciclo por fecha de consumo y día de cierre;
-- ajuste de fechas al último día real del mes;
-- vencimiento posterior al cierre;
-- cruce de año;
-- fechas de ciclo/vencimiento persistidas en `Cuota`;
-- pagos parciales;
-- aplicación de pagos en orden ascendente de cuota;
-- movimiento real de salida al pagar;
-- coincidencia de moneda entre obligación y cuenta pagadora.
+## Integridad y persistencia
 
-### Falta actualmente
+El movimiento origen de una obligación está protegido frente a cambios estructurales que romperían la correspondencia histórica. Los tests verifican que los valores originales persisten cuando una modificación prohibida es rechazada.
 
-- validación de pago anterior al consumo;
-- clasificación en término/mora;
-- gracia;
-- fines de semana/feriados;
-- fecha efectiva separada;
-- rechazo de fechas futuras;
-- regla temporal para pagos parciales sobre cuotas vencidas;
-- protección histórica de cierre/vencimiento después de existir consumos;
-- estabilidad histórica de `Obligacion.getCicloFacturacion()` frente a cambios posteriores de configuración.
-
-Se detectó específicamente que las cuotas guardan sus fechas, pero `Obligacion.getCicloFacturacion()` recalcula desde la configuración actual de la tarjeta. También se verificó que `Cuenta.configurarDatosCredito(...)` es mutable y no tiene todavía una política histórica equivalente a la protección aplicada a tipo/moneda.
-
-No se modificó código durante la auditoría. No se inventaron reglas de mora, gracia ni días no hábiles. Intereses y financiación avanzada permanecen fuera de alcance.
+La adaptación de `ObligacionJpaTest` utiliza una cuenta de crédito real y refleja el vencimiento efectivo de fin de semana.
 
 ## Pendientes reales
 
 P1:
 
-1. Implementar las reglas temporales de pago una vez fijadas explícitamente.
-2. Definir multidivisa de tarjetas.
-3. Definir financiación avanzada.
+1. Multidivisa de tarjetas.
+2. Financiación avanzada.
+3. Evaluar abstracción de reloj (`Clock`) para hacer determinista la validación de fechas futuras.
 
 P2/P3:
 
 4. UI específica de tarjetas.
-5. Pasivos, patrimonio, histórico, vencimientos, resúmenes y dashboard.
+5. Pasivos, patrimonio y análisis.
 6. Gestión de entidades financieras.
 7. Pulido de consola.
 
-## Reglas
+## Protocolo
 
-No duplicar reglas de negocio en Swing. Mantener autorización en servicios. No inventar reglas multidivisa, mora, gracia o calendario. Cada bloque debe incluir tests y validación de persistencia cuando corresponda.
+Antes de cada bloque: reconstruir desde GitHub rama → últimos commits → comparación con `main` → documentación → implementación → clases relacionadas → tests → último resultado informado. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
 
-## Continuidad
-
-Reconstruir siempre desde GitHub antes de cambios: rama → commits → comparación con `main` → documentación → código → tests → último resultado → próximo paso.
-
-La documentación se actualiza sobre la rama activa. No modificar `main` y no asumir resultados locales no informados.
+La documentación de continuidad se actualiza sobre la rama activa. No modificar `main`, no asumir tests locales no informados y no considerar cerrada una funcionalidad solo porque compila.
