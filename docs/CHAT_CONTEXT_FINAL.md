@@ -1,6 +1,6 @@
 # SOFP — Contexto final de continuidad
 
-## Estado — 14/09/2026
+## Estado auditado — 14/09/2026
 
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
@@ -9,7 +9,7 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 **Último bloque funcional:** reglas temporales de ciclos y pagos de tarjeta.
 **Último commit funcional/test:** `3a001a57` — `test: adaptar persistencia de obligaciones a reglas temporales`.
-**Última actualización documental:** cierre integral de continuidad posterior al bloque temporal.
+**Último bloque documental:** auditoría integral del estado técnico, multidivisa, cobertura y roadmap.
 
 No se realizó merge a `main`.
 
@@ -27,6 +27,8 @@ El movimiento origen de una obligación está protegido frente a modificaciones 
 
 El pago de tarjeta está coordinado por `PagoTarjetaService`, exige autorización por usuario y está integrado en la UI.
 
+La auditoría integral confirmó que la arquitectura general no necesita rehacerse.
+
 ## Reglas temporales cerradas
 
 - ciclo histórico de la obligación persistido al crearla;
@@ -42,15 +44,40 @@ El pago de tarjeta está coordinado por `PagoTarjetaService`, exige autorizació
 
 No se implementaron feriados, fecha efectiva separada, intereses, punitorios, CFT ni refinanciación.
 
+## Hallazgo principal de auditoría: multidivisa
+
+El modelo conserva moneda explícita en los movimientos y obligaciones y evita conversiones implícitas, pero la multidivisa todavía no está cerrada.
+
+Problemas confirmados:
+
+1. Los cálculos de saldo de cuenta mezclan importes de monedas diferentes.
+2. La validación de fondos utiliza ese saldo mezclado.
+3. Un consumo de tarjeta en moneda distinta de la tarjeta no tiene una regla completa de impacto sobre el límite.
+4. El pago coordinado exige misma moneda y no existe todavía liquidación/conversión trazable.
+
+Antes de implementar conversiones deben definirse moneda de liquidación, tasa, fecha/fuente de cotización y representación de saldos por moneda.
+
+## Hallazgos secundarios
+
+- `Moneda.cantidadDecimales` necesita una regla de rango explícita.
+- La eliminación de cuentas con historial financiero necesita una política de dominio explícita.
+- `PagoTarjetaService` puede beneficiarse de `Clock` para tests deterministas.
+- `hibernate.hbm2ddl.auto=update` debe reemplazarse por migraciones/versionado si el proyecto pasa a una etapa de distribución/producción.
+
 ## Pendientes
 
-1. Multidivisa de tarjetas.
-2. Financiación avanzada.
-3. Evaluar abstracción `Clock` para tests deterministas de fecha futura.
-4. UI específica de tarjetas.
-5. Pasivos, patrimonio y análisis.
-6. Gestión de entidades financieras.
-7. Pulido de consola.
+1. Multidivisa de tarjetas: saldos, fondos, crédito y liquidación por moneda.
+2. Tests específicos de multidivisa.
+3. Robustez de `Moneda`, eliminación histórica y `Clock`.
+4. Financiación avanzada.
+5. UI específica de tarjetas.
+6. Pasivos, patrimonio y análisis.
+7. Gestión de entidades financieras.
+8. Pulido de consola.
+
+## Documentación
+
+La auditoría también detectó y corrigió el roadmap, que todavía decía que Swing no había comenzado y conservaba 512/512 como validación global vigente. El estado actual documentado ya refleja la implementación real de Swing y la validación conocida 704/704.
 
 ## Orden de continuidad
 
