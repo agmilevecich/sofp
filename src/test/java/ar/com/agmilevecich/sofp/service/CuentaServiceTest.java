@@ -305,6 +305,7 @@ class CuentaServiceTest {
 
         cuentaService.modificarNombre(
                 datos.cuenta().getId(),
+                datos.usuario().getId(),
                 "Nuevo nombre"
         );
 
