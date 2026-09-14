@@ -101,8 +101,26 @@ Cuando un gasto con `TARJETA_CREDITO` se registra con una cantidad de cuotas, `G
 ## D-033 — H2 de la aplicación por TCP y tests aislados
 La aplicación utiliza H2 mediante servidor TCP con `jdbc:h2:tcp://localhost/./database/sofp`, permitiendo compartir la base persistente entre SOFP y H2 Console. Los tests conservan un `persistence.xml` separado con H2 en memoria y no dependen del servidor TCP.
 
-## Actualización — 11/09/2026
+## D-034 — Integridad estructural histórica de Cuenta
+Una cuenta con movimientos no puede cambiar de tipo ni de moneda. La API genérica tampoco permite transiciones hacia o desde `TARJETA_CREDITO`. La regla protege la coherencia histórica y se implementa en la capa de servicio.
 
-El bloque H2 TCP quedó implementado y validado manualmente. La suite general posterior ejecutada por el usuario fue **687/687**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+## D-035 — Ciclo histórico de una obligación
+Al crear una obligación se congelan sus datos históricos de ciclo: inicio, cierre, vencimiento y días de gracia. Las cuotas persisten sus propias fechas. Si esos campos históricos no existen en registros antiguos, se utiliza fallback compatible.
 
-El próximo bloque funcional es la selección explícita de tarjeta de crédito en `GastosPanel`.
+## D-036 — Vencimiento de fin de semana
+Si el vencimiento configurado cae sábado o domingo, el vencimiento efectivo se desplaza al lunes. Esta regla no incluye feriados hasta que exista una decisión explícita de negocio.
+
+## D-037 — Límites temporales de pago
+Un pago de tarjeta no puede tener fecha/hora anterior al consumo que origina la obligación ni posterior al momento actual. La validación se realiza en `PagoTarjetaService`.
+
+## D-038 — Gracia y mora
+Los días de gracia pertenecen a la configuración de crédito y por defecto son 0. La mora se evalúa sobre el vencimiento efectivo más la gracia. No se calculan intereses ni punitorios en este bloque.
+
+## D-039 — Compatibilidad con datos existentes
+Los nuevos campos temporales se mantienen nullable cuando es necesario para no romper datos existentes. Los valores históricos ausentes utilizan fallback; `diasGracia` nulo se interpreta como 0.
+
+## Actualización — 14/09/2026
+
+El bloque temporal de ciclos y pagos quedó implementado y validado. La adaptación de `ObligacionJpaTest` quedó en `3a001a57c435237e62ab04f6c09a0657ff24fcb2`. La suite completa posterior informada por el usuario fue **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+El próximo bloque requiere definición explícita de multidivisa de tarjetas y financiación avanzada. Calendario de feriados, fecha efectiva separada y recargos financieros permanecen fuera de alcance.
