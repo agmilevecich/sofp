@@ -440,14 +440,16 @@ class CuentaServiceCoberturaTest {
         return new Cuenta(
                 nombre,
                 TipoCuenta.CAJA_AHORRO,
-                datos.moneda(),
+                datos.perfil(),
                 datos.institucion(),
-                datos.perfil());
+                datos.moneda());
     }
 
     private Moneda nuevaMoneda(String codigo) {
-        return new Moneda(codigo, codigo.equals("ARS") ? "Peso argentino" : "Dólar estadounidense",
-                TipoMoneda.FIAT, 2);
+        return new Moneda(codigo,
+                codigo.equals("ARS") ? "Peso argentino" : "Dólar estadounidense",
+                2,
+                TipoMoneda.FIAT);
     }
 
     private void persistir(Object entidad) {
