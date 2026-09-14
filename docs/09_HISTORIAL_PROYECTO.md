@@ -40,6 +40,7 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 32. **Auditoría completa del ciclo de facturación aplicado al pago.**
 33. **Implementación de reglas temporales de ciclos y pagos.**
 34. **Validación de persistencia de obligaciones y suite completa tras adaptar tests a vencimientos de fin de semana.**
+35. **Auditoría integral del estado técnico, multidivisa, cobertura de tests y coherencia documental.**
 
 ## Bloque temporal — cierre 14/09/2026
 
@@ -66,6 +67,22 @@ Se implementó y validó el bloque temporal identificado en la auditoría anteri
 
 La adaptación quedó en el commit `3a001a57c435237e62ab04f6c09a0657ff24fcb2`.
 
+## Auditoría integral — 14/09/2026
+
+La auditoría integral confirmó que el núcleo arquitectónico no requiere rehacerse y que la principal brecha funcional es la multidivisa.
+
+Se detectaron tres problemas concretos:
+
+- los cálculos de saldo de cuenta pueden mezclar importes de monedas distintas;
+- la validación de fondos utiliza ese saldo mezclado;
+- un consumo de tarjeta en moneda distinta de la moneda de la tarjeta no tiene una regla completa de impacto sobre el límite ni existe una liquidación/conversión explícita.
+
+La conclusión es que la multidivisa debe comenzar por separar saldos, fondos y crédito por moneda. No deben introducirse conversiones implícitas sin definir moneda de liquidación, tasa, fecha/fuente de cotización y trazabilidad.
+
+También se registraron como robustez futura la validación del rango de decimales de `Moneda`, la política de eliminación de cuentas con historial, una abstracción `Clock` y migraciones/versionado formal del esquema.
+
+La auditoría quedó documentada en `docs/11_AUDITORIA_INTEGRAL.md` y el roadmap fue sincronizado con el estado real de Swing y la validación actual.
+
 ## Estado de validación conocido
 
 `mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 13/09/2026 21:12:49 -03:00.
@@ -76,14 +93,15 @@ Validaciones previas relevantes: integridad de `Cuenta` **66/66** específicos y
 
 ## Pendientes actuales
 
-1. Multidivisa de tarjetas.
-2. Financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
-3. Refinamiento mediante `Clock` para hacer determinista la validación de fechas futuras en tests futuros.
-4. UI específica de tarjetas.
-5. Pasivos, patrimonio y análisis.
-6. Gestión de entidades financieras.
-7. Pulido de consola.
-8. Calendario de feriados y fecha efectiva separada, solo si se definen como reglas de negocio.
+1. Multidivisa de tarjetas: saldos, fondos, crédito y liquidación por moneda.
+2. Tests específicos de multidivisa.
+3. Validación de `Moneda.cantidadDecimales`, política de eliminación histórica y `Clock`.
+4. Financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
+5. UI específica de tarjetas.
+6. Pasivos, patrimonio y análisis.
+7. Gestión de entidades financieras.
+8. Pulido de consola.
+9. Calendario de feriados y fecha efectiva separada, solo si se definen como reglas de negocio.
 
 ## Continuidad Git
 
