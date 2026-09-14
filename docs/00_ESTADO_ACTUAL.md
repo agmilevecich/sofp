@@ -5,10 +5,10 @@
 ## Estado verificado — 14/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `05b2a0d1036d849a4b307e925dc2ea53c3261d89`.
+**Rama de trabajo:** `feature/swing-shell` → HEAD actual de GitHub.
 
-**Último commit documental:** `05b2a0d1036d849a4b307e925dc2ea53c3261d89` — `docs: fijar estado final de continuidad`.
 **Último commit funcional/test:** `3a001a57c435237e62ab04f6c09a0657ff24fcb2` — `test: adaptar persistencia de obligaciones a reglas temporales`.
+**Después de ese commit funcional se realizaron únicamente actualizaciones documentales de continuidad.**
 
 ## Último bloque cerrado
 
@@ -54,4 +54,4 @@ No están implementados calendario de feriados, fecha efectiva separada de la fe
 
 Ante una nueva sesión: rama → últimos commits → comparación con `main` → README/docs → código → tests → último resultado conocido → próximo paso.
 
-No modificar `main` automáticamente. No asumir resultados locales no informados. El estado de la rama de trabajo en GitHub debe coincidir con el commit documental indicado arriba antes de iniciar un nuevo bloque.
+No modificar `main` automáticamente. No asumir resultados locales no informados. Antes de iniciar un nuevo bloque, consultar el HEAD real de la rama de trabajo en GitHub.
