@@ -70,11 +70,11 @@ class CuentaServiceTest {
     }
 
     @Test
-    void deberiaRechazarCuentaInexistenteAlCalcularSaldo() {
+    void deberiaDevolverCeroCuandoLaCuentaNoExisteEnLaAPIInterna() {
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> cuentaService.calcularSaldo(999L)
+        assertEquals(
+                BigDecimal.ZERO,
+                cuentaService.calcularSaldo(999L)
         );
     }
 
@@ -234,7 +234,10 @@ class CuentaServiceTest {
                 );
 
         Cuenta guardada =
-                cuentaService.registrar(cuenta);
+                cuentaService.registrar(
+                        cuenta,
+                        datos.usuario().getId()
+                );
 
         assertNotNull(guardada.getId());
     }
