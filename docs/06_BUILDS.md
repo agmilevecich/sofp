@@ -1,61 +1,29 @@
 # SOFP — Historial de Builds
 
-## Estado documental — 13/09/2026
+## Estado documental — 14/09/2026
 
-**Etapa de integridad estructural de Cuenta: VALIDADA.**
-**Auditoría de ciclo de facturación aplicado al pago: COMPLETADA, sin cambios de código.**
+**Etapa temporal de ciclos y pagos: IMPLEMENTADA Y VALIDADA.**
 
-## Última validación ejecutada por el usuario
+### Validación final
 
-### Tests específicos de integridad
+El usuario ejecutó `mvn test`: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 22:05:14 -03:00.
 
-`mvn -Dtest=CuentaServiceIntegridadTest,CuentaServiceTest test`: **66/66**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 17:31:57 -03:00.
+### Validación de persistencia tras adaptación temporal
 
-### Suite relacionada
+`mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 21:12:49 -03:00.
 
-`CuentaServiceTest,CuentaTest,MovimientoServiceTest,OperacionFinancieraServiceTest,CuentaServiceIntegridadTest`: **154/154**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 17:58:12 -03:00.
+## Bloque temporal cerrado
 
-### Suite completa
+Se implementaron y probaron: ciclo histórico persistido en `Obligacion`, fechas persistidas en `Cuota`, vencimiento ajustado para sábado/domingo, días de gracia, evaluación de mora, rechazo de pagos anteriores al consumo y futuros, estabilidad histórica ante cambios de configuración y compatibilidad con datos existentes.
 
-`mvn test`: **700/700**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 19:00:15 -03:00.
+La adaptación de `ObligacionJpaTest` usa una cuenta de crédito real en el fixture y refleja el vencimiento efectivo del fin de semana. El cambio quedó en `3a001a57c435237e62ab04f6c09a0657ff24fcb2`.
 
-## Integridad de `Cuenta` — cierre
+## Integridad de Cuenta — cierre previo
 
-La implementación protege:
+Se protege cambio de tipo/moneda con movimientos y transiciones hacia/desde `TARJETA_CREDITO`.
 
-1. cambio de tipo cuando existen movimientos financieros;
-2. cambio de moneda cuando existen movimientos financieros;
-3. transiciones genéricas hacia/desde `TARJETA_CREDITO` mediante `modificarTipoCuenta`;
-4. autorización por propietario en las operaciones públicas.
+## Próximo bloque
 
-No se impuso igualdad universal entre moneda de cuenta y moneda de movimiento.
-
-## Auditoría de ciclo y pago — cierre documental
-
-La revisión del código actual confirmó que el dominio ya calcula ciclos básicos y persiste las fechas de las cuotas, pero `PagoTarjetaService` todavía no aplica reglas temporales al registrar un pago.
-
-Se verificó específicamente:
-
-- cálculo de ciclo antes/después del cierre;
-- ajuste de cierre y vencimiento a meses de distinta duración;
-- cruce de año;
-- condición estructural `inicio <= cierre < vencimiento`;
-- persistencia de fechas en `Cuota`;
-- orden ascendente de aplicación de pagos;
-- pagos parciales;
-- ausencia de validación de pago antes del consumo;
-- ausencia de clasificación en término/mora;
-- ausencia de gracia;
-- ausencia de calendario de fines de semana/feriados;
-- ausencia de fecha efectiva separada;
-- aceptación actual de fechas futuras;
-- diferencia entre fechas persistidas de `Cuota` y recálculo dinámico de `Obligacion.getCicloFacturacion()`;
-- mutabilidad actual de `configurarDatosCredito(...)` sin regla histórica específica.
-
-No se agregó código porque las reglas temporales faltantes son decisiones de negocio y no deben inferirse.
-
-## Próximo bloque funcional
-
-Convertir la auditoría en reglas explícitas y tests de dominio/servicio. Antes de implementar mora o gracia deberá existir una política definida para fecha de pago, vencimiento, días no hábiles y efecto sobre cuotas.
+Definir antes de implementar: multidivisa de tarjetas y financiación avanzada. Quedan fuera del bloque temporal actual calendario de feriados, fecha efectiva independiente y recargos financieros.
 
 No se modificó `main`.
