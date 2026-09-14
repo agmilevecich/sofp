@@ -4,11 +4,11 @@
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` y obtuvo **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 13/09/2026 22:05:14 -03:00.
+El usuario ejecutó `mvn test` y obtuvo **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 13/09/2026 a las 22:05:14 -03:00.
 
 ### Persistencia de obligaciones
 
-`mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 13/09/2026 21:12:49 -03:00.
+`mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 13/09/2026 a las 21:12:49 -03:00.
 
 ## Cobertura temporal incorporada
 
@@ -22,7 +22,8 @@ La suite completa de 704 tests confirma que la adaptación de persistencia no ro
 - `ObligacionServiceTest`: **9/9**.
 - UI de pago de tarjeta: **6/6**.
 - Integridad de Cuenta: **66/66** específicos y **154/154** relacionados.
+- Suite completa anterior a la implementación temporal: **700/700**.
 
 ## Criterio de cierre
 
-El bloque temporal queda validado por tests específicos y suite completa. Antes de futuros cambios se debe repetir el flujo de validación correspondiente y no asumir resultados locales.
+El bloque temporal queda validado por tests específicos y suite completa. El resultado 704/704 fue informado por el usuario y es el último resultado conocido; no se debe asumir un nuevo resultado local hasta que el usuario lo ejecute e informe.
