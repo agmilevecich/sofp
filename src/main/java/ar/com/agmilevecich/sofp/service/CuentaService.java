@@ -95,9 +95,9 @@ public class CuentaService {
     public BigDecimal calcularSaldo(Long cuentaId, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
-        obtenerCuentaAutorizada(cuentaId, usuarioId);
+        Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
 
-        return calcularSaldoInterno(cuentaId);
+        return calcularSaldoInterno(cuentaId, cuenta.getMoneda());
     }
 
     public BigDecimal calcularCreditoDisponible(Long cuentaId, Long usuarioId) {
@@ -120,9 +120,9 @@ public class CuentaService {
     public List<EvolucionSaldoCuenta> obtenerEvolucionSaldo(Long cuentaId, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
-        obtenerCuentaAutorizada(cuentaId, usuarioId);
+        Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
 
-        return obtenerEvolucionSaldoInterno(cuentaId);
+        return obtenerEvolucionSaldoInterno(cuentaId, cuenta.getMoneda());
     }
 
     /* API interna de compatibilidad para tests y coordinación interna del paquete. */
@@ -147,18 +147,23 @@ public class CuentaService {
 
     BigDecimal calcularSaldo(Long cuentaId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
-        return calcularSaldoInterno(cuentaId);
+        Cuenta cuenta = obtenerCuenta(cuentaId);
+        return calcularSaldoInterno(cuentaId, cuenta.getMoneda());
     }
 
     List<EvolucionSaldoCuenta> obtenerEvolucionSaldo(Long cuentaId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
-        return obtenerEvolucionSaldoInterno(cuentaId);
+        Cuenta cuenta = obtenerCuenta(cuentaId);
+        return obtenerEvolucionSaldoInterno(cuentaId, cuenta.getMoneda());
     }
 
-    private BigDecimal calcularSaldoInterno(Long cuentaId) {
+    private BigDecimal calcularSaldoInterno(Long cuentaId, Moneda moneda) {
         List<Movimiento> movimientos = movimientoRepository.listarPorCuenta(cuentaId);
         BigDecimal saldo = BigDecimal.ZERO;
         for (Movimiento movimiento : movimientos) {
+            if (!Objects.equals(movimiento.getMoneda(), moneda)) {
+                continue;
+            }
             if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
             } else if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
@@ -169,10 +174,13 @@ public class CuentaService {
         return saldo;
     }
 
-    private List<EvolucionSaldoCuenta> obtenerEvolucionSaldoInterno(Long cuentaId) {
+    private List<EvolucionSaldoCuenta> obtenerEvolucionSaldoInterno(Long cuentaId, Moneda moneda) {
         List<EvolucionSaldoCuenta> evolucion = new ArrayList<>();
         BigDecimal saldo = BigDecimal.ZERO;
         for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
+            if (!Objects.equals(movimiento.getMoneda(), moneda)) {
+                continue;
+            }
             if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
             } else if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
