@@ -63,7 +63,7 @@ public class MovimientoService {
         validarPerfilFinanciero(cuenta, categoria);
         if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
         Objects.requireNonNull(moneda, "La moneda es obligatoria");
-        validarSaldoDisponible(cuenta, tipoMovimiento, importe, formaPago, null);
+        validarSaldoDisponible(cuenta, moneda, tipoMovimiento, importe, formaPago, null);
         validarCreditoDisponible(cuenta, moneda, tipoMovimiento, importe, formaPago, null);
         return guardar(new Movimiento(cuenta, categoria, moneda, tipoMovimiento, importe, fechaHora, descripcion, formaPago));
     }
@@ -142,7 +142,7 @@ public class MovimientoService {
         Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
         validarMovimientoSinObligacion(movimiento);
-        validarSaldoDisponible(movimiento.getCuenta(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
+        validarSaldoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.modificarTipoMovimiento(tipoMovimiento));
     }
@@ -152,7 +152,7 @@ public class MovimientoService {
         Objects.requireNonNull(importe, "El importe es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
         validarMovimientoSinObligacion(movimiento);
-        validarSaldoDisponible(movimiento.getCuenta(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
+        validarSaldoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.cambiarImporte(importe));
     }
@@ -222,13 +222,13 @@ public class MovimientoService {
         }
     }
 
-    private void validarSaldoDisponible(Cuenta cuenta, TipoMovimiento tipoMovimiento,
+    private void validarSaldoDisponible(Cuenta cuenta, Moneda moneda, TipoMovimiento tipoMovimiento,
                                         BigDecimal importe, FormaPago formaPago,
                                         Movimiento movimientoActual) {
         if (tipoMovimiento != TipoMovimiento.EGRESO || formaPago == FormaPago.TARJETA_CREDITO) return;
 
-        BigDecimal saldoDisponible = calcularSaldo(cuenta.getId());
-        if (movimientoActual != null) {
+        BigDecimal saldoDisponible = calcularSaldo(cuenta.getId(), moneda);
+        if (movimientoActual != null && Objects.equals(movimientoActual.getMoneda(), moneda)) {
             if (movimientoActual.getTipoMovimiento() == TipoMovimiento.INGRESO) {
                 saldoDisponible = saldoDisponible.subtract(movimientoActual.getImporte());
             } else if (movimientoActual.getTipoMovimiento() == TipoMovimiento.EGRESO
@@ -271,9 +271,12 @@ public class MovimientoService {
         return obligacionRepository.sumarSaldoPendientePorCuentaYMoneda(cuenta.getId(), moneda);
     }
 
-    private BigDecimal calcularSaldo(Long cuentaId) {
+    private BigDecimal calcularSaldo(Long cuentaId, Moneda moneda) {
         BigDecimal saldo = BigDecimal.ZERO;
         for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
+            if (!Objects.equals(movimiento.getMoneda(), moneda)) {
+                continue;
+            }
             if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
             } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
