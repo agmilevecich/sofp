@@ -5,10 +5,10 @@
 ## Estado verificado — 14/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `665d0a40fab85bcfd361b9311651804e3911998c`.
+**Rama de trabajo:** `feature/swing-shell` → `e76d71d31586006da99dad3b086f04f7dd1fb747`.
 
-**Último commit:** `665d0a40fab85bcfd361b9311651804e3911998c` — `docs: cerrar etapa temporal de ciclos y pagos`.
-**Commit funcional/test inmediatamente anterior:** `3a001a57c435237e62ab04f6c09a0657ff24fcb2` — `test: adaptar persistencia de obligaciones a reglas temporales`.
+**Último commit documental:** `e76d71d31586006da99dad3b086f04f7dd1fb747` — `docs: actualizar contexto final`.
+**Último commit funcional/test:** `3a001a57c435237e62ab04f6c09a0657ff24fcb2` — `test: adaptar persistencia de obligaciones a reglas temporales`.
 
 ## Último bloque cerrado
 
