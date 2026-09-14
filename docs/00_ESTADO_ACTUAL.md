@@ -5,9 +5,9 @@
 ## Estado verificado — 14/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `e76d71d31586006da99dad3b086f04f7dd1fb747`.
+**Rama de trabajo:** `feature/swing-shell` → `05b2a0d1036d849a4b307e925dc2ea53c3261d89`.
 
-**Último commit documental:** `e76d71d31586006da99dad3b086f04f7dd1fb747` — `docs: actualizar contexto final`.
+**Último commit documental:** `05b2a0d1036d849a4b307e925dc2ea53c3261d89` — `docs: fijar estado final de continuidad`.
 **Último commit funcional/test:** `3a001a57c435237e62ab04f6c09a0657ff24fcb2` — `test: adaptar persistencia de obligaciones a reglas temporales`.
 
 ## Último bloque cerrado
