@@ -5,15 +5,16 @@
 ## Estado verificado — 14/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `3a001a57c435237e62ab04f6c09a0657ff24fcb2`.
+**Rama de trabajo:** `feature/swing-shell` → `665d0a40fab85bcfd361b9311651804e3911998c`.
 
-**Último commit:** `3a001a57c435237e62ab04f6c09a0657ff24fcb2` — `test: adaptar persistencia de obligaciones a reglas temporales`.
+**Último commit:** `665d0a40fab85bcfd361b9311651804e3911998c` — `docs: cerrar etapa temporal de ciclos y pagos`.
+**Commit funcional/test inmediatamente anterior:** `3a001a57c435237e62ab04f6c09a0657ff24fcb2` — `test: adaptar persistencia de obligaciones a reglas temporales`.
 
 ## Último bloque cerrado
 
 ### Reglas temporales de ciclos y pagos de tarjeta
 
-Quedó implementado y validado el primer bloque temporal: el ciclo histórico de una obligación queda persistido al crearla; las cuotas conservan sus fechas; el vencimiento se ajusta si cae sábado o domingo; la tarjeta admite días de gracia; la mora se evalúa sobre vencimiento efectivo más gracia; los pagos anteriores al consumo y futuros son rechazados; se mantiene el pago parcial y en orden de cuotas. Los nuevos campos son compatibles con datos existentes mediante valores nulos/fallback.
+Quedó implementado y validado el bloque temporal: el ciclo histórico de una obligación queda persistido al crearla; las cuotas conservan sus fechas; el vencimiento se ajusta si cae sábado o domingo; la tarjeta admite días de gracia; la mora se evalúa sobre vencimiento efectivo más gracia; los pagos anteriores al consumo y futuros son rechazados; se mantiene el pago parcial y en orden de cuotas. Los nuevos campos son compatibles con datos existentes mediante valores nulos/fallback.
 
 La configuración histórica de cada obligación ya no depende de recalcular el ciclo desde la tarjeta actual cuando los datos históricos están presentes.
 
@@ -25,15 +26,15 @@ Se protege la integridad histórica: una cuenta con movimientos no puede cambiar
 
 El usuario ejecutó `mvn test`: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado el 13/09/2026 a las 22:05:14 -03:00.
 
-También se verificó `ObligacionJpaTest`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+También se verificó `mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado el 13/09/2026 a las 21:12:49 -03:00.
 
 ## Pendientes reales
 
 ### P1
 
-- Multidivisa de tarjetas.
+- Multidivisa de tarjetas; no introducir conversiones implícitas.
 - Financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
-- Refinamiento de la fuente temporal (`Clock`) para evitar depender directamente de `LocalDateTime.now()` nos tests futuros.
+- Refinamiento de la fuente temporal (`Clock`) para evitar depender directamente de `LocalDateTime.now()` en tests futuros.
 
 ### P2
 
@@ -53,4 +54,4 @@ No están implementados calendario de feriados, fecha efectiva separada de la fe
 
 Ante una nueva sesión: rama → últimos commits → comparación con `main` → README/docs → código → tests → último resultado conocido → próximo paso.
 
-No modificar `main` automáticamente. No asumir resultados locales no informados.
+No modificar `main` automáticamente. No asumir resultados locales no informados. El estado de la rama de trabajo en GitHub debe coincidir con el commit documental indicado arriba antes de iniciar un nuevo bloque.
