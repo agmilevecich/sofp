@@ -1,10 +1,10 @@
 # SOFP — Diseño y adaptación de tarjetas de crédito
 
-## Estado — 12/09/2026
+## Estado — 14/09/2026
 
 **Rama:** `feature/swing-shell`
 
-Este documento separa explícitamente lo implementado de lo pendiente.
+Este documento separa explícitamente lo implementado de lo pendiente. La fuente de verdad es el código y los tests actuales.
 
 ## 1. Modelo
 
@@ -30,19 +30,17 @@ Las compras con tarjeta no reducen el saldo monetario de la cuenta como si fuera
 
 Los pagos reducen la obligación y liberan crédito.
 
-## 4. Ciclo de facturación — IMPLEMENTADO PARA CONSUMOS Y CUOTAS
+## 4. Ciclo de facturación — IMPLEMENTADO Y CON HISTORIAL PERSISTENTE
 
 `CicloFacturacion` es un objeto de dominio no persistente.
 
-`Cuenta.calcularCicloFacturacion(LocalDate)` resuelve cierre exacto, ciclo siguiente, meses cortos, vencimiento y cambio de año.
+`Cuenta.calcularCicloFacturacion(LocalDate)` resuelve cierre exacto, ciclo siguiente, meses cortos, vencimiento y cambio de año. El vencimiento efectivo se desplaza al lunes cuando cae sábado o domingo.
 
-`Obligacion.getCicloFacturacion()` deriva el ciclo desde cuenta + fecha del movimiento de origen.
+Al crear una `Obligacion`, se persisten los datos históricos del ciclo: inicio, cierre, vencimiento y días de gracia. Las `Cuota` también conservan persistentemente las fechas de su ciclo.
 
-La generación de cuotas ya utiliza este dominio y existe cobertura de cruce de año.
+`Obligacion.getCicloFacturacion()` utiliza los datos históricos persistidos cuando están disponibles y mantiene fallback para obligaciones antiguas sin esos campos.
 
-Pendiente: definir reglas específicas del pago frente al ciclo, vencimiento, mora/gracia y días no hábiles.
-
-## 5. Pagos — SERVICIO COORDINADO IMPLEMENTADO; UI PENDIENTE
+## 5. Pagos — SERVICIO COORDINADO IMPLEMENTADO
 
 `PagoTarjetaService` coordina en una única transacción:
 
@@ -51,56 +49,74 @@ Pendiente: definir reglas específicas del pago frente al ciclo, vencimiento, mo
 3. validar cuenta activa;
 4. validar importe y saldo pendiente;
 5. validar fondos;
-6. registrar egreso real en la cuenta pagadora;
-7. registrar pago sobre la obligación;
-8. confirmar ambas operaciones juntas.
+6. validar que la fecha del pago no sea anterior al consumo ni posterior al momento actual;
+7. registrar egreso real en la cuenta pagadora;
+8. registrar pago sobre la obligación;
+9. confirmar ambas operaciones juntas.
 
 Puede realizar pagos parciales o totales.
 
-**Gap actual:** `ObligacionesPanel` todavía llama directamente a `ObligacionService.registrarPago(...)` y `Main` no integra el servicio coordinador completo. La UI debe incorporar cuenta pagadora y categoría y utilizar `PagoTarjetaService`.
+La integración con `ObligacionesPanel` está implementada y cubierta por tests.
 
-## 6. Integridad movimiento ↔ obligación — PENDIENTE CRÍTICO
+## 6. Reglas temporales de pago — IMPLEMENTADAS
 
-Un movimiento origen de una obligación no debe poder cambiar importe, fecha/hora, tipo ni ser eliminado sin una política explícita de actualización coordinada.
+- pago anterior al consumo: rechazado;
+- fecha futura: rechazada;
+- vencimiento en sábado/domingo: desplazado al lunes;
+- días de gracia configurables, por defecto 0;
+- mora evaluada a partir del vencimiento efectivo más gracia;
+- para obligaciones con cuotas, la fecha límite se determina a partir de la primera cuota pendiente;
+- pagos parciales continúan aplicándose en orden ascendente de cuotas.
 
-La implementación actual todavía permite caminos de modificación/eliminación desde `MovimientoService`. Esto puede dejar obligación, cuotas y ciclo en estado inconsistente.
+No existe todavía calendario de feriados, fecha efectiva separada del movimiento ni cálculo de intereses/punitorios/CFT.
 
-Próximo cambio mínimo: bloquear estas modificaciones estructurales cuando existe una obligación de origen y agregar tests de persistencia.
+## 7. Integridad movimiento ↔ obligación — IMPLEMENTADA
 
-## 7. Seguridad de API — PENDIENTE CRÍTICO
+El movimiento que origina una obligación queda protegido frente a cambios estructurales que romperían la correspondencia histórica: importe, fecha/hora, tipo y eliminación están sujetos a las reglas de integridad implementadas en `MovimientoService`.
 
-Revisar métodos públicos de `ObligacionService` sin `usuarioId`. Las operaciones de consulta/modificación expuestas no deben permitir bypass de autorización por invocación directa del servicio.
+Las pruebas verifican además que, cuando una modificación estructural es rechazada, los valores persistidos originales permanecen intactos.
 
-## 8. Cuotas y financiación
+## 8. Seguridad de API — IMPLEMENTADA PARA PAGOS
 
-Las cuotas simples están implementadas y se generan automáticamente. Sigue pendiente la financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones y ajustes.
+El registro de pagos exige `usuarioId` y valida pertenencia/autorización antes de modificar la obligación.
 
-## 9. Saldo monetario
+## 9. Cuotas y financiación
 
-La auditoría confirmó que el criterio actual es coherente: consumos con tarjeta no reducen el saldo monetario de la cuenta; los egresos ordinarios sí. El consumo de tarjeta afecta la obligación y el crédito disponible.
+Las cuotas simples están implementadas y se generan automáticamente. Los pagos parciales se aplican en orden ascendente.
 
-## 10. UI específica
+Sigue pendiente la financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
 
-Pendiente una UI completa para consultar límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos reales.
+## 10. Saldo monetario
 
-## 11. Cuenta — INTEGRIDAD PENDIENTE
+El criterio actual es coherente: consumos con tarjeta no reducen el saldo monetario de la cuenta; los egresos ordinarios sí. El consumo de tarjeta afecta la obligación y el crédito disponible.
 
-Revisar `CuentaService` para evitar cambios de tipo o moneda que vuelvan incoherente un historial financiero existente.
+## 11. Integridad estructural de Cuenta — IMPLEMENTADA
 
-## 12. Orden de trabajo
+Una cuenta con movimientos no puede cambiar de tipo ni de moneda. Además, la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO` mediante la operación de modificación estructural.
 
-1. Proteger movimiento origen de obligación.
-2. Cerrar superficies públicas de `ObligacionService`.
-3. Integrar pago real en UI.
-4. Proteger tipo/moneda de `Cuenta` con historial.
-5. Definir reglas de ciclo durante pagos.
-6. Definir multidivisa de tarjetas.
-7. Implementar financiación avanzada.
-8. Construir UI específica de tarjetas.
-9. Pasivos/patrimonio y análisis.
+## 12. UI específica
 
-## 13. Validación actual
+Pendiente una UI completa para consultar límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos reales de forma específica para tarjetas.
 
-Suite general informada por el usuario: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+## 13. Compatibilidad histórica
 
-El servicio coordinador de pagos y la atomicidad de compra cuentan con cobertura específica; los gaps de UI y mutabilidad descritos arriba requieren nuevos tests antes de considerarse cerrados.
+Los nuevos campos temporales se mantienen nullable cuando corresponde para no romper datos existentes. Las obligaciones antiguas sin ciclo histórico completo utilizan fallback al cálculo anterior; `diasGracia` nulo se interpreta como 0.
+
+## 14. Orden de trabajo pendiente
+
+1. Multidivisa de tarjetas.
+2. Financiación avanzada.
+3. UI específica de tarjetas.
+4. Pasivos/patrimonio y análisis.
+5. Gestión de entidades financieras.
+6. Pulido de consola.
+
+El calendario de feriados y una fecha efectiva separada requieren decisión de negocio antes de implementarse.
+
+## 15. Validación actual
+
+Suite general informada por el usuario: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 13/09/2026 22:05:14 -03:00.
+
+`ObligacionJpaTest`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 13/09/2026 21:12:49 -03:00.
+
+Validaciones relacionadas previas: suite obligaciones/pagos/UI **69/69**, `ObligacionServiceTest` **9/9**, UI de pago **6/6**, integridad de `Cuenta` **66/66** específicos y **154/154** relacionados.
