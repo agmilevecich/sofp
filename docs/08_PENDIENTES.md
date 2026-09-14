@@ -3,7 +3,7 @@
 ## Estado — 14/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `3a001a57c435237e62ab04f6c09a0657ff24fcb2`.
+**Rama de trabajo:** `feature/swing-shell` → estado documental actualizado en los commits de esta etapa.
 
 **Último bloque funcional:** reglas temporales de ciclos y pagos, implementadas y validadas.
 **Última suite completa informada:** **704/704**, BUILD SUCCESS.
@@ -20,6 +20,7 @@
 - Integridad estructural de `Cuenta`.
 - Auditoría temporal de ciclos y pagos.
 - Implementación temporal de pagos.
+- Adaptación de persistencia de obligaciones a las nuevas reglas temporales.
 
 ## Implementación temporal cerrada
 
@@ -32,6 +33,7 @@
 7. Ciclo histórico congelado en la obligación al crearla.
 8. Compatibilidad con datos existentes mediante campos nuevos nullable y fallback.
 9. Tests de persistencia adaptados a las reglas temporales.
+10. Suite completa validada después de los cambios: 704/704.
 
 No se agregaron intereses ni punitorios.
 
@@ -63,3 +65,5 @@ Calendario de feriados, fecha efectiva separada del movimiento y recargos financ
 ## Regla de cierre
 
 Tests específicos → relacionados → suite general → `git diff` → `git diff --check` → `git status` → documentación.
+
+La documentación de continuidad debe reflejar el último estado real de GitHub y nunca reemplazar la verificación del código y los tests.
