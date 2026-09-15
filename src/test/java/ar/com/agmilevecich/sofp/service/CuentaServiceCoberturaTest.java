@@ -360,7 +360,7 @@ class CuentaServiceCoberturaTest {
     @Test
     void deberiaRechazarOperacionesDeOtraCuenta() {
         Datos propietario = persistirCuenta("propietario");
-        Datos otro = persistirCuenta("otro");
+        Datos otro = persistirCuenta("otro", propietario.moneda());
 
         assertThrows(IllegalArgumentException.class,
                 () -> cuentaService.buscarPorId(propietario.cuenta().getId(), otro.usuario().getId()));
@@ -464,6 +464,42 @@ class CuentaServiceCoberturaTest {
             }
             throw e;
         }
+    }
+
+    private Datos persistirBaseSinMoneda(String email) {
+        Usuario usuario = new Usuario("Ariel", "Test", email, "clave-segura");
+        persistir(usuario);
+
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil test", usuario);
+        persistir(perfil);
+
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Test", TipoInstitucionFinanciera.BANCO);
+        persistir(institucion);
+
+        return new Datos(usuario, perfil, institucion, null, null);
+    }
+
+    private Datos persistirCuenta(String email, Moneda moneda) {
+        Datos datos = persistirBaseSinMoneda(email);
+
+        Cuenta cuenta = nuevaCuenta(
+                new Datos(
+                        datos.usuario(),
+                        datos.perfil(),
+                        datos.institucion(),
+                        moneda,
+                        null),
+                "Cuenta test");
+
+        persistir(cuenta);
+
+        return new Datos(
+                datos.usuario(),
+                datos.perfil(),
+                datos.institucion(),
+                moneda,
+                cuenta);
     }
 
     private record Datos(
