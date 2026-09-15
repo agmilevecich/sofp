@@ -49,42 +49,31 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 41. Persistencia de ambas monedas con compatibilidad para datos existentes.
 42. Asociación de `TipoCambio` histórico a la obligación.
 43. Liquidación explícita de obligaciones multidivisa con trazabilidad y protección contra doble liquidación.
-44. Validación JPA de la liquidación histórica y ejecución de la suite completa.
+44. Saldo de liquidación persistente en `Obligacion`.
+45. Integración del pago multidivisa en `PagoTarjetaService`.
 
-## Bloque multidivisa cerrado — 15/09/2026
+## Bloque actual — pago multidivisa
 
-El modelo de liquidación histórica quedó implementado:
+`PagoTarjetaService` utiliza `saldoLiquidacion` cuando una obligación fue liquidada mediante `TipoCambio`. El pago exige que la cuenta pagadora esté en la moneda de liquidación y aplica el importe contra ese saldo. Las obligaciones no liquidadas continúan utilizando `saldoPendiente`.
 
-- `TipoCambio` conserva moneda origen, moneda destino, cotización, fecha/hora y fuente.
-- `Obligacion` conserva moneda original y moneda de liquidación.
-- `Obligacion` conserva el tipo de cambio utilizado para liquidar.
-- `importeLiquidacion` se calcula explícitamente y no reemplaza el importe original.
-- una obligación ya liquidada no puede liquidarse nuevamente;
-- las monedas del tipo de cambio deben coincidir con las monedas de la obligación;
-- no se realizan conversiones implícitas.
-
-Commits principales: `6e2d38d`, `52a125e`, `8cd34fb`, `f76822b`, `fc4a0ff`, `506166b`, `bbc4dbb`, `a8ed8e8`, `d168a82`, `17c81ba`, `1ab3d10`, `c74717a`.
+Se cubrieron pagos parciales y totales, manteniendo el importe/saldo original de la obligación separado del saldo liquidado.
 
 ## Validación actual
 
-- `TipoCambioTest`: 10/10.
-- `TipoCambioJpaTest`: 1/1.
-- `ObligacionTest`: 12/12.
-- `ObligacionJpaTest`: 3/3.
-- `ObligacionLiquidacionTest`: 5/5.
-- `ObligacionTipoCambioJpaTest`: 1/1.
-- suite relacionada: 27/27.
-- `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- finalizada: **15/09/2026 18:05:46 -03:00**.
+- `PagoTarjetaServiceTest`: 10/10.
+- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 18:37:13 -03:00**.
+
+La última suite completa conocida es **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 18:05:46. Fue ejecutada antes de la integración actual y debe renovarse.
 
 No existe objetivo de recuperar artificialmente el conteo histórico de 704 tests.
 
 ## Pendientes actuales
 
-1. Integrar la liquidación histórica en `PagoTarjetaService`.
-2. Mantener el flujo de pagos en moneda coincidente sin cambios innecesarios.
-3. Definir el impacto de consumos en moneda distinta sobre límite/crédito disponible.
-4. Cubrir pago multidivisa con tests de servicio, persistencia y UI.
+1. Ejecutar suite relacionada y suite general sobre el estado actual.
+2. Revisar diff/diff-check/status.
+3. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
+4. Completar cobertura de persistencia/UI del pago multidivisa.
 5. Política de eliminación de cuentas con historial.
 6. Abstracción `Clock`.
 7. Migraciones/versionado formal de esquema.
