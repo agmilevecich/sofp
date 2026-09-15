@@ -34,59 +34,65 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 26. Integración del pago coordinado de tarjeta en `ObligacionesPanel`.
 27. Integración de `PagoTarjetaService` en `MainFrame` y `Main`.
 28. Cobertura de pago real desde UI y saldo de la cuenta pagadora.
-29. Cierre de la superficie pública de `ObligacionService`: se eliminó el registro de pagos sin `usuarioId`.
+29. Cierre de la superficie pública de `ObligacionService`.
 30. Auditoría transversal de integridad de `Cuenta`.
 31. Implementación y validación de la integridad estructural de `Cuenta`.
 32. Auditoría completa del ciclo de facturación aplicado al pago.
 33. Implementación de reglas temporales de ciclos y pagos.
-34. Validación de persistencia de obligaciones y suite completa tras adaptar tests a vencimientos de fin de semana.
+34. Validación de persistencia de obligaciones y suite tras adaptar tests a vencimientos de fin de semana.
 35. Auditoría integral del estado técnico, multidivisa, cobertura de tests y coherencia documental.
 36. Corrección de saldos y disponibilidad de fondos para trabajar por moneda.
-37. Recuperación de cobertura de `CuentaService` sin modificar las reglas de negocio para hacer pasar tests.
+37. Recuperación de cobertura de `CuentaService` sin modificar reglas de negocio.
 38. Validación de `Moneda.cantidadDecimales` no negativa.
+39. Modelo histórico de `TipoCambio` con validación y conversión según decimales de la moneda destino.
+40. Separación de moneda original y moneda de liquidación en `Obligacion`.
+41. Persistencia de ambas monedas con compatibilidad para datos existentes.
+42. Asociación de `TipoCambio` histórico a la obligación.
+43. Liquidación explícita de obligaciones multidivisa con trazabilidad y protección contra doble liquidación.
+44. Validación JPA de la liquidación histórica y ejecución de la suite completa.
 
-## Bloque de robustez — 15/09/2026
+## Bloque multidivisa cerrado — 15/09/2026
 
-Se cerró la validación de `Moneda.cantidadDecimales`:
+El modelo de liquidación histórica quedó implementado:
 
-- `null` continúa siendo rechazado;
-- valores negativos son rechazados;
-- la regla se aplica al crear y modificar `Moneda`;
-- no se agregó un límite superior arbitrario.
+- `TipoCambio` conserva moneda origen, moneda destino, cotización, fecha/hora y fuente.
+- `Obligacion` conserva moneda original y moneda de liquidación.
+- `Obligacion` conserva el tipo de cambio utilizado para liquidar.
+- `importeLiquidacion` se calcula explícitamente y no reemplaza el importe original.
+- una obligación ya liquidada no puede liquidarse nuevamente;
+- las monedas del tipo de cambio deben coincidir con las monedas de la obligación;
+- no se realizan conversiones implícitas.
 
-Commits del bloque:
+Commits principales: `6e2d38d`, `52a125e`, `8cd34fb`, `f76822b`, `fc4a0ff`, `506166b`, `bbc4dbb`, `a8ed8e8`, `d168a82`, `17c81ba`, `1ab3d10`, `c74717a`.
 
-- `d4fdcd9` — `fix: validar decimales no negativos en Moneda`.
-- `5a6de42` — `test: validar decimales no negativos en Moneda`.
+## Validación actual
 
-## Estado de multidivisa
-
-El movimiento conserva su moneda económica explícita. La cuenta calcula saldo por su moneda y `MovimientoService` valida fondos con la moneda del movimiento, evitando mezclar ARS y USD.
-
-La multidivisa de tarjetas continúa abierta: falta definir el impacto de consumos en moneda distinta sobre el límite, la moneda de liquidación y el mecanismo de conversión/liquidación trazable.
-
-No se deben introducir conversiones implícitas.
-
-## Estado de validación actual
-
-- `MonedaTest`: **7/7**.
-- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
-- `mvn test`: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 15/09/2026 12:03:19 -03:00.
+- `TipoCambioTest`: 10/10.
+- `TipoCambioJpaTest`: 1/1.
+- `ObligacionTest`: 12/12.
+- `ObligacionJpaTest`: 3/3.
+- `ObligacionLiquidacionTest`: 5/5.
+- `ObligacionTipoCambioJpaTest`: 1/1.
+- suite relacionada: 27/27.
+- `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- finalizada: **15/09/2026 18:05:46 -03:00**.
 
 No existe objetivo de recuperar artificialmente el conteo histórico de 704 tests.
 
 ## Pendientes actuales
 
-1. Multidivisa de tarjetas: límite, liquidación y pagos entre monedas.
-2. Tests específicos y relacionados de multidivisa.
-3. Política de eliminación de cuentas con historial.
-4. Abstracción `Clock`.
-5. Migraciones/versionado formal de esquema.
-6. Financiación avanzada.
-7. UI específica de tarjetas.
-8. Pasivos, patrimonio y análisis.
-9. Gestión de entidades financieras.
-10. Pulido de consola.
+1. Integrar la liquidación histórica en `PagoTarjetaService`.
+2. Mantener el flujo de pagos en moneda coincidente sin cambios innecesarios.
+3. Definir el impacto de consumos en moneda distinta sobre límite/crédito disponible.
+4. Cubrir pago multidivisa con tests de servicio, persistencia y UI.
+5. Política de eliminación de cuentas con historial.
+6. Abstracción `Clock`.
+7. Migraciones/versionado formal de esquema.
+8. Financiación avanzada.
+9. UI específica de tarjetas.
+10. Pasivos, patrimonio y análisis.
+11. Gestión de entidades financieras.
+12. Pulido de consola.
 
 ## Continuidad Git
 
