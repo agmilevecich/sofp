@@ -26,78 +26,55 @@ public class Moneda extends EntidadAuditable {
     private TipoMoneda tipo;
 
 
-    /**
-     * Constructor requerido por JPA.
-     */
     protected Moneda() {
     }
 
-
-    /**
-     * Constructor principal del dominio.
-     */
     public Moneda(String codigo,
                   String nombre,
                   Integer cantidadDecimales,
                   TipoMoneda tipo) {
 
-        this.codigo = Objects.requireNonNull(
-                codigo,
-                "El código es obligatorio"
-        );
-
-        this.nombre = Objects.requireNonNull(
-                nombre,
-                "El nombre es obligatorio"
-        );
-
-        this.cantidadDecimales = Objects.requireNonNull(
-                cantidadDecimales,
-                "La cantidad de decimales es obligatoria"
-        );
-
-        this.tipo = Objects.requireNonNull(
-                tipo,
-                "El tipo de moneda es obligatorio"
-        );
+        this.codigo = Objects.requireNonNull(codigo, "El código es obligatorio");
+        this.nombre = Objects.requireNonNull(nombre, "El nombre es obligatorio");
+        this.cantidadDecimales = validarCantidadDecimales(cantidadDecimales);
+        this.tipo = Objects.requireNonNull(tipo, "El tipo de moneda es obligatorio");
     }
-
 
     public String getCodigo() {
         return codigo;
     }
 
-
     public String getNombre() {
         return nombre;
     }
-
 
     public Integer getCantidadDecimales() {
         return cantidadDecimales;
     }
 
-
     public TipoMoneda getTipo() {
         return tipo;
     }
 
-
     public void cambiarNombre(String nuevoNombre) {
-
-        this.nombre = Objects.requireNonNull(
-                nuevoNombre,
-                "El nombre es obligatorio"
-        );
+        this.nombre = Objects.requireNonNull(nuevoNombre, "El nombre es obligatorio");
     }
 
-
     public void cambiarCantidadDecimales(Integer cantidadDecimales) {
+        this.cantidadDecimales = validarCantidadDecimales(cantidadDecimales);
+    }
 
-        this.cantidadDecimales = Objects.requireNonNull(
+    private Integer validarCantidadDecimales(Integer cantidadDecimales) {
+        Objects.requireNonNull(
                 cantidadDecimales,
                 "La cantidad de decimales es obligatoria"
         );
+        if (cantidadDecimales < 0) {
+            throw new IllegalArgumentException(
+                    "La cantidad de decimales no puede ser negativa"
+            );
+        }
+        return cantidadDecimales;
     }
 
     @Override
