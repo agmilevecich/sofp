@@ -6,15 +6,16 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD:** `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5`.
+**Último commit de código validado:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
-No se realizó merge a `main`.
+La rama continúa separada de `main`; no se realizó merge.
 
 ## Validación más reciente
 
-- `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:05:46 -03:00**.
-- Bloque de obligaciones/liquidación relacionado: **27/27**.
+- `PagoTarjetaServiceTest`: **10/10**.
+- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 18:37:13 -03:00**.
+- Última suite completa previa: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 18:05:46.
 
 ## Estado consolidado
 
@@ -26,20 +27,24 @@ Las obligaciones conservan historial de ciclo, vencimiento, gracia y cuotas. El 
 
 ## Multidivisa actual
 
-La primera etapa de liquidación histórica está cerrada:
+La integración de pago multidivisa ya está implementada:
 
-- `Obligacion` separa `monedaOriginal` y `monedaLiquidacion`.
-- `TipoCambio` representa una cotización histórica con origen, destino, cotización, fecha/hora y fuente.
-- `Obligacion` conserva el `TipoCambio` utilizado.
-- `Obligacion.liquidar(TipoCambio)` realiza una conversión explícita, valida monedas y evita doble liquidación.
-- `importeLiquidacion` queda separado del importe original.
-- No existen conversiones implícitas.
+- `Obligacion` separa `monedaOriginal` y `monedaLiquidacion`;
+- `TipoCambio` representa una cotización histórica;
+- la obligación conserva el tipo de cambio utilizado;
+- `saldoLiquidacion` se inicializa al liquidar;
+- `PagoTarjetaService` usa `saldoLiquidacion` cuando existe;
+- los pagos liquidados se aplican mediante `registrarPagoLiquidacion`;
+- la cuenta pagadora debe estar en `monedaLiquidacion`;
+- las obligaciones no liquidadas mantienen el flujo basado en `saldoPendiente`;
+- no existen conversiones implícitas.
 
 ## Pendiente inmediato
 
-Integrar esta liquidación histórica en `PagoTarjetaService` sin romper el flujo actual de pagos en moneda coincidente.
-
-También debe definirse el impacto de un consumo en moneda distinta sobre el límite/crédito disponible de la tarjeta.
+1. Ejecutar suite relacionada completa y `mvn test` sobre el estado actual.
+2. Revisar `git diff`, `git diff --check` y `git status`.
+3. Definir el impacto de consumos en moneda distinta sobre el límite/crédito disponible.
+4. Completar cobertura de persistencia/UI del pago multidivisa.
 
 ## Reglas temporales implementadas
 
@@ -54,10 +59,6 @@ También debe definirse el impacto de un consumo en moneda distinta sobre el lí
 - compatibilidad con obligaciones antiguas mediante campos nullable/fallback.
 
 No están implementados calendario de feriados, fecha efectiva separada del movimiento, intereses, punitorios, CFT ni refinanciación.
-
-## Robustez reciente
-
-`Moneda.cantidadDecimales` no admite valores negativos y mantiene el rechazo de `null` mediante `NullPointerException`.
 
 ## Protocolo
 
