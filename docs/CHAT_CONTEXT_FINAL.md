@@ -2,37 +2,35 @@
 
 ## Estado auditado — 15/09/2026
 
-La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
+La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD:** `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5`.
+**Último commit de código validado:** `e95585e043290eebb5789f2b628b1edcef8a7344`.
 
 No se realizó merge a `main`.
 
-## Validación más reciente
+## Validación
 
-Suite general: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 15/09/2026 18:05:46 -03:00.
+Bloque actual: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 18:37:13 -03:00.
 
-## Último bloque cerrado
+Suite general previa: **712/712**, 0 failures, 0 errors, 0 skipped, 15/09/2026 18:05:46 -03:00. Debe renovarse sobre el estado actual.
 
-Liquidación histórica multidivisa de `Obligacion`.
+## Estado actual
 
-- `TipoCambio` histórico e inmutable.
-- moneda original y moneda de liquidación separadas.
-- tipo de cambio utilizado asociado a la obligación.
-- liquidación explícita con validación de monedas.
-- importe de liquidación separado del importe original.
-- prevención de doble liquidación.
-- persistencia JPA validada.
+Liquidación histórica multidivisa implementada y conectada al pago:
 
-## Próximo bloque
+- moneda original y de liquidación separadas;
+- `TipoCambio` histórico asociado;
+- `importeLiquidacion` y `saldoLiquidacion` separados del saldo original;
+- `PagoTarjetaService` usa saldo de liquidación cuando corresponde;
+- cuenta pagadora en moneda de liquidación;
+- pagos parciales y totales cubiertos;
+- sin conversiones implícitas.
 
-Integrar esta liquidación en `PagoTarjetaService` y definir el impacto de consumos extranjeros sobre el crédito disponible. No introducir conversiones implícitas.
+## Próximo paso
 
-## Reglas vigentes
-
-Saldos y fondos se calculan por moneda. Las obligaciones conservan historial temporal. Pagos requieren autorización de usuario. La integridad histórica de movimientos, obligaciones y cuentas está protegida.
+Ejecutar suite relacionada y suite general sobre el estado actual. Después revisar diff/diff-check/status y actualizar documentación con esos resultados. Luego definir el impacto de consumos extranjeros sobre el crédito disponible.
 
 ## Protocolo
 
