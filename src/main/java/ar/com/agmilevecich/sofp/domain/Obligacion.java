@@ -24,8 +24,8 @@ public class Obligacion extends EntidadAuditable {
     @Column(name = "fecha_vencimiento") private LocalDate fechaVencimiento;
     @Column(name = "dias_gracia") private Integer diasGracia;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "moneda_original_id", nullable = false) private Moneda monedaOriginal;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "moneda_liquidacion_id", nullable = false) private Moneda monedaLiquidacion;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "moneda_original_id") private Moneda monedaOriginal;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "moneda_liquidacion_id") private Moneda monedaLiquidacion;
     @OneToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "movimiento_origen_id", nullable = false, unique = true) private Movimiento movimientoOrigen;
     @OneToMany(mappedBy = "obligacion", cascade = CascadeType.ALL, orphanRemoval = true) @OrderBy("numero ASC") private List<Cuota> cuotas = new ArrayList<>();
 
@@ -53,9 +53,9 @@ public class Obligacion extends EntidadAuditable {
     public EstadoObligacion getEstado() { return estado; }
     public Movimiento getMovimientoOrigen() { return movimientoOrigen; }
     public List<Cuota> getCuotas() { return Collections.unmodifiableList(cuotas); }
-    public Moneda getMonedaOriginal() { return monedaOriginal; }
-    public Moneda getMonedaLiquidacion() { return monedaLiquidacion; }
-    public Moneda getMoneda() { return monedaOriginal; }
+    public Moneda getMonedaOriginal() { return monedaOriginal != null ? monedaOriginal : movimientoOrigen.getMoneda(); }
+    public Moneda getMonedaLiquidacion() { return monedaLiquidacion != null ? monedaLiquidacion : movimientoOrigen.getCuenta().getMoneda(); }
+    public Moneda getMoneda() { return getMonedaOriginal(); }
     public LocalDateTime getFechaOrigen() { return movimientoOrigen.getFechaHora(); }
 
     public CicloFacturacion getCicloFacturacion() {
