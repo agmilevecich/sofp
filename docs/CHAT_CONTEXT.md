@@ -1,25 +1,31 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado auditado — 14/09/2026
+## Estado auditado — 15/09/2026
 
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y ante contradicción prevalecen código y tests.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Último bloque funcional:** reglas temporales de ciclos y pagos de tarjeta.
-**Último commit funcional/test:** `3a001a57` — `test: adaptar persistencia de obligaciones a reglas temporales`.
-**Último bloque documental:** auditoría integral posterior al cierre temporal.
+**Último bloque funcional:** validación de `Moneda.cantidadDecimales`.
+**Commits funcionales/test del bloque:** `d4fdcd9` y `5a6de42`.
+**Último bloque documental:** actualización integral de continuidad del 15/09/2026.
 
 No se realizó merge a `main`.
 
 ## Validación más reciente
 
-Suite general informada por el usuario: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 13/09/2026 22:05:14 -03:00.
+Suite general informada por el usuario:
 
-`ObligacionJpaTest`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 13/09/2026 21:12:49 -03:00.
+- `mvn test`: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 12:03:19 -03:00**.
 
-Validaciones anteriores relevantes: integridad de `Cuenta` **66/66** específicos y **154/154** relacionados; `ObligacionServiceTest` **9/9**; suite de obligaciones/pagos/UI **69/69**; UI de pago **6/6**.
+Validación relacionada:
+
+- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: 15/09/2026 11:34:38 -03:00.
+
+`MonedaTest`: **7/7**, `BUILD SUCCESS`, 15/09/2026 11:21:20 -03:00.
 
 ## Estado consolidado
 
@@ -28,6 +34,8 @@ La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligaci�
 `ObligacionService` exige `usuarioId` para registrar pagos y valida el perfil propietario.
 
 `CuentaService` protege la integridad estructural: no permite cambiar tipo ni moneda cuando existen movimientos y la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`.
+
+Los saldos y la disponibilidad de fondos ya se calculan respetando la moneda correspondiente; no se deben mezclar importes ARS y USD.
 
 ## Reglas temporales implementadas
 
@@ -44,47 +52,60 @@ La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligaci�
 
 No están implementados calendario de feriados, fecha efectiva separada del movimiento, intereses, punitorios, CFT ni refinanciación.
 
-## Resultado de auditoría integral
+## Robustez reciente
 
-La arquitectura general está consolidada y no requiere rehacerse.
+`Moneda.cantidadDecimales`:
 
-El principal hueco funcional es la multidivisa. Se confirmaron:
+- `null` sigue rechazado;
+- negativos rechazados con `IllegalArgumentException`;
+- valores no negativos permitidos;
+- la regla se aplica al crear y modificar la moneda.
 
-1. saldos de cuenta que pueden mezclar monedas;
-2. validación de fondos que utiliza ese saldo mezclado;
-3. consumos de tarjeta en moneda distinta que no tienen una regla completa de impacto sobre el límite;
-4. pagos que exigen misma moneda y todavía no cuentan con liquidación/conversión explícita.
+## Estado de multidivisa
 
-No se deben introducir conversiones implícitas. Primero deben definirse moneda de liquidación, tasa, fecha/fuente de cotización y representación de saldos por moneda.
+La moneda explícita del movimiento se conserva.
 
-Hallazgos secundarios: validar rango de `Moneda.cantidadDecimales`, definir política de eliminación de cuentas con historial, evaluar `Clock` y migraciones/versionado de esquema para una futura etapa no local.
+Ya están resueltos:
 
-La auditoría completa está en `docs/11_AUDITORIA_INTEGRAL.md`.
+1. saldo de cuenta separado por moneda;
+2. validación de fondos separada por moneda;
+3. coexistencia de saldos ARS/USD sin mezclarlos.
+
+Sigue pendiente:
+
+1. impacto de consumos extranjeros sobre el límite de tarjeta;
+2. moneda de liquidación;
+3. tasa, fecha y fuente de cotización;
+4. conversión/liquidación trazable de pagos entre monedas;
+5. tests de estos casos una vez definidas las reglas.
+
+No se deben introducir conversiones implícitas.
 
 ## Pendientes reales
 
-P0/P1:
+### P0/P1
 
 1. Resolver multidivisa de tarjetas por moneda.
-2. Cubrir saldos, fondos, crédito y pagos multidivisa con tests.
+2. Cubrir crédito, consumo y liquidación multidivisa con tests.
 
-P2:
+### P2
 
-3. Robustez de `Moneda`.
-4. Política de eliminación histórica de cuentas.
-5. Abstracción `Clock`.
-6. Migraciones/versionado de esquema si corresponde.
+3. Política de eliminación histórica de cuentas.
+4. Abstracción `Clock`.
+5. Migraciones/versionado de esquema.
 
-P3:
+### P3
 
-7. Financiación avanzada.
-8. UI específica de tarjetas.
-9. Pasivos, patrimonio y análisis.
-10. Gestión de entidades financieras.
-11. Pulido de consola.
+6. Financiación avanzada.
+7. UI específica de tarjetas.
+8. Pasivos, patrimonio y análisis.
+9. Gestión de entidades financieras.
+10. Pulido de consola.
 
 ## Protocolo
 
-Antes de cada bloque: reconstruir desde GitHub rama → últimos commits → comparación con `main` → documentación → implementación → clases relacionadas → tests → auditoría vigente → último resultado informado. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
+Antes de cada bloque: reconstruir desde GitHub rama → últimos commits → comparación con `main` → documentación → implementación → clases relacionadas → tests → auditoría vigente → último resultado informado.
+
+Luego: cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
 
 La documentación de continuidad se actualiza sobre la rama activa. No modificar `main`, no asumir tests locales no informados y no considerar cerrada una funcionalidad solo porque compila.
