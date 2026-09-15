@@ -4,8 +4,9 @@ La documentación acompaña al código, pero la fuente de verdad es siempre el e
 
 ## Continuidad actual
 
-- `CHAT_CONTEXT.md`: contexto para nuevas conversaciones.
+- `CHAT_CONTEXT.md`: contexto completo para nuevas conversaciones.
 - `CHAT_CONTEXT_FINAL.md`: contexto compacto de continuidad.
+- `CHAT_CONTEXT_NEW.md`: contexto actualizado para iniciar una nueva conversación.
 - `00_ESTADO_ACTUAL.md`: estado funcional y técnico vigente.
 - `05_DECISIONES.md`: decisiones arquitectónicas y de negocio permanentes.
 - `06_BUILDS.md`: historial de Builds y validaciones.
@@ -13,35 +14,33 @@ La documentación acompaña al código, pero la fuente de verdad es siempre el e
 - `08_PENDIENTES.md`: pendientes reales y orden de ejecución.
 - `09_HISTORIAL_PROYECTO.md`: evolución e hitos.
 - `09_TARJETAS_CREDITO.md`: diseño, estado y auditoría de tarjetas.
-- `CONTINUIDAD_2026-09-05.md`, `CONTINUIDAD_2026-09-08.md`, `CONTINUIDAD_2026-09-09.md` y `CONTINUIDAD_2026-09-11.md`: cortes históricos.
-- `CONTINUIDAD_2026-09-12.md`: auditoría vigente y mapa de mejoras.
+- `CONTINUIDAD_2026-09-15.md`: corte de continuidad más reciente.
+- `CONTINUIDAD_2026-09-12.md` y cortes anteriores: antecedentes históricos.
 
-## Estado vigente — 12/09/2026
+## Estado vigente — 15/09/2026
 
 Rama de trabajo: `feature/swing-shell`.
 
-Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
+HEAD: `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5` — `test: persistir liquidacion historica de Obligacion`.
 
 `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-Suite general más reciente informada: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+La rama de trabajo está 677 commits adelante de `main` y 0 atrás. No se realizó merge.
 
-## Auditoría vigente
+Suite general más reciente informada: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 15/09/2026 18:05:46 -03:00.
 
-La auditoría determinó que el próximo trabajo no es rehacer ciclos de facturación básicos ni el saldo inicial de tarjetas: esos bloques ya están implementados y cubiertos.
+## Estado multidivisa
 
-El siguiente orden es:
+La primera etapa de liquidación histórica está implementada:
 
-1. proteger movimientos que originan obligaciones;
-2. cerrar superficies públicas de `ObligacionService` y autorización;
-3. integrar el pago real de tarjeta en la UI mediante `PagoTarjetaService`;
-4. proteger cambios estructurales de tipo/moneda de cuentas con historial;
-5. definir reglas de ciclo aplicadas al pago;
-6. definir multidivisa de tarjetas;
-7. financiación avanzada;
-8. UI específica de tarjetas;
-9. pasivos/patrimonio y análisis;
-10. pulido de consola.
+- `Obligacion` separa moneda original y moneda de liquidación;
+- `TipoCambio` representa cotización histórica con origen, destino, fecha/hora y fuente;
+- la obligación conserva la cotización utilizada;
+- la liquidación es explícita y trazable;
+- no hay conversiones implícitas;
+- la persistencia está cubierta por tests JPA.
+
+El próximo bloque es integrar esta liquidación en `PagoTarjetaService` y definir el impacto de consumos en moneda distinta sobre crédito disponible.
 
 ## Regla de continuidad
 
