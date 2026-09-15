@@ -1,79 +1,59 @@
 # SOFP — Auditoría integral del estado técnico
 
-## Estado — 14/09/2026
+## Estado — 15/09/2026
 
-Esta auditoría reconstruye el estado de `feature/swing-shell` desde GitHub. La fuente de verdad es el código y los tests; la documentación se utilizó para contrastar continuidad y detectar información obsoleta.
+Esta auditoría reconstruye el estado de `feature/swing-shell` desde GitHub. La fuente de verdad es el código y los tests; la documentación se utiliza para contrastar continuidad y detectar información obsoleta.
 
-## 1. Estado de Git
+## 1. Estado de Git y continuidad
 
 - Rama estable: `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 - Rama de trabajo: `feature/swing-shell`.
-- HEAD actual de la rama de trabajo: `b1c46ebc986f12ee880d86d03027aa0c66fe67e2`.
-- Último cambio funcional/test: `3a001a57c435237e62ab04f6c09a0657ff24fcb2`.
-- Los commits posteriores al último cambio funcional son documentales.
-- `main` no fue modificado en esta auditoría.
+- El trabajo de continuidad permanece separado de `main`.
+- El último bloque funcional de esta etapa es la validación de `Moneda.cantidadDecimales`.
+- La suite general actual informada por el usuario es 693/693.
 
-## 2. Validación conocida
+## 2. Validación actual
 
-El último resultado informado por el usuario es:
+- `mvn -Dtest=MonedaTest test`: **7/7**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 11:21:20 -03:00.
+- `mvn -Dtest=MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest test`: **53/53**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 11:34:38 -03:00.
+- `mvn test`: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 12:03:19 -03:00.
 
-- `mvn test`: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 13/09/2026 22:05:14 -03:00.
-- `mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 13/09/2026 21:12:49 -03:00.
-
-Estos resultados son históricos conocidos; esta auditoría no los vuelve a ejecutar.
+La auditoría no vuelve a ejecutar tests; registra resultados informados por el usuario.
 
 ## 3. Arquitectura actual
 
-La estructura real contiene dominio, persistencia, servicios y Swing. La UI ya existe y está integrada con servicios; por lo tanto, la documentación antigua que indicaba que Swing todavía no había comenzado quedó obsoleta.
-
-El flujo general observado mantiene la separación:
+La estructura real contiene dominio, persistencia, servicios y Swing. La UI está integrada con servicios; la separación general observada es:
 
 `UI → servicios → dominio/repositorios → JPA/H2`.
 
 Los servicios coordinan operaciones transaccionales y autorización; las entidades conservan reglas propias del dominio.
 
+No se observa una necesidad de rehacer la arquitectura para el próximo bloque.
+
 ## 4. Dominio financiero
 
-### Cerrado y coherente
+El núcleo actual incluye `Usuario`, `PerfilFinanciero`, `Moneda`, `Cuenta`, `Movimiento`, categorías, operaciones financieras, posiciones de activos, obligaciones y cuotas.
 
-- `Usuario` y `PerfilFinanciero`.
-- `Moneda`.
-- `Cuenta` y tipos de cuenta.
-- `Movimiento` como núcleo monetario.
-- `Categoria`.
-- `OperacionFinanciera` y transferencias.
-- activos, posiciones y valorizaciones.
-- obligaciones de tarjeta y cuotas.
-- auditoría de integridad de cuenta.
-- auditoría de integridad movimiento → obligación.
+La integridad histórica de cuentas y de movimientos origen de obligaciones está protegida por servicio y cubierta por tests.
 
-### Hallazgo de calidad
+## 5. Moneda y multidivisa
 
-`Moneda.cambiarCantidadDecimales` valida nulidad pero no valida rango. El código actual permite valores negativos. No se observó un test que cubra ese límite. Se registra como P2 de robustez, no como bloqueo del modelo actual.
+`Movimiento` conserva una moneda económica explícita y puede diferir de la moneda de la cuenta. La solución actual ya corrige dos problemas identificados en la auditoría anterior:
 
-## 5. Moneda y multidivisa — hallazgo principal
+1. `CuentaService` calcula el saldo de una cuenta usando la moneda de la cuenta.
+2. `MovimientoService` valida disponibilidad de fondos usando la moneda del movimiento.
 
-El modelo permite que `Movimiento` tenga una moneda económica explícita distinta de la moneda configurada en `Cuenta`. Esto existe expresamente para compras en moneda extranjera.
+Por lo tanto, los cálculos generales ya no deben sumar ARS y USD como una única magnitud.
 
-La implementación actual conserva esa moneda en la obligación y evita conversiones implícitas. Esa parte es correcta como decisión de seguridad financiera.
+Continúa abierto el tercer problema: un consumo de tarjeta en moneda distinta de la moneda de la tarjeta todavía no tiene una regla completa de impacto sobre el límite. Tampoco existe una operación explícita de liquidación/conversión para pagos entre monedas.
 
-Sin embargo, la auditoría detectó tres huecos concretos:
-
-1. `CuentaService.calcularSaldo` suma ingresos y egresos por cuenta sin filtrar por moneda. Por lo tanto, si una cuenta contiene movimientos en más de una moneda, el saldo actual mezcla importes incompatibles.
-2. `MovimientoService.calcularSaldo` utiliza el mismo criterio y también mezcla monedas al validar fondos de una cuenta.
-3. Para una tarjeta, `validarCreditoDisponible` solo aplica el límite cuando la moneda del consumo coincide con la moneda de la tarjeta. Un consumo extranjero no reduce el límite de la tarjeta bajo una regla equivalente ni existe conversión/tasa de cambio para resolverlo.
-
-Conclusión: **la multidivisa no está cerrada funcionalmente**. El sistema conserva la moneda del movimiento, pero todavía no existe un modelo completo para saldos, crédito disponible y liquidación cuando las monedas difieren.
-
-No se debe introducir una conversión automática sin una decisión explícita sobre tasa, fecha de cotización, fuente y moneda de liquidación.
+No se deben introducir conversiones implícitas. Antes deben definirse moneda de liquidación, tasa, fecha/fuente de cotización y trazabilidad de la operación resultante.
 
 ## 6. Pagos de tarjeta
 
-`PagoTarjetaService` está correctamente coordinado en una transacción y valida propietario, cuenta, categoría, moneda, saldo pendiente, fondos y fecha.
+`PagoTarjetaService` coordina en una transacción la autorización, cuenta pagadora, categoría, moneda, saldo pendiente, fondos, fecha y registro del egreso/pago.
 
-La regla actual exige que la moneda de la cuenta pagadora coincida con la moneda de la obligación. Esto evita conversiones implícitas, pero también confirma que el pago de una obligación en moneda extranjera todavía no dispone de un mecanismo de conversión o liquidación multidivisa.
-
-Además, el cálculo de fondos del servicio recorre los movimientos de la cuenta sin separar por moneda. Esto debe corregirse junto con el diseño multidivisa para no evaluar fondos con importes de monedas diferentes.
+La regla actual exige coincidencia de moneda entre la obligación y la cuenta pagadora. Esto evita conversiones implícitas, pero deja pendiente la liquidación multidivisa.
 
 ## 7. Tarjetas, ciclos y temporalidad
 
@@ -89,96 +69,76 @@ El bloque temporal está cerrado:
 - pagos parciales en orden de cuotas;
 - compatibilidad de registros antiguos mediante nullable/fallback.
 
-Pendientes temporales explícitos: feriados, fecha efectiva separada e intereses/punitorios/CFT/refinanciación.
+No están implementados feriados, fecha efectiva separada ni intereses/punitorios/CFT/refinanciación.
 
 ## 8. Integridad histórica
 
-La integridad de `Cuenta` está protegida frente a cambios de tipo y moneda cuando existen movimientos. La API genérica tampoco permite convertir una cuenta existente hacia/desde `TARJETA_CREDITO`.
+Una cuenta con movimientos no puede cambiar de tipo ni moneda. La API genérica tampoco permite convertir una cuenta existente hacia/desde `TARJETA_CREDITO`.
 
 El movimiento origen de una obligación queda protegido frente a modificaciones estructurales incompatibles y eliminación.
 
-### Hallazgo de cobertura
+Sigue pendiente definir una política explícita para eliminar cuentas que ya poseen historial financiero.
 
-La política de eliminación de una `Cuenta` con historial financiero no está definida como regla de dominio explícita en el servicio; el test revisado cubre eliminación de una cuenta sin historial. Se registra como P2 de integridad histórica antes de habilitar borrados destructivos en UI.
+## 9. Robustez de Moneda
 
-## 9. Autorización y aislamiento
+`Moneda.cantidadDecimales` ahora valida:
 
-La auditoría actual conserva autorización por `usuarioId` en las operaciones financieras sensibles y aislamiento por perfil/usuario en las lecturas y mutaciones relevantes. La cobertura histórica de seguridad y aislamiento está integrada y la suite general permanece verde.
+- `null` → `NullPointerException`;
+- valor negativo → `IllegalArgumentException`;
+- valor no negativo → permitido.
 
-No se detectó en esta revisión un nuevo bypass equivalente al que motivó las auditorías anteriores.
+No se agregó un límite superior arbitrario.
 
-## 10. Persistencia
+## 10. Autorización y aislamiento
+
+La autorización por `usuarioId` y el aislamiento por perfil/usuario permanecen integrados en las operaciones financieras sensibles. No se identificó un nuevo bypass en el trabajo actual.
+
+## 11. Persistencia
 
 La aplicación utiliza JPA/Hibernate con H2 TCP y `hibernate.hbm2ddl.auto=update`. Los tests utilizan un contexto separado con H2 en memoria.
 
-El uso de `update` es apropiado para la etapa de desarrollo actual, pero no constituye un mecanismo formal de migraciones/versionado de esquema. Queda registrado como deuda técnica para una etapa posterior de distribución/producción.
+`update` sigue siendo adecuado para desarrollo actual, pero no constituye un mecanismo formal de migraciones/versionado para una futura etapa de distribución.
 
-## 11. UI Swing
+## 12. UI Swing
 
-La UI ya contiene shell y paneles para cuentas, categorías, ingresos, gastos, movimientos, inversiones y obligaciones. La integración de pagos de tarjeta desde `ObligacionesPanel` está implementada y cubierta por tests.
+La UI contiene shell y paneles para cuentas, categorías, ingresos, gastos, movimientos, inversiones y obligaciones. El pago de tarjeta desde `ObligacionesPanel` está integrado y cubierto por tests.
 
-Pendiente funcional: una UI específica de tarjeta que concentre límite, disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos.
+Pendiente: UI específica de tarjetas para límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos.
 
-## 12. Financiación
+## 13. Financiación
 
-Las cuotas simples sin interés están implementadas. No se observó implementación de:
+Las cuotas simples sin interés están implementadas. Siguen fuera del alcance actual intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
 
-- intereses;
-- CFT;
-- cuotas variables;
-- adelantos;
-- refinanciación;
-- anulaciones/reversiones;
-- ajustes financieros.
+## 14. Determinismo temporal
 
-Esto queda correctamente como bloque separado y no debe mezclarse con la implementación multidivisa.
+`PagoTarjetaService` utiliza `LocalDateTime.now()` para rechazar fechas futuras. La regla es correcta, pero una futura abstracción `Clock` permitiría tests más deterministas.
 
-## 13. Determinismo temporal
+## 15. Clasificación actual
 
-`PagoTarjetaService` utiliza directamente `LocalDateTime.now()` para rechazar fechas futuras. La regla es correcta, pero la dependencia directa del reloj dificulta tests completamente deterministas. Se registra como P2 técnico para una futura abstracción `Clock`.
+### P0/P1 — multidivisa de tarjetas
 
-## 14. Documentación
-
-La auditoría detectó documentación arquitectónica obsoleta: `docs/00-arquitectura/roadmap.md` todavía indicaba que Swing no había comenzado y conservaba el conteo histórico 512/512 como validación global vigente.
-
-Ese estado ya no representa el código actual. El roadmap se actualiza junto con esta auditoría para que no contradiga el estado real.
-
-## 15. Configuración real verificada
-
-El `pom.xml` actual es la referencia para la configuración de build: compilación Java 23, Hibernate 6.6.4.Final, H2 2.5.250 y JUnit 5.11.4. Esta información prevalece sobre cualquier documentación histórica que indique otras versiones.
-
-## 16. Clasificación final
-
-### P0 — bloqueante antes de ampliar multidivisa
-
-- Definir y corregir el tratamiento de saldos por moneda.
-- Definir y corregir el cálculo de crédito disponible para consumos en moneda distinta de la moneda de la tarjeta.
-- Definir la moneda de liquidación y la regla de conversión cuando corresponda.
-
-### P1 — siguiente bloque funcional
-
-- Implementación completa de multidivisa de tarjetas, sin conversiones implícitas.
-- Tests de saldos, crédito, consumos y pagos cruzando monedas.
+- definir impacto de consumos en moneda distinta sobre crédito disponible;
+- definir moneda de liquidación;
+- definir tasa, fecha y fuente de cotización;
+- definir trazabilidad y representación de la conversión/liquidación;
+- cubrir el comportamiento con tests específicos y relacionados.
 
 ### P2 — robustez
 
-- Validación del rango de `cantidadDecimales` en `Moneda`.
-- Política explícita de eliminación de cuentas con historial.
-- Abstracción `Clock`.
-- Migraciones/versionado formal de esquema si el proyecto pasa de desarrollo local.
+- política de eliminación de cuentas con historial;
+- `Clock`;
+- migraciones/versionado formal de esquema.
 
 ### P3 — evolución
 
-- Financiación avanzada.
-- UI específica de tarjetas.
-- Pasivos/patrimonio/análisis.
-- Gestión de entidades financieras.
-- Pulido de consola.
+- financiación avanzada;
+- UI específica de tarjetas;
+- pasivos/patrimonio/análisis;
+- gestión de entidades financieras;
+- pulido de consola.
 
-## 17. Conclusión
+## 16. Conclusión
 
-La auditoría no encuentra un problema general de arquitectura que obligue a rehacer SOFP. El núcleo actual está suficientemente consolidado y la suite conocida está en 704/704.
+La auditoría actual confirma que el núcleo está consolidado y que los problemas de mezcla de monedas en saldo y disponibilidad de fondos ya fueron corregidos. El principal hueco funcional real es ahora la multidivisa específica de tarjetas: crédito disponible y liquidación cuando las monedas difieren.
 
-El principal hueco funcional real es la **multidivisa**, pero el problema no es simplemente “agregar conversiones”: primero hay que impedir que saldos y límites mezclen monedas y definir explícitamente cómo se liquida una deuda en moneda distinta.
-
-No se modificó código funcional durante esta auditoría. Los cambios de esta etapa son documentales.
+El siguiente bloque debe definir primero esas reglas de negocio y luego implementar el cambio mínimo con cobertura.
