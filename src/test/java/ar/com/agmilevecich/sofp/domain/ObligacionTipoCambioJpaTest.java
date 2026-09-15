@@ -68,6 +68,7 @@ class ObligacionTipoCambioJpaTest {
         assertNotNull(recuperada);
         assertEquals(new BigDecimal("100.00"), recuperada.getImporteOriginal());
         assertEquals(new BigDecimal("150000.00"), recuperada.getImporteLiquidacion());
+        assertEquals(new BigDecimal("150000.00"), recuperada.getSaldoLiquidacion());
         assertEquals(usd.getId(), recuperada.getTipoCambioLiquidacion().getMonedaOrigen().getId());
         assertEquals(ars.getId(), recuperada.getTipoCambioLiquidacion().getMonedaDestino().getId());
         assertEquals(0, new BigDecimal("1500.00").compareTo(recuperada.getTipoCambioLiquidacion().getCotizacion()));
