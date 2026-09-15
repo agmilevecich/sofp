@@ -1,51 +1,29 @@
 # SOFP — Contexto para continuar con ChatGPT
 
-## Estado — 12/09/2026
+## Estado — 15/09/2026
 
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
+**HEAD:** `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5`.
 
-Último commit de código: `6c1b896` — `build: configurar jar ejecutable y dependencias`.
+## Validación general
 
-Suite general más reciente informada: **690/690**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+`mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+Finalizada: **15/09/2026 18:05:46 -03:00**.
 
-## Estado consolidado
+## Estado actual
 
-La Fase 8 Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. La compra con tarjeta es atómica y tiene cobertura de rollback. `PagoTarjetaService` coordina el pago real de deuda con la salida de fondos. H2 de aplicación usa TCP y los tests usan H2 en memoria aislado. El JAR ejecutable está configurado y probado.
+La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. `PagoTarjetaService` coordina pagos reales y la UI de obligaciones está integrada.
 
-## Auditoría — trabajo pendiente
+La multidivisa general respeta la moneda de cada saldo y movimiento.
 
-### P0
+El modelo de obligación multidivisa ya conserva moneda original, moneda de liquidación y `TipoCambio` histórico. La liquidación es explícita, trazable y persistente.
 
-1. Proteger movimiento origen de obligación frente a cambio de importe, fecha/hora, tipo y eliminación.
-2. Revisar superficies públicas de `ObligacionService` sin `usuarioId`.
-3. Integrar `PagoTarjetaService` en `ObligacionesPanel`, con cuenta pagadora y categoría.
+## Próximo bloque
 
-### P1
-
-4. Proteger cambios de tipo/moneda de `Cuenta` cuando exista historial.
-5. Definir reglas de ciclo aplicadas al pago: vencimiento, mora, gracia y días no hábiles.
-6. Definir multidivisa de tarjetas sin conversiones implícitas.
-7. Definir financiación avanzada.
-
-### P2/P3
-
-8. UI específica de tarjetas.
-9. Pasivos, patrimonio, histórico, vencimientos, resúmenes y dashboard.
-10. Pulido de consola.
-
-## Ya implementado
-
-- selección explícita de tarjeta activa en Gastos;
-- generación automática de cuotas;
-- ciclos de facturación y cruce de año;
-- atomicidad de compra con tarjeta;
-- pago coordinado en servicio;
-- criterio actual de crédito disponible;
-- H2 TCP;
-- JAR ejecutable.
+Integrar liquidación multidivisa en `PagoTarjetaService`, preservando pagos de moneda coincidente y definiendo el impacto de consumos extranjeros sobre crédito disponible.
 
 ## Regla de continuidad
 
