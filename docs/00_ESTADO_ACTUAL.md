@@ -2,74 +2,86 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
-## Estado auditado — 14/09/2026
+## Estado auditado — 15/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Último commit funcional/test:** `3a001a57c435237e62ab04f6c09a0657ff24fcb2` — `test: adaptar persistencia de obligaciones a reglas temporales`.
-**HEAD actual:** posterior al cierre funcional, se agregaron commits documentales, incluido `b007fce3e22c168b4dca68ec8bc96ae9128ba522` para esta auditoría integral.
+**Último bloque funcional:** validación de `Moneda.cantidadDecimales`.
+**Últimos commits del bloque:** `d4fdcd9` — `fix: validar decimales no negativos en Moneda`; `5a6de42` — `test: validar decimales no negativos en Moneda`.
+**Último commit documental:** `96de871` — `docs: corregir referencia historica de suite`.
 
 ## Último bloque funcional cerrado
 
-### Reglas temporales de ciclos y pagos de tarjeta
+### Validación de `Moneda.cantidadDecimales`
 
-Quedó implementado y validado el bloque temporal: el ciclo histórico de una obligación queda persistido al crearla; las cuotas conservan sus fechas; el vencimiento se ajusta si cae sábado o domingo; la tarjeta admite días de gracia; la mora se evalúa sobre vencimiento efectivo más gracia; los pagos anteriores al consumo y futuros son rechazados; se mantiene el pago parcial y en orden de cuotas. Los nuevos campos son compatibles con datos existentes mediante valores nulos/fallback.
+`Moneda` mantiene el rechazo de `null` mediante `NullPointerException` y ahora rechaza valores negativos mediante `IllegalArgumentException`, tanto al crear la entidad como al modificar la cantidad de decimales.
 
-### Integridad estructural de Cuenta y Movimiento → Obligación
+Validación específica: `MonedaTest` **7/7**.
 
-Se protege la integridad histórica: una cuenta con movimientos no puede cambiar de tipo ni de moneda, y la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`. El movimiento origen de una obligación queda protegido frente a cambios estructurales incompatibles y eliminación.
+### Multidivisa — estado actual
 
-## Auditoría integral — resultado
+La moneda económica de `Movimiento` puede ser distinta de la moneda de `Cuenta`. Ya se corrigieron los cálculos para que el saldo de una cuenta y la validación de fondos de `MovimientoService` trabajen con la moneda correspondiente, evitando mezclar importes incompatibles.
 
-La auditoría integral del 14/09/2026 confirmó que el núcleo del proyecto está consolidado y que no corresponde rehacer la arquitectura. El principal hueco funcional real es la **multidivisa**.
+Continúa pendiente el tratamiento completo de tarjetas cuando la moneda del consumo difiere de la moneda de la tarjeta, especialmente crédito disponible y liquidación de pagos.
 
-Se detectaron tres problemas concretos que deben resolverse antes de considerar cerrada la multidivisa:
+### Integridad y tarjetas
 
-1. `CuentaService.calcularSaldo` mezcla importes de monedas distintas al sumar movimientos de una cuenta.
-2. `MovimientoService` utiliza el mismo saldo mezclado al validar fondos.
-3. Un consumo de tarjeta en moneda distinta de la moneda de la tarjeta queda fuera del cálculo actual del límite, porque no existe todavía una regla de conversión/liquidación.
+La integridad estructural de `Cuenta` está protegida: una cuenta con movimientos no puede cambiar de tipo ni moneda y la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO`.
 
-Por decisión de seguridad financiera, no se deben introducir conversiones implícitas. Primero deben definirse moneda de liquidación, tasa, fecha/fuente de cotización y tratamiento de saldos por moneda.
+El movimiento origen de una obligación queda protegido frente a cambios estructurales incompatibles y eliminación. Las obligaciones, cuotas, pagos coordinados, autorización, ciclos históricos, vencimientos de fin de semana, días de gracia y mora están implementados.
 
-Otros hallazgos de robustez: rango de `Moneda.cantidadDecimales`, política de eliminación de cuentas con historial, abstracción `Clock` y eventual versionado formal de esquema.
+## Validación más reciente informada por el usuario
 
-La auditoría completa quedó registrada en `docs/11_AUDITORIA_INTEGRAL.md`.
+Suite general:
 
-## Validación más reciente conocida
+- `mvn test`: **693/693**
+- failures: 0
+- errors: 0
+- skipped: 0
+- `BUILD SUCCESS`
+- finalizada: **15/09/2026 12:03:19 -03:00**
 
-El usuario ejecutó `mvn test`: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado el 13/09/2026 a las 22:05:14 -03:00.
+Suite relacionada antes de la general:
 
-También se verificó `mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado el 13/09/2026 a las 21:12:49 -03:00.
+- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**
+- failures: 0
+- errors: 0
+- skipped: 0
+- `BUILD SUCCESS`
+- finalizada: **15/09/2026 11:34:38 -03:00**
 
-## Pendientes reales después de la auditoría
+`MonedaTest`: **7/7**, `BUILD SUCCESS`, 15/09/2026 11:21:20 -03:00.
 
-### P0/P1
+## Pendientes reales
 
-- Cerrar el modelo de multidivisa de tarjetas: saldos por moneda, crédito disponible por moneda y regla explícita de liquidación/conversión.
-- Cubrir con tests los casos de cuenta/tarjeta con movimientos y obligaciones en distintas monedas.
+### P0/P1 — Multidivisa
 
-### P2
+1. Definir el impacto sobre el límite cuando el consumo y la tarjeta usan monedas distintas.
+2. Definir moneda de liquidación, tasa de cambio, fecha/fuente de cotización y trazabilidad.
+3. Resolver pagos/liquidaciones entre monedas sin conversiones implícitas.
+4. Cubrir con tests los casos cruzados de consumo, límite y pago.
 
-- Validar rango de `Moneda.cantidadDecimales`.
-- Definir política de eliminación de cuentas con historial financiero.
-- Evaluar abstracción `Clock`.
-- Evaluar migraciones/versionado de esquema si el proyecto deja la etapa de desarrollo local.
+### P2 — Robustez
 
-### P3
+1. Política de eliminación de cuentas con historial financiero.
+2. Abstracción `Clock` para determinismo temporal.
+3. Migraciones/versionado formal de esquema para una futura etapa no local.
 
-- Financiación avanzada.
-- UI específica de tarjetas.
-- Pasivos, patrimonio y análisis.
-- Gestión de entidades financieras.
-- Pulido de consola.
+### P3 — Evolución
 
-### Fuera del bloque actual
+1. Financiación avanzada.
+2. UI específica de tarjetas.
+3. Pasivos, patrimonio y análisis.
+4. Gestión de entidades financieras.
+5. Pulido de consola.
 
-No están implementados calendario de feriados, fecha efectiva separada de la fecha/hora del movimiento ni recargos financieros. No se deben inventar reglas sin decisión de negocio explícita.
+### Fuera de alcance actual
+
+Calendario de feriados, fecha efectiva separada del movimiento e intereses/punitorios/CFT/refinanciación requieren decisiones de negocio antes de implementarse.
 
 ## Protocolo de continuidad
 
-Ante una nueva sesión: rama → últimos commits → comparación con `main` → README/docs → código → tests → auditoría vigente → último resultado conocido → próximo paso.
+Ante una nueva sesión: rama → últimos commits → comparación con `main` → documentación → código relacionado → tests → último resultado informado → próximo paso.
 
-No modificar `main` automáticamente. No asumir resultados locales no informados. Antes de iniciar un nuevo bloque, consultar el HEAD real de la rama de trabajo en GitHub.
+No modificar `main` automáticamente. No asumir resultados locales no informados. Antes de considerar cerrado un bloque: tests específicos → relacionados → suite → diff → diff-check → status → documentación.
