@@ -1,6 +1,6 @@
 # SOFP — Historial del proyecto
 
-## Estado documental — 14/09/2026
+## Estado documental — 15/09/2026
 
 Los estados técnicos deben verificarse siempre contra código, tests y Git. Este documento registra hitos; no reemplaza la inspección del estado real.
 
@@ -37,71 +37,56 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 29. Cierre de la superficie pública de `ObligacionService`: se eliminó el registro de pagos sin `usuarioId`.
 30. Auditoría transversal de integridad de `Cuenta`.
 31. Implementación y validación de la integridad estructural de `Cuenta`.
-32. **Auditoría completa del ciclo de facturación aplicado al pago.**
-33. **Implementación de reglas temporales de ciclos y pagos.**
-34. **Validación de persistencia de obligaciones y suite completa tras adaptar tests a vencimientos de fin de semana.**
-35. **Auditoría integral del estado técnico, multidivisa, cobertura de tests y coherencia documental.**
+32. Auditoría completa del ciclo de facturación aplicado al pago.
+33. Implementación de reglas temporales de ciclos y pagos.
+34. Validación de persistencia de obligaciones y suite completa tras adaptar tests a vencimientos de fin de semana.
+35. Auditoría integral del estado técnico, multidivisa, cobertura de tests y coherencia documental.
+36. Corrección de saldos y disponibilidad de fondos para trabajar por moneda.
+37. Recuperación de cobertura de `CuentaService` sin modificar las reglas de negocio para hacer pasar tests.
+38. Validación de `Moneda.cantidadDecimales` no negativa.
 
-## Bloque temporal — cierre 14/09/2026
+## Bloque de robustez — 15/09/2026
 
-Se implementó y validó el bloque temporal identificado en la auditoría anterior.
+Se cerró la validación de `Moneda.cantidadDecimales`:
 
-### Reglas confirmadas
+- `null` continúa siendo rechazado;
+- valores negativos son rechazados;
+- la regla se aplica al crear y modificar `Moneda`;
+- no se agregó un límite superior arbitrario.
 
-- cálculo del ciclo según fecha de consumo y cierre;
-- persistencia histórica del ciclo en `Obligacion`;
-- persistencia de inicio, cierre y vencimiento en `Cuota`;
-- vencimiento ajustado cuando cae sábado o domingo;
-- días de gracia configurables, con valor por defecto 0;
-- evaluación de mora sobre el vencimiento efectivo más gracia;
-- rechazo de pagos anteriores al movimiento de consumo;
-- rechazo de pagos con fecha futura;
-- pagos parciales y aplicación en orden ascendente de cuotas;
-- estabilidad del ciclo histórico de obligaciones cuando la configuración de la tarjeta cambia posteriormente, cuando existen los datos históricos persistidos;
-- compatibilidad con datos existentes mediante campos nullable y fallback para registros históricos sin esos datos;
-- mantenimiento de las reglas financieras fuera de alcance: no se inventaron intereses, punitorios, CFT ni refinanciación.
+Commits del bloque:
 
-## Adaptación de persistencia
+- `d4fdcd9` — `fix: validar decimales no negativos en Moneda`.
+- `5a6de42` — `test: validar decimales no negativos en Moneda`.
 
-`ObligacionJpaTest` tuvo que adaptarse a las reglas temporales: el fixture que crea una obligación mediante un movimiento con `FormaPago.TARJETA_CREDITO` utiliza una cuenta de crédito real y el vencimiento esperado refleja el desplazamiento del fin de semana.
+## Estado de multidivisa
 
-La adaptación quedó en el commit `3a001a57c435237e62ab04f6c09a0657ff24fcb2`.
+El movimiento conserva su moneda económica explícita. La cuenta calcula saldo por su moneda y `MovimientoService` valida fondos con la moneda del movimiento, evitando mezclar ARS y USD.
 
-## Auditoría integral — 14/09/2026
+La multidivisa de tarjetas continúa abierta: falta definir el impacto de consumos en moneda distinta sobre el límite, la moneda de liquidación y el mecanismo de conversión/liquidación trazable.
 
-La auditoría integral confirmó que el núcleo arquitectónico no requiere rehacerse y que la principal brecha funcional es la multidivisa.
+No se deben introducir conversiones implícitas.
 
-Se detectaron tres problemas concretos:
+## Estado de validación actual
 
-- los cálculos de saldo de cuenta pueden mezclar importes de monedas distintas;
-- la validación de fondos utiliza ese saldo mezclado;
-- un consumo de tarjeta en moneda distinta de la moneda de la tarjeta no tiene una regla completa de impacto sobre el límite ni existe una liquidación/conversión explícita.
+- `MonedaTest`: **7/7**.
+- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
+- `mvn test`: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 15/09/2026 12:03:19 -03:00.
 
-La conclusión es que la multidivisa debe comenzar por separar saldos, fondos y crédito por moneda. No deben introducirse conversiones implícitas sin definir moneda de liquidación, tasa, fecha/fuente de cotización y trazabilidad.
-
-También se registraron como robustez futura la validación del rango de decimales de `Moneda`, la política de eliminación de cuentas con historial, una abstracción `Clock` y migraciones/versionado formal del esquema.
-
-La auditoría quedó documentada en `docs/11_AUDITORIA_INTEGRAL.md` y el roadmap fue sincronizado con el estado real de Swing y la validación actual.
-
-## Estado de validación conocido
-
-`mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 13/09/2026 21:12:49 -03:00.
-
-`mvn test`: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 13/09/2026 22:05:14 -03:00.
-
-Validaciones previas relevantes: integridad de `Cuenta` **66/66** específicos y **154/154** relacionados; `ObligacionServiceTest` **9/9**; suite de obligaciones/pagos/UI **69/69**; UI de pago de tarjeta **6/6**.
+No existe objetivo de recuperar artificialmente el conteo histórico de 704 tests.
 
 ## Pendientes actuales
 
-1. Multidivisa de tarjetas: saldos, fondos, crédito y liquidación por moneda.
-2. Tests específicos de multidivisa.
-3. Validación de `Moneda.cantidadDecimales`, política de eliminación histórica y `Clock`.
-4. Financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
-5. UI específica de tarjetas.
-6. Pasivos, patrimonio y análisis.
-7. Gestión de entidades financieras.
-8. Pulido de consola.
-9. Calendario de feriados y fecha efectiva separada, solo si se definen como reglas de negocio.
+1. Multidivisa de tarjetas: límite, liquidación y pagos entre monedas.
+2. Tests específicos y relacionados de multidivisa.
+3. Política de eliminación de cuentas con historial.
+4. Abstracción `Clock`.
+5. Migraciones/versionado formal de esquema.
+6. Financiación avanzada.
+7. UI específica de tarjetas.
+8. Pasivos, patrimonio y análisis.
+9. Gestión de entidades financieras.
+10. Pulido de consola.
 
 ## Continuidad Git
 
