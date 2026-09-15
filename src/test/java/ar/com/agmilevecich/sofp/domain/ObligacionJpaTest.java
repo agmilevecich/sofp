@@ -188,4 +188,98 @@ class ObligacionJpaTest {
         em.close();
         JpaTestManager.close();
     }
+
+    @Test
+    void deberiaPersistirMonedasOriginalYLiquidacionEnConsumoMultidivisa() {
+
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.obligacion.multidivisa.jpa@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil = new PerfilFinanciero(
+                "Personal",
+                usuario
+        );
+
+        InstitucionFinanciera banco = new InstitucionFinanciera(
+                "Banco Santander",
+                TipoInstitucionFinanciera.BANCO
+        );
+
+        Moneda ars = new Moneda(
+                "ARS",
+                "Peso Argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        Moneda usd = new Moneda(
+                "USD",
+                "Dólar Estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        Cuenta tarjeta = new Cuenta(
+                "Visa ARS",
+                perfil,
+                banco,
+                ars,
+                new BigDecimal("2000000.00"),
+                15,
+                10
+        );
+
+        Categoria categoria = new Categoria(
+                "Compra exterior",
+                perfil
+        );
+
+        Movimiento movimiento = new Movimiento(
+                tarjeta,
+                categoria,
+                usd,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 15, 12, 0),
+                "Consumo USD en tarjeta ARS",
+                FormaPago.TARJETA_CREDITO
+        );
+
+        Obligacion obligacion = new Obligacion(movimiento);
+
+        em.getTransaction().begin();
+        em.persist(usuario);
+        em.persist(perfil);
+        em.persist(banco);
+        em.persist(ars);
+        em.persist(usd);
+        em.persist(tarjeta);
+        em.persist(categoria);
+        em.persist(movimiento);
+        em.persist(obligacion);
+        em.getTransaction().commit();
+
+        Long id = obligacion.getId();
+
+        em.clear();
+
+        Obligacion recuperada = em.find(Obligacion.class, id);
+
+        assertNotNull(recuperada);
+        assertEquals(new BigDecimal("100.00"), recuperada.getImporteOriginal());
+        assertEquals(new BigDecimal("100.00"), recuperada.getSaldoPendiente());
+        assertEquals(usd.getId(), recuperada.getMonedaOriginal().getId());
+        assertEquals(ars.getId(), recuperada.getMonedaLiquidacion().getId());
+        assertNull(recuperada.getImporteLiquidacion());
+        assertEquals(movimiento.getId(), recuperada.getMovimientoOrigen().getId());
+
+        em.close();
+        JpaTestManager.close();
+    }
 }
