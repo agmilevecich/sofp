@@ -54,7 +54,7 @@ class TipoCambioJpaTest {
         assertNotNull(recuperado);
         assertEquals(usd.getId(), recuperado.getMonedaOrigen().getId());
         assertEquals(ars.getId(), recuperado.getMonedaDestino().getId());
-        assertEquals(new BigDecimal("1500.00"), recuperado.getCotizacion());
+        assertEquals(0, new BigDecimal("1500.00").compareTo(recuperado.getCotizacion()));
         assertEquals(fechaHora, recuperado.getFechaHora());
         assertEquals("Cotización manual", recuperado.getFuente());
         assertEquals(new BigDecimal("150000.00"), recuperado.convertir(new BigDecimal("100.00")));
