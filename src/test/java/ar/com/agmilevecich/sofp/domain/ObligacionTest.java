@@ -21,6 +21,22 @@ class ObligacionTest {
         assertEquals(EstadoObligacion.PENDIENTE, obligacion.getEstado());
         assertEquals(movimiento, obligacion.getMovimientoOrigen());
         assertEquals(movimiento.getFechaHora(), obligacion.getFechaOrigen());
+        assertEquals(movimiento.getMoneda(), obligacion.getMonedaOriginal());
+        assertEquals(movimiento.getCuenta().getMoneda(), obligacion.getMonedaLiquidacion());
+        assertNull(obligacion.getImporteLiquidacion());
+    }
+
+    @Test
+    void deberiaSepararMonedaOriginalDeMonedaDeLiquidacionEnConsumoMultidivisa() {
+        Movimiento movimiento = crearMovimientoMultidivisa(FormaPago.TARJETA_CREDITO);
+
+        Obligacion obligacion = new Obligacion(movimiento);
+
+        assertEquals(new BigDecimal("100.00"), obligacion.getImporteOriginal());
+        assertEquals("USD", obligacion.getMonedaOriginal().getCodigo());
+        assertEquals("ARS", obligacion.getMonedaLiquidacion().getCodigo());
+        assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
+        assertNull(obligacion.getImporteLiquidacion());
     }
 
     @Test
@@ -95,7 +111,7 @@ class ObligacionTest {
     }
 
     @Test
-    void deberiaRechazarPagoMayorAlSaldoPendiente() {
+    void deveriaRechazarPagoMayorAlSaldoPendiente() {
 
         Obligacion obligacion = new Obligacion(
                 crearMovimiento(FormaPago.TARJETA_CREDITO)
@@ -205,6 +221,33 @@ class ObligacionTest {
                 new BigDecimal("15000.50"),
                 LocalDateTime.of(2026, 9, 4, 12, 0),
                 "Compra con tarjeta",
+                formaPago
+        );
+    }
+
+    private Movimiento crearMovimientoMultidivisa(FormaPago formaPago) {
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.obligacion.multidivisa." + System.nanoTime() + "@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil = new PerfilFinanciero("Personal", usuario);
+        InstitucionFinanciera banco = new InstitucionFinanciera("Banco Santander", TipoInstitucionFinanciera.BANCO);
+        Moneda ars = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta("Tarjeta ARS", perfil, banco, ars, new BigDecimal("500000.00"), 15, 10);
+        Categoria categoria = new Categoria("Supermercado", perfil);
+
+        return new Movimiento(
+                cuenta,
+                categoria,
+                usd,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 4, 12, 0),
+                "Compra en USD",
                 formaPago
         );
     }
