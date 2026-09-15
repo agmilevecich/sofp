@@ -2,71 +2,61 @@
 
 ## Estado documental — 15/09/2026
 
-**Etapa actual:** multidivisa de tarjetas en integración incremental. El modelo histórico de liquidación ya está implementado; todavía falta conectarlo al flujo real de pago.
+**Rama de trabajo:** `feature/swing-shell`.
+**HEAD documental:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
-### Validación global actual
+## Última validación conocida
 
-El usuario ejecutó `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado **15/09/2026 18:05:46 -03:00**.
+- `PagoTarjetaServiceTest`: 10/10.
+- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 18:37:13 -03:00**.
 
-## Último bloque funcional cerrado
+La última suite completa ejecutada antes de esta integración fue `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 18:05:46 -03:00**. Esta cifra todavía debe renovarse sobre el estado actual.
 
-### Liquidación histórica multidivisa de obligaciones
+## Último bloque implementado
 
-Se implementó `TipoCambio` como entidad histórica y se separaron en `Obligacion` la moneda original del consumo y la moneda de liquidación.
+### Pago de obligaciones multidivisa
 
-Se agregó la asociación del tipo de cambio utilizado y la operación explícita `Obligacion.liquidar(TipoCambio)`, con validación de monedas, prevención de doble liquidación y cálculo según la cotización histórica.
+Se completó la integración del modelo de liquidación histórica con `PagoTarjetaService`.
 
-Commits principales:
+`Obligacion` ahora conserva también `saldoLiquidacion`. Al liquidar con `TipoCambio`, el saldo de liquidación se inicializa con el importe convertido.
 
-- `6e2d38d` — `feat: modelar tipo de cambio historico`.
-- `52a125e` — `test: validar tipo de cambio historico`.
-- `8cd34fb` — `test: persistir tipo de cambio historico`.
-- `f76822b` — `fix: registrar TipoCambio en persistencia de tests`.
-- `fc4a0ff` — `test: corregir escala de cotizacion en prueba JPA`.
-- `506166b` — `feat: separar moneda original y de liquidacion en Obligacion`.
-- `bbc4dbb` — `fix: compatibilizar monedas de Obligacion con datos existentes`.
-- `a8ed8e8` — `test: cubrir monedas original y de liquidacion de Obligacion`.
-- `d168a82` — `test: persistir monedas original y liquidacion de Obligacion`.
-- `17c81ba` — `feat: asociar tipo de cambio historico a Obligacion`.
-- `1ab3d10` — tests de liquidación de obligación.
-- `c74717a` — `test: persistir liquidacion historica de Obligacion`.
+`PagoTarjetaService`:
 
-Validaciones del bloque:
+- usa `saldoLiquidacion` cuando existe;
+- mantiene `saldoPendiente` para obligaciones no liquidadas;
+- exige que la cuenta pagadora coincida con `monedaLiquidacion`;
+- aplica pagos liquidados mediante `registrarPagoLiquidacion`;
+- mantiene el flujo anterior mediante `registrarPago` para obligaciones no liquidadas;
+- no realiza conversiones implícitas.
 
-- `TipoCambioTest`: 10/10.
-- `TipoCambioJpaTest`: 1/1.
-- `ObligacionTest`: 12/12.
-- `ObligacionJpaTest`: 3/3.
-- `ObligacionLiquidacionTest`: 5/5.
-- `ObligacionTipoCambioJpaTest`: 1/1.
-- Suite relacionada: 27/27.
-- Suite general: 712/712.
+Commits principales del bloque:
 
-## Bloques cerrados relevantes
+- `216b0d3` — `feat: guardar saldo de liquidacion de Obligacion`.
+- `8185f83` — `test: cubrir saldo de liquidacion de Obligacion`.
+- `a0073af` — `test: persistir saldo de liquidacion de Obligacion`.
+- `ab1ca2af` — `feat: usar saldo de liquidacion en PagoTarjetaService`.
+- `e95585e` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
-- Shell Swing y navegación.
-- Cuentas, categorías, ingresos, gastos, movimientos e inversiones.
-- Obligaciones y pagos de tarjeta desde UI.
-- Autorización de pagos por usuario.
-- Integridad estructural de `Cuenta`.
-- Integridad histórica Movimiento → Obligación.
-- Ciclos históricos de obligaciones.
-- Cuotas simples y pagos parciales.
-- Vencimiento de fin de semana.
-- Días de gracia y mora.
-- Aislamiento JPA/H2 para tests.
-- Saldos y disponibilidad de fondos separados por moneda.
-- Validación de `Moneda.cantidadDecimales` no negativa.
-- Modelo explícito de liquidación histórica multidivisa.
+## Bloques multidivisa anteriores
 
-## Evolución de la suite
+- `6e2d38d` — modelo de `TipoCambio` histórico.
+- `52a125e` — tests de `TipoCambio`.
+- `8cd34fb` / `f76822b` / `fc4a0ff` — persistencia y corrección de escala.
+- `506166b` / `bbc4dbb` — monedas original/liquidación de `Obligacion` y compatibilidad histórica.
+- `17c81ba` — asociación de `TipoCambio` a `Obligacion`.
+- `1ab3d10` / `c74717a` — liquidación y persistencia.
 
-La suite histórica llegó a 704 tests durante el bloque temporal. Posteriormente se reorganizó cobertura y se incorporaron cambios de multidivisa y robustez. El estado actual válido es **712/712**. No existe objetivo de recuperar artificialmente el conteo histórico de 704.
+## Estado de la suite
+
+El histórico válido sigue siendo **712/712** y no existe objetivo de recuperar artificialmente el conteo anterior de 704. Después de la integración de `PagoTarjetaService` todavía falta ejecutar la suite relacionada completa y luego `mvn test` sobre el estado actual.
 
 ## Próximo bloque
 
-Integrar la liquidación histórica en `PagoTarjetaService` sin romper pagos de moneda coincidente y definir el impacto de consumos en moneda distinta sobre el crédito disponible.
+1. Tests relacionados sobre el estado actual.
+2. Suite completa.
+3. `git diff`, `git diff --check` y `git status`.
+4. Actualizar documentación con los resultados reales.
+5. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
 
-No se deben introducir conversiones implícitas.
-
-No se modificó `main`.
+No se deben introducir conversiones implícitas y no se modificó `main`.
