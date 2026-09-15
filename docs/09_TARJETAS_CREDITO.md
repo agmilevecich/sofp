@@ -12,32 +12,31 @@ Una tarjeta de crédito es una `Cuenta` con `TipoCuenta.TARJETA_CREDITO`. Tiene 
 
 La deuda se representa mediante `Obligacion` y el consumo mediante `Movimiento`.
 
-## 2. Moneda — IMPLEMENTACIÓN PARCIAL, MULTIDIVISA PENDIENTE
+## 2. Moneda — LIQUIDACIÓN HISTÓRICA IMPLEMENTADA, INTEGRACIÓN DE PAGO PENDIENTE
 
-La moneda del consumo se conserva en `Movimiento` y en la obligación. Una compra ARS genera obligación ARS y una compra USD genera obligación USD. No se realiza conversión automática.
+La moneda del consumo se conserva en `Movimiento` y como `monedaOriginal` de la obligación. La moneda de la tarjeta/cuenta queda como `monedaLiquidacion`.
 
-Los pagos coordinados requieren coincidencia de moneda entre deuda y cuenta pagadora.
+`TipoCambio` representa una cotización histórica con moneda origen, moneda destino, cotización, fecha/hora y fuente.
 
-La auditoría confirmó que esta base es correcta como protección contra conversiones implícitas, pero insuficiente para cerrar multidivisa.
+`Obligacion.liquidar(TipoCambio)` valida que la cotización corresponda a las monedas de la obligación, calcula `importeLiquidacion`, conserva la cotización utilizada y evita una segunda liquidación.
+
+No se realiza conversión automática al crear el consumo ni se recalcula una liquidación histórica con una cotización posterior.
 
 ## 3. Estado actual de saldos y fondos
 
-La cuenta calcula su saldo usando únicamente movimientos de la moneda de la cuenta. `MovimientoService` valida fondos usando la moneda económica del movimiento. Por lo tanto, ARS y USD ya no deben mezclarse en estos cálculos.
+La cuenta calcula su saldo usando únicamente movimientos de la moneda de la cuenta. `MovimientoService` valida fondos usando la moneda económica del movimiento. ARS y USD no deben mezclarse en estos cálculos.
 
-Esto está cubierto por `MovimientoMultimonedaTest` y por la suite relacionada actual.
+## 4. Multidivisa de tarjetas — PENDIENTE PARCIAL
 
-## 4. Hallazgo multidivisa de tarjetas
+Ya está resuelto el modelo de la obligación y la cotización histórica. Falta definir e implementar:
 
-Continúa pendiente definir qué ocurre cuando la moneda del consumo difiere de la moneda de la tarjeta. En particular:
-
-1. cómo impacta ese consumo sobre el límite;
+1. cómo impacta un consumo en moneda distinta sobre el límite;
 2. en qué moneda se expresa el crédito disponible;
-3. cuál es la moneda de liquidación;
-4. qué tasa se utiliza;
-5. qué fecha y fuente de cotización se registran;
-6. cómo se representa y audita la conversión/liquidación.
+3. cómo `PagoTarjetaService` utiliza una liquidación histórica explícita;
+4. cómo se representa el pago real cuando cuenta pagadora y obligación usan monedas distintas;
+5. cobertura completa de servicio, persistencia y UI.
 
-No se deben agregar conversiones automáticas sin esas decisiones.
+No se deben agregar conversiones implícitas.
 
 ## 5. Crédito disponible
 
@@ -47,7 +46,7 @@ Para consumos en la moneda de la tarjeta, el criterio actual es:
 
 Las compras con tarjeta no reducen el saldo monetario de la cuenta como si fueran salidas inmediatas de fondos. Los pagos reducen la obligación y liberan crédito.
 
-Para consumos en moneda distinta, el criterio no está cerrado y no debe interpretarse como soporte multidivisa completo.
+Para consumos en moneda distinta, el criterio definitivo todavía debe cerrarse.
 
 ## 6. Ciclo de facturación — IMPLEMENTADO Y CON HISTORIAL PERSISTENTE
 
@@ -55,27 +54,15 @@ Para consumos en moneda distinta, el criterio no está cerrado y no debe interpr
 
 `Cuenta.calcularCicloFacturacion(LocalDate)` resuelve cierre exacto, ciclo siguiente, meses cortos, vencimiento y cambio de año. El vencimiento efectivo se desplaza al lunes cuando cae sábado o domingo.
 
-Al crear una `Obligacion`, se persisten los datos históricos del ciclo: inicio, cierre, vencimiento y días de gracia. Las `Cuota` también conservan persistentemente las fechas de su ciclo.
-
-`Obligacion.getCicloFacturacion()` utiliza los datos históricos persistidos cuando están disponibles y mantiene fallback para obligaciones antiguas sin esos campos.
+Al crear una `Obligacion`, se persisten los datos históricos del ciclo: inicio, cierre, vencimiento y días de gracia. Las `Cuota` conservan persistentemente sus fechas.
 
 ## 7. Pagos — SERVICIO COORDINADO IMPLEMENTADO
 
-`PagoTarjetaService` coordina en una única transacción:
+`PagoTarjetaService` coordina la autorización, validaciones, egreso real y aplicación del pago dentro de una única operación transaccional.
 
-1. localizar y autorizar la obligación;
-2. validar cuenta pagadora, categoría, perfil y moneda;
-3. validar cuenta activa;
-4. validar importe y saldo pendiente;
-5. validar fondos;
-6. validar que la fecha del pago no sea anterior al consumo ni posterior al momento actual;
-7. registrar egreso real en la cuenta pagadora;
-8. registrar pago sobre la obligación;
-9. confirmar ambas operaciones juntas.
+Puede realizar pagos parciales o totales y está integrado en `ObligacionesPanel`.
 
-Puede realizar pagos parciales o totales.
-
-La integración con `ObligacionesPanel` está implementada y cubierta por tests.
+La extensión para liquidación multidivisa histórica todavía no fue incorporada al servicio.
 
 ## 8. Reglas temporales de pago — IMPLEMENTADAS
 
@@ -84,16 +71,13 @@ La integración con `ObligacionesPanel` está implementada y cubierta por tests.
 - vencimiento en sábado/domingo: desplazado al lunes;
 - días de gracia configurables, por defecto 0;
 - mora evaluada a partir del vencimiento efectivo más gracia;
-- para obligaciones con cuotas, la fecha límite se determina a partir de la primera cuota pendiente;
 - pagos parciales continúan aplicándose en orden ascendente de cuotas.
 
 No existe todavía calendario de feriados, fecha efectiva separada del movimiento ni cálculo de intereses/punitorios/CFT.
 
 ## 9. Integridad movimiento ↔ obligación — IMPLEMENTADA
 
-El movimiento que origina una obligación queda protegido frente a cambios estructurales que romperían la correspondencia histórica: importe, fecha/hora, tipo y eliminación están sujetos a las reglas de integridad implementadas en `MovimientoService`.
-
-Las pruebas verifican además que, cuando una modificación estructural es rechazada, los valores persistidos originales permanecen intactos.
+El movimiento que origina una obligación queda protegido frente a cambios estructurales que romperían la correspondencia histórica: importe, fecha/hora, tipo y eliminación están sujetos a las reglas implementadas en `MovimientoService`.
 
 ## 10. Seguridad de API — IMPLEMENTADA PARA PAGOS
 
@@ -107,7 +91,7 @@ Sigue pendiente la financiación avanzada: intereses, CFT, cuotas variables, ade
 
 ## 12. Integridad estructural de Cuenta — IMPLEMENTADA
 
-Una cuenta con movimientos no puede cambiar de tipo ni de moneda. Además, la API genérica no permite transiciones hacia o desde `TARJETA_CREDITO` mediante la operación de modificación estructural.
+Una cuenta con movimientos no puede cambiar de tipo ni de moneda. La API genérica tampoco permite transiciones hacia o desde `TARJETA_CREDITO`.
 
 ## 13. UI específica
 
@@ -115,28 +99,33 @@ Pendiente una UI completa para consultar límite/disponible, consumos, ciclos, c
 
 ## 14. Compatibilidad histórica
 
-Los nuevos campos temporales se mantienen nullable cuando corresponde para no romper datos existentes. Las obligaciones antiguas sin ciclo histórico completo utilizan fallback al cálculo anterior; `diasGracia` nulo se interpreta como 0.
+Los nuevos campos se mantienen nullable cuando corresponde para no romper datos existentes y utilizan fallback cuando los registros antiguos no contienen la información histórica.
 
-## 15. Orden de trabajo pendiente
+## 15. Validación actual
 
-1. Resolver multidivisa de tarjetas: límite, liquidación y pagos entre monedas.
-2. Cubrir multidivisa con tests específicos y relacionados.
-3. Financiación avanzada.
-4. UI específica de tarjetas.
-5. Pasivos/patrimonio y análisis.
-6. Gestión de entidades financieras.
-7. Pulido de consola.
+- `TipoCambioTest`: **10/10**.
+- `TipoCambioJpaTest`: **1/1**.
+- `ObligacionTest`: **12/12**.
+- `ObligacionJpaTest`: **3/3**.
+- `ObligacionLiquidacionTest`: **5/5**.
+- `ObligacionTipoCambioJpaTest`: **1/1**.
+- Suite general: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 18:05:46 -03:00.
+
+## 16. Orden de trabajo pendiente
+
+1. Integrar liquidación histórica en `PagoTarjetaService`.
+2. Definir impacto de moneda extranjera sobre límite/crédito disponible.
+3. Cubrir servicio, persistencia y UI.
+4. Financiación avanzada.
+5. UI específica de tarjetas.
+6. Pasivos/patrimonio y análisis.
+7. Gestión de entidades financieras.
+8. Pulido de consola.
 
 El calendario de feriados y una fecha efectiva separada requieren decisión de negocio antes de implementarse.
 
-## 16. Validación actual
-
-- `MonedaTest`: **7/7**.
-- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
-- Suite general: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 12:03:19 -03:00.
-
 ## 17. Conclusión
 
-El modelo de tarjeta está consolidado para moneda coincidente, ciclos, cuotas simples, pagos coordinados, autorización e integridad histórica. Los saldos y fondos generales ya respetan la moneda.
+El modelo de tarjeta está consolidado para moneda coincidente, ciclos, cuotas simples, pagos coordinados, autorización e integridad histórica. La primera etapa de liquidación multidivisa histórica ya está modelada, validada y persistida.
 
-La multidivisa de tarjetas sigue siendo el principal bloque funcional abierto. El siguiente cambio no debe empezar por una conversión aislada: primero debe definirse el impacto sobre crédito disponible y la regla explícita de liquidación.
+El siguiente cambio debe concentrarse en la integración de esa liquidación con el flujo real de `PagoTarjetaService`, sin conversiones implícitas.
