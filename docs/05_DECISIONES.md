@@ -1,141 +1,44 @@
 # SOFP — Decisiones
 
-Este documento registra decisiones permanentes del proyecto.
+Este documento registra decisiones permanentes del proyecto. Código y tests actuales prevalecen ante contradicciones históricas.
 
-## D-001 — El repositorio es la memoria permanente
-Código, Git, tests y documentación forman la memoria permanente, con prioridad del código y tests sobre `docs/`.
+## D-001 a D-044
 
-## D-002 — Desarrollo incremental por Builds
-Cada bloque debe tener objetivo concreto, tests y commit identificable.
+Se mantienen las decisiones anteriores: repositorio como memoria permanente; desarrollo incremental por Builds; JPA/Hibernate; H2; `BigDecimal`; dominio antes de interfaz; tests como condición de avance; continuidad documental; transferencias mediante `OperacionFinanciera`; paneles especializados sobre `Movimiento`; separación `Cuenta`/`FormaPago`; modelo de activos/pasivos/patrimonio; control de fondos; categorías inactivables; roadmap no equivalente a implementación; gastos e ingresos sobre `Movimiento`; tarjeta de crédito como origen de `Obligacion`; obligación como pasivo especializado; compatibilidad de constructores del shell; pagos autorizados por usuario; refresco de obligaciones; transferencias coordinadas; moneda explícita; UI con moneda; criterio de crédito disponible; ciclos históricos; aislamiento JPA/H2; cuotas generadas por el flujo de gasto; H2 TCP para aplicación; integridad histórica de `Cuenta`; ciclo histórico de obligación; vencimiento de fin de semana; límites temporales de pago; gracia y mora; compatibilidad con datos existentes; multidivisa sin conversiones implícitas; comparabilidad monetaria; financiación avanzada independiente; documentación subordinada al código; `Moneda.cantidadDecimales` no negativa.
 
-## D-003 — Persistencia con JPA/Hibernate
-Se utiliza Jakarta Persistence con Hibernate como ORM.
+## D-045 — Moneda original y moneda de liquidación son conceptos distintos
 
-## D-004 — H2 como base de desarrollo y tests
-H2 se utiliza para desarrollo y pruebas de persistencia.
+Un consumo puede tener una moneda económica distinta de la moneda de la tarjeta. `Obligacion` conserva ambas monedas: la original corresponde al consumo y la de liquidación corresponde a la cuenta/tarjeta que debe cancelar la deuda.
 
-## D-005 — BigDecimal para importes
-Los valores monetarios usan `BigDecimal`.
+## D-046 — La liquidación multidivisa es explícita y trazable
 
-## D-006 — Dominio antes de interfaz
-Las reglas de dominio y persistencia se construyen antes de avanzar fuertemente sobre la interfaz.
+La conversión no se realiza implícitamente al crear la obligación. Una liquidación multidivisa debe utilizar una cotización histórica explícita y quedar asociada a la obligación.
 
-## D-007 — Tests como condición de avance
-Una funcionalidad no se considera cerrada hasta verificar sus tests y mantener la suite previa funcionando.
+## D-047 — `TipoCambio` representa una cotización histórica
 
-## D-008 — Continuidad documental
-Se mantienen estado, contexto, Builds, tests, decisiones e historial para continuar sin depender de una conversación.
+`TipoCambio` conserva moneda origen, moneda destino, cotización, fecha/hora y fuente. La cotización se considera histórica y no se reemplaza retroactivamente por una cotización posterior.
 
-## D-009 — Transferencias no son TipoMovimiento
-Una transferencia propia produce `EGRESO` en origen e `INGRESO` en destino y se coordina mediante `OperacionFinanciera`.
+## D-048 — La obligación conserva el tipo de cambio utilizado
 
-## D-010 — ControlFinanzas como banco de ideas
-Es referencia funcional, no arquitectura para copiar.
+`Obligacion` mantiene la asociación `tipoCambioLiquidacion` y el `importeLiquidacion`. Una obligación ya liquidada no puede liquidarse nuevamente.
 
-## D-011 — Paneles especializados sobre núcleo común
-Patrón: **paneles especializados → servicios específicos → núcleo financiero basado en `Movimiento`**.
+## D-049 — Validación de monedas en la liquidación
 
-## D-012 — Cuenta y FormaPago son conceptos distintos
-`Cuenta` identifica dónde se produce el efecto financiero; `FormaPago` cómo se realizó la operación.
+`Obligacion.liquidar(TipoCambio)` exige que la moneda origen del tipo de cambio coincida con `monedaOriginal` y que la moneda destino coincida con `monedaLiquidacion`. Una discrepancia es error de negocio.
 
-## D-013 — Activos, pasivos y patrimonio
-Objetivo: representar liquidez, inversiones, deudas, derechos de cobro y patrimonio neto. `TOTAL ACTIVOS - TOTAL PASIVOS = PATRIMONIO NETO`.
+## D-050 — No se modifica todavía `PagoTarjetaService` para multidivisa
 
-## D-014 — Egresos sujetos a fondos disponibles
-Un egreso mayor al saldo se rechaza; uno igual se permite y deja saldo cero. También aplica a modificaciones.
-
-## D-015 — Categorías con movimientos no se eliminan físicamente
-Se conservan y se desactivan.
-
-## D-016 — Roadmap no equivale a implementación
-Resúmenes, rankings, evolución, vencimientos, gráficos y dashboard son candidatos hasta tener código y tests.
-
-## D-017 — Gastos sobre Movimiento
-`GastosPanel → GastoService → MovimientoService → Movimiento EGRESO`.
-
-## D-018 — FormaPago integrada a Gastos
-`Movimiento` conserva la forma de pago y `GastoService` la exige.
-
-## D-019 — Tarjeta de crédito genera obligación
-Una compra con `TARJETA_CREDITO` es un `Movimiento EGRESO` y genera `Obligacion`; no es un pago inmediato de la cuenta.
-
-## D-020 — Obligación como pasivo especializado
-Conserva importe, saldo, estado, movimiento de origen y moneda económica. Estados: `PENDIENTE`, `PARCIAL`, `PAGADA`.
-
-## D-021 — Compatibilidad de constructores del shell
-Los constructores existentes de `MainFrame` sin `ObligacionService` deben seguir funcionando mientras no requieran obligaciones.
-
-## D-022 — Pagos autorizados por usuario
-El pago debe pasar por servicio con `usuarioId` y verificación de pertenencia.
-
-## D-023 — Refresco de obligaciones conserva selección
-El refresco posterior a un pago conserva la selección si la obligación sigue presente.
-
-## D-024 — Ingresos sobre Movimiento
-`IngresosPanel → IngresoService → MovimientoService → Movimiento INGRESO`.
-
-## D-025 — Ingresos autorizados
-Cuenta y categoría deben pertenecer al perfil autorizado.
-
-## D-026 — Transferencias mediante OperacionFinanciera
-Las transferencias propias se coordinan mediante servicio central y no son ingreso/gasto independiente.
-
-## D-027 — La obligación conserva moneda del consumo
-No hay conversión automática al crear la obligación.
-
-## D-028 — UI muestra moneda explícita
-`ObligacionesPanel` muestra moneda en importe original y saldo pendiente; el formato usa `Locale.ROOT`.
-
-## D-029 — Crédito disponible inicial de tarjetas
-El criterio actual es `límite de crédito − consumos de tarjeta pendientes en la moneda de la tarjeta`. No se realizan conversiones implícitas entre monedas. Esta decisión es el primer criterio funcional y no cierra todavía el tratamiento multidivisa definitivo del límite.
-
-## D-030 — Ciclo de facturación como objeto de dominio calculado
-`CicloFacturacion` no es entidad persistente. `Cuenta.calcularCicloFacturacion(LocalDate)` calcula inicio, cierre y vencimiento, ajustando días inexistentes al último día real del mes. La lógica pertenece al dominio, no a Swing.
-
-## D-031 — Aislamiento JPA de tests
-El contexto JPA/H2 de tests debe quedar aislado por hilo y cerrado explícitamente al terminar tests que gestionen su propio ciclo de vida. Esto evita contaminación entre clases de test.
-
-## D-032 — Cuotas generadas por el flujo de gasto
-Cuando un gasto con `TARJETA_CREDITO` se registra con una cantidad de cuotas, `GastoService` es responsable de generar las cuotas dentro de la transacción de la obligación. Los tests deben utilizar ese flujo productivo y no generar manualmente cuotas ya creadas.
-
-## D-033 — H2 de la aplicación por TCP y tests aislados
-La aplicación utiliza H2 mediante servidor TCP con `jdbc:h2:tcp://localhost/./database/sofp`, permitiendo compartir la base persistente entre SOFP y H2 Console. Los tests conservan un `persistence.xml` separado con H2 en memoria y no dependen del servidor TCP.
-
-## D-034 — Integridad estructural histórica de Cuenta
-Una cuenta con movimientos no puede cambiar de tipo ni de moneda. La API genérica tampoco permite transiciones hacia o desde `TARJETA_CREDITO`. La regla protege la coherencia histórica y se implementa en la capa de servicio.
-
-## D-035 — Ciclo histórico de una obligación
-Al crear una obligación se congelan sus datos históricos de ciclo: inicio, cierre, vencimiento y días de gracia. Las cuotas persisten sus propias fechas. Si esos campos históricos no existen en registros antiguos, se utiliza fallback compatible.
-
-## D-036 — Vencimiento de fin de semana
-Si el vencimiento configurado cae sábado o domingo, el vencimiento efectivo se desplaza al lunes. Esta regla no incluye feriados hasta que exista una decisión explícita de negocio.
-
-## D-037 — Límites temporales de pago
-Un pago de tarjeta no puede tener fecha/hora anterior al consumo que origina la obligación ni posterior al momento actual. La validación se realiza en `PagoTarjetaService`.
-
-## D-038 — Gracia y mora
-Los días de gracia pertenecen a la configuración de crédito y por defecto son 0. La mora se evalúa sobre el vencimiento efectivo más la gracia. No se calculan intereses ni punitorios en este bloque.
-
-## D-039 — Compatibilidad con datos existentes
-Los nuevos campos temporales se mantienen nullable cuando es necesario para no romper datos existentes. Los valores históricos ausentes utilizan fallback; `diasGracia` nulo se interpreta como 0.
-
-## D-040 — Auditoría integral de multidivisa antes de implementar conversiones
-La moneda explícita del movimiento se conserva. Los saldos y la disponibilidad de fondos se calculan por moneda y no se deben mezclar importes de monedas distintas. No se agregan conversiones implícitas hasta definir moneda de liquidación, tasa, fecha/fuente de cotización y representación trazable del saldo por moneda.
-
-## D-041 — Saldos siempre deben ser monetariamente comparables
-No se debe sumar ni comparar `BigDecimal` de monedas distintas como si fueran una única magnitud. Cualquier cálculo de saldo, fondos disponibles, crédito o deuda debe estar filtrado por moneda o respaldado por una conversión explícita y trazable.
-
-## D-042 — La financiación avanzada es un bloque independiente
-Intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes no se mezclan con la implementación básica de ciclos ni con la solución de multidivisa.
-
-## D-043 — Documentación arquitectónica no puede contradecir el código
-El roadmap y los documentos de continuidad deben actualizarse cuando una fase cambia de estado. El código, tests y commits actuales prevalecen siempre sobre documentación histórica.
-
-## D-044 — `Moneda.cantidadDecimales` no admite valores negativos
-La cantidad de decimales es obligatoria y no puede ser negativa. La regla se aplica al constructor y al cambio posterior de la propiedad. `null` conserva la validación obligatoria mediante `NullPointerException`.
+La integración con el flujo real de pago se realizará después de cerrar el modelo de liquidación histórica y sus tests. El siguiente cambio debe ser mínimo y preservar el comportamiento existente de pagos en moneda coincidente.
 
 ## Actualización — 15/09/2026
 
-El bloque de validación de `Moneda.cantidadDecimales` quedó implementado y validado. `MonedaTest` pasó 7/7; la suite relacionada pasó 53/53 y la suite general pasó **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+El bloque de liquidación histórica multidivisa de obligaciones quedó implementado y validado.
 
-La documentación actualizada mantiene como próximo bloque funcional la multidivisa de tarjetas, sin conversiones implícitas y con definición previa de moneda de liquidación, tasa, fecha/fuente y trazabilidad.
+- `TipoCambioTest`: 10/10.
+- `TipoCambioJpaTest`: 1/1.
+- `ObligacionLiquidacionTest`: 5/5.
+- `ObligacionTipoCambioJpaTest`: 1/1.
+- Suite completa: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 18:05:46 -03:00**.
+
+Próximo bloque: integración controlada en `PagoTarjetaService` y definición del impacto sobre crédito disponible cuando consumo y tarjeta usan monedas distintas.
