@@ -4,69 +4,62 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD actual:** `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5` — `test: persistir liquidacion historica de Obligacion`.
+**Último commit de código validado:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
-La rama de trabajo está 677 commits adelante de `main` y 0 atrás. No se realizó merge a `main`.
+La rama de trabajo continúa separada de `main`. No se realizó merge.
 
-La fuente de verdad es código, tests y commits actuales. Esta documentación es auxiliar.
+## Último bloque implementado
 
-## Último bloque cerrado
-
-Se completó la primera implementación trazable de liquidación multidivisa de obligaciones.
+Se completó la integración del pago de obligaciones multidivisa en `PagoTarjetaService`.
 
 ### Modelo
 
-- `Movimiento` conserva la moneda económica original del consumo.
+- `Movimiento` conserva la moneda económica del consumo.
 - `Obligacion` conserva `monedaOriginal` y `monedaLiquidacion`.
-- `importeLiquidacion` queda separado del importe original y es inicialmente nulo.
-- `TipoCambio` representa una cotización histórica inmutable: moneda origen, moneda destino, cotización, fecha/hora y fuente.
-- `Obligacion` conserva el `TipoCambio` utilizado para su liquidación.
-- `Obligacion.liquidar(TipoCambio)` valida monedas, evita una segunda liquidación y calcula el importe de liquidación mediante la cotización histórica.
-- No existe conversión implícita ni dependencia de una cotización actual para modificar una deuda histórica.
+- `TipoCambio` conserva la cotización histórica utilizada.
+- `importeLiquidacion` se calcula explícitamente.
+- `saldoLiquidacion` representa la deuda en moneda de liquidación.
+- `PagoTarjetaService` utiliza `saldoLiquidacion` cuando existe.
+- La cuenta pagadora debe estar en `monedaLiquidacion`.
+- Los pagos liquidados se aplican mediante `registrarPagoLiquidacion`.
+- Las obligaciones no liquidadas mantienen el flujo de `saldoPendiente`/`registrarPago`.
+- No existen conversiones implícitas.
 
-Ejemplo soportado: consumo de USD 100 con tarjeta cuya moneda de liquidación es ARS; con una cotización histórica USD→ARS de 1500, la liquidación queda en ARS 150.000,00.
+### Ejemplo validado
+
+Consumo USD 100 con tarjeta ARS y cotización histórica USD→ARS 1500: deuda liquidada ARS 150.000. Un pago ARS 50.000 deja saldo de liquidación ARS 100.000 y mantiene saldo original USD 100.
 
 ## Validación del bloque
 
-- `ObligacionLiquidacionTest`: **5/5**.
-- `ObligacionTipoCambioJpaTest`: **1/1**.
-- Bloque relacionado de obligaciones: **27/27**.
-- Suite completa `mvn test`: **712/712**.
+- `PagoTarjetaServiceTest`: **10/10**.
+- Validación relacionada informada: **19/19**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:05:46 -03:00**.
+- Finalizada: **15/09/2026 18:37:13 -03:00**.
 
-También se validaron previamente:
-
-- `TipoCambioTest`: **10/10**.
-- `TipoCambioJpaTest`: **1/1**.
-- `ObligacionTest`: **12/12**.
-- `ObligacionJpaTest`: **3/3**.
-- `MonedaTest`: **7/7**.
-- Suite relacionada `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
+La última suite completa conocida antes de esta integración fue `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 18:05:46 -03:00**. Ese resultado no incluye los cambios posteriores de `PagoTarjetaService`.
 
 ## Decisiones multidivisa vigentes
 
 1. La moneda del consumo es la moneda económica del `Movimiento`.
 2. La moneda de la tarjeta/cuenta es la moneda de liquidación.
 3. La obligación conserva ambas monedas.
-4. La conversión histórica debe ser explícita y trazable.
+4. La conversión histórica es explícita y trazable.
 5. La cotización utilizada queda asociada a la obligación.
-6. No se deben introducir conversiones implícitas.
-7. No se debe recalcular una liquidación histórica con una cotización posterior.
+6. El pago de una obligación liquidada se realiza en moneda de liquidación.
+7. No se deben introducir conversiones implícitas.
+8. No se debe recalcular una liquidación histórica con una cotización posterior.
 
 ## Pendiente real
 
-El modelo de liquidación histórica ya está preparado, pero todavía falta integrar esta regla en el flujo de pago real de `PagoTarjetaService`.
-
-Antes de modificarlo hay que revisar su implementación actual y sus tests, especialmente la validación que hoy exige coincidencia entre moneda de la obligación y moneda de la cuenta pagadora.
-
-También queda por definir y cubrir el impacto de consumos en moneda distinta sobre el crédito disponible de la tarjeta.
+1. Ejecutar suite relacionada completa sobre el estado actual.
+2. Ejecutar `mvn test` sobre el estado actual.
+3. Revisar `git diff`, `git diff --check` y `git status`.
+4. Definir el impacto de consumos en moneda distinta sobre el límite/crédito disponible.
+5. Completar cobertura de persistencia/UI del pago multidivisa.
 
 ## Próximo paso
 
-Revisar `PagoTarjetaService`, `PagoTarjetaServiceTest` y las pruebas de UI relacionadas para diseñar el cambio mínimo que permita liquidar obligaciones multidivisa de forma explícita, usando `TipoCambio` histórico, sin romper el comportamiento de moneda coincidente.
-
-Después del cambio: tests específicos → relacionados → suite completa → diff → diff-check → status → documentación.
+Validar el estado completo después de la integración de `PagoTarjetaService`. Una vez renovada la suite, actualizar nuevamente esta documentación con el resultado real.
