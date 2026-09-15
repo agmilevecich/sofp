@@ -32,6 +32,44 @@ class ObligacionLiquidacionTest {
     }
 
     @Test
+    void deberiaRegistrarPagoParcialSobreSaldoDeLiquidacion() {
+        Obligacion obligacion = liquidarObligacionMultidivisa();
+
+        obligacion.registrarPagoLiquidacion(new BigDecimal("50000.00"));
+
+        assertEquals(new BigDecimal("100000.00"), obligacion.getSaldoLiquidacion());
+        assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
+        assertEquals(EstadoObligacion.PARCIAL, obligacion.getEstado());
+    }
+
+    @Test
+    void deberiaMarcarComoPagadaAlCancelarSaldoDeLiquidacion() {
+        Obligacion obligacion = liquidarObligacionMultidivisa();
+
+        obligacion.registrarPagoLiquidacion(new BigDecimal("150000.00"));
+
+        assertEquals(new BigDecimal("0.00"), obligacion.getSaldoLiquidacion());
+        assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
+        assertEquals(EstadoObligacion.PAGADA, obligacion.getEstado());
+    }
+
+    @Test
+    void deberiaRechazarPagoMayorAlSaldoDeLiquidacion() {
+        Obligacion obligacion = liquidarObligacionMultidivisa();
+
+        assertThrows(IllegalArgumentException.class, () -> obligacion.registrarPagoLiquidacion(new BigDecimal("150000.01")));
+        assertEquals(new BigDecimal("150000.00"), obligacion.getSaldoLiquidacion());
+        assertEquals(EstadoObligacion.PENDIENTE, obligacion.getEstado());
+    }
+
+    @Test
+    void deberiaRechazarPagoDeLiquidacionSinLiquidar() {
+        Obligacion obligacion = new Obligacion(crearMovimiento());
+
+        assertThrows(IllegalStateException.class, () -> obligacion.registrarPagoLiquidacion(new BigDecimal("100.00")));
+    }
+
+    @Test
     void deberiaRechazarTipoCambioNulo() {
         Obligacion obligacion = new Obligacion(crearMovimiento());
 
@@ -107,6 +145,20 @@ class ObligacionLiquidacionTest {
         assertEquals(new BigDecimal("150000.00"), obligacion.getImporteLiquidacion());
         assertEquals(new BigDecimal("150000.00"), obligacion.getSaldoLiquidacion());
         assertSame(primero, obligacion.getTipoCambioLiquidacion());
+    }
+
+    private Obligacion liquidarObligacionMultidivisa() {
+        Moneda ars = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
+        Obligacion obligacion = new Obligacion(crearMovimiento(usd, ars));
+        obligacion.liquidar(new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 12, 0),
+                "Cotización manual"
+        ));
+        return obligacion;
     }
 
     private Movimiento crearMovimiento() {
