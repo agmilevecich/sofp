@@ -4,48 +4,49 @@
 
 ### Suite general más reciente
 
-El usuario ejecutó `mvn test` y obtuvo **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **15/09/2026 12:03:19 -03:00**.
+El usuario ejecutó `mvn test` y obtuvo **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **15/09/2026 18:05:46 -03:00**.
 
-### Validación de Moneda
+### Bloque multidivisa histórico
 
-`mvn -Dtest=MonedaTest test`: **7/7**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 15/09/2026 11:21:20 -03:00.
+- `TipoCambioTest`: **10/10**.
+- `TipoCambioJpaTest`: **1/1**.
+- `ObligacionTest`: **12/12**.
+- `ObligacionJpaTest`: **3/3**.
+- `ObligacionLiquidacionTest`: **5/5**.
+- `ObligacionTipoCambioJpaTest`: **1/1**.
+- Suite relacionada de obligaciones: **27/27**.
 
-Se cubre el rechazo de `cantidadDecimales` negativa tanto al crear como al modificar una moneda. La nulidad continúa produciendo `NullPointerException`.
-
-### Tests relacionados
-
-`mvn -Dtest=MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest test`: **53/53**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado 15/09/2026 11:34:38 -03:00.
-
-### Cobertura recuperada de CuentaService
-
-`CuentaServiceCoberturaTest`: **35/35**, BUILD SUCCESS. Esta cobertura recuperó casos funcionales que habían desaparecido al simplificarse `CuentaServiceTest` y forma parte de la suite actual.
+Todos los resultados fueron informados por el usuario con 0 failures, 0 errors y 0 skipped.
 
 ### Validaciones previas relevantes
 
-- Integridad de `Cuenta`: **66/66** específicos y **154/154** relacionados.
-- `MovimientoService`, `CuentaService` y multidivisa: **64/64** en la validación específica informada.
-- `CuentaServiceEvolucionSaldoTest`: **5/5**.
-- `ObligacionServiceTest`: **9/9**.
-- Suite de obligaciones/pagos/UI: **69/69**.
-- UI de pago de tarjeta: **6/6**.
-- Persistencia de obligaciones temporal: `ObligacionJpaTest` **2/2**.
+- `MonedaTest`: **7/7**.
+- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
+- `CuentaServiceCoberturaTest`: **35/35**.
+- `ObligacionJpaTest` tras reglas temporales: **3/3**.
 
-## Estado de cobertura multidivisa
+## Cobertura multidivisa
 
 Ya existe cobertura para:
 
 - saldo de una cuenta separado por moneda;
-- rechazo de un egreso cuando existe saldo en otra moneda pero no en la moneda del movimiento;
-- validación de fondos para movimientos en la moneda correspondiente;
-- coexistencia de saldos ARS y USD sin mezclarlos.
+- rechazo de fondos insuficientes cuando existe saldo en otra moneda;
+- validación de fondos usando la moneda económica del movimiento;
+- coexistencia de saldos ARS y USD;
+- obligación con moneda original distinta de la moneda de liquidación;
+- persistencia de ambas monedas;
+- cotización histórica persistida con sus monedas;
+- liquidación explícita con `TipoCambio` histórico;
+- rechazo de cotización con moneda origen/destino incorrectas;
+- rechazo de segunda liquidación;
+- persistencia de la cotización asociada y del importe liquidado.
 
-Todavía debe cubrirse, una vez definida la regla de negocio:
+Todavía debe cubrirse, una vez integrado el flujo de servicio:
 
-- consumo de tarjeta en moneda distinta de la tarjeta;
-- impacto de ese consumo sobre el límite;
-- liquidación/pago cruzando monedas;
-- trazabilidad de conversión y tasa cuando corresponda.
+- pago real de una obligación multidivisa mediante `PagoTarjetaService`;
+- impacto de consumo extranjero sobre crédito disponible;
+- interacción completa entre pago, cuenta pagadora y obligación en monedas distintas.
 
 ## Criterio de cierre
 
-Los resultados anteriores fueron informados por el usuario y no deben asumirse como nuevos resultados locales. La suite actual conocida es **693/693**. Un nuevo bloque debe validarse con tests específicos, tests relacionados y suite general antes de considerarse cerrado.
+Un nuevo bloque debe validarse con tests específicos, tests relacionados y suite general antes de considerarse cerrado. Los resultados locales solo se consideran conocidos cuando son informados por el usuario.
