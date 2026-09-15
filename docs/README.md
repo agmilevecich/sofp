@@ -21,26 +21,27 @@ La documentación acompaña al código, pero la fuente de verdad es siempre el e
 
 Rama de trabajo: `feature/swing-shell`.
 
-HEAD: `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5` — `test: persistir liquidacion historica de Obligacion`.
+HEAD de código validado antes de la actualización documental: `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
 `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-La rama de trabajo está 677 commits adelante de `main` y 0 atrás. No se realizó merge.
+Última validación del bloque actual: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 15/09/2026 18:37:13 -03:00.
 
-Suite general más reciente informada: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 15/09/2026 18:05:46 -03:00.
+Última suite general conocida antes de esta integración: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 15/09/2026 18:05:46 -03:00.
 
 ## Estado multidivisa
 
-La primera etapa de liquidación histórica está implementada:
+La integración del pago multidivisa está implementada:
 
 - `Obligacion` separa moneda original y moneda de liquidación;
-- `TipoCambio` representa cotización histórica con origen, destino, fecha/hora y fuente;
-- la obligación conserva la cotización utilizada;
-- la liquidación es explícita y trazable;
-- no hay conversiones implícitas;
-- la persistencia está cubierta por tests JPA.
+- `TipoCambio` representa cotización histórica;
+- `Obligacion` conserva la cotización utilizada;
+- `saldoLiquidacion` representa la deuda en moneda de liquidación;
+- `PagoTarjetaService` paga ese saldo cuando existe;
+- la cuenta pagadora debe estar en la moneda de liquidación;
+- no hay conversiones implícitas.
 
-El próximo bloque es integrar esta liquidación en `PagoTarjetaService` y definir el impacto de consumos en moneda distinta sobre crédito disponible.
+Queda pendiente definir el impacto de consumos extranjeros sobre el límite/crédito disponible y ejecutar la suite completa sobre el estado actual.
 
 ## Regla de continuidad
 
