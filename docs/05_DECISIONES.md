@@ -12,33 +12,38 @@ Un consumo puede tener una moneda económica distinta de la moneda de la tarjeta
 
 ## D-046 — La liquidación multidivisa es explícita y trazable
 
-La conversión no se realiza implícitamente al crear la obligación. Una liquidación multidivisa debe utilizar una cotización histórica explícita y quedar asociada a la obligación.
+La conversión no se realiza implícitamente al crear la obligación. Una liquidación multidivisa utiliza una cotización histórica explícita y queda asociada a la obligación.
 
 ## D-047 — `TipoCambio` representa una cotización histórica
 
-`TipoCambio` conserva moneda origen, moneda destino, cotización, fecha/hora y fuente. La cotización se considera histórica y no se reemplaza retroactivamente por una cotización posterior.
+`TipoCambio` conserva moneda origen, moneda destino, cotización, fecha/hora y fuente. La cotización es histórica y no se reemplaza retroactivamente por una cotización posterior.
 
 ## D-048 — La obligación conserva el tipo de cambio utilizado
 
-`Obligacion` mantiene la asociación `tipoCambioLiquidacion` y el `importeLiquidacion`. Una obligación ya liquidada no puede liquidarse nuevamente.
+`Obligacion` mantiene `tipoCambioLiquidacion` e `importeLiquidacion`. Una obligación ya liquidada no puede liquidarse nuevamente.
 
 ## D-049 — Validación de monedas en la liquidación
 
-`Obligacion.liquidar(TipoCambio)` exige que la moneda origen del tipo de cambio coincida con `monedaOriginal` y que la moneda destino coincida con `monedaLiquidacion`. Una discrepancia es error de negocio.
+`Obligacion.liquidar(TipoCambio)` exige que la moneda origen coincida con `monedaOriginal` y que la moneda destino coincida con `monedaLiquidacion`. Una discrepancia es error de negocio.
 
-## D-050 — No se modifica todavía `PagoTarjetaService` para multidivisa
+## D-050 — Los pagos multidivisa se aplican en la moneda de liquidación
 
-La integración con el flujo real de pago se realizará después de cerrar el modelo de liquidación histórica y sus tests. El siguiente cambio debe ser mínimo y preservar el comportamiento existente de pagos en moneda coincidente.
+Cuando una obligación ya fue liquidada, `PagoTarjetaService` utiliza `saldoLiquidacion` como deuda pagable y exige que la cuenta pagadora utilice `monedaLiquidacion`. El pago se aplica mediante `registrarPagoLiquidacion`.
+
+Cuando la obligación no fue liquidada, se conserva el flujo existente basado en `saldoPendiente` y `registrarPago`.
+
+Esta decisión evita conversiones implícitas durante el pago y mantiene separadas la deuda económica original y la deuda efectivamente liquidada.
+
+## D-051 — El impacto de moneda extranjera sobre el crédito disponible queda pendiente
+
+Todavía no se define la regla definitiva para expresar límite/crédito disponible cuando el consumo está en una moneda distinta de la moneda de la tarjeta. Esa decisión debe cerrarse antes de modificar ese cálculo.
 
 ## Actualización — 15/09/2026
 
-El bloque de liquidación histórica multidivisa de obligaciones quedó implementado y validado.
+La integración de `PagoTarjetaService` quedó implementada y cubierta.
 
-- `TipoCambioTest`: 10/10.
-- `TipoCambioJpaTest`: 1/1.
-- `ObligacionLiquidacionTest`: 5/5.
-- `ObligacionTipoCambioJpaTest`: 1/1.
-- Suite completa: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:05:46 -03:00**.
+- `PagoTarjetaServiceTest`: 10/10.
+- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 18:37:13 -03:00**.
 
-Próximo bloque: integración controlada en `PagoTarjetaService` y definición del impacto sobre crédito disponible cuando consumo y tarjeta usan monedas distintas.
+La última suite completa conocida antes de esta integración sigue siendo **712/712**, finalizada 18:05:46. Debe ejecutarse nuevamente sobre el estado actual antes de cerrar definitivamente el bloque.
