@@ -16,6 +16,7 @@ import java.util.Objects;
 @Table(name = "obligaciones")
 public class Obligacion extends EntidadAuditable {
     @Column(name = "importe_original", nullable = false, precision = 19, scale = 2) private BigDecimal importeOriginal;
+    @Column(name = "importe_liquidacion", precision = 19, scale = 2) private BigDecimal importeLiquidacion;
     @Column(name = "saldo_pendiente", nullable = false, precision = 19, scale = 2) private BigDecimal saldoPendiente;
     @Column(nullable = false, length = 20) @Enumerated(EnumType.STRING) private EstadoObligacion estado;
     @Column(name = "fecha_inicio_ciclo") private LocalDate fechaInicioCiclo;
@@ -23,6 +24,8 @@ public class Obligacion extends EntidadAuditable {
     @Column(name = "fecha_vencimiento") private LocalDate fechaVencimiento;
     @Column(name = "dias_gracia") private Integer diasGracia;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "moneda_original_id", nullable = false) private Moneda monedaOriginal;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "moneda_liquidacion_id", nullable = false) private Moneda monedaLiquidacion;
     @OneToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "movimiento_origen_id", nullable = false, unique = true) private Movimiento movimientoOrigen;
     @OneToMany(mappedBy = "obligacion", cascade = CascadeType.ALL, orphanRemoval = true) @OrderBy("numero ASC") private List<Cuota> cuotas = new ArrayList<>();
 
@@ -33,6 +36,8 @@ public class Obligacion extends EntidadAuditable {
         if (movimientoOrigen.getTipoMovimiento() != TipoMovimiento.EGRESO) throw new IllegalArgumentException("El movimiento de origen debe ser un egreso");
         if (movimientoOrigen.getFormaPago() != FormaPago.TARJETA_CREDITO) throw new IllegalArgumentException("El movimiento de origen debe utilizar tarjeta de crédito");
         this.importeOriginal = Validaciones.importePositivo(movimientoOrigen.getImporte(), "El importe original es obligatorio");
+        this.monedaOriginal = Objects.requireNonNull(movimientoOrigen.getMoneda(), "La moneda original es obligatoria");
+        this.monedaLiquidacion = Objects.requireNonNull(movimientoOrigen.getCuenta().getMoneda(), "La moneda de liquidación es obligatoria");
         CicloFacturacion ciclo = movimientoOrigen.getCuenta().calcularCicloFacturacion(movimientoOrigen.getFechaHora().toLocalDate());
         this.fechaInicioCiclo = ciclo.getFechaInicio();
         this.fechaCierreCiclo = ciclo.getFechaCierre();
@@ -43,11 +48,14 @@ public class Obligacion extends EntidadAuditable {
     }
 
     public BigDecimal getImporteOriginal() { return importeOriginal; }
+    public BigDecimal getImporteLiquidacion() { return importeLiquidacion; }
     public BigDecimal getSaldoPendiente() { return saldoPendiente; }
     public EstadoObligacion getEstado() { return estado; }
     public Movimiento getMovimientoOrigen() { return movimientoOrigen; }
     public List<Cuota> getCuotas() { return Collections.unmodifiableList(cuotas); }
-    public Moneda getMoneda() { return movimientoOrigen.getMoneda(); }
+    public Moneda getMonedaOriginal() { return monedaOriginal; }
+    public Moneda getMonedaLiquidacion() { return monedaLiquidacion; }
+    public Moneda getMoneda() { return monedaOriginal; }
     public LocalDateTime getFechaOrigen() { return movimientoOrigen.getFechaHora(); }
 
     public CicloFacturacion getCicloFacturacion() {
