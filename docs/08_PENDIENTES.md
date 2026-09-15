@@ -1,12 +1,12 @@
 # SOFP — Pendientes
 
-## Estado auditado — 14/09/2026
+## Estado auditado — 15/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Último bloque funcional:** reglas temporales de ciclos y pagos, implementadas y validadas.
-**Última suite completa informada:** **704/704**, BUILD SUCCESS.
+**Último bloque funcional:** validación de `Moneda.cantidadDecimales`, implementada y validada.
+**Última suite completa informada:** **693/693**, BUILD SUCCESS, 0 fallos, 0 errores, 0 omitidos. Finalizada el 15/09/2026 a las 12:03:19 -03:00.
 
 ## Bloques cerrados
 
@@ -22,6 +22,7 @@
 - Implementación temporal de pagos.
 - Adaptación de persistencia de obligaciones a las nuevas reglas temporales.
 - Auditoría integral del estado técnico y de documentación.
+- Validación de `Moneda.cantidadDecimales` no negativa.
 
 ## Hallazgos de la auditoría integral
 
@@ -31,16 +32,16 @@ La moneda económica de un movimiento puede ser explícita y distinta de la mone
 
 Hallazgos confirmados:
 
-1. El saldo de una cuenta mezcla importes de distintas monedas.
-2. La validación de fondos de `MovimientoService` utiliza ese saldo mezclado.
-3. Un consumo de tarjeta en moneda distinta de la moneda de la tarjeta no entra en el criterio actual del límite.
+1. El saldo de una cuenta se calcula por la moneda de la cuenta, sin mezclar importes de otras monedas.
+2. La validación de fondos de `MovimientoService` utiliza el saldo correspondiente a la moneda del movimiento.
+3. Un consumo de tarjeta en moneda distinta de la moneda de la tarjeta todavía no tiene definido el impacto completo sobre el límite.
 4. El pago coordinado exige misma moneda entre deuda y cuenta pagadora y no dispone todavía de conversión.
 
 Antes de implementar conversiones se deben definir moneda de liquidación, tasa de cambio, fecha/fuente de cotización y cómo se representa el saldo por moneda.
 
 ### P2 — Robustez
 
-- `Moneda.cantidadDecimales` admite actualmente valores negativos porque solo se valida nulidad.
+- La validación de `Moneda.cantidadDecimales` ya impide valores negativos y conserva el rechazo de `null`.
 - La eliminación de `Cuenta` con historial financiero no tiene una política de dominio explícita y el test revisado cubre una cuenta sin historial.
 - `PagoTarjetaService` usa `LocalDateTime.now()` directamente; una abstracción `Clock` mejoraría el determinismo de tests.
 - `hibernate.hbm2ddl.auto=update` sirve para desarrollo actual, pero no reemplaza un esquema versionado/migraciones para una futura etapa de distribución.
@@ -71,7 +72,6 @@ No se agregaron intereses ni punitorios.
 
 ### P2
 
-- Validación de rango de decimales de `Moneda`.
 - Política de eliminación de cuentas con historial.
 - Abstracción `Clock`.
 - Migraciones/versionado de esquema para una futura etapa no local.
