@@ -26,6 +26,7 @@ public class Obligacion extends EntidadAuditable {
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "moneda_original_id") private Moneda monedaOriginal;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "moneda_liquidacion_id") private Moneda monedaLiquidacion;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "tipo_cambio_liquidacion_id") private TipoCambio tipoCambioLiquidacion;
     @OneToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "movimiento_origen_id", nullable = false, unique = true) private Movimiento movimientoOrigen;
     @OneToMany(mappedBy = "obligacion", cascade = CascadeType.ALL, orphanRemoval = true) @OrderBy("numero ASC") private List<Cuota> cuotas = new ArrayList<>();
 
@@ -55,6 +56,7 @@ public class Obligacion extends EntidadAuditable {
     public List<Cuota> getCuotas() { return Collections.unmodifiableList(cuotas); }
     public Moneda getMonedaOriginal() { return monedaOriginal != null ? monedaOriginal : movimientoOrigen.getMoneda(); }
     public Moneda getMonedaLiquidacion() { return monedaLiquidacion != null ? monedaLiquidacion : movimientoOrigen.getCuenta().getMoneda(); }
+    public TipoCambio getTipoCambioLiquidacion() { return tipoCambioLiquidacion; }
     public Moneda getMoneda() { return getMonedaOriginal(); }
     public LocalDateTime getFechaOrigen() { return movimientoOrigen.getFechaHora(); }
 
@@ -90,6 +92,19 @@ public class Obligacion extends EntidadAuditable {
             importeAcumulado = importeAcumulado.add(importeCuota);
             if (numero < cantidad) ciclo = movimientoOrigen.getCuenta().calcularCicloFacturacion(ciclo.getFechaCierre().plusDays(1));
         }
+    }
+
+    public void liquidar(TipoCambio tipoCambio) {
+        Objects.requireNonNull(tipoCambio, "El tipo de cambio es obligatorio");
+        if (importeLiquidacion != null) throw new IllegalStateException("La obligación ya tiene una liquidación");
+        if (!getMonedaOriginal().equals(tipoCambio.getMonedaOrigen())) {
+            throw new IllegalArgumentException("La moneda de origen del tipo de cambio no coincide con la obligación");
+        }
+        if (!getMonedaLiquidacion().equals(tipoCambio.getMonedaDestino())) {
+            throw new IllegalArgumentException("La moneda de destino del tipo de cambio no coincide con la obligación");
+        }
+        this.tipoCambioLiquidacion = tipoCambio;
+        this.importeLiquidacion = tipoCambio.convertir(importeOriginal);
     }
 
     public void registrarPago(BigDecimal importe) {
