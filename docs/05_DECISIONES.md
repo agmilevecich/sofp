@@ -120,7 +120,7 @@ Los días de gracia pertenecen a la configuración de crédito y por defecto son
 Los nuevos campos temporales se mantienen nullable cuando es necesario para no romper datos existentes. Los valores históricos ausentes utilizan fallback; `diasGracia` nulo se interpreta como 0.
 
 ## D-040 — Auditoría integral de multidivisa antes de implementar conversiones
-La moneda explícita del movimiento se conserva, pero el sistema actual no puede mezclar monedas en saldos ni resolver correctamente el límite de una tarjeta ante consumos en moneda distinta. No se agregan conversiones implícitas hasta definir moneda de liquidación, tasa, fecha/fuente de cotización y representación del saldo por moneda.
+La moneda explícita del movimiento se conserva. Los saldos y la disponibilidad de fondos se calculan por moneda y no se deben mezclar importes de monedas distintas. No se agregan conversiones implícitas hasta definir moneda de liquidación, tasa, fecha/fuente de cotización y representación trazable del saldo por moneda.
 
 ## D-041 — Saldos siempre deben ser monetariamente comparables
 No se debe sumar ni comparar `BigDecimal` de monedas distintas como si fueran una única magnitud. Cualquier cálculo de saldo, fondos disponibles, crédito o deuda debe estar filtrado por moneda o respaldado por una conversión explícita y trazable.
@@ -131,8 +131,11 @@ Intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/revers
 ## D-043 — Documentación arquitectónica no puede contradecir el código
 El roadmap y los documentos de continuidad deben actualizarse cuando una fase cambia de estado. El código, tests y commits actuales prevalecen siempre sobre documentación histórica.
 
-## Actualización — 14/09/2026
+## D-044 — `Moneda.cantidadDecimales` no admite valores negativos
+La cantidad de decimales es obligatoria y no puede ser negativa. La regla se aplica al constructor y al cambio posterior de la propiedad. `null` conserva la validación obligatoria mediante `NullPointerException`.
 
-El bloque temporal de ciclos y pagos quedó implementado y validado. La adaptación de `ObligacionJpaTest` quedó en `3a001a57c435237e62ab04f6c09a0657ff24fcb2`. La suite completa posterior informada por el usuario fue **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+## Actualización — 15/09/2026
 
-La auditoría integral confirmó que la arquitectura general no requiere rehacerse. El próximo bloque funcional debe resolver multidivisa de forma explícita, empezando por saldos y límites por moneda, sin conversiones implícitas.
+El bloque de validación de `Moneda.cantidadDecimales` quedó implementado y validado. `MonedaTest` pasó 7/7; la suite relacionada pasó 53/53 y la suite general pasó **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+La documentación actualizada mantiene como próximo bloque funcional la multidivisa de tarjetas, sin conversiones implícitas y con definición previa de moneda de liquidación, tasa, fecha/fuente y trazabilidad.
