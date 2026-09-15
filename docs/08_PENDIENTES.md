@@ -4,9 +4,9 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
+**HEAD:** `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5`.
 
-**Último bloque funcional:** validación de `Moneda.cantidadDecimales`.
-**Última suite completa informada:** **693/693**, BUILD SUCCESS, 0 fallos, 0 errores, 0 omitidos. Finalizada el 15/09/2026 a las 12:03:19 -03:00.
+Última suite completa informada: **712/712**, BUILD SUCCESS, 0 fallos, 0 errores, 0 omitidos. Finalizada el 15/09/2026 a las 18:05:46 -03:00.
 
 ## Bloques cerrados
 
@@ -23,34 +23,39 @@
 - Aislamiento JPA/H2 para tests.
 - Saldos y disponibilidad de fondos separados por moneda.
 - Validación de `Moneda.cantidadDecimales` no negativa.
+- `TipoCambio` histórico.
+- Separación de moneda original y moneda de liquidación de `Obligacion`.
+- Liquidación explícita y trazable de una obligación mediante `TipoCambio`.
+- Persistencia de la cotización histórica utilizada en la liquidación.
 
 ## Estado multidivisa
-
-La moneda económica de un movimiento puede diferir de la moneda de la cuenta.
 
 Ya resuelto:
 
 1. saldo de cuenta filtrado por moneda;
 2. disponibilidad de fondos filtrada por moneda;
-3. coexistencia de saldos ARS/USD sin mezcla.
+3. coexistencia de saldos ARS/USD sin mezcla;
+4. moneda original y moneda de liquidación en obligaciones;
+5. cotización histórica explícita con fecha y fuente;
+6. asociación de la cotización utilizada a la obligación;
+7. cálculo explícito del importe de liquidación.
 
 Pendiente:
 
-1. impacto de un consumo en moneda distinta sobre el límite de la tarjeta;
-2. moneda de liquidación;
-3. tasa, fecha y fuente de cotización;
-4. conversión/liquidación trazable de pagos entre monedas;
-5. tests específicos de estos casos.
+1. integrar la liquidación multidivisa en `PagoTarjetaService`;
+2. preservar el flujo actual de pagos en moneda coincidente;
+3. definir impacto de consumos en moneda distinta sobre límite/crédito disponible;
+4. cubrir pago real cruzando monedas;
+5. validar la integración con UI.
 
 No se deben introducir conversiones implícitas.
 
 ## P0/P1 — Próximo bloque
 
-- Cerrar multidivisa de tarjetas sin conversiones implícitas.
-- Definir las reglas de crédito disponible para consumos en moneda distinta.
-- Definir liquidación/conversión de pagos cuando corresponda.
-- Implementar el cambio mínimo después de fijar las reglas.
-- Agregar tests específicos y relacionados.
+- Revisar `PagoTarjetaService` y sus tests actuales.
+- Diseñar el cambio mínimo para aceptar una liquidación histórica explícita cuando corresponda.
+- Mantener sin cambios el comportamiento de moneda coincidente.
+- Agregar tests específicos, relacionados, persistencia y UI cuando corresponda.
 
 ## P2 — Robustez
 
@@ -61,7 +66,7 @@ No se deben introducir conversiones implícitas.
 ## P3 — Evolución
 
 - Financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
-- UI específica de tarjetas: límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos.
+- UI específica de tarjetas: límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos reales.
 - Pasivos, patrimonio y análisis.
 - Gestión de entidades financieras.
 - Pulido de consola.
