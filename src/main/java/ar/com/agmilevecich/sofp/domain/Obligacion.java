@@ -127,4 +127,13 @@ public class Obligacion extends EntidadAuditable {
         }
         estado = saldoPendiente.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
     }
+
+    public void registrarPagoLiquidacion(BigDecimal importe) {
+        if (saldoLiquidacion == null) throw new IllegalStateException("La obligación no tiene una liquidación");
+        if (saldoLiquidacion.signum() == 0) throw new IllegalStateException("La liquidación ya está pagada");
+        BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
+        if (pago.compareTo(saldoLiquidacion) > 0) throw new IllegalArgumentException("El pago no puede superar el saldo de liquidación");
+        saldoLiquidacion = saldoLiquidacion.subtract(pago);
+        estado = saldoLiquidacion.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
+    }
 }
