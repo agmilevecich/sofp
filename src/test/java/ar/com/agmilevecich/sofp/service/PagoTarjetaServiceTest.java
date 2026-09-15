@@ -9,6 +9,7 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
@@ -95,6 +96,28 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaRegistrarPagoParcialSobreSaldoDeLiquidacionMultidivisa() {
+        Obligacion obligacion = registrarGastoMultidivisa();
+        pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("50000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta multidivisa", usuario.getId());
+
+        assertEquals(new BigDecimal("100000.00"), obligacion.getSaldoLiquidacion());
+        assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
+        assertEquals("PARCIAL", obligacion.getEstado().name());
+        assertEquals(new BigDecimal("150000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
+    @Test
+    void deberiaRegistrarPagoCompletoSobreSaldoDeLiquidacionMultidivisa() {
+        Obligacion obligacion = registrarGastoMultidivisa();
+        pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("150000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta multidivisa", usuario.getId());
+
+        assertEquals(new BigDecimal("0.00"), obligacion.getSaldoLiquidacion());
+        assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
+        assertEquals("PAGADA", obligacion.getEstado().name());
+        assertEquals(new BigDecimal("50000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
+    @Test
     void deberiaRegistrarPagoCompletoYDejarLaObligacionPagada() {
         Obligacion obligacion = registrarGasto("120000.00");
         pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("120000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId());
@@ -165,5 +188,37 @@ class PagoTarjetaServiceTest {
     private Obligacion registrarGasto(String importe, int cantidadCuotas) {
         Movimiento movimiento = gastoService.registrar(tarjeta, categoriaCompras, ars, new BigDecimal(importe), LocalDateTime.of(2026, 9, 9, 10, 0), "Compra con tarjeta", FormaPago.TARJETA_CREDITO, usuario.getId(), cantidadCuotas);
         return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+    }
+
+    private Obligacion registrarGastoMultidivisa() {
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.getTransaction().commit();
+
+        Movimiento movimiento = gastoService.registrar(
+                tarjeta,
+                categoriaCompras,
+                usd,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 9, 10, 0),
+                "Compra en USD",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId(),
+                1
+        );
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        TipoCambio tipoCambio = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 12, 0),
+                "Cotización manual"
+        );
+        entityManager.getTransaction().begin();
+        entityManager.persist(tipoCambio);
+        obligacion.liquidar(tipoCambio);
+        entityManager.getTransaction().commit();
+        return obligacion;
     }
 }
