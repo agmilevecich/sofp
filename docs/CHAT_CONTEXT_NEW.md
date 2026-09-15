@@ -6,12 +6,13 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD:** `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5`.
+**Último commit de código validado:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
 ## Validación general
 
-`mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-Finalizada: **15/09/2026 18:05:46 -03:00**.
+Bloque actual: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **15/09/2026 18:37:13 -03:00**.
+
+Suite general previa a la integración: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 18:05:46. No asumir que ese resultado incluye los cambios posteriores.
 
 ## Estado actual
 
@@ -19,11 +20,13 @@ La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligaci�
 
 La multidivisa general respeta la moneda de cada saldo y movimiento.
 
-El modelo de obligación multidivisa ya conserva moneda original, moneda de liquidación y `TipoCambio` histórico. La liquidación es explícita, trazable y persistente.
+El modelo de obligación multidivisa conserva moneda original, moneda de liquidación y `TipoCambio` histórico. `saldoLiquidacion` permite aplicar pagos en la moneda de liquidación sin alterar el saldo original.
+
+`PagoTarjetaService` usa el saldo liquidado cuando existe y exige que la cuenta pagadora esté en la moneda de liquidación. No realiza conversiones implícitas.
 
 ## Próximo bloque
 
-Integrar liquidación multidivisa en `PagoTarjetaService`, preservando pagos de moneda coincidente y definiendo el impacto de consumos extranjeros sobre crédito disponible.
+Ejecutar suite relacionada y suite general sobre el estado actual; luego revisar diff/diff-check/status. Después definir el impacto de consumos extranjeros sobre crédito disponible y completar persistencia/UI del pago multidivisa.
 
 ## Regla de continuidad
 
