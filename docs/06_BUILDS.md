@@ -1,33 +1,59 @@
 # SOFP — Historial de Builds
 
-## Estado documental — 14/09/2026
+## Estado documental — 15/09/2026
 
-**Etapa temporal de ciclos y pagos: IMPLEMENTADA Y VALIDADA.**
+**Etapa actual:** multidivisa en definición/implementación incremental. El bloque temporal de ciclos y pagos ya está cerrado.
 
-### Validación final
+### Validación global actual
 
-El usuario ejecutó `mvn test`: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 22:05:14 -03:00.
+El usuario ejecutó `mvn test`: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado **15/09/2026 12:03:19 -03:00**.
 
-### Validación de persistencia tras adaptación temporal
+### Último bloque funcional cerrado
 
-`mvn -Dtest=ObligacionJpaTest test`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizado 13/09/2026 21:12:49 -03:00.
+Validación de `Moneda.cantidadDecimales`:
 
-## Bloque temporal cerrado
+- valores `null` siguen rechazados;
+- valores negativos ahora son rechazados;
+- la regla se aplica al crear y modificar `Moneda`.
 
-Se implementaron y probaron: ciclo histórico persistido en `Obligacion`, fechas persistidas en `Cuota`, vencimiento ajustado para sábado/domingo, días de gracia, evaluación de mora, rechazo de pagos anteriores al consumo y futuros, estabilidad histórica ante cambios de configuración y compatibilidad con datos existentes.
+Commits:
+- `d4fdcd9` — `fix: validar decimales no negativos en Moneda`.
+- `5a6de42` — `test: validar decimales no negativos en Moneda`.
 
-La adaptación de `ObligacionJpaTest` usa una cuenta de crédito real en el fixture y refleja el vencimiento efectivo del fin de semana. El cambio quedó en `3a001a57c435237e62ab04f6c09a0657ff24fcb2`.
+Validaciones:
+- `MonedaTest`: 7/7.
+- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: 53/53.
+- suite general: 693/693.
 
-## Integridad de Cuenta — cierre previo
+## Bloques cerrados relevantes
 
-Se protege cambio de tipo/moneda con movimientos y transiciones hacia/desde `TARJETA_CREDITO`.
+- Shell Swing y navegación.
+- Cuentas, categorías, ingresos, gastos, movimientos e inversiones.
+- Obligaciones y pagos de tarjeta desde UI.
+- Autorización de pagos por usuario.
+- Integridad estructural de `Cuenta`.
+- Integridad histórica Movimiento → Obligación.
+- Ciclos históricos de obligaciones.
+- Cuotas simples y pagos parciales.
+- Vencimiento de fin de semana.
+- Días de gracia y mora.
+- Aislamiento JPA/H2 para tests.
+- Saldos y disponibilidad de fondos separados por moneda.
 
-## Historial documental
+## Evolución de la suite
 
-Los builds y validaciones anteriores continúan siendo parte del historial del proyecto. Este documento registra el estado de cierre más reciente sin reemplazar el historial técnico conservado en Git.
+La suite histórica llegó a 704 tests durante el bloque temporal. Posteriormente se reorganizó cobertura y se incorporaron cambios de multidivisa y robustez; el estado actual válido es **693/693**. No existe objetivo de recuperar artificialmente el conteo histórico de 704.
 
 ## Próximo bloque
 
-Definir antes de implementar: multidivisa de tarjetas y financiación avanzada. Quedan fuera del bloque temporal actual calendario de feriados, fecha efectiva independiente y recargos financieros.
+Resolver la multidivisa de tarjetas sin conversiones implícitas:
+
+1. definir impacto de consumos extranjeros sobre crédito disponible;
+2. definir moneda de liquidación;
+3. definir tasa, fecha y fuente de cotización;
+4. definir representación y trazabilidad de conversiones;
+5. agregar cobertura específica y relacionada.
+
+No se debe implementar una conversión aislada antes de fijar estas reglas.
 
 No se modificó `main`.
