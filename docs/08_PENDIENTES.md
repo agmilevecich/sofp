@@ -57,7 +57,7 @@ Antes de implementar conversiones se deben definir moneda de liquidación, tasa 
 7. Ciclo histórico congelado en la obligación al crearla.
 8. Compatibilidad con datos existentes mediante campos nuevos nullable y fallback.
 9. Tests de persistencia adaptados a las reglas temporales.
-10. Suite completa validada después de los cambios: 704/704.
+10. Suite completa histórica tras los cambios temporales: 704/704. La suite actual, posterior a trabajos de cobertura y multidivisa, es 693/693.
 
 No se agregaron intereses ni punitorios.
 
