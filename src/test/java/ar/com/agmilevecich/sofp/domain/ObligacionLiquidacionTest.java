@@ -25,6 +25,7 @@ class ObligacionLiquidacionTest {
         obligacion.liquidar(tipoCambio);
 
         assertEquals(new BigDecimal("150000.00"), obligacion.getImporteLiquidacion());
+        assertEquals(new BigDecimal("150000.00"), obligacion.getSaldoLiquidacion());
         assertSame(tipoCambio, obligacion.getTipoCambioLiquidacion());
         assertEquals(new BigDecimal("100.00"), obligacion.getImporteOriginal());
         assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
@@ -36,6 +37,7 @@ class ObligacionLiquidacionTest {
 
         assertThrows(NullPointerException.class, () -> obligacion.liquidar(null));
         assertNull(obligacion.getImporteLiquidacion());
+        assertNull(obligacion.getSaldoLiquidacion());
         assertNull(obligacion.getTipoCambioLiquidacion());
     }
 
@@ -55,6 +57,7 @@ class ObligacionLiquidacionTest {
 
         assertThrows(IllegalArgumentException.class, () -> obligacion.liquidar(tipoCambio));
         assertNull(obligacion.getImporteLiquidacion());
+        assertNull(obligacion.getSaldoLiquidacion());
         assertNull(obligacion.getTipoCambioLiquidacion());
     }
 
@@ -74,6 +77,7 @@ class ObligacionLiquidacionTest {
 
         assertThrows(IllegalArgumentException.class, () -> obligacion.liquidar(tipoCambio));
         assertNull(obligacion.getImporteLiquidacion());
+        assertNull(obligacion.getSaldoLiquidacion());
         assertNull(obligacion.getTipoCambioLiquidacion());
     }
 
@@ -101,6 +105,7 @@ class ObligacionLiquidacionTest {
 
         assertThrows(IllegalStateException.class, () -> obligacion.liquidar(segundo));
         assertEquals(new BigDecimal("150000.00"), obligacion.getImporteLiquidacion());
+        assertEquals(new BigDecimal("150000.00"), obligacion.getSaldoLiquidacion());
         assertSame(primero, obligacion.getTipoCambioLiquidacion());
     }
 
