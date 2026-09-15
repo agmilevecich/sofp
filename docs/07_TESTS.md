@@ -2,11 +2,46 @@
 
 ## Estado de validación — 15/09/2026
 
-### Suite general más reciente
+### Validación más reciente del bloque actual
 
-El usuario ejecutó `mvn test` y obtuvo **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **15/09/2026 18:05:46 -03:00**.
+- `PagoTarjetaServiceTest`: **10/10**.
+- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 18:37:13 -03:00**.
 
-### Bloque multidivisa histórico
+### Suite general
+
+La última suite completa informada **antes de la integración multidivisa de `PagoTarjetaService`** fue:
+
+- `mvn test`: **712/712**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 18:05:46 -03:00**.
+
+Debe ejecutarse nuevamente la suite general sobre el estado actual antes de considerar cerrado este bloque.
+
+## Cobertura multidivisa actual
+
+Ya existe cobertura para:
+
+- saldo de una cuenta separado por moneda;
+- fondos disponibles según moneda económica del movimiento;
+- coexistencia de saldos ARS/USD sin mezcla;
+- obligación con moneda original distinta de la moneda de liquidación;
+- persistencia de ambas monedas;
+- cotización histórica persistida;
+- liquidación explícita con `TipoCambio`;
+- rechazo de monedas incompatibles;
+- rechazo de segunda liquidación;
+- persistencia de la cotización asociada;
+- saldo de liquidación de la obligación;
+- pago parcial sobre saldo de liquidación;
+- pago total sobre saldo de liquidación;
+- conservación del saldo original al pagar una obligación liquidada;
+- descuento del importe pagado desde la cuenta pagadora.
+
+## Validaciones previas relevantes
 
 - `TipoCambioTest`: **10/10**.
 - `TipoCambioJpaTest`: **1/1**.
@@ -14,39 +49,17 @@ El usuario ejecutó `mvn test` y obtuvo **712/712**, 0 failures, 0 errors, 0 ski
 - `ObligacionJpaTest`: **3/3**.
 - `ObligacionLiquidacionTest`: **5/5**.
 - `ObligacionTipoCambioJpaTest`: **1/1**.
-- Suite relacionada de obligaciones: **27/27**.
-
-Todos los resultados fueron informados por el usuario con 0 failures, 0 errors y 0 skipped.
-
-### Validaciones previas relevantes
-
 - `MonedaTest`: **7/7**.
 - `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
 - `CuentaServiceCoberturaTest`: **35/35**.
-- `ObligacionJpaTest` tras reglas temporales: **3/3**.
 
-## Cobertura multidivisa
+## Pendiente de cobertura
 
-Ya existe cobertura para:
-
-- saldo de una cuenta separado por moneda;
-- rechazo de fondos insuficientes cuando existe saldo en otra moneda;
-- validación de fondos usando la moneda económica del movimiento;
-- coexistencia de saldos ARS y USD;
-- obligación con moneda original distinta de la moneda de liquidación;
-- persistencia de ambas monedas;
-- cotización histórica persistida con sus monedas;
-- liquidación explícita con `TipoCambio` histórico;
-- rechazo de cotización con moneda origen/destino incorrectas;
-- rechazo de segunda liquidación;
-- persistencia de la cotización asociada y del importe liquidado.
-
-Todavía debe cubrirse, una vez integrado el flujo de servicio:
-
-- pago real de una obligación multidivisa mediante `PagoTarjetaService`;
-- impacto de consumo extranjero sobre crédito disponible;
-- interacción completa entre pago, cuenta pagadora y obligación en monedas distintas.
+- impacto de consumos extranjeros sobre límite/crédito disponible;
+- persistencia completa del pago multidivisa en el estado actual;
+- integración UI del pago multidivisa;
+- suite relacionada completa y suite general después de la integración.
 
 ## Criterio de cierre
 
-Un nuevo bloque debe validarse con tests específicos, tests relacionados y suite general antes de considerarse cerrado. Los resultados locales solo se consideran conocidos cuando son informados por el usuario.
+Tests específicos → relacionados → suite general → `git diff` → `git diff --check` → `git status` → documentación. Los resultados locales solo se consideran conocidos cuando son informados por el usuario.
