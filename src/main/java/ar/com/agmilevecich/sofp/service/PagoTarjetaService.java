@@ -63,13 +63,16 @@ public class PagoTarjetaService {
             if (!Objects.equals(cuentaPagadora.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId())) {
                 throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
             }
-            if (!Objects.equals(cuentaPagadora.getMoneda(), obligacion.getMoneda())) {
-                throw new IllegalArgumentException("La cuenta pagadora y la obligación deben utilizar la misma moneda");
+            if (!Objects.equals(cuentaPagadora.getMoneda(), obligacion.getMonedaLiquidacion())) {
+                throw new IllegalArgumentException("La cuenta pagadora y la moneda de liquidación de la obligación deben coincidir");
             }
             if (importe.signum() <= 0) {
                 throw new IllegalArgumentException("El importe debe ser positivo");
             }
-            if (importe.compareTo(obligacion.getSaldoPendiente()) > 0) {
+            BigDecimal saldoPendiente = obligacion.getSaldoLiquidacion() != null
+                    ? obligacion.getSaldoLiquidacion()
+                    : obligacion.getSaldoPendiente();
+            if (importe.compareTo(saldoPendiente) > 0) {
                 throw new IllegalArgumentException("El pago supera el saldo pendiente de la obligación");
             }
 
@@ -83,7 +86,11 @@ public class PagoTarjetaService {
                     importe, fechaHora, descripcion, FormaPago.TRANSFERENCIA
             );
 
-            obligacion.registrarPago(importe);
+            if (obligacion.getSaldoLiquidacion() != null) {
+                obligacion.registrarPagoLiquidacion(importe);
+            } else {
+                obligacion.registrarPago(importe);
+            }
             movimientoRepository.guardar(movimientoPago);
             entityManager.flush();
             transaction.commit();
