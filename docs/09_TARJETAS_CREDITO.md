@@ -1,6 +1,6 @@
 # SOFP — Diseño y adaptación de tarjetas de crédito
 
-## Estado auditado — 14/09/2026
+## Estado auditado — 15/09/2026
 
 **Rama:** `feature/swing-shell`
 
@@ -18,33 +18,38 @@ La moneda del consumo se conserva en `Movimiento` y en la obligación. Una compr
 
 Los pagos coordinados requieren coincidencia de moneda entre deuda y cuenta pagadora.
 
-La auditoría integral confirmó que esta base es correcta como protección contra conversiones implícitas, pero insuficiente para cerrar multidivisa.
+La auditoría confirmó que esta base es correcta como protección contra conversiones implícitas, pero insuficiente para cerrar multidivisa.
 
-## 3. Hallazgos multidivisa
+## 3. Estado actual de saldos y fondos
 
-Se confirmaron tres problemas que deben resolverse antes de considerar cerrada esta funcionalidad:
+La cuenta calcula su saldo usando únicamente movimientos de la moneda de la cuenta. `MovimientoService` valida fondos usando la moneda económica del movimiento. Por lo tanto, ARS y USD ya no deben mezclarse en estos cálculos.
 
-1. `CuentaService.calcularSaldo` suma movimientos de la cuenta sin separar por moneda.
-2. `MovimientoService` utiliza el mismo saldo mezclado para validar fondos.
-3. Un consumo de tarjeta en moneda distinta de la moneda configurada para la tarjeta no entra en el cálculo actual del límite, porque la validación del crédito se aplica solo cuando ambas monedas coinciden.
+Esto está cubierto por `MovimientoMultimonedaTest` y por la suite relacionada actual.
 
-Además, `PagoTarjetaService` exige misma moneda entre deuda y cuenta pagadora y no existe todavía una operación de conversión/liquidación trazable.
+## 4. Hallazgo multidivisa de tarjetas
 
-No se deben agregar conversiones automáticas sin definir moneda de liquidación, tasa de cambio, fecha/fuente de cotización y tratamiento contable del movimiento resultante.
+Continúa pendiente definir qué ocurre cuando la moneda del consumo difiere de la moneda de la tarjeta. En particular:
 
-## 4. Crédito disponible — IMPLEMENTADO SOLO PARA MONEDA COINCIDENTE
+1. cómo impacta ese consumo sobre el límite;
+2. en qué moneda se expresa el crédito disponible;
+3. cuál es la moneda de liquidación;
+4. qué tasa se utiliza;
+5. qué fecha y fuente de cotización se registran;
+6. cómo se representa y audita la conversión/liquidación.
 
-Criterio actual para consumos en la moneda de la tarjeta:
+No se deben agregar conversiones automáticas sin esas decisiones.
+
+## 5. Crédito disponible
+
+Para consumos en la moneda de la tarjeta, el criterio actual es:
 
 `crédito disponible = límite de crédito − consumos de tarjeta pendientes en la moneda correspondiente`
 
-Las compras con tarjeta no reducen el saldo monetario de la cuenta como si fueran salidas inmediatas de fondos.
+Las compras con tarjeta no reducen el saldo monetario de la cuenta como si fueran salidas inmediatas de fondos. Los pagos reducen la obligación y liberan crédito.
 
-Los pagos reducen la obligación y liberan crédito.
+Para consumos en moneda distinta, el criterio no está cerrado y no debe interpretarse como soporte multidivisa completo.
 
-Para consumos en moneda distinta, el criterio no está cerrado y actualmente no debe interpretarse como soporte multidivisa completo.
-
-## 5. Ciclo de facturación — IMPLEMENTADO Y CON HISTORIAL PERSISTENTE
+## 6. Ciclo de facturación — IMPLEMENTADO Y CON HISTORIAL PERSISTENTE
 
 `CicloFacturacion` es un objeto de dominio no persistente.
 
@@ -54,7 +59,7 @@ Al crear una `Obligacion`, se persisten los datos históricos del ciclo: inicio,
 
 `Obligacion.getCicloFacturacion()` utiliza los datos históricos persistidos cuando están disponibles y mantiene fallback para obligaciones antiguas sin esos campos.
 
-## 6. Pagos — SERVICIO COORDINADO IMPLEMENTADO
+## 7. Pagos — SERVICIO COORDINADO IMPLEMENTADO
 
 `PagoTarjetaService` coordina en una única transacción:
 
@@ -72,7 +77,7 @@ Puede realizar pagos parciales o totales.
 
 La integración con `ObligacionesPanel` está implementada y cubierta por tests.
 
-## 7. Reglas temporales de pago — IMPLEMENTADAS
+## 8. Reglas temporales de pago — IMPLEMENTADAS
 
 - pago anterior al consumo: rechazado;
 - fecha futura: rechazada;
@@ -84,25 +89,21 @@ La integración con `ObligacionesPanel` está implementada y cubierta por tests.
 
 No existe todavía calendario de feriados, fecha efectiva separada del movimiento ni cálculo de intereses/punitorios/CFT.
 
-## 8. Integridad movimiento ↔ obligación — IMPLEMENTADA
+## 9. Integridad movimiento ↔ obligación — IMPLEMENTADA
 
 El movimiento que origina una obligación queda protegido frente a cambios estructurales que romperían la correspondencia histórica: importe, fecha/hora, tipo y eliminación están sujetos a las reglas de integridad implementadas en `MovimientoService`.
 
 Las pruebas verifican además que, cuando una modificación estructural es rechazada, los valores persistidos originales permanecen intactos.
 
-## 9. Seguridad de API — IMPLEMENTADA PARA PAGOS
+## 10. Seguridad de API — IMPLEMENTADA PARA PAGOS
 
 El registro de pagos exige `usuarioId` y valida pertenencia/autorización antes de modificar la obligación.
 
-## 10. Cuotas y financiación
+## 11. Cuotas y financiación
 
-Las cuotas simples están implementadas y se generan automáticamente. Los pagos parciales se aplican en orden ascendente.
+Las cuotas simples sin interés están implementadas y se generan automáticamente. Los pagos parciales se aplican en orden ascendente.
 
 Sigue pendiente la financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
-
-## 11. Saldo monetario — REQUIERE CORRECCIÓN MULTIDIVISA
-
-El criterio de no descontar consumos de tarjeta del saldo de fondos sigue siendo correcto. Sin embargo, la auditoría confirmó que los cálculos actuales de saldo/fondos no separan movimientos por moneda. Por lo tanto, el saldo de una cuenta con movimientos en monedas distintas no puede considerarse monetariamente correcto hasta resolver esta regla.
 
 ## 12. Integridad estructural de Cuenta — IMPLEMENTADA
 
@@ -118,7 +119,7 @@ Los nuevos campos temporales se mantienen nullable cuando corresponde para no ro
 
 ## 15. Orden de trabajo pendiente
 
-1. Resolver multidivisa: saldos por moneda, crédito disponible y liquidación.
+1. Resolver multidivisa de tarjetas: límite, liquidación y pagos entre monedas.
 2. Cubrir multidivisa con tests específicos y relacionados.
 3. Financiación avanzada.
 4. UI específica de tarjetas.
@@ -130,14 +131,12 @@ El calendario de feriados y una fecha efectiva separada requieren decisión de n
 
 ## 16. Validación actual
 
-Suite general informada por el usuario: **704/704**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 13/09/2026 22:05:14 -03:00.
+- `MonedaTest`: **7/7**.
+- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
+- Suite general: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 12:03:19 -03:00.
 
-`ObligacionJpaTest`: **2/2**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 13/09/2026 21:12:49 -03:00.
+## 17. Conclusión
 
-Validaciones relacionadas previas: suite obligaciones/pagos/UI **69/69**, `ObligacionServiceTest` **9/9**, UI de pago **6/6**, integridad de `Cuenta` **66/66** específicos y **154/154** relacionados.
+El modelo de tarjeta está consolidado para moneda coincidente, ciclos, cuotas simples, pagos coordinados, autorización e integridad histórica. Los saldos y fondos generales ya respetan la moneda.
 
-## 17. Conclusión de auditoría
-
-El modelo de tarjeta está consolidado para moneda coincidente, ciclos, cuotas simples, pagos coordinados, autorización e integridad histórica.
-
-La multidivisa es el principal bloque funcional abierto. El siguiente cambio de código no debe empezar por una conversión aislada: primero debe hacer que saldo, fondos y crédito sean monetariamente coherentes por moneda y luego incorporar una regla explícita de liquidación.
+La multidivisa de tarjetas sigue siendo el principal bloque funcional abierto. El siguiente cambio no debe empezar por una conversión aislada: primero debe definirse el impacto sobre crédito disponible y la regla explícita de liquidación.
