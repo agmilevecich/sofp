@@ -5,78 +5,60 @@
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
 
-**Último bloque funcional:** validación de `Moneda.cantidadDecimales`, implementada y validada.
+**Último bloque funcional:** validación de `Moneda.cantidadDecimales`.
 **Última suite completa informada:** **693/693**, BUILD SUCCESS, 0 fallos, 0 errores, 0 omitidos. Finalizada el 15/09/2026 a las 12:03:19 -03:00.
 
 ## Bloques cerrados
 
-- Selección explícita de tarjeta activa en `GastosPanel`.
-- Generación de cuotas y cruce de año.
-- Atomicidad de compra con tarjeta.
-- Pago coordinado y pago real desde UI.
-- Integración de `PagoTarjetaService` en shell.
-- Protección de movimientos origen de obligaciones.
-- Autorización del registro de pagos.
+- Shell Swing y navegación.
+- Cuentas, categorías, ingresos, gastos, movimientos e inversiones.
+- Obligaciones y pagos de tarjeta desde UI.
+- Autorización de pagos por usuario.
 - Integridad estructural de `Cuenta`.
-- Auditoría temporal de ciclos y pagos.
-- Implementación temporal de pagos.
-- Adaptación de persistencia de obligaciones a las nuevas reglas temporales.
-- Auditoría integral del estado técnico y de documentación.
+- Integridad histórica Movimiento → Obligación.
+- Ciclos históricos de obligaciones.
+- Cuotas simples y pagos parciales.
+- Vencimiento de fin de semana.
+- Días de gracia y mora.
+- Aislamiento JPA/H2 para tests.
+- Saldos y disponibilidad de fondos separados por moneda.
 - Validación de `Moneda.cantidadDecimales` no negativa.
 
-## Hallazgos de la auditoría integral
+## Estado multidivisa
 
-### P0/P1 — Multidivisa
+La moneda económica de un movimiento puede diferir de la moneda de la cuenta.
 
-La moneda económica de un movimiento puede ser explícita y distinta de la moneda de la cuenta. Esto permite representar consumos extranjeros, pero todavía no existe un modelo completo de liquidación multidivisa.
+Ya resuelto:
 
-Hallazgos confirmados:
+1. saldo de cuenta filtrado por moneda;
+2. disponibilidad de fondos filtrada por moneda;
+3. coexistencia de saldos ARS/USD sin mezcla.
 
-1. El saldo de una cuenta se calcula por la moneda de la cuenta, sin mezclar importes de otras monedas.
-2. La validación de fondos de `MovimientoService` utiliza el saldo correspondiente a la moneda del movimiento.
-3. Un consumo de tarjeta en moneda distinta de la moneda de la tarjeta todavía no tiene definido el impacto completo sobre el límite.
-4. El pago coordinado exige misma moneda entre deuda y cuenta pagadora y no dispone todavía de conversión.
+Pendiente:
 
-Antes de implementar conversiones se deben definir moneda de liquidación, tasa de cambio, fecha/fuente de cotización y cómo se representa el saldo por moneda.
+1. impacto de un consumo en moneda distinta sobre el límite de la tarjeta;
+2. moneda de liquidación;
+3. tasa, fecha y fuente de cotización;
+4. conversión/liquidación trazable de pagos entre monedas;
+5. tests específicos de estos casos.
 
-### P2 — Robustez
+No se deben introducir conversiones implícitas.
 
-- La validación de `Moneda.cantidadDecimales` ya impide valores negativos y conserva el rechazo de `null`.
-- La eliminación de `Cuenta` con historial financiero no tiene una política de dominio explícita y el test revisado cubre una cuenta sin historial.
-- `PagoTarjetaService` usa `LocalDateTime.now()` directamente; una abstracción `Clock` mejoraría el determinismo de tests.
-- `hibernate.hbm2ddl.auto=update` sirve para desarrollo actual, pero no reemplaza un esquema versionado/migraciones para una futura etapa de distribución.
-
-## Implementación temporal cerrada
-
-1. Pago anterior al consumo: rechazado.
-2. Fecha futura: rechazada.
-3. Vencimiento en sábado/domingo: desplazado al lunes.
-4. Días de gracia configurables, por defecto 0.
-5. Mora derivada del vencimiento efectivo más gracia.
-6. Obligaciones con cuotas: fecha límite basada en la primera cuota pendiente.
-7. Ciclo histórico congelado en la obligación al crearla.
-8. Compatibilidad con datos existentes mediante campos nuevos nullable y fallback.
-9. Tests de persistencia adaptados a las reglas temporales.
-10. Suite completa histórica tras los cambios temporales: 704/704. La suite actual, posterior a trabajos de cobertura y multidivisa, es 693/693.
-
-No se agregaron intereses ni punitorios.
-
-## Pendientes reales en orden
-
-### P0/P1
+## P0/P1 — Próximo bloque
 
 - Cerrar multidivisa de tarjetas sin conversiones implícitas.
-- Corregir saldos y disponibilidad de fondos por moneda.
-- Definir y cubrir el límite de crédito ante consumos en moneda distinta.
+- Definir las reglas de crédito disponible para consumos en moneda distinta.
 - Definir liquidación/conversión de pagos cuando corresponda.
+- Implementar el cambio mínimo después de fijar las reglas.
+- Agregar tests específicos y relacionados.
 
-### P2
+## P2 — Robustez
 
-- Política de eliminación de cuentas con historial.
+- Política de eliminación de cuentas con historial financiero.
 - Abstracción `Clock`.
-- Migraciones/versionado de esquema para una futura etapa no local.
+- Migraciones/versionado formal de esquema para una futura etapa no local.
 
-### P3
+## P3 — Evolución
 
 - Financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
 - UI específica de tarjetas: límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos.
@@ -86,7 +68,7 @@ No se agregaron intereses ni punitorios.
 
 ## Fuera de alcance actual
 
-Calendario de feriados, fecha efectiva separada del movimiento y recargos financieros no están implementados. Requieren decisiones de negocio antes de codificar.
+Calendario de feriados, fecha efectiva separada del movimiento e intereses/punitorios/CFT/refinanciación requieren decisiones de negocio antes de implementarse.
 
 ## Regla de cierre
 
