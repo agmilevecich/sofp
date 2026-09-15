@@ -17,6 +17,7 @@ import java.util.Objects;
 public class Obligacion extends EntidadAuditable {
     @Column(name = "importe_original", nullable = false, precision = 19, scale = 2) private BigDecimal importeOriginal;
     @Column(name = "importe_liquidacion", precision = 19, scale = 2) private BigDecimal importeLiquidacion;
+    @Column(name = "saldo_liquidacion", precision = 19, scale = 2) private BigDecimal saldoLiquidacion;
     @Column(name = "saldo_pendiente", nullable = false, precision = 19, scale = 2) private BigDecimal saldoPendiente;
     @Column(nullable = false, length = 20) @Enumerated(EnumType.STRING) private EstadoObligacion estado;
     @Column(name = "fecha_inicio_ciclo") private LocalDate fechaInicioCiclo;
@@ -50,6 +51,7 @@ public class Obligacion extends EntidadAuditable {
 
     public BigDecimal getImporteOriginal() { return importeOriginal; }
     public BigDecimal getImporteLiquidacion() { return importeLiquidacion; }
+    public BigDecimal getSaldoLiquidacion() { return saldoLiquidacion; }
     public BigDecimal getSaldoPendiente() { return saldoPendiente; }
     public EstadoObligacion getEstado() { return estado; }
     public Movimiento getMovimientoOrigen() { return movimientoOrigen; }
@@ -105,6 +107,7 @@ public class Obligacion extends EntidadAuditable {
         }
         this.tipoCambioLiquidacion = tipoCambio;
         this.importeLiquidacion = tipoCambio.convertir(importeOriginal);
+        this.saldoLiquidacion = this.importeLiquidacion;
     }
 
     public void registrarPago(BigDecimal importe) {
