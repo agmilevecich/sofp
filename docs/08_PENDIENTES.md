@@ -4,9 +4,10 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD:** `c74717ab0e97398764a7ef6b4c9cb55cb93f20c5`.
+**HEAD de código previo a documentación:** `e95585e043290eebb5789f2b628b1edcef8a7344`.
 
-Última suite completa informada: **712/712**, BUILD SUCCESS, 0 fallos, 0 errores, 0 omitidos. Finalizada el 15/09/2026 a las 18:05:46 -03:00.
+Última validación informada: **19/19**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 15/09/2026 18:37:13 -03:00.
+La última suite completa conocida es **712/712**, pero fue ejecutada antes de la integración actual de `PagoTarjetaService`.
 
 ## Bloques cerrados
 
@@ -21,41 +22,37 @@
 - Vencimiento de fin de semana.
 - Días de gracia y mora.
 - Aislamiento JPA/H2 para tests.
-- Saldos y disponibilidad de fondos separados por moneda.
-- Validación de `Moneda.cantidadDecimales` no negativa.
+- Saldos y fondos separados por moneda.
+- `Moneda.cantidadDecimales` no negativa.
 - `TipoCambio` histórico.
-- Separación de moneda original y moneda de liquidación de `Obligacion`.
-- Liquidación explícita y trazable de una obligación mediante `TipoCambio`.
-- Persistencia de la cotización histórica utilizada en la liquidación.
+- Moneda original y moneda de liquidación de `Obligacion`.
+- Liquidación histórica explícita y trazable.
+- `saldoLiquidacion` de obligaciones liquidadas.
+- Integración de pagos sobre `saldoLiquidacion` en `PagoTarjetaService`.
 
 ## Estado multidivisa
 
-Ya resuelto:
+Resuelto:
 
 1. saldo de cuenta filtrado por moneda;
-2. disponibilidad de fondos filtrada por moneda;
-3. coexistencia de saldos ARS/USD sin mezcla;
-4. moneda original y moneda de liquidación en obligaciones;
-5. cotización histórica explícita con fecha y fuente;
-6. asociación de la cotización utilizada a la obligación;
-7. cálculo explícito del importe de liquidación.
+2. fondos disponibles filtrados por moneda;
+3. consumo con moneda económica propia;
+4. moneda original y de liquidación;
+5. cotización histórica explícita;
+6. asociación de la cotización a la obligación;
+7. importe y saldo de liquidación;
+8. pago parcial/total sobre saldo de liquidación;
+9. cuenta pagadora en moneda de liquidación.
 
-Pendiente:
+## Pendientes inmediatos
 
-1. integrar la liquidación multidivisa en `PagoTarjetaService`;
-2. preservar el flujo actual de pagos en moneda coincidente;
-3. definir impacto de consumos en moneda distinta sobre límite/crédito disponible;
-4. cubrir pago real cruzando monedas;
-5. validar la integración con UI.
+1. Ejecutar suite relacionada completa sobre el estado actual.
+2. Ejecutar `mvn test` sobre el estado actual.
+3. Revisar `git diff`, `git diff --check` y `git status`.
+4. Definir impacto de consumos en moneda distinta sobre límite/crédito disponible.
+5. Cubrir persistencia y UI del pago multidivisa.
 
 No se deben introducir conversiones implícitas.
-
-## P0/P1 — Próximo bloque
-
-- Revisar `PagoTarjetaService` y sus tests actuales.
-- Diseñar el cambio mínimo para aceptar una liquidación histórica explícita cuando corresponda.
-- Mantener sin cambios el comportamiento de moneda coincidente.
-- Agregar tests específicos, relacionados, persistencia y UI cuando corresponda.
 
 ## P2 — Robustez
 
@@ -65,8 +62,8 @@ No se deben introducir conversiones implícitas.
 
 ## P3 — Evolución
 
-- Financiación avanzada: intereses, CFT, cuotas variables, adelantos, refinanciación, anulaciones/reversiones y ajustes.
-- UI específica de tarjetas: límite/disponible, consumos, ciclos, cierres, vencimientos, deuda y pagos reales.
+- Financiación avanzada.
+- UI específica de tarjetas.
 - Pasivos, patrimonio y análisis.
 - Gestión de entidades financieras.
 - Pulido de consola.
@@ -78,5 +75,3 @@ Calendario de feriados, fecha efectiva separada del movimiento e intereses/punit
 ## Regla de cierre
 
 Tests específicos → relacionados → suite general → `git diff` → `git diff --check` → `git status` → documentación.
-
-La documentación de continuidad debe reflejar el último estado real de GitHub y nunca reemplazar la verificación del código y los tests.
