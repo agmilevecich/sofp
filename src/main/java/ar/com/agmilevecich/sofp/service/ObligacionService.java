@@ -3,10 +3,12 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
+import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,9 +18,16 @@ public class ObligacionService {
 
     private final EntityManager entityManager;
     private final ObligacionRepository obligacionRepository;
+    private final TipoCambioRepository tipoCambioRepository;
 
     public ObligacionService(EntityManager entityManager,
                              ObligacionRepository obligacionRepository) {
+        this(entityManager, obligacionRepository, new TipoCambioRepository(entityManager));
+    }
+
+    public ObligacionService(EntityManager entityManager,
+                             ObligacionRepository obligacionRepository,
+                             TipoCambioRepository tipoCambioRepository) {
         this.entityManager = Objects.requireNonNull(
                 entityManager,
                 "El EntityManager es obligatorio"
@@ -26,6 +35,10 @@ public class ObligacionService {
         this.obligacionRepository = Objects.requireNonNull(
                 obligacionRepository,
                 "El ObligacionRepository es obligatorio"
+        );
+        this.tipoCambioRepository = Objects.requireNonNull(
+                tipoCambioRepository,
+                "El TipoCambioRepository es obligatorio"
         );
     }
 
@@ -65,6 +78,62 @@ public class ObligacionService {
         Obligacion guardada = obligacionRepository.guardar(obligacion);
         entityManager.flush();
         return guardada;
+    }
+
+    /**
+     * Valora las obligaciones de una cuenta cuyo ciclo tiene la fecha de cierre indicada.
+     * Las obligaciones en la moneda de liquidación no requieren tipo de cambio.
+     * Las obligaciones en otra moneda deben tener una cotización histórica del día de cierre.
+     */
+    public List<Obligacion> cerrarCiclo(Long cuentaId, LocalDate fechaCierre) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
+
+        if (entityManager.getTransaction().isActive()) {
+            return cerrarCicloEnTransaccion(cuentaId, fechaCierre);
+        }
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            List<Obligacion> obligaciones = cerrarCicloEnTransaccion(cuentaId, fechaCierre);
+            transaction.commit();
+            return obligaciones;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+
+    private List<Obligacion> cerrarCicloEnTransaccion(Long cuentaId, LocalDate fechaCierre) {
+        List<Obligacion> obligaciones = obligacionRepository.listarPorCuentaYCierreCiclo(
+                cuentaId,
+                fechaCierre
+        );
+
+        for (Obligacion obligacion : obligaciones) {
+            if (obligacion.getMonedaOriginal().equals(obligacion.getMonedaLiquidacion())) {
+                continue;
+            }
+
+            Optional<ar.com.agmilevecich.sofp.domain.TipoCambio> tipoCambio =
+                    tipoCambioRepository.buscarPorMonedasYFecha(
+                            obligacion.getMonedaOriginal(),
+                            obligacion.getMonedaLiquidacion(),
+                            fechaCierre
+                    );
+
+            TipoCambio cambio = tipoCambio.orElseThrow(() -> new IllegalArgumentException(
+                    "No existe cotización histórica para cerrar la obligación " + obligacion.getId()
+            ));
+
+            obligacion.valorarCierre(cambio);
+        }
+
+        entityManager.flush();
+        return obligaciones;
     }
 
     /** Registra un pago verificando que la obligación pertenezca al usuario autorizado. */
