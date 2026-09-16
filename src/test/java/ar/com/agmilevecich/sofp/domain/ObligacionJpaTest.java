@@ -258,7 +258,7 @@ class ObligacionJpaTest {
                 ars,
                 new BigDecimal("1500.00"),
                 LocalDateTime.of(2026, 9, 15, 23, 59),
-                "Cotizacion cierre" 
+                "Cotizacion cierre"
         );
         obligacion.valorarCierre(tipoCambioCierre);
 
@@ -290,7 +290,7 @@ class ObligacionJpaTest {
         assertEquals(new BigDecimal("150000.00"), recuperada.getImporteValorizacionCierre());
         assertNotNull(recuperada.getTipoCambioCierre());
         assertEquals(tipoCambioId, recuperada.getTipoCambioCierre().getId());
-        assertEquals(new BigDecimal("1500.00"), recuperada.getTipoCambioCierre().getCotizacion());
+        assertEquals(0, new BigDecimal("1500.00").compareTo(recuperada.getTipoCambioCierre().getCotizacion()));
         assertNull(recuperada.getImporteLiquidacion());
         assertEquals(movimiento.getId(), recuperada.getMovimientoOrigen().getId());
 
