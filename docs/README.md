@@ -21,13 +21,11 @@ La documentación acompaña al código, pero la fuente de verdad es siempre el e
 
 Rama de trabajo: `feature/swing-shell`.
 
-HEAD de código validado antes de la actualización documental: `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
+Último commit de código validado: `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
 `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 
-Última validación del bloque actual: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 15/09/2026 18:37:13 -03:00.
-
-Última suite general conocida antes de esta integración: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 15/09/2026 18:05:46 -03:00.
+Suite general actual: **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 20:05:19 -03:00**.
 
 ## Estado multidivisa
 
@@ -41,7 +39,7 @@ La integración del pago multidivisa está implementada:
 - la cuenta pagadora debe estar en la moneda de liquidación;
 - no hay conversiones implícitas.
 
-Queda pendiente definir el impacto de consumos extranjeros sobre el límite/crédito disponible y ejecutar la suite completa sobre el estado actual.
+Queda pendiente definir el impacto de consumos extranjeros sobre el límite/crédito disponible y completar la cobertura de persistencia/UI del pago multidivisa.
 
 ## Regla de continuidad
 
