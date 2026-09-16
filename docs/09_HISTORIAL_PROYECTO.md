@@ -52,27 +52,19 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 44. Saldo de liquidación persistente en `Obligacion`.
 45. Integración del pago multidivisa en `PagoTarjetaService`.
 
-## Bloque actual — pago multidivisa
-
-`PagoTarjetaService` utiliza `saldoLiquidacion` cuando una obligación fue liquidada mediante `TipoCambio`. El pago exige que la cuenta pagadora esté en la moneda de liquidación y aplica el importe contra ese saldo. Las obligaciones no liquidadas continúan utilizando `saldoPendiente`.
-
-Se cubrieron pagos parciales y totales, manteniendo el importe/saldo original de la obligación separado del saldo liquidado.
-
 ## Validación actual
 
-- `PagoTarjetaServiceTest`: 10/10.
-- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:37:13 -03:00**.
+La suite general actual es **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 20:05:19 -03:00**.
 
-La última suite completa conocida es **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 18:05:46. Fue ejecutada antes de la integración actual y debe renovarse.
+El bloque `PagoTarjetaService` también cuenta con `PagoTarjetaServiceTest` 10/10 y una validación relacionada anterior de 19/19.
 
 No existe objetivo de recuperar artificialmente el conteo histórico de 704 tests.
 
 ## Pendientes actuales
 
-1. Ejecutar suite relacionada y suite general sobre el estado actual.
-2. Revisar diff/diff-check/status.
-3. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
+1. Revisar diff/diff-check/status del estado documental actual.
+2. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
+3. Diseñar tests de esa regla antes de modificar el cálculo.
 4. Completar cobertura de persistencia/UI del pago multidivisa.
 5. Política de eliminación de cuentas con historial.
 6. Abstracción `Clock`.
