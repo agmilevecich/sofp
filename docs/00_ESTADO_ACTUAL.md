@@ -5,51 +5,40 @@
 ## Estado auditado — 16/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código:** `50052cbba18feb0256a0d9688833` — `fix: calcular crédito multidivisa pendiente`.
+**Rama de trabajo:** `feature/swing-shell` → `48cf588652ab9ad1d6f015ead69a6bfecd1c978e`.
 
-La rama está 752 commits adelante de `main` y 0 atrás. No se realizó merge.
+No se realizó merge a `main`.
 
 ## Último bloque implementado
 
-### Valorización de cierre e impacto en crédito para obligaciones multidivisa
+### Cierre de ciclo desde ObligacionesPanel
 
-Se agregó a `Obligacion` una valorización histórica de cierre separada de la liquidación/pago.
+Se agregó el botón **Cerrar ciclo** a `ObligacionesPanel`. La UI delega el cierre en `ObligacionService`, utiliza el ciclo persistido de la obligación y refresca el panel.
 
-- `Obligacion` conserva `monedaOriginal` y `monedaLiquidacion`.
-- `TipoCambio` representa la cotización histórica utilizada para la valorización.
-- `importeValorizacionCierre` y `tipoCambioCierre` se conservan como datos históricos.
-- `valorarCierre(TipoCambio)` valida moneda origen/destino, rechaza segunda valorización y no modifica la deuda original.
-- La valorización de cierre no cambia `importeOriginal`, `saldoPendiente`, `importeLiquidacion`, `saldoLiquidacion` ni el estado.
-- La liquidación explícita mediante `liquidar(TipoCambio)` continúa separada de la valorización.
-- `ObligacionRepository.sumarCreditoUtilizadoPorCuenta(...)` usa `saldoPendiente` para obligaciones en moneda de la tarjeta y una valorización de cierre proporcional al saldo original pendiente para obligaciones multidivisa valorizadas.
-- Los consumos sin obligación asociada siguen contemplándose según el comportamiento existente.
-- No se realizan conversiones implícitas.
+Se agregó cobertura para:
 
-Ejemplo validado: USD 30 con tarjeta ARS y cambio USD→ARS 1500 genera ARS 45.000 de valorización. Con límite ARS 50.000, ARS 5.000 adicionales se aceptan y ARS 5.001 se rechazan.
+- cierre desde UI de una obligación multidivisa con valorización histórica;
+- error cuando falta la cotización histórica de cierre;
+- rollback y ausencia de valorización ante ese error.
 
-Para una obligación USD 100 valorizada a ARS 1500, un pago parcial de USD 40 deja crédito utilizado proporcional de ARS 90.000; el pago total deja crédito utilizado en ARS 0.
+Commits:
+
+- `a5e6a86` — `feat: permitir cerrar ciclo desde obligaciones`.
+- `48cf588` — `test: cubrir cierre de ciclo desde obligaciones`.
 
 ## Validación más reciente
 
-- `mvn test`: **740/740**.
+- `mvn test`: **744/744**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizado: **16/09/2026 15:54:16 -03:00**.
-- Tiempo total: **09:50 min**.
+- Finalizado: **16/09/2026 18:47:51 -03:00**.
+- Tiempo total: **10:32 min**.
 
-Validaciones específicas recientes:
+Validación específica anterior: `ObligacionesPanelTest` **6/6**, `BUILD SUCCESS`, finalizada **16/09/2026 18:22:54 -03:00**.
 
-- `TipoCambioRepositoryTest`: 6/6.
-- `ObligacionServiceCierreTest`: 4/4.
-- `ObligacionRepositoryTest`: 7/7.
-- `MovimientoCreditoMultimonedaTest`: 1/1.
-- `PagoTarjetaServiceTest`: 10/10.
-- `ObligacionLiquidacionTest`: 13/13.
-
-Además se verificó localmente `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio.
+El usuario verificó `git status`, `git diff` y `git diff --check`: working tree limpio y sin observaciones. La rama local estaba alineada con GitHub y Bitbucket.
 
 ## Estado multidivisa
 
@@ -62,29 +51,30 @@ Resuelto:
 - pagos parciales y totales sobre saldo de liquidación;
 - valorización histórica de cierre separada de la liquidación;
 - utilización de la valorización para crédito disponible;
-- ajuste proporcional del crédito utilizado después de pagos parciales sobre obligaciones valorizadas.
+- ajuste proporcional del crédito utilizado después de pagos parciales;
+- cierre de ciclo iniciado desde `ObligacionesPanel`.
 
-Pendiente:
+Reglas vigentes:
 
-- definir el comportamiento de una obligación multidivisa todavía no valorizada al cierre;
-- definir el flujo de obtención/registro de la valorización de cierre dentro de la aplicación;
-- completar cobertura/persistencia/UI del flujo integral de cierre y pago multidivisa.
+- no hay conversiones implícitas;
+- una obligación multidivisa sin cotización histórica necesaria para cierre provoca error y rollback;
+- valorización y liquidación siguen siendo conceptos separados;
+- el crédito usado por una obligación multidivisa valorizada se calcula proporcionalmente sobre el saldo original pendiente.
 
-## Pendientes reales
+## Pendientes inmediatos
 
-### P0/P1 — Multidivisa de tarjetas
+1. Definir completamente el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
+2. Definir qué ocurre con una obligación multidivisa todavía no valorizada al cierre.
+3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
+4. Revisar el comportamiento de consumos extranjeros sobre crédito antes de disponer de valorización de cierre.
 
-1. Definir el momento y flujo de valorización de cierre dentro de la aplicación.
-2. Definir el comportamiento de consumos extranjeros antes de disponer de una valorización de cierre.
-3. Completar cobertura de persistencia/UI del cierre y pago multidivisa.
-
-### P2 — Robustez
+## P2 — Robustez
 
 1. Política de eliminación de cuentas con historial financiero.
 2. Abstracción `Clock` para determinismo temporal.
 3. Migraciones/versionado formal de esquema para una futura etapa no local.
 
-### P3 — Evolución
+## P3 — Evolución
 
 1. Financiación avanzada.
 2. UI específica de tarjetas.
@@ -92,7 +82,18 @@ Pendiente:
 4. Gestión de entidades financieras.
 5. Pulido de consola.
 
-### Fuera de alcance actual
+## Estabilización futura — antes del fast-forward a main
+
+No implementar todavía. Para la versión estable se deberá:
+
+- iniciar H2 automáticamente desde Java;
+- detener H2 limpiamente al salir;
+- ocultar la salida técnica de consola;
+- conservar detalle técnico en archivo de log;
+- informar fallos de conexión con la base y otros errores de arranque mediante `JOptionPane`;
+- evitar mostrar una ventana parcialmente inicializada si el arranque falla.
+
+## Fuera de alcance actual
 
 Calendario de feriados, fecha efectiva separada del movimiento e intereses/punitorios/CFT/refinanciación requieren decisiones de negocio antes de implementarse.
 
