@@ -6,7 +6,8 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
+**Último commit de código:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
+**Último commit documental previo a esta actualización:** `fb2aa51fe8421d94b95a45313d176c747c12b500`.
 
 La rama de trabajo continúa separada de `main`. No se realizó merge.
 
@@ -14,25 +15,29 @@ La rama de trabajo continúa separada de `main`. No se realizó merge.
 
 ### Integración multidivisa en `PagoTarjetaService`
 
-La liquidación histórica ya no queda solamente en el dominio: el servicio de pago la utiliza cuando la obligación tiene `saldoLiquidacion`.
+La liquidación histórica está conectada al pago cuando la obligación tiene `saldoLiquidacion`.
 
 - `Obligacion` conserva moneda original y moneda de liquidación.
 - `TipoCambio` representa la cotización histórica utilizada.
 - `importeLiquidacion` y `saldoLiquidacion` quedan separados del importe/saldo original.
-- `PagoTarjetaService` toma como saldo a pagar `saldoLiquidacion` cuando existe; en obligaciones no liquidadas conserva el flujo anterior mediante `saldoPendiente`.
+- `PagoTarjetaService` toma `saldoLiquidacion` cuando existe; en obligaciones no liquidadas usa `saldoPendiente`.
 - En obligaciones liquidadas, el pago se aplica mediante `registrarPagoLiquidacion`.
 - La cuenta pagadora debe estar en la moneda de liquidación.
 - No se realiza conversión implícita ni se modifica la cotización histórica.
 
-Ejemplo validado: consumo USD 100, tarjeta ARS, tipo de cambio histórico USD→ARS 1500; saldo de liquidación ARS 150.000. Un pago de ARS 50.000 deja ARS 100.000 de liquidación y conserva USD 100 como saldo original.
+Ejemplo: consumo USD 100, tarjeta ARS, tipo de cambio histórico USD→ARS 1500; saldo de liquidación ARS 150.000. Un pago de ARS 50.000 deja ARS 100.000 de liquidación y conserva USD 100 como saldo original.
 
-## Validación más reciente del cambio
+## Validación más reciente
 
-- `PagoTarjetaServiceTest`: **10/10**.
-- Comando relacionado informado: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizado: **15/09/2026 18:37:13 -03:00**.
+- `mvn test`: **718/718**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+- Finalizado: **15/09/2026 20:05:19 -03:00**.
+- Tiempo total: 09:04 min.
 
-La última suite completa informada **antes de esta integración** fue `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 18:05:46 -03:00**. Esa suite no incluye todavía la modificación de `PagoTarjetaService`.
+También se validó el bloque específico de `PagoTarjetaServiceTest`: 10/10, y la validación relacionada anterior fue 19/19, sin fallos, errores ni omitidos.
 
 ## Estado multidivisa
 
@@ -50,20 +55,14 @@ Resuelto:
 Pendiente:
 
 - definir y cubrir el impacto de consumos en moneda distinta sobre límite/crédito disponible;
-- validar la integración completa con persistencia/UI;
-- ejecutar nuevamente la suite general después de esta integración.
-
-## Integridad y tarjetas
-
-La integridad estructural de `Cuenta` está protegida. El movimiento origen de una obligación queda protegido frente a cambios estructurales incompatibles y eliminación. Ciclos, vencimientos de fin de semana, gracia, mora, cuotas, autorización y pagos coordinados están implementados.
+- completar cobertura de persistencia/UI del pago multidivisa.
 
 ## Pendientes reales
 
 ### P0/P1 — Multidivisa de tarjetas
 
 1. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
-2. Cubrir persistencia/UI del pago multidivisa.
-3. Ejecutar suite relacionada y suite completa sobre el estado actual.
+2. Completar cobertura de persistencia/UI del pago multidivisa.
 
 ### P2 — Robustez
 
