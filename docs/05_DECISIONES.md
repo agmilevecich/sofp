@@ -8,7 +8,7 @@ Se mantienen las decisiones anteriores: repositorio como memoria permanente; des
 
 ## D-045 — Moneda original y moneda de liquidación son conceptos distintos
 
-Un consumo puede tener una moneda económica distinta de la moneda de la tarjeta. `Obligacion` conserva ambas monedas: la original corresponde al consumo y la de liquidación corresponde a la cuenta/tarjeta que debe cancelar la deuda.
+Un consumo puede tener una moneda económica distinta de la moneda de la tarjeta. `Obligacion` conserva ambas monedas.
 
 ## D-046 — La liquidación multidivisa es explícita y trazable
 
@@ -16,7 +16,7 @@ La conversión no se realiza implícitamente al crear la obligación. Una liquid
 
 ## D-047 — `TipoCambio` representa una cotización histórica
 
-`TipoCambio` conserva moneda origen, moneda destino, cotización, fecha/hora y fuente. La cotización es histórica y no se reemplaza retroactivamente por una cotización posterior.
+`TipoCambio` conserva moneda origen, moneda destino, cotización, fecha/hora y fuente.
 
 ## D-048 — La obligación conserva el tipo de cambio utilizado
 
@@ -24,39 +24,35 @@ La conversión no se realiza implícitamente al crear la obligación. Una liquid
 
 ## D-049 — Validación de monedas en la liquidación
 
-`Obligacion.liquidar(TipoCambio)` exige que la moneda origen coincida con `monedaOriginal` y que la moneda destino coincida con `monedaLiquidacion`. Una discrepancia es error de negocio.
+`Obligacion.liquidar(TipoCambio)` exige coincidencia entre moneda origen/destino del tipo de cambio y las monedas de la obligación.
 
 ## D-050 — Los pagos multidivisa se aplican en la moneda de liquidación
 
-Cuando una obligación ya fue liquidada, `PagoTarjetaService` utiliza `saldoLiquidacion` como deuda pagable y exige que la cuenta pagadora utilice `monedaLiquidacion`. El pago se aplica mediante `registrarPagoLiquidacion`.
-
-Cuando la obligación no fue liquidada, se conserva el flujo existente basado en `saldoPendiente` y `registrarPago`.
-
-Esta decisión evita conversiones implícitas durante el pago y mantiene separadas la deuda económica original y la deuda efectivamente liquidada.
+Cuando una obligación ya fue liquidada, `PagoTarjetaService` utiliza `saldoLiquidacion` y exige cuenta pagadora en `monedaLiquidacion`. Sin liquidación se conserva el flujo basado en `saldoPendiente`.
 
 ## D-051 — La valorización de cierre es histórica y separada de la liquidación
 
-Para una obligación multidivisa puede registrarse una valorización de cierre mediante `Obligacion.valorarCierre(TipoCambio)`. Esta operación conserva `tipoCambioCierre` e `importeValorizacionCierre` y no modifica `importeOriginal`, `saldoPendiente`, `importeLiquidacion`, `saldoLiquidacion` ni el estado de la obligación.
-
-La valorización de cierre no reemplaza a `liquidar(TipoCambio)`: son conceptos distintos. La primera permite expresar históricamente el consumo en la moneda de la tarjeta para fines como el crédito disponible; la segunda determina una liquidación explícita y pagable en la moneda de liquidación.
+`Obligacion.valorarCierre(TipoCambio)` conserva `tipoCambioCierre` e `importeValorizacionCierre` y no modifica deuda original, saldos ni estado. La valorización sirve para expresar históricamente el consumo en la moneda de la tarjeta; no reemplaza `liquidar(TipoCambio)`.
 
 ## D-052 — El crédito utilizado usa la valorización histórica de cierre
 
-Para calcular el crédito utilizado de una tarjeta, una obligación pendiente en la moneda de la tarjeta utiliza su `saldoPendiente`. Una obligación pendiente cuya moneda original difiere de la moneda de la tarjeta utiliza la valorización de cierre cuando existe. En este último caso, el valor se reduce proporcionalmente según la relación entre `saldoPendiente` e `importeOriginal`.
-
-Los consumos de tarjeta sin obligación asociada continúan considerándose según el comportamiento existente. No se realiza una conversión implícita al registrar el consumo extranjero.
+Una obligación pendiente en la moneda de la tarjeta utiliza `saldoPendiente`. Una obligación multidivisa pendiente utiliza la valorización de cierre cuando existe, reducida proporcionalmente según el saldo original pendiente. No se realizan conversiones implícitas.
 
 ## D-053 — La valorización de cierre no disponible no se inventa
 
-Una obligación multidivisa sin `importeValorizacionCierre` no recibe una cotización implícita o posterior solamente para completar el cálculo. El momento y mecanismo mediante el cual la aplicación obtendrá la valorización de cierre forman parte del siguiente diseño de negocio.
+Una obligación multidivisa sin valorización de cierre no recibe una cotización implícita o posterior solamente para completar el cálculo. El flujo para obtener y registrar esa valorización debe definirse en la aplicación.
 
 ## D-054 — El pago posterior y la valorización de cierre siguen siendo conceptos independientes
 
-La valorización histórica de cierre no determina por sí sola la forma de pago futura. El modelo conserva por separado deuda original, valorización de cierre y, cuando corresponde, liquidación explícita. El comportamiento futuro de pagos multidivisa sin liquidación previa deberá definirse antes de alterar estas reglas.
+La valorización histórica de cierre no determina por sí sola la forma de pago futura. Se conservan por separado deuda original, valorización y liquidación explícita.
+
+## D-055 — El cierre de ciclo se inicia desde la UI pero la regla permanece en servicio
+
+`ObligacionesPanel` puede iniciar el cierre mediante `ObligacionService`. La UI no recalcula reglas de negocio ni inventa fechas o cotizaciones; obtiene el ciclo persistido de la obligación y delega la operación.
 
 ## Actualización — 16/09/2026
 
-La valorización de cierre, su utilización para crédito disponible y el ajuste proporcional después de pagos parciales quedaron implementados y validados.
+La valorización de cierre, su utilización para crédito disponible, el ajuste proporcional después de pagos parciales y el inicio del cierre desde UI quedaron implementados y validados.
 
 - `TipoCambioRepositoryTest`: 6/6.
 - `ObligacionServiceCierreTest`: 4/4.
@@ -64,7 +60,12 @@ La valorización de cierre, su utilización para crédito disponible y el ajuste
 - `MovimientoCreditoMultimonedaTest`: 1/1.
 - `PagoTarjetaServiceTest`: 10/10.
 - `ObligacionLiquidacionTest`: 13/13.
-- Suite general `mvn test`: **740/740**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 15:54:16 -03:00**.
+- `ObligacionesPanelTest`: 6/6.
+- Suite general `mvn test`: **744/744**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **16/09/2026 18:47:51 -03:00**.
 
-La validación local final dejó `git diff` vacío, `git diff --check` sin observaciones y working tree limpio.
+La validación local final informada dejó `git diff` vacío, `git diff --check` sin observaciones y working tree limpio.
+
+## Decisiones de estabilización futura
+
+No se implementan todavía. Para la versión estable, antes del fast-forward a `main`, se deberá diseñar el arranque automático de H2 desde Java, su cierre limpio, consola silenciosa, logging técnico a archivo y manejo de fallos de conexión/arranque mediante `JOptionPane`.
