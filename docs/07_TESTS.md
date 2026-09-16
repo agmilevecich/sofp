@@ -1,18 +1,18 @@
 # SOFP — Tests
 
-## Estado de validación — 15/09/2026
+## Estado de validación — 16/09/2026
 
 ### Validación más reciente
 
-- `mvn test`: **718/718**.
+- `mvn test`: **723/723**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 20:05:19 -03:00**.
-- Tiempo total: **09:04 min**.
+- Finalizada: **16/09/2026 13:11:00 -03:00**.
+- Tiempo total: **11:02 min**.
 
-El resultado corresponde al estado actual de `feature/swing-shell` e incluye la integración multidivisa de `PagoTarjetaService`.
+El resultado corresponde al estado actual de `feature/swing-shell` después de incorporar la valorización de cierre y su uso en el cálculo del crédito disponible.
 
 ### Cobertura multidivisa actual
 
@@ -32,27 +32,40 @@ Ya existe cobertura para:
 - pago parcial sobre saldo de liquidación;
 - pago total sobre saldo de liquidación;
 - conservación del saldo original al pagar una obligación liquidada;
-- descuento del importe pagado desde la cuenta pagadora.
+- descuento del importe pagado desde la cuenta pagadora;
+- valorización de cierre separada de la liquidación;
+- persistencia de la valorización de cierre;
+- uso de la valorización de cierre para crédito disponible;
+- rechazo de segunda valorización de cierre;
+- rechazo de valorización de cierre para monedas iguales;
+- validación de tipo de cambio nulo para valorización de cierre.
 
-### Validaciones relevantes
+### Validaciones relevantes de la etapa
 
-- `PagoTarjetaServiceTest`: **10/10**.
-- Validación relacionada: **19/19**.
-- `TipoCambioTest`: **10/10**.
-- `TipoCambioJpaTest`: **1/1**.
-- `ObligacionTest`: **12/12**.
+- `MovimientoCreditoMultimonedaTest`: **1/1**.
+- `MovimientoServiceTest,MovimientoMultimonedaTest,MovimientoServiceSaldoTest`: **62/62**.
+- `PagoTarjetaServiceTest,SaldoTarjetaCreditoTest,TarjetaCreditoPagoCreditoTest`: **17/17**.
+- `MovimientoObligacionIntegridadTest,ObligacionServiceTest`: **14/14**.
 - `ObligacionJpaTest`: **3/3**.
-- `ObligacionLiquidacionTest`: **5/5**.
-- `ObligacionTipoCambioJpaTest`: **1/1**.
-- `MonedaTest`: **7/7**.
-- `MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest`: **53/53**.
-- `CuentaServiceCoberturaTest`: **35/35**.
+- `ObligacionLiquidacionTest`: **13/13**.
+
+### Resultado de suite general
+
+`mvn test` ejecutó **723 tests** con:
+
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+
+La ejecución finalizó el 16/09/2026 a las 13:11:00 -03:00 y duró 11:02 min.
 
 ## Pendiente de cobertura
 
-- impacto de consumos extranjeros sobre límite/crédito disponible;
-- persistencia completa del pago multidivisa en UI/flujo integral;
-- tests que definan la regla de crédito disponible antes de implementarla.
+- flujo de obtención y registro de valorización de cierre dentro de la aplicación;
+- comportamiento de crédito para obligaciones multidivisa todavía no valorizadas;
+- crédito utilizado después de pagos parciales sobre obligaciones valorizadas;
+- persistencia/UI del flujo integral de cierre y pago multidivisa.
 
 ## Criterio de cierre
 
