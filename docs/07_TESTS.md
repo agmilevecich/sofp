@@ -2,26 +2,19 @@
 
 ## Estado de validación — 15/09/2026
 
-### Validación más reciente del bloque actual
+### Validación más reciente
 
-- `PagoTarjetaServiceTest`: **10/10**.
-- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:37:13 -03:00**.
-
-### Suite general
-
-La última suite completa informada **antes de la integración multidivisa de `PagoTarjetaService`** fue:
-
-- `mvn test`: **712/712**.
+- `mvn test`: **718/718**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:05:46 -03:00**.
+- Finalizada: **15/09/2026 20:05:19 -03:00**.
+- Tiempo total: **09:04 min**.
 
-Debe ejecutarse nuevamente la suite general sobre el estado actual antes de considerar cerrado este bloque.
+El resultado corresponde al estado actual de `feature/swing-shell` e incluye la integración multidivisa de `PagoTarjetaService`.
 
-## Cobertura multidivisa actual
+### Cobertura multidivisa actual
 
 Ya existe cobertura para:
 
@@ -41,8 +34,10 @@ Ya existe cobertura para:
 - conservación del saldo original al pagar una obligación liquidada;
 - descuento del importe pagado desde la cuenta pagadora.
 
-## Validaciones previas relevantes
+### Validaciones relevantes
 
+- `PagoTarjetaServiceTest`: **10/10**.
+- Validación relacionada: **19/19**.
 - `TipoCambioTest`: **10/10**.
 - `TipoCambioJpaTest`: **1/1**.
 - `ObligacionTest`: **12/12**.
@@ -56,9 +51,8 @@ Ya existe cobertura para:
 ## Pendiente de cobertura
 
 - impacto de consumos extranjeros sobre límite/crédito disponible;
-- persistencia completa del pago multidivisa en el estado actual;
-- integración UI del pago multidivisa;
-- suite relacionada completa y suite general después de la integración.
+- persistencia completa del pago multidivisa en UI/flujo integral;
+- tests que definan la regla de crédito disponible antes de implementarla.
 
 ## Criterio de cierre
 
