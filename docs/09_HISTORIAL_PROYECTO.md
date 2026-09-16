@@ -1,6 +1,6 @@
 # SOFP — Historial del proyecto
 
-## Estado documental — 15/09/2026
+## Estado documental — 16/09/2026
 
 Los estados técnicos deben verificarse siempre contra código, tests y Git. Este documento registra hitos; no reemplaza la inspección del estado real.
 
@@ -51,21 +51,34 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 43. Liquidación explícita de obligaciones multidivisa con trazabilidad y protección contra doble liquidación.
 44. Saldo de liquidación persistente en `Obligacion`.
 45. Integración del pago multidivisa en `PagoTarjetaService`.
+46. Valorización histórica de cierre separada de la liquidación.
+47. Persistencia y validación de la valorización de cierre.
+48. Integración de la valorización de cierre en el cálculo de crédito disponible.
+49. Validación de crédito de tarjeta con obligación multidivisa valorizada.
+50. Validación de compatibilidad del cambio con movimientos y obligaciones existentes.
+51. Suite completa de regresión en **723/723 tests verdes**.
 
 ## Validación actual
 
-La suite general actual es **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 20:05:19 -03:00**.
+La suite general actual es **723/723**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **16/09/2026 13:11:00 -03:00**, con duración de 11:02 min.
 
-El bloque `PagoTarjetaService` también cuenta con `PagoTarjetaServiceTest` 10/10 y una validación relacionada anterior de 19/19.
+Validaciones específicas recientes:
 
-No existe objetivo de recuperar artificialmente el conteo histórico de 704 tests.
+- `MovimientoCreditoMultimonedaTest`: 1/1.
+- `MovimientoServiceTest,MovimientoMultimonedaTest,MovimientoServiceSaldoTest`: 62/62.
+- `PagoTarjetaServiceTest,SaldoTarjetaCreditoTest,TarjetaCreditoPagoCreditoTest`: 17/17.
+- `MovimientoObligacionIntegridadTest,ObligacionServiceTest`: 14/14.
+- `ObligacionJpaTest`: 3/3.
+- `ObligacionLiquidacionTest`: 13/13.
+
+La copia local también fue verificada con `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio y sincronizado con `bitbucket/feature/swing-shell`.
 
 ## Pendientes actuales
 
-1. Revisar diff/diff-check/status del estado documental actual.
-2. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
-3. Diseñar tests de esa regla antes de modificar el cálculo.
-4. Completar cobertura de persistencia/UI del pago multidivisa.
+1. Definir el flujo de obtención y registro de la valorización de cierre dentro de la aplicación.
+2. Definir el comportamiento de una obligación multidivisa todavía no valorizada al cierre.
+3. Revisar el crédito utilizado después de pagos parciales sobre obligaciones valorizadas.
+4. Completar cobertura de persistencia/UI del flujo integral de cierre y pago multidivisa.
 5. Política de eliminación de cuentas con historial.
 6. Abstracción `Clock`.
 7. Migraciones/versionado formal de esquema.
