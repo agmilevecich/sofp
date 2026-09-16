@@ -1,12 +1,12 @@
 # SOFP — Pendientes
 
-## Estado auditado — 15/09/2026
+## Estado auditado — 16/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código:** `e95585e043290eebb5789f2b628b1edcef8a7344`.
+**Último commit de código:** `d61609df65b23c49a81851dc5742c73261a6d924`.
 
-Última validación informada: **718/718**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 15/09/2026 20:05:19 -03:00.
+Última validación informada: **723/723**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 16/09/2026 13:11:00 -03:00.
 
 ## Bloques cerrados
 
@@ -28,6 +28,8 @@
 - Liquidación histórica explícita y trazable.
 - `saldoLiquidacion` de obligaciones liquidadas.
 - Integración de pagos sobre `saldoLiquidacion` en `PagoTarjetaService`.
+- Valorización histórica de cierre separada de la liquidación.
+- Uso de la valorización de cierre para crédito disponible de consumos multidivisa valorizados.
 
 ## Estado multidivisa
 
@@ -41,16 +43,18 @@ Resuelto:
 6. asociación de la cotización a la obligación;
 7. importe y saldo de liquidación;
 8. pago parcial/total sobre saldo de liquidación;
-9. cuenta pagadora en moneda de liquidación.
+9. cuenta pagadora en moneda de liquidación;
+10. valorización histórica de cierre;
+11. persistencia de la valorización de cierre;
+12. utilización de la valorización para crédito disponible.
 
 ## Pendientes inmediatos
 
-1. Revisar `git diff`.
-2. Revisar `git diff --check`.
-3. Revisar `git status`.
-4. Definir impacto de consumos en moneda distinta sobre límite/crédito disponible.
-5. Diseñar y cubrir esa regla antes de modificar el cálculo.
-6. Completar cobertura de persistencia/UI del pago multidivisa.
+1. Definir el flujo de obtención y registro de la valorización de cierre dentro de la aplicación.
+2. Definir qué ocurre con una obligación multidivisa que todavía no tiene valorización de cierre.
+3. Revisar el crédito utilizado después de pagos parciales sobre obligaciones valorizadas.
+4. Diseñar tests para las reglas anteriores antes de modificar el código.
+5. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
 
 No se deben introducir conversiones implícitas.
 
