@@ -253,6 +253,15 @@ class ObligacionJpaTest {
 
         Obligacion obligacion = new Obligacion(movimiento);
 
+        TipoCambio tipoCambioCierre = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 23, 59),
+                "Cotizacion cierre" 
+        );
+        obligacion.valorarCierre(tipoCambioCierre);
+
         em.getTransaction().begin();
         em.persist(usuario);
         em.persist(perfil);
@@ -262,10 +271,12 @@ class ObligacionJpaTest {
         em.persist(tarjeta);
         em.persist(categoria);
         em.persist(movimiento);
+        em.persist(tipoCambioCierre);
         em.persist(obligacion);
         em.getTransaction().commit();
 
         Long id = obligacion.getId();
+        Long tipoCambioId = tipoCambioCierre.getId();
 
         em.clear();
 
@@ -276,6 +287,10 @@ class ObligacionJpaTest {
         assertEquals(new BigDecimal("100.00"), recuperada.getSaldoPendiente());
         assertEquals(usd.getId(), recuperada.getMonedaOriginal().getId());
         assertEquals(ars.getId(), recuperada.getMonedaLiquidacion().getId());
+        assertEquals(new BigDecimal("150000.00"), recuperada.getImporteValorizacionCierre());
+        assertNotNull(recuperada.getTipoCambioCierre());
+        assertEquals(tipoCambioId, recuperada.getTipoCambioCierre().getId());
+        assertEquals(new BigDecimal("1500.00"), recuperada.getTipoCambioCierre().getCotizacion());
         assertNull(recuperada.getImporteLiquidacion());
         assertEquals(movimiento.getId(), recuperada.getMovimientoOrigen().getId());
 
