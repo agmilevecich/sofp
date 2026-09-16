@@ -9,6 +9,7 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
@@ -153,6 +154,128 @@ class ObligacionRepositoryTest {
         }
     }
 
+    @Test
+    void deberiaContarValorizacionCompletaDeObligacionMultidivisaEnCreditoUtilizado() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Datos datos = crearDatos();
+            Moneda usd = crearDolares();
+            Obligacion obligacion = crearObligacionMultidivisa(
+                    datos.cuenta(), datos.categoria(), usd
+            );
+            TipoCambio tipoCambio = new TipoCambio(
+                    usd,
+                    datos.moneda(),
+                    new BigDecimal("1500.00"),
+                    LocalDateTime.of(2026, 9, 15, 23, 59),
+                    "TEST"
+            );
+            obligacion.valorarCierre(tipoCambio);
+            ObligacionRepository repository = new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            em.persist(usd);
+            em.persist(tipoCambio);
+            em.persist(obligacion.getMovimientoOrigen());
+            repository.guardar(obligacion);
+            em.getTransaction().commit();
+
+            BigDecimal resultado = repository.sumarCreditoUtilizadoPorCuenta(
+                    datos.cuenta().getId(), datos.cuenta().getMoneda()
+            );
+
+            assertEquals(0, new BigDecimal("150000.00").compareTo(resultado));
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaReducirCreditoUtilizadoProporcionalmenteAlPagoParcialEnMonedaOriginal() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Datos datos = crearDatos();
+            Moneda usd = crearDolares();
+            Obligacion obligacion = crearObligacionMultidivisa(
+                    datos.cuenta(), datos.categoria(), usd
+            );
+            TipoCambio tipoCambio = new TipoCambio(
+                    usd,
+                    datos.moneda(),
+                    new BigDecimal("1500.00"),
+                    LocalDateTime.of(2026, 9, 15, 23, 59),
+                    "TEST"
+            );
+            obligacion.valorarCierre(tipoCambio);
+            obligacion.registrarPago(new BigDecimal("40.00"));
+            ObligacionRepository repository = new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            em.persist(usd);
+            em.persist(tipoCambio);
+            em.persist(obligacion.getMovimientoOrigen());
+            repository.guardar(obligacion);
+            em.getTransaction().commit();
+
+            BigDecimal resultado = repository.sumarCreditoUtilizadoPorCuenta(
+                    datos.cuenta().getId(), datos.cuenta().getMoneda()
+            );
+
+            assertEquals(0, new BigDecimal("90000.00").compareTo(resultado));
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaEliminarCreditoUtilizadoAlPagarCompletaLaObligacionEnMonedaOriginal() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Datos datos = crearDatos();
+            Moneda usd = crearDolares();
+            Obligacion obligacion = crearObligacionMultidivisa(
+                    datos.cuenta(), datos.categoria(), usd
+            );
+            TipoCambio tipoCambio = new TipoCambio(
+                    usd,
+                    datos.moneda(),
+                    new BigDecimal("1500.00"),
+                    LocalDateTime.of(2026, 9, 15, 23, 59),
+                    "TEST"
+            );
+            obligacion.valorarCierre(tipoCambio);
+            obligacion.registrarPago(new BigDecimal("100.00"));
+            ObligacionRepository repository = new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            em.persist(usd);
+            em.persist(tipoCambio);
+            em.persist(obligacion.getMovimientoOrigen());
+            repository.guardar(obligacion);
+            em.getTransaction().commit();
+
+            BigDecimal resultado = repository.sumarCreditoUtilizadoPorCuenta(
+                    datos.cuenta().getId(), datos.cuenta().getMoneda()
+            );
+
+            assertEquals(0, BigDecimal.ZERO.compareTo(resultado));
+
+        } finally {
+            em.close();
+        }
+    }
+
     private Datos crearDatos() {
         Usuario usuario = new Usuario(
                 "Ariel", "Milevecich",
@@ -170,6 +293,10 @@ class ObligacionRepositoryTest {
         Categoria categoria = new Categoria("Compra", perfil);
 
         return new Datos(usuario, perfil, banco, moneda, cuenta, categoria);
+    }
+
+    private Moneda crearDolares() {
+        return new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
     }
 
     private Cuenta crearCuenta(
@@ -202,6 +329,24 @@ class ObligacionRepositoryTest {
                 new BigDecimal("100.00"),
                 fechaHora,
                 descripcion,
+                FormaPago.TARJETA_CREDITO
+        );
+        return new Obligacion(movimiento);
+    }
+
+    private Obligacion crearObligacionMultidivisa(
+            Cuenta cuenta,
+            Categoria categoria,
+            Moneda monedaOriginal
+    ) {
+        Movimiento movimiento = new Movimiento(
+                cuenta,
+                categoria,
+                monedaOriginal,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Consumo USD",
                 FormaPago.TARJETA_CREDITO
         );
         return new Obligacion(movimiento);
