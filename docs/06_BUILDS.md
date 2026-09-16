@@ -3,15 +3,17 @@
 ## Estado documental — 15/09/2026
 
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD documental:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
+**Último commit de código:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
 ## Última validación conocida
 
-- `PagoTarjetaServiceTest`: 10/10.
-- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:37:13 -03:00**.
-
-La última suite completa ejecutada antes de esta integración fue `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 18:05:46 -03:00**. Esta cifra todavía debe renovarse sobre el estado actual.
+- `mvn test`: **718/718**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 20:05:19 -03:00**.
+- Tiempo total: **09:04 min**.
 
 ## Último bloque implementado
 
@@ -19,7 +21,7 @@ La última suite completa ejecutada antes de esta integración fue `mvn test`: *
 
 Se completó la integración del modelo de liquidación histórica con `PagoTarjetaService`.
 
-`Obligacion` ahora conserva también `saldoLiquidacion`. Al liquidar con `TipoCambio`, el saldo de liquidación se inicializa con el importe convertido.
+`Obligacion` conserva `saldoLiquidacion`, que se inicializa con el importe convertido al liquidar con `TipoCambio`.
 
 `PagoTarjetaService`:
 
@@ -38,25 +40,18 @@ Commits principales del bloque:
 - `ab1ca2af` — `feat: usar saldo de liquidacion en PagoTarjetaService`.
 - `e95585e` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
-## Bloques multidivisa anteriores
-
-- `6e2d38d` — modelo de `TipoCambio` histórico.
-- `52a125e` — tests de `TipoCambio`.
-- `8cd34fb` / `f76822b` / `fc4a0ff` — persistencia y corrección de escala.
-- `506166b` / `bbc4dbb` — monedas original/liquidación de `Obligacion` y compatibilidad histórica.
-- `17c81ba` — asociación de `TipoCambio` a `Obligacion`.
-- `1ab3d10` / `c74717a` — liquidación y persistencia.
-
 ## Estado de la suite
 
-El histórico válido sigue siendo **712/712** y no existe objetivo de recuperar artificialmente el conteo anterior de 704. Después de la integración de `PagoTarjetaService` todavía falta ejecutar la suite relacionada completa y luego `mvn test` sobre el estado actual.
+La suite completa actual es **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`. Esta ejecución incluye la integración actual de `PagoTarjetaService`.
+
+No existe objetivo de recuperar artificialmente el conteo anterior de 704.
 
 ## Próximo bloque
 
-1. Tests relacionados sobre el estado actual.
-2. Suite completa.
-3. `git diff`, `git diff --check` y `git status`.
-4. Actualizar documentación con los resultados reales.
-5. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
+1. Revisar `git diff`.
+2. Revisar `git diff --check`.
+3. Revisar `git status`.
+4. Definir impacto de consumos extranjeros sobre límite/crédito disponible.
+5. Diseñar tests antes de modificar ese cálculo.
 
 No se deben introducir conversiones implícitas y no se modificó `main`.
