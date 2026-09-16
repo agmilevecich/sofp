@@ -12,9 +12,7 @@ No se realizó merge a `main`.
 
 ## Validación
 
-Bloque actual: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 18:37:13 -03:00.
-
-Suite general previa: **712/712**, 0 failures, 0 errors, 0 skipped, 15/09/2026 18:05:46 -03:00. Debe renovarse sobre el estado actual.
+Suite general actual: **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, **15/09/2026 20:05:19 -03:00**.
 
 ## Estado actual
 
@@ -30,7 +28,7 @@ Liquidación histórica multidivisa implementada y conectada al pago:
 
 ## Próximo paso
 
-Ejecutar suite relacionada y suite general sobre el estado actual. Después revisar diff/diff-check/status y actualizar documentación con esos resultados. Luego definir el impacto de consumos extranjeros sobre el crédito disponible.
+Revisar `git diff`, `git diff --check` y `git status`. Luego definir el impacto de consumos extranjeros sobre el crédito disponible y diseñar los tests de esa regla antes de modificar el cálculo.
 
 ## Protocolo
 
