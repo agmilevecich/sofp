@@ -4,10 +4,9 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**HEAD de código previo a documentación:** `e95585e043290eebb5789f2b628b1edcef8a7344`.
+**Último commit de código:** `e95585e043290eebb5789f2b628b1edcef8a7344`.
 
-Última validación informada: **19/19**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 15/09/2026 18:37:13 -03:00.
-La última suite completa conocida es **712/712**, pero fue ejecutada antes de la integración actual de `PagoTarjetaService`.
+Última validación informada: **718/718**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 15/09/2026 20:05:19 -03:00.
 
 ## Bloques cerrados
 
@@ -46,11 +45,12 @@ Resuelto:
 
 ## Pendientes inmediatos
 
-1. Ejecutar suite relacionada completa sobre el estado actual.
-2. Ejecutar `mvn test` sobre el estado actual.
-3. Revisar `git diff`, `git diff --check` y `git status`.
+1. Revisar `git diff`.
+2. Revisar `git diff --check`.
+3. Revisar `git status`.
 4. Definir impacto de consumos en moneda distinta sobre límite/crédito disponible.
-5. Cubrir persistencia y UI del pago multidivisa.
+5. Diseñar y cubrir esa regla antes de modificar el cálculo.
+6. Completar cobertura de persistencia/UI del pago multidivisa.
 
 No se deben introducir conversiones implícitas.
 
