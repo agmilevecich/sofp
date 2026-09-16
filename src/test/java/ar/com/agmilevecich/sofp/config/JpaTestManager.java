@@ -11,6 +11,7 @@ import java.util.UUID;
 public final class JpaTestManager {
 
     private static final ThreadLocal<EntityManagerFactory> ENTITY_MANAGER_FACTORY = new ThreadLocal<>();
+    private static final ThreadLocal<EntityManager> ENTITY_MANAGER = new ThreadLocal<>();
 
     private JpaTestManager() {
     }
@@ -29,10 +30,18 @@ public final class JpaTestManager {
             ENTITY_MANAGER_FACTORY.set(entityManagerFactory);
         }
 
-        return entityManagerFactory.createEntityManager();
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        ENTITY_MANAGER.set(entityManager);
+        return entityManager;
     }
 
     public static synchronized void close() {
+
+        EntityManager entityManager = ENTITY_MANAGER.get();
+        if (entityManager != null && entityManager.isOpen()) {
+            entityManager.close();
+        }
+        ENTITY_MANAGER.remove();
 
         EntityManagerFactory entityManagerFactory = ENTITY_MANAGER_FACTORY.get();
 
