@@ -10,9 +10,7 @@ La fuente de verdad es el código, Git y los tests actuales; `docs/` es document
 
 ## Validación general
 
-Bloque actual: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **15/09/2026 18:37:13 -03:00**.
-
-Suite general previa a la integración: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 18:05:46. No asumir que ese resultado incluye los cambios posteriores.
+Suite general actual: **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 20:05:19 -03:00**.
 
 ## Estado actual
 
@@ -26,7 +24,10 @@ El modelo de obligación multidivisa conserva moneda original, moneda de liquida
 
 ## Próximo bloque
 
-Ejecutar suite relacionada y suite general sobre el estado actual; luego revisar diff/diff-check/status. Después definir el impacto de consumos extranjeros sobre crédito disponible y completar persistencia/UI del pago multidivisa.
+1. Revisar `git diff`, `git diff --check` y `git status`.
+2. Definir el impacto de consumos extranjeros sobre crédito disponible.
+3. Diseñar tests de esa regla antes de modificar el cálculo.
+4. Completar persistencia/UI del pago multidivisa.
 
 ## Regla de continuidad
 
