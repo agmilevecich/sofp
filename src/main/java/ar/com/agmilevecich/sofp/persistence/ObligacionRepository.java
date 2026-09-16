@@ -169,7 +169,8 @@ public class ObligacionRepository {
     /**
      * Calcula el crédito utilizado en la moneda de la tarjeta.
      * Las obligaciones en la moneda de la tarjeta usan su saldo pendiente;
-     * las obligaciones en otra moneda usan su valorización histórica de cierre.
+     * las obligaciones en otra moneda usan su valorización histórica de cierre
+     * proporcional al saldo original todavía pendiente.
      */
     public BigDecimal sumarCreditoUtilizadoPorCuenta(Long cuentaId, Moneda moneda) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
@@ -182,7 +183,7 @@ public class ObligacionRepository {
                                 WHEN o.movimientoOrigen.moneda = :moneda
                                     THEN o.saldoPendiente
                                 WHEN o.importeValorizacionCierre IS NOT NULL
-                                    THEN o.importeValorizacionCierre
+                                    THEN o.importeValorizacionCierre * o.saldoPendiente / o.importeOriginal
                                 ELSE 0
                             END
                         ), 0)
