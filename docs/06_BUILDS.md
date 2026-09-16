@@ -3,60 +3,55 @@
 ## Estado documental — 16/09/2026
 
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código validado:** `50052cb` — `fix: calcular crédito multidivisa pendiente`.
+**Último commit de código:** `48cf588` — `test: cubrir cierre de ciclo desde obligaciones`.
 
-## Última validación conocida
+## Validación más reciente
 
-- `mvn test`: **740/740**.
+- `mvn test`: **744/744**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 15:54:16 -03:00**.
-- Tiempo total: **09:50 min**.
+- Finalizado: **16/09/2026 18:47:51 -03:00**.
+- Tiempo total: **10:32 min**.
+
+Validación específica inmediatamente anterior: `ObligacionesPanelTest` **6/6**, `BUILD SUCCESS`, finalizada **16/09/2026 18:22:54 -03:00**.
 
 ## Bloque implementado
 
-### Valorización de cierre de obligaciones multidivisa
+### Cierre de ciclo desde ObligacionesPanel
 
-`Obligacion` conserva `tipoCambioCierre` e `importeValorizacionCierre` como datos históricos separados de la liquidación. `valorarCierre(TipoCambio)` valida las monedas, rechaza segunda valoración y no modifica la deuda original ni el estado.
+`ObligacionesPanel` incorpora el botón `Cerrar ciclo` y delega el cierre en `ObligacionService`, usando el ciclo persistido de la obligación y refrescando la UI.
 
-### Crédito disponible con consumos multidivisa
+Se cubrieron tanto el cierre multidivisa con cotización histórica como el fallo por ausencia de cotización, verificando rollback y ausencia de valorización.
 
-`ObligacionRepository.sumarCreditoUtilizadoPorCuenta(...)` usa:
+Commits del bloque:
 
-- obligación en moneda de la tarjeta → `saldoPendiente`;
-- obligación multidivisa valorizada → valorización de cierre proporcional al saldo original pendiente;
-- consumo sin obligación asociada → comportamiento existente.
+- `a5e6a86` — `feat: permitir cerrar ciclo desde obligaciones`.
+- `48cf588` — `test: cubrir cierre de ciclo desde obligaciones`.
+
+## Bloques multidivisa ya cerrados
+
+- `TipoCambio` histórico.
+- moneda original y moneda de liquidación.
+- liquidación explícita y trazable.
+- `saldoLiquidacion` y pagos parciales/totales.
+- valorización histórica de cierre separada de liquidación.
+- crédito disponible basado en valorización histórica.
+- reducción proporcional del crédito después de pagos parciales.
+- cierre de ciclo iniciado desde UI.
 
 No se realizan conversiones implícitas.
 
-## Commits del bloque reciente
-
-- `5f490c6` — `fix: importar tipo de cambio en cierre de ciclo`.
-- `0b44642` — `feat: valorar obligaciones al cerrar ciclo`.
-- `c699ae7` — `test: cubrir valorizacion de cierre de ciclo`.
-- `75ea7b7` — `test: cubrir crédito multidivisa parcial`.
-- `50052cb` — `fix: calcular crédito multidivisa pendiente`.
-
-## Validaciones específicas
-
-- `TipoCambioRepositoryTest`: **6/6**.
-- `ObligacionServiceCierreTest`: **4/4**.
-- `ObligacionRepositoryTest`: **7/7**.
-- `MovimientoCreditoMultimonedaTest`: **1/1**.
-- `PagoTarjetaServiceTest`: **10/10**.
-- `ObligacionLiquidacionTest`: **13/13**.
-
-## Estado final de la etapa
-
-La suite completa quedó en **740/740**, sin failures, errors ni skipped. También se verificó `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio.
-
 ## Próximo bloque
 
-1. Definir el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
-2. Definir qué ocurre con una obligación multidivisa todavía no valorizada al cierre.
+1. Definir el flujo completo de obtención/registro de valorización de cierre en la aplicación.
+2. Definir la regla para obligaciones multidivisa sin valorización al cierre.
 3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
-4. Continuar con los pendientes P2/P3 cuando corresponda.
+4. Revisar consumos extranjeros sobre crédito antes de la valorización.
 
-No se modificó `main` y no se deben introducir conversiones implícitas.
+## Estabilización futura
+
+Antes del fast-forward a `main`, y no como parte del bloque actual, implementar: arranque automático de H2 desde Java, cierre limpio de H2, consola silenciosa, logging técnico a archivo y errores de arranque/conexión informados mediante `JOptionPane`.
+
+No se modificó `main`.
