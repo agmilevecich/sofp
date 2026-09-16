@@ -25,21 +25,21 @@ Se completó la integración del pago de obligaciones multidivisa en `PagoTarjet
 - Las obligaciones no liquidadas mantienen el flujo de `saldoPendiente`/`registrarPago`.
 - No existen conversiones implícitas.
 
-### Ejemplo validado
+### Ejemplo
 
 Consumo USD 100 con tarjeta ARS y cotización histórica USD→ARS 1500: deuda liquidada ARS 150.000. Un pago ARS 50.000 deja saldo de liquidación ARS 100.000 y mantiene saldo original USD 100.
 
-## Validación del bloque
+## Validación del estado actual
 
-- `PagoTarjetaServiceTest`: **10/10**.
-- Validación relacionada informada: **19/19**.
+- `mvn test`: **718/718**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:37:13 -03:00**.
+- Finalizada: **15/09/2026 20:05:19 -03:00**.
+- Tiempo total: **09:04 min**.
 
-La última suite completa conocida antes de esta integración fue `mvn test`: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 18:05:46 -03:00**. Ese resultado no incluye los cambios posteriores de `PagoTarjetaService`.
+También se validó `PagoTarjetaServiceTest`: 10/10, y la validación relacionada anterior fue 19/19.
 
 ## Decisiones multidivisa vigentes
 
@@ -54,12 +54,11 @@ La última suite completa conocida antes de esta integración fue `mvn test`: **
 
 ## Pendiente real
 
-1. Ejecutar suite relacionada completa sobre el estado actual.
-2. Ejecutar `mvn test` sobre el estado actual.
-3. Revisar `git diff`, `git diff --check` y `git status`.
-4. Definir el impacto de consumos en moneda distinta sobre el límite/crédito disponible.
-5. Completar cobertura de persistencia/UI del pago multidivisa.
+1. Revisar `git diff`, `git diff --check` y `git status`.
+2. Definir el impacto de consumos en moneda distinta sobre el límite/crédito disponible.
+3. Diseñar tests de esa regla antes de modificar el cálculo.
+4. Completar cobertura de persistencia/UI del pago multidivisa.
 
 ## Próximo paso
 
-Validar el estado completo después de la integración de `PagoTarjetaService`. Una vez renovada la suite, actualizar nuevamente esta documentación con el resultado real.
+Cerrar la etapa documental y comenzar el análisis del cálculo de límite/crédito disponible para consumos en moneda extranjera. Primero se debe entender el cálculo actual y definir la regla de negocio; recién después corresponde modificar código y tests.
