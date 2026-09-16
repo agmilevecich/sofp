@@ -6,9 +6,9 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código:** `d61609df65b23c49a81851dc5742c73261a6d924` — `fix: importar Movimiento en test de credito`.
+**Último commit de código:** `50052cbba18feb0256a0d9688833` — `fix: calcular crédito multidivisa pendiente`.
 
-La rama de trabajo continúa separada de `main`. No se realizó merge.
+La rama está 752 commits adelante de `main` y 0 atrás. No se realizó merge.
 
 ## Último bloque implementado
 
@@ -20,69 +20,55 @@ Se agregó a `Obligacion` una valorización histórica de cierre separada de la 
 - `TipoCambio` representa la cotización histórica utilizada para la valorización.
 - `importeValorizacionCierre` y `tipoCambioCierre` se conservan como datos históricos.
 - `valorarCierre(TipoCambio)` valida moneda origen/destino, rechaza segunda valorización y no modifica la deuda original.
-- La valorización de cierre no cambia `importeOriginal`, `saldoPendiente`, `importeLiquidacion`, `saldoLiquidacion` ni el estado de la obligación.
-- La liquidación explícita mediante `liquidar(TipoCambio)` continúa existiendo y no fue reinterpretada como valorización.
-- `ObligacionRepository.sumarCreditoUtilizadoPorCuenta(...)` usa el saldo pendiente para obligaciones en la moneda de la tarjeta y la valorización de cierre para obligaciones multidivisa ya valorizadas.
-- Los consumos de tarjeta sin obligación asociada siguen contemplándose en el crédito utilizado.
-- `MovimientoService.calcularCreditoUtilizado(...)` utiliza el nuevo cálculo del repositorio.
-- No se realizan conversiones implícitas al registrar un consumo extranjero; la valorización para crédito se realiza con una cotización de cierre explícita.
+- La valorización de cierre no cambia `importeOriginal`, `saldoPendiente`, `importeLiquidacion`, `saldoLiquidacion` ni el estado.
+- La liquidación explícita mediante `liquidar(TipoCambio)` continúa separada de la valorización.
+- `ObligacionRepository.sumarCreditoUtilizadoPorCuenta(...)` usa `saldoPendiente` para obligaciones en moneda de la tarjeta y una valorización de cierre proporcional al saldo original pendiente para obligaciones multidivisa valorizadas.
+- Los consumos sin obligación asociada siguen contemplándose según el comportamiento existente.
+- No se realizan conversiones implícitas.
 
-Ejemplo validado: consumo USD 30 con tarjeta ARS y tipo de cambio de cierre USD→ARS 1500 genera una valorización histórica de ARS 45.000. Con límite ARS 50.000, un nuevo consumo ARS 5.000 es aceptado y ARS 5.001 es rechazado.
+Ejemplo validado: USD 30 con tarjeta ARS y cambio USD→ARS 1500 genera ARS 45.000 de valorización. Con límite ARS 50.000, ARS 5.000 adicionales se aceptan y ARS 5.001 se rechazan.
 
-### Pago multidivisa previamente implementado
-
-La liquidación histórica continúa conectada al pago cuando la obligación tiene `saldoLiquidacion`.
-
-- `PagoTarjetaService` toma `saldoLiquidacion` cuando existe; en obligaciones no liquidadas usa `saldoPendiente`.
-- En obligaciones liquidadas, el pago se aplica mediante `registrarPagoLiquidacion`.
-- La cuenta pagadora debe estar en la moneda de liquidación.
-- No se modifica la cotización histórica durante el pago.
+Para una obligación USD 100 valorizada a ARS 1500, un pago parcial de USD 40 deja crédito utilizado proporcional de ARS 90.000; el pago total deja crédito utilizado en ARS 0.
 
 ## Validación más reciente
 
-- `mvn test`: **723/723**.
+- `mvn test`: **740/740**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizado: **16/09/2026 13:11:00 -03:00**.
-- Tiempo total: 11:02 min.
+- Finalizado: **16/09/2026 15:54:16 -03:00**.
+- Tiempo total: **09:50 min**.
 
 Validaciones específicas recientes:
 
-- `MovimientoCreditoMultimonedaTest`: **1/1**.
-- `MovimientoServiceTest,MovimientoMultimonedaTest,MovimientoServiceSaldoTest`: **62/62**.
-- `PagoTarjetaServiceTest,SaldoTarjetaCreditoTest,TarjetaCreditoPagoCreditoTest`: **17/17**.
-- `MovimientoObligacionIntegridadTest,ObligacionServiceTest`: **14/14**.
-- `ObligacionJpaTest`: **3/3**.
-- `ObligacionLiquidacionTest`: **13/13**.
+- `TipoCambioRepositoryTest`: 6/6.
+- `ObligacionServiceCierreTest`: 4/4.
+- `ObligacionRepositoryTest`: 7/7.
+- `MovimientoCreditoMultimonedaTest`: 1/1.
+- `PagoTarjetaServiceTest`: 10/10.
+- `ObligacionLiquidacionTest`: 13/13.
 
-Además, antes de cerrar la etapa se verificó localmente:
-
-- `git diff`: sin salida.
-- `git diff --check`: sin observaciones.
-- `git status`: working tree limpio y rama sincronizada con `bitbucket/feature/swing-shell`.
+Además se verificó localmente `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio.
 
 ## Estado multidivisa
 
 Resuelto:
 
-- saldos de cuenta por moneda;
-- fondos disponibles por moneda;
-- consumo con moneda económica propia;
-- moneda original y moneda de liquidación en `Obligacion`;
+- saldos y fondos por moneda;
+- moneda original y moneda de liquidación;
 - `TipoCambio` histórico explícito y persistente;
-- liquidación trazable;
-- saldo de liquidación;
+- liquidación trazable y `saldoLiquidacion`;
 - pagos parciales y totales sobre saldo de liquidación;
 - valorización histórica de cierre separada de la liquidación;
-- utilización de la valorización de cierre para el crédito disponible de consumos multidivisa ya valorizados.
+- utilización de la valorización para crédito disponible;
+- ajuste proporcional del crédito utilizado después de pagos parciales sobre obligaciones valorizadas.
 
 Pendiente:
 
-- definir el comportamiento del crédito para una obligación multidivisa todavía no valorizada al cierre;
-- definir cómo debe ajustarse el crédito cuando una obligación valorizada recibe pagos parciales, para evitar sobreestimaciones si el modelo futuro lo requiere;
-- completar cobertura de persistencia/UI del pago y cierre multidivisa.
+- definir el comportamiento de una obligación multidivisa todavía no valorizada al cierre;
+- definir el flujo de obtención/registro de la valorización de cierre dentro de la aplicación;
+- completar cobertura/persistencia/UI del flujo integral de cierre y pago multidivisa.
 
 ## Pendientes reales
 
@@ -90,8 +76,7 @@ Pendiente:
 
 1. Definir el momento y flujo de valorización de cierre dentro de la aplicación.
 2. Definir el comportamiento de consumos extranjeros antes de disponer de una valorización de cierre.
-3. Revisar el impacto de pagos parciales sobre el crédito utilizado de obligaciones valorizadas.
-4. Completar cobertura de persistencia/UI del cierre y pago multidivisa.
+3. Completar cobertura de persistencia/UI del cierre y pago multidivisa.
 
 ### P2 — Robustez
 
