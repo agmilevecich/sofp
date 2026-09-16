@@ -73,21 +73,25 @@ Los nuevos campos se mantienen nullable cuando corresponde y utilizan fallback p
 
 ## 13. Validación actual
 
-- `PagoTarjetaServiceTest`: **10/10**.
-- Validación relacionada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 18:37:13 -03:00.
-- Suite general previa a esta integración: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 18:05:46 -03:00.
+- `mvn test`: **718/718**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 20:05:19 -03:00**.
 
-La suite general debe ejecutarse nuevamente sobre el estado actual.
+El resultado incluye la integración multidivisa de `PagoTarjetaService`.
 
 ## 14. Orden de trabajo pendiente
 
-1. Ejecutar tests relacionados y suite general sobre el estado actual.
+1. Revisar diff/diff-check/status del estado documental.
 2. Definir impacto de moneda extranjera sobre límite/crédito disponible.
-3. Completar persistencia/UI del pago multidivisa.
-4. Financiación avanzada.
-5. UI específica de tarjetas.
-6. Pasivos/patrimonio y análisis.
-7. Gestión de entidades financieras.
-8. Pulido de consola.
+3. Diseñar y cubrir tests de esa regla.
+4. Completar persistencia/UI del pago multidivisa.
+5. Financiación avanzada.
+6. UI específica de tarjetas.
+7. Pasivos/patrimonio y análisis.
+8. Gestión de entidades financieras.
+9. Pulido de consola.
 
 El calendario de feriados y una fecha efectiva separada requieren decisión de negocio antes de implementarse.
