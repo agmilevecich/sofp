@@ -5,6 +5,7 @@ import ar.com.agmilevecich.sofp.domain.Obligacion;
 import jakarta.persistence.EntityManager;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -92,6 +93,34 @@ public class ObligacionRepository {
                         Obligacion.class
                 )
                 .setParameter("usuarioId", usuarioId)
+                .getResultList();
+    }
+
+    public List<Obligacion> listarPorCuentaYCierreCiclo(
+            Long cuentaId,
+            LocalDate fechaCierre
+    ) {
+        Objects.requireNonNull(
+                cuentaId,
+                "El id de la cuenta es obligatorio"
+        );
+        Objects.requireNonNull(
+                fechaCierre,
+                "La fecha de cierre es obligatoria"
+        );
+
+        return entityManager.createQuery(
+                        """
+                        SELECT o
+                        FROM Obligacion o
+                        WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.fechaCierreCiclo = :fechaCierre
+                        ORDER BY o.movimientoOrigen.fechaHora, o.id
+                        """,
+                        Obligacion.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("fechaCierre", fechaCierre)
                 .getResultList();
     }
 
