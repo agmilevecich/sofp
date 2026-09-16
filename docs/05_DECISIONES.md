@@ -40,10 +40,11 @@ Todavía no se define la regla definitiva para expresar límite/crédito disponi
 
 ## Actualización — 15/09/2026
 
-La integración de `PagoTarjetaService` quedó implementada y cubierta.
+La integración de `PagoTarjetaService` quedó implementada y validada.
 
 - `PagoTarjetaServiceTest`: 10/10.
-- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:37:13 -03:00**.
+- Validación relacionada: 19/19, 0 failures, 0 errors, 0 skipped.
+- Suite general actual: **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 20:05:19 -03:00**.
 
-La última suite completa conocida antes de esta integración sigue siendo **712/712**, finalizada 18:05:46. Debe ejecutarse nuevamente sobre el estado actual antes de cerrar definitivamente el bloque.
+La suite general confirma el estado actual después de la integración. No existe objetivo de recuperar artificialmente el conteo histórico de 704 tests.
