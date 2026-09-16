@@ -62,6 +62,10 @@ class ObligacionRepositoryTest {
             em.getTransaction().begin();
             persistirDatosBase(em, datos);
             em.persist(otraCuenta);
+            em.persist(obligacionObjetivo.getMovimientoOrigen());
+            em.persist(otraDelMismoCiclo.getMovimientoOrigen());
+            em.persist(otroCiclo.getMovimientoOrigen());
+            em.persist(otraCuentaMismoCierre.getMovimientoOrigen());
             repository.guardar(obligacionObjetivo);
             repository.guardar(otraDelMismoCiclo);
             repository.guardar(otroCiclo);
