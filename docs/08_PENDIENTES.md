@@ -4,9 +4,9 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código:** `d61609df65b23c49a81851dc5742c73261a6d924`.
+**Último commit de código:** `50052cb` — `fix: calcular crédito multidivisa pendiente`.
 
-Última validación informada: **723/723**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 16/09/2026 13:11:00 -03:00.
+Última validación informada: **740/740**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 16/09/2026 15:54:16 -03:00.
 
 ## Bloques cerrados
 
@@ -14,47 +14,40 @@
 - Cuentas, categorías, ingresos, gastos, movimientos e inversiones.
 - Obligaciones y pagos de tarjeta desde UI.
 - Autorización de pagos por usuario.
-- Integridad estructural de `Cuenta`.
-- Integridad histórica Movimiento → Obligación.
-- Ciclos históricos de obligaciones.
-- Cuotas simples y pagos parciales.
-- Vencimiento de fin de semana.
-- Días de gracia y mora.
+- Integridad estructural e histórica.
+- Ciclos, cuotas, vencimientos, gracia y mora.
 - Aislamiento JPA/H2 para tests.
 - Saldos y fondos separados por moneda.
 - `Moneda.cantidadDecimales` no negativa.
 - `TipoCambio` histórico.
 - Moneda original y moneda de liquidación de `Obligacion`.
 - Liquidación histórica explícita y trazable.
-- `saldoLiquidacion` de obligaciones liquidadas.
-- Integración de pagos sobre `saldoLiquidacion` en `PagoTarjetaService`.
+- `saldoLiquidacion` y pagos parciales/totales.
 - Valorización histórica de cierre separada de la liquidación.
-- Uso de la valorización de cierre para crédito disponible de consumos multidivisa valorizados.
+- Uso de la valorización para crédito disponible.
+- Corrección del crédito proporcional después de pagos parciales en moneda original.
 
 ## Estado multidivisa
 
 Resuelto:
 
-1. saldo de cuenta filtrado por moneda;
-2. fondos disponibles filtrados por moneda;
-3. consumo con moneda económica propia;
-4. moneda original y de liquidación;
-5. cotización histórica explícita;
-6. asociación de la cotización a la obligación;
-7. importe y saldo de liquidación;
-8. pago parcial/total sobre saldo de liquidación;
-9. cuenta pagadora en moneda de liquidación;
-10. valorización histórica de cierre;
-11. persistencia de la valorización de cierre;
-12. utilización de la valorización para crédito disponible.
+1. saldo de cuenta y fondos por moneda;
+2. consumo con moneda económica propia;
+3. moneda original y de liquidación;
+4. cotización histórica explícita;
+5. asociación de cotización a la obligación;
+6. importe y saldo de liquidación;
+7. pagos parciales/totales sobre saldo de liquidación;
+8. cuenta pagadora en moneda de liquidación;
+9. valorización histórica de cierre;
+10. utilización de la valorización para crédito disponible;
+11. reducción proporcional del crédito utilizado después de pagos parciales.
 
 ## Pendientes inmediatos
 
 1. Definir el flujo de obtención y registro de la valorización de cierre dentro de la aplicación.
 2. Definir qué ocurre con una obligación multidivisa que todavía no tiene valorización de cierre.
-3. Revisar el crédito utilizado después de pagos parciales sobre obligaciones valorizadas.
-4. Diseñar tests para las reglas anteriores antes de modificar el código.
-5. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
+3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
 
 No se deben introducir conversiones implícitas.
 
