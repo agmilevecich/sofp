@@ -109,7 +109,7 @@ public class CuentaService {
             throw new IllegalArgumentException("La cuenta no es una tarjeta de crédito");
         }
 
-        BigDecimal utilizado = obligacionRepository.sumarSaldoPendientePorCuentaYMoneda(
+        BigDecimal utilizado = obligacionRepository.sumarCreditoUtilizadoPorCuenta(
                 cuentaId,
                 cuenta.getMoneda()
         );
