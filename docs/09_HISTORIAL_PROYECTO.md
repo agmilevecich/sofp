@@ -55,38 +55,37 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 47. Persistencia y validación de la valorización de cierre.
 48. Integración de la valorización de cierre en el cálculo de crédito disponible.
 49. Validación de crédito de tarjeta con obligación multidivisa valorizada.
-50. Validación de compatibilidad del cambio con movimientos y obligaciones existentes.
-51. Suite completa de regresión en **723/723 tests verdes**.
+50. Corrección del crédito utilizado proporcionalmente después de pagos parciales en obligaciones multidivisa valorizadas.
+51. Suite completa de regresión en **740/740 tests verdes**.
 
 ## Validación actual
 
-La suite general actual es **723/723**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **16/09/2026 13:11:00 -03:00**, con duración de 11:02 min.
+La suite general actual es **740/740**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **16/09/2026 15:54:16 -03:00**, con duración de 09:50 min.
 
 Validaciones específicas recientes:
 
+- `TipoCambioRepositoryTest`: 6/6.
+- `ObligacionServiceCierreTest`: 4/4.
+- `ObligacionRepositoryTest`: 7/7.
 - `MovimientoCreditoMultimonedaTest`: 1/1.
-- `MovimientoServiceTest,MovimientoMultimonedaTest,MovimientoServiceSaldoTest`: 62/62.
-- `PagoTarjetaServiceTest,SaldoTarjetaCreditoTest,TarjetaCreditoPagoCreditoTest`: 17/17.
-- `MovimientoObligacionIntegridadTest,ObligacionServiceTest`: 14/14.
-- `ObligacionJpaTest`: 3/3.
+- `PagoTarjetaServiceTest`: 10/10.
 - `ObligacionLiquidacionTest`: 13/13.
 
-La copia local también fue verificada con `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio y sincronizado con `bitbucket/feature/swing-shell`.
+La copia local fue verificada con `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio.
 
 ## Pendientes actuales
 
 1. Definir el flujo de obtención y registro de la valorización de cierre dentro de la aplicación.
 2. Definir el comportamiento de una obligación multidivisa todavía no valorizada al cierre.
-3. Revisar el crédito utilizado después de pagos parciales sobre obligaciones valorizadas.
-4. Completar cobertura de persistencia/UI del flujo integral de cierre y pago multidivisa.
-5. Política de eliminación de cuentas con historial.
-6. Abstracción `Clock`.
-7. Migraciones/versionado formal de esquema.
-8. Financiación avanzada.
-9. UI específica de tarjetas.
-10. Pasivos, patrimonio y análisis.
-11. Gestión de entidades financieras.
-12. Pulido de consola.
+3. Completar cobertura de persistencia/UI del flujo integral de cierre y pago multidivisa.
+4. Política de eliminación de cuentas con historial.
+5. Abstracción `Clock`.
+6. Migraciones/versionado formal de esquema.
+7. Financiación avanzada.
+8. UI específica de tarjetas.
+9. Pasivos, patrimonio y análisis.
+10. Gestión de entidades financieras.
+11. Pulido de consola.
 
 ## Continuidad Git
 
