@@ -8,6 +8,7 @@ import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
@@ -36,6 +37,8 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ObligacionesPanelTest {
@@ -204,6 +207,66 @@ class ObligacionesPanelTest {
         SwingUtilities.invokeAndWait(() -> panel.getObligacionesList().setSelectedIndex(0));
 
         assertFalse(panel.getRegistrarPagoButton().isEnabled());
+    }
+
+    @Test
+    void deberiaCerrarDesdeElPanelYValorarObligacionMultidivisa() throws Exception {
+        var movimiento = gastoService.registrar(
+                cuenta,
+                categoria,
+                monedaUsd,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 8, 11, 0),
+                "Compra USD con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(new TipoCambio(
+                monedaUsd,
+                cuenta.getMoneda(),
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 12, 0),
+                "Test"
+        ));
+        entityManager.getTransaction().commit();
+
+        ObligacionesPanel panel = crearPanel();
+        SwingUtilities.invokeAndWait(() -> panel.getObligacionesList().setSelectedIndex(0));
+
+        assertTrue(panel.getCerrarCicloButton().isEnabled());
+        panel.cerrarCicloSeleccionado();
+
+        Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId()).orElseThrow();
+        assertEquals(new BigDecimal("150000.00"), actualizada.getImporteValorizacionCierre());
+        assertEquals(new BigDecimal("1500.00"), actualizada.getTipoCambioCierre().getCotizacion());
+    }
+
+    @Test
+    void deberiaFallarDesdeElPanelSiFaltaCotizacionDeCierre() throws Exception {
+        var movimiento = gastoService.registrar(
+                cuenta,
+                categoria,
+                monedaUsd,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 8, 11, 0),
+                "Compra USD sin cotización",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+
+        ObligacionesPanel panel = crearPanel();
+        SwingUtilities.invokeAndWait(() -> panel.getObligacionesList().setSelectedIndex(0));
+
+        assertThrows(IllegalArgumentException.class, panel::cerrarCicloSeleccionado);
+
+        entityManager.clear();
+        Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId()).orElseThrow();
+        assertNull(actualizada.getImporteValorizacionCierre());
+        assertNull(actualizada.getTipoCambioCierre());
     }
 
     private ObligacionesPanel crearPanel() {
