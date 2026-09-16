@@ -136,4 +136,57 @@ public class ObligacionRepository {
 
         return saldoPendiente.add(consumosSinObligacion);
     }
+
+    /**
+     * Calcula el crédito utilizado en la moneda de la tarjeta.
+     * Las obligaciones en la moneda de la tarjeta usan su saldo pendiente;
+     * las obligaciones en otra moneda usan su valorización histórica de cierre.
+     */
+    public BigDecimal sumarCreditoUtilizadoPorCuenta(Long cuentaId, Moneda moneda) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(moneda, "La moneda es obligatoria");
+
+        BigDecimal obligaciones = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(
+                            CASE
+                                WHEN o.movimientoOrigen.moneda = :moneda
+                                    THEN o.saldoPendiente
+                                WHEN o.importeValorizacionCierre IS NOT NULL
+                                    THEN o.importeValorizacionCierre
+                                ELSE 0
+                            END
+                        ), 0)
+                        FROM Obligacion o
+                        WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.saldoPendiente > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("moneda", moneda)
+                .getSingleResult();
+
+        BigDecimal consumosSinObligacion = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(m.importe), 0)
+                        FROM Movimiento m
+                        WHERE m.cuenta.id = :cuentaId
+                          AND m.moneda = :moneda
+                          AND m.tipoMovimiento = ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
+                          AND m.formaPago = ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO
+                          AND NOT EXISTS (
+                              SELECT o.id
+                              FROM Obligacion o
+                              WHERE o.movimientoOrigen.id = m.id
+                          )
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("moneda", moneda)
+                .getSingleResult();
+
+        return obligaciones.add(consumosSinObligacion);
+    }
 }
