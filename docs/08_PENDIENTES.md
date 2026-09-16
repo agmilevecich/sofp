@@ -3,10 +3,9 @@
 ## Estado auditado — 16/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código:** `50052cb` — `fix: calcular crédito multidivisa pendiente`.
+**Rama de trabajo:** `feature/swing-shell` → `48cf588` como último commit de código antes de la actualización documental.
 
-Última validación informada: **740/740**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, 16/09/2026 15:54:16 -03:00.
+Última validación informada: **744/744**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, finalizada **16/09/2026 18:47:51 -03:00**.
 
 ## Bloques cerrados
 
@@ -25,29 +24,15 @@
 - `saldoLiquidacion` y pagos parciales/totales.
 - Valorización histórica de cierre separada de la liquidación.
 - Uso de la valorización para crédito disponible.
-- Corrección del crédito proporcional después de pagos parciales en moneda original.
+- Corrección proporcional del crédito después de pagos parciales.
+- Cierre de ciclo iniciado desde `ObligacionesPanel`.
 
-## Estado multidivisa
+## Pendientes inmediatos — multidivisa
 
-Resuelto:
-
-1. saldo de cuenta y fondos por moneda;
-2. consumo con moneda económica propia;
-3. moneda original y de liquidación;
-4. cotización histórica explícita;
-5. asociación de cotización a la obligación;
-6. importe y saldo de liquidación;
-7. pagos parciales/totales sobre saldo de liquidación;
-8. cuenta pagadora en moneda de liquidación;
-9. valorización histórica de cierre;
-10. utilización de la valorización para crédito disponible;
-11. reducción proporcional del crédito utilizado después de pagos parciales.
-
-## Pendientes inmediatos
-
-1. Definir el flujo de obtención y registro de la valorización de cierre dentro de la aplicación.
+1. Definir completamente el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
 2. Definir qué ocurre con una obligación multidivisa que todavía no tiene valorización de cierre.
 3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
+4. Revisar el comportamiento de consumos extranjeros sobre crédito antes de disponer de valorización de cierre.
 
 No se deben introducir conversiones implícitas.
 
@@ -64,6 +49,17 @@ No se deben introducir conversiones implícitas.
 - Pasivos, patrimonio y análisis.
 - Gestión de entidades financieras.
 - Pulido de consola.
+
+## Estabilización futura — previa al fast-forward a main
+
+Separada del desarrollo funcional actual:
+
+- iniciar H2 automáticamente desde Java al arrancar SOFP;
+- detener H2 limpiamente al cerrar;
+- ocultar la salida técnica de consola;
+- conservar detalle técnico mediante logging a archivo;
+- informar fallos de conexión con la base y otros errores de arranque mediante `JOptionPane`;
+- evitar mostrar una ventana parcialmente inicializada si el arranque falla.
 
 ## Fuera de alcance actual
 
