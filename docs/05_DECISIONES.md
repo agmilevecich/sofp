@@ -40,11 +40,11 @@ Para una obligación multidivisa puede registrarse una valorización de cierre m
 
 La valorización de cierre no reemplaza a `liquidar(TipoCambio)`: son conceptos distintos. La primera permite expresar históricamente el consumo en la moneda de la tarjeta para fines como el crédito disponible; la segunda determina una liquidación explícita y pagable en la moneda de liquidación.
 
-## D-052 — El crédito utilizado puede usar la valorización histórica de cierre
+## D-052 — El crédito utilizado usa la valorización histórica de cierre
 
-Para calcular el crédito utilizado de una tarjeta, una obligación pendiente en la moneda de la tarjeta utiliza su `saldoPendiente`. Una obligación pendiente cuya moneda original difiere de la moneda de la tarjeta utiliza `importeValorizacionCierre` cuando esta existe. Los consumos de tarjeta sin obligación asociada continúan considerándose según el comportamiento existente.
+Para calcular el crédito utilizado de una tarjeta, una obligación pendiente en la moneda de la tarjeta utiliza su `saldoPendiente`. Una obligación pendiente cuya moneda original difiere de la moneda de la tarjeta utiliza la valorización de cierre cuando existe. En este último caso, el valor se reduce proporcionalmente según la relación entre `saldoPendiente` e `importeOriginal`.
 
-No se realiza una conversión implícita al registrar el consumo extranjero. La cotización utilizada para la valorización debe ser explícita e histórica.
+Los consumos de tarjeta sin obligación asociada continúan considerándose según el comportamiento existente. No se realiza una conversión implícita al registrar el consumo extranjero.
 
 ## D-053 — La valorización de cierre no disponible no se inventa
 
@@ -52,19 +52,19 @@ Una obligación multidivisa sin `importeValorizacionCierre` no recibe una cotiza
 
 ## D-054 — El pago posterior y la valorización de cierre siguen siendo conceptos independientes
 
-La valorización histórica de cierre no determina por sí sola la forma de pago futura. El modelo actual conserva por separado la deuda original, la valorización de cierre y, cuando corresponde, la liquidación explícita. El comportamiento futuro de pagos multidivisa sin liquidación previa y de pagos parciales sobre obligaciones valorizadas deberá definirse antes de alterar esas reglas.
+La valorización histórica de cierre no determina por sí sola la forma de pago futura. El modelo conserva por separado deuda original, valorización de cierre y, cuando corresponde, liquidación explícita. El comportamiento futuro de pagos multidivisa sin liquidación previa deberá definirse antes de alterar estas reglas.
 
 ## Actualización — 16/09/2026
 
-La integración de valorización de cierre y su utilización para crédito disponible quedó implementada y validada.
+La valorización de cierre, su utilización para crédito disponible y el ajuste proporcional después de pagos parciales quedaron implementados y validados.
 
+- `TipoCambioRepositoryTest`: 6/6.
+- `ObligacionServiceCierreTest`: 4/4.
+- `ObligacionRepositoryTest`: 7/7.
 - `MovimientoCreditoMultimonedaTest`: 1/1.
-- `MovimientoServiceTest,MovimientoMultimonedaTest,MovimientoServiceSaldoTest`: 62/62.
-- `PagoTarjetaServiceTest,SaldoTarjetaCreditoTest,TarjetaCreditoPagoCreditoTest`: 17/17.
-- `MovimientoObligacionIntegridadTest,ObligacionServiceTest`: 14/14.
-- `ObligacionJpaTest`: 3/3.
+- `PagoTarjetaServiceTest`: 10/10.
 - `ObligacionLiquidacionTest`: 13/13.
-- Suite general `mvn test`: **723/723**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 13:11:00 -03:00**.
+- Suite general `mvn test`: **740/740**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **16/09/2026 15:54:16 -03:00**.
 
-La validación local final también dejó `git diff` vacío, `git diff --check` sin observaciones y working tree limpio.
+La validación local final dejó `git diff` vacío, `git diff --check` sin observaciones y working tree limpio.
