@@ -12,10 +12,13 @@ La rama continúa separada de `main`; no se realizó merge.
 
 ## Validación más reciente
 
-- `PagoTarjetaServiceTest`: **10/10**.
-- Validación relacionada informada: **19/19**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **15/09/2026 18:37:13 -03:00**.
-- Última suite completa previa: **712/712**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 18:05:46.
+- `mvn test`: **718/718**.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 20:05:19 -03:00**.
+- Tiempo total: 09:04 min.
 
 ## Estado consolidado
 
@@ -27,7 +30,7 @@ Las obligaciones conservan historial de ciclo, vencimiento, gracia y cuotas. El 
 
 ## Multidivisa actual
 
-La integración de pago multidivisa ya está implementada:
+La integración de pago multidivisa está implementada:
 
 - `Obligacion` separa `monedaOriginal` y `monedaLiquidacion`;
 - `TipoCambio` representa una cotización histórica;
@@ -41,9 +44,9 @@ La integración de pago multidivisa ya está implementada:
 
 ## Pendiente inmediato
 
-1. Ejecutar suite relacionada completa y `mvn test` sobre el estado actual.
-2. Revisar `git diff`, `git diff --check` y `git status`.
-3. Definir el impacto de consumos en moneda distinta sobre el límite/crédito disponible.
+1. Revisar `git diff`, `git diff --check` y `git status`.
+2. Definir el impacto de consumos en moneda distinta sobre el límite/crédito disponible.
+3. Diseñar tests de esa regla antes de modificar el cálculo.
 4. Completar cobertura de persistencia/UI del pago multidivisa.
 
 ## Reglas temporales implementadas
