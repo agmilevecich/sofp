@@ -3,87 +3,60 @@
 ## Estado documental — 16/09/2026
 
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código previo a la actualización documental:** `d61609df65b23c49a81851dc5742c73261a6d924` — `fix: importar Movimiento en test de credito`.
+**Último commit de código validado:** `50052cb` — `fix: calcular crédito multidivisa pendiente`.
 
 ## Última validación conocida
 
-- `mvn test`: **723/723**.
+- `mvn test`: **740/740**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 13:11:00 -03:00**.
-- Tiempo total: **11:02 min**.
+- Finalizada: **16/09/2026 15:54:16 -03:00**.
+- Tiempo total: **09:50 min**.
 
 ## Bloque implementado
 
 ### Valorización de cierre de obligaciones multidivisa
 
-Se incorporó una valorización histórica de cierre separada de la liquidación de la obligación.
-
-`Obligacion` ahora conserva:
-
-- `importeValorizacionCierre`;
-- `tipoCambioCierre`.
-
-`Obligacion.valorarCierre(TipoCambio)`:
-
-- exige tipo de cambio no nulo;
-- rechaza una segunda valorización;
-- rechaza la valorización mediante tipo de cambio cuando las monedas original y de liquidación son iguales;
-- valida que la moneda origen del tipo de cambio sea la moneda original;
-- valida que la moneda destino sea la moneda de liquidación;
-- conserva la cotización histórica;
-- calcula la valorización sin modificar la deuda original ni su estado.
-
-La liquidación explícita mediante `liquidar(TipoCambio)` permanece separada de esta valorización.
+`Obligacion` conserva `tipoCambioCierre` e `importeValorizacionCierre` como datos históricos separados de la liquidación. `valorarCierre(TipoCambio)` valida las monedas, rechaza segunda valoración y no modifica la deuda original ni el estado.
 
 ### Crédito disponible con consumos multidivisa
 
-`ObligacionRepository.sumarCreditoUtilizadoPorCuenta(...)` incorpora la valorización de cierre al cálculo del crédito utilizado:
+`ObligacionRepository.sumarCreditoUtilizadoPorCuenta(...)` usa:
 
-- obligación en moneda de la tarjeta → usa `saldoPendiente`;
-- obligación en moneda diferente con valorización de cierre → usa `importeValorizacionCierre`;
-- consumo de tarjeta sin obligación asociada → conserva el comportamiento existente;
-- obligación multidivisa sin valorización de cierre → no se inventa una conversión.
+- obligación en moneda de la tarjeta → `saldoPendiente`;
+- obligación multidivisa valorizada → valorización de cierre proporcional al saldo original pendiente;
+- consumo sin obligación asociada → comportamiento existente.
 
-`MovimientoService.calcularCreditoUtilizado(...)` utiliza este cálculo.
+No se realizan conversiones implícitas.
 
-Se mantiene la regla de que el crédito de nuevos consumos se valida directamente cuando el movimiento está en la moneda de la tarjeta. La valorización de cierre de consumos extranjeros se trata como un dato histórico posterior al consumo.
+## Commits del bloque reciente
 
-### Commits del bloque reciente
+- `5f490c6` — `fix: importar tipo de cambio en cierre de ciclo`.
+- `0b44642` — `feat: valorar obligaciones al cerrar ciclo`.
+- `c699ae7` — `test: cubrir valorizacion de cierre de ciclo`.
+- `75ea7b7` — `test: cubrir crédito multidivisa parcial`.
+- `50052cb` — `fix: calcular crédito multidivisa pendiente`.
 
-- `5bf57042` — `feat: considerar valorizacion de cierre en credito`.
-- `8843d10` — `feat: usar valorizacion de cierre para credito`.
-- `0a56d9f` — `test: cubrir credito con valorizacion de cierre`.
-- `149b6ab` — `fix: conservar comportamiento de MovimientoService`.
-- `d61609d` — `fix: importar Movimiento en test de credito`.
+## Validaciones específicas
 
-## Validaciones específicas de la etapa
-
+- `TipoCambioRepositoryTest`: **6/6**.
+- `ObligacionServiceCierreTest`: **4/4**.
+- `ObligacionRepositoryTest`: **7/7**.
 - `MovimientoCreditoMultimonedaTest`: **1/1**.
-- `MovimientoServiceTest,MovimientoMultimonedaTest,MovimientoServiceSaldoTest`: **62/62**.
-- `PagoTarjetaServiceTest,SaldoTarjetaCreditoTest,TarjetaCreditoPagoCreditoTest`: **17/17**.
-- `MovimientoObligacionIntegridadTest,ObligacionServiceTest`: **14/14**.
-- `ObligacionJpaTest`: **3/3**.
+- `PagoTarjetaServiceTest`: **10/10**.
 - `ObligacionLiquidacionTest`: **13/13**.
 
 ## Estado final de la etapa
 
-La suite completa quedó en **723/723**, sin failures, errors ni skipped.
-
-Además, en la copia local se verificó:
-
-- `git diff`: vacío;
-- `git diff --check`: sin observaciones;
-- `git status`: working tree limpio y rama sincronizada con `bitbucket/feature/swing-shell`.
+La suite completa quedó en **740/740**, sin failures, errors ni skipped. También se verificó `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio.
 
 ## Próximo bloque
 
 1. Definir el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
 2. Definir qué ocurre con una obligación multidivisa todavía no valorizada al cierre.
-3. Revisar el cálculo de crédito cuando una obligación valorizada recibe pagos parciales.
-4. Completar persistencia/UI del cierre y pago multidivisa.
-5. Continuar con los pendientes P2/P3 cuando corresponda.
+3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
+4. Continuar con los pendientes P2/P3 cuando corresponda.
 
 No se modificó `main` y no se deben introducir conversiones implícitas.
