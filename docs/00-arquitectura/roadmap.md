@@ -1,60 +1,54 @@
 # Roadmap del proyecto
 
-## Estado auditado — 15/09/2026
+## Estado auditado — 16/09/2026
 
 La fuente de verdad es el código, los tests y los commits actuales. Este roadmap es documentación auxiliar y debe actualizarse cuando el código avance.
 
 ## Fase 1: Infraestructura
 
-Definir la estructura inicial del proyecto, la configuración de persistencia y las verificaciones básicas de conexión.
+Definir estructura inicial, persistencia y verificaciones básicas de conexión.
 
 **Estado:** cerrada.
 
 ## Fase 2: Modelo de dominio
 
-Incorporar el modelo financiero, incluyendo usuarios, perfiles financieros, monedas, cuentas, activos y la base transversal de auditoría.
+Modelo financiero con usuarios, perfiles, monedas, cuentas, activos y auditoría.
 
 **Estado:** cerrada.
 
 ## Fase 3: Persistencia y acceso a datos
 
-Persistir el modelo de dominio y establecer los mecanismos necesarios para consultar y almacenar la información.
+Persistencia del dominio y mecanismos de consulta/almacenamiento.
 
 **Estado:** cerrada.
 
 ## Fase 4: Operaciones financieras
 
-Implementar `OperacionFinanciera` y su asociación con los movimientos resultantes. Los efectos monetarios se registran mediante `Movimiento`, que pertenece a una `Cuenta`. La evolución posterior incorporó `MovimientoActivo` para posiciones de activos.
+`OperacionFinanciera`, `Movimiento` y posiciones de activos.
 
 **Estado:** cerrada.
 
 ## Fase 5: Saldos y posiciones
 
-Implementar cálculo de saldos de cuentas y posiciones de activos.
-
-El dominio actual incluye posiciones, costo promedio, consolidación, valorización y aislamiento por perfil financiero. Los saldos de cuenta y disponibilidad de fondos se calculan respetando la moneda correspondiente.
+Saldos de cuentas y posiciones de activos, respetando moneda y perfil.
 
 **Estado:** cerrada y validada.
 
 ## Fase 6: Reportes
 
-Incorporar reportes de cartera, composición, movimientos y evolución histórica de saldos.
-
-El estado actual incluye reporte consolidado, composición detallada, movimientos de cartera y evolución histórica de saldos.
+Reportes de cartera, composición, movimientos y evolución histórica.
 
 **Estado:** cerrada y validada.
 
 ## Fase 7: Seguridad
 
-Agregar autenticación, autorización y aislamiento de información por usuario/perfil.
-
-La auditoría transversal de seguridad y aislamiento está implementada e integrada. Las operaciones financieras, cuentas, categorías, movimientos y posiciones cuentan con controles de propietario según corresponda.
+Autenticación, autorización y aislamiento por usuario/perfil.
 
 **Estado:** cerrada.
 
 ## Fase 8: Interfaz de usuario Swing
 
-La Fase 8 está implementada en la rama de trabajo `feature/swing-shell` y contiene shell Swing y paneles funcionales integrados con servicios.
+La Fase 8 está activa en `feature/swing-shell` e incluye shell y paneles funcionales integrados con servicios.
 
 Integrados:
 
@@ -68,37 +62,31 @@ Integrados:
 - obligaciones;
 - pagos de tarjeta desde UI.
 
-La separación UI → servicios → dominio/repositorios se mantiene.
+La UI específica completa de tarjetas continúa pendiente.
 
-### Estado actual de la Fase 8
+## Bloque transversal: multidivisa de tarjetas
 
-- Shell Swing: implementado.
-- Navegación: implementada.
-- Integración con servicios: implementada.
-- Gastos e ingresos: implementados.
-- Obligaciones y pagos de tarjeta: implementados.
-- UI específica completa de tarjetas: pendiente.
+Implementado y validado:
 
-**Fase 8: activa.**
+- moneda económica explícita en `Movimiento`;
+- moneda original y moneda de liquidación en `Obligacion`;
+- `TipoCambio` histórico explícito y persistente;
+- liquidación histórica separada de la valorización de cierre;
+- `saldoLiquidacion` y pagos multidivisa;
+- valorización histórica para crédito disponible;
+- cálculo proporcional del crédito después de pagos parciales sobre obligaciones valorizadas.
 
-## Bloque transversal actual: multidivisa de tarjetas
+Pendiente:
 
-La moneda económica de `Movimiento` es explícita y puede diferir de la moneda de `Cuenta`. Ya se corrigieron los cálculos generales de saldo y disponibilidad de fondos para no mezclar monedas.
+- flujo de obtención/registro de la valorización de cierre dentro de la aplicación;
+- comportamiento de obligaciones multidivisa todavía no valorizadas;
+- completar persistencia/UI del flujo integral de cierre y pago.
 
-Continúa pendiente el tratamiento específico de tarjetas cuando la moneda del consumo difiere de la moneda de la tarjeta:
-
-- impacto sobre crédito disponible;
-- moneda de liquidación;
-- tasa de cambio;
-- fecha y fuente de cotización;
-- trazabilidad de la conversión/liquidación;
-- pagos entre monedas.
-
-No se deben agregar conversiones implícitas antes de fijar esas reglas de negocio.
+No se deben introducir conversiones implícitas antes de fijar reglas de negocio.
 
 ## Fase 9: Optimización
 
-Optimizar consultas, cálculo de saldos, rendimiento general y experiencia de uso a medida que aumente el volumen de información.
+Optimizar consultas, cálculo de saldos, rendimiento y experiencia de uso cuando corresponda.
 
 **Estado:** futura.
 
@@ -106,28 +94,27 @@ Optimizar consultas, cálculo de saldos, rendimiento general y experiencia de us
 
 ### P0/P1
 
-1. Resolver multidivisa de tarjetas de forma coherente por moneda.
-2. Cubrirla con tests específicos y relacionados.
+1. Definir el flujo de valorización de cierre dentro de la aplicación.
+2. Definir el comportamiento de consumos extranjeros sin valorización de cierre.
+3. Completar persistencia/UI del cierre y pago multidivisa.
 
 ### P2
 
-3. Política de eliminación de cuentas con historial.
-4. `Clock` para determinismo temporal.
-5. Migraciones/versionado formal de esquema para una futura etapa no local.
+4. Política de eliminación de cuentas con historial.
+5. `Clock` para determinismo temporal.
+6. Migraciones/versionado formal de esquema.
 
 ### P3
 
-6. Financiación avanzada.
-7. UI específica de tarjetas.
-8. Pasivos, patrimonio y análisis.
-9. Gestión de entidades financieras.
-10. Pulido de consola.
+7. Financiación avanzada.
+8. UI específica de tarjetas.
+9. Pasivos, patrimonio y análisis.
+10. Gestión de entidades financieras.
+11. Pulido de consola.
 
 ## Validación global actual
 
-La última suite informada por el usuario es **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 12:03:19 -03:00.
-
-El conteo histórico de 704 no es un objetivo de recuperación; 693/693 es el estado actual válido.
+La última suite informada por el usuario es **740/740**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 16/09/2026 15:54:16 -03:00.
 
 ## Regla de continuidad
 
