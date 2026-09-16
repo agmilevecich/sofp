@@ -8,21 +8,23 @@ Esta auditoría reconstruye el estado de `feature/swing-shell` desde GitHub. La 
 
 - Rama estable: `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 - Rama de trabajo: `feature/swing-shell`.
-- El trabajo de continuidad permanece separado de `main`.
-- El último bloque funcional de esta etapa es la validación de `Moneda.cantidadDecimales`.
-- La suite general actual informada por el usuario es 693/693.
+- La rama de trabajo continúa separada de `main`; no se realizó merge.
+- Último commit de código: `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
+- La documentación fue actualizada posteriormente con el resultado general 718/718.
 
 ## 2. Validación actual
 
-- `mvn -Dtest=MonedaTest test`: **7/7**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 11:21:20 -03:00.
-- `mvn -Dtest=MonedaTest,CuentaTest,CuentaJpaTest,MovimientoTest test`: **53/53**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 11:34:38 -03:00.
-- `mvn test`: **693/693**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 15/09/2026 12:03:19 -03:00.
+- `PagoTarjetaServiceTest`: **10/10**, 0 failures, 0 errors, 0 skipped.
+- Validación relacionada anterior: **19/19**, 0 failures, 0 errors, 0 skipped.
+- `mvn test`: **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **15/09/2026 20:05:19 -03:00**.
+- Tiempo total: **09:04 min**.
 
-La auditoría no vuelve a ejecutar tests; registra resultados informados por el usuario.
+La auditoría registra resultados informados por el usuario; no vuelve a ejecutar tests.
 
 ## 3. Arquitectura actual
 
-La estructura real contiene dominio, persistencia, servicios y Swing. La UI está integrada con servicios; la separación general observada es:
+La estructura real contiene dominio, persistencia, servicios y Swing. La separación general observada es:
 
 `UI → servicios → dominio/repositorios → JPA/H2`.
 
@@ -38,22 +40,22 @@ La integridad histórica de cuentas y de movimientos origen de obligaciones est�
 
 ## 5. Moneda y multidivisa
 
-`Movimiento` conserva una moneda económica explícita y puede diferir de la moneda de la cuenta. La solución actual ya corrige dos problemas identificados en la auditoría anterior:
+`Movimiento` conserva una moneda económica explícita y puede diferir de la moneda de la cuenta. La solución actual corrige:
 
 1. `CuentaService` calcula el saldo de una cuenta usando la moneda de la cuenta.
 2. `MovimientoService` valida disponibilidad de fondos usando la moneda del movimiento.
+3. `Obligacion` separa moneda original y moneda de liquidación.
+4. `TipoCambio` permite una liquidación histórica explícita y trazable.
+5. `saldoLiquidacion` representa la deuda en moneda de liquidación.
+6. `PagoTarjetaService` aplica pagos a ese saldo cuando corresponde.
 
-Por lo tanto, los cálculos generales ya no deben sumar ARS y USD como una única magnitud.
-
-Continúa abierto el tercer problema: un consumo de tarjeta en moneda distinta de la moneda de la tarjeta todavía no tiene una regla completa de impacto sobre el límite. Tampoco existe una operación explícita de liquidación/conversión para pagos entre monedas.
-
-No se deben introducir conversiones implícitas. Antes deben definirse moneda de liquidación, tasa, fecha/fuente de cotización y trazabilidad de la operación resultante.
+No se deben introducir conversiones implícitas. La liquidación conserva la cotización histórica utilizada.
 
 ## 6. Pagos de tarjeta
 
-`PagoTarjetaService` coordina en una transacción la autorización, cuenta pagadora, categoría, moneda, saldo pendiente, fondos, fecha y registro del egreso/pago.
+`PagoTarjetaService` coordina en una transacción la autorización, cuenta pagadora, categoría, moneda, saldo, fondos, fecha y registro del egreso/pago.
 
-La regla actual exige coincidencia de moneda entre la obligación y la cuenta pagadora. Esto evita conversiones implícitas, pero deja pendiente la liquidación multidivisa.
+Para obligaciones liquidadas exige que la cuenta pagadora coincida con `monedaLiquidacion` y aplica el pago mediante `registrarPagoLiquidacion`. Para obligaciones no liquidadas conserva el flujo de `saldoPendiente`/`registrarPago`.
 
 ## 7. Tarjetas, ciclos y temporalidad
 
@@ -81,7 +83,7 @@ Sigue pendiente definir una política explícita para eliminar cuentas que ya po
 
 ## 9. Robustez de Moneda
 
-`Moneda.cantidadDecimales` ahora valida:
+`Moneda.cantidadDecimales` valida:
 
 - `null` → `NullPointerException`;
 - valor negativo → `IllegalArgumentException`;
@@ -118,10 +120,10 @@ Las cuotas simples sin interés están implementadas. Siguen fuera del alcance a
 ### P0/P1 — multidivisa de tarjetas
 
 - definir impacto de consumos en moneda distinta sobre crédito disponible;
-- definir moneda de liquidación;
-- definir tasa, fecha y fuente de cotización;
-- definir trazabilidad y representación de la conversión/liquidación;
-- cubrir el comportamiento con tests específicos y relacionados.
+- definir y cubrir la regla con tests antes de modificar el cálculo;
+- completar cobertura de persistencia/UI del pago multidivisa.
+
+La moneda de liquidación, tasa, fecha, fuente y trazabilidad de la conversión histórica ya están modeladas para la liquidación explícita; no corresponde rehacer ese modelo sin una nueva necesidad de negocio.
 
 ### P2 — robustez
 
@@ -139,6 +141,8 @@ Las cuotas simples sin interés están implementadas. Siguen fuera del alcance a
 
 ## 16. Conclusión
 
-La auditoría actual confirma que el núcleo está consolidado y que los problemas de mezcla de monedas en saldo y disponibilidad de fondos ya fueron corregidos. El principal hueco funcional real es ahora la multidivisa específica de tarjetas: crédito disponible y liquidación cuando las monedas difieren.
+La auditoría actual confirma que el núcleo está consolidado y que los problemas de mezcla de monedas en saldo y disponibilidad de fondos fueron corregidos. La liquidación histórica multidivisa y el pago en moneda de liquidación ya están implementados y la suite completa actual es 718/718.
 
-El siguiente bloque debe definir primero esas reglas de negocio y luego implementar el cambio mínimo con cobertura.
+El principal hueco funcional real es ahora definir cómo un consumo de tarjeta en una moneda distinta afecta el límite/crédito disponible.
+
+El siguiente bloque debe definir primero esa regla de negocio y luego implementar el cambio mínimo con cobertura.
