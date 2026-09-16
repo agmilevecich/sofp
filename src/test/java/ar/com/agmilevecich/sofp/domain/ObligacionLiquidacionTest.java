@@ -10,6 +10,71 @@ import static org.junit.jupiter.api.Assertions.*;
 class ObligacionLiquidacionTest {
 
     @Test
+    void deberiaValorarCierreMultidivisaSinModificarDeudaOriginal() {
+        Moneda ars = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
+        Obligacion obligacion = new Obligacion(crearMovimiento(usd, ars));
+        TipoCambio tipoCambio = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 12, 0),
+                "Cotización cierre resumen"
+        );
+
+        obligacion.valorarCierre(tipoCambio);
+
+        assertEquals(new BigDecimal("150000.00"), obligacion.getImporteValorizacionCierre());
+        assertSame(tipoCambio, obligacion.getTipoCambioCierre());
+        assertEquals(new BigDecimal("100.00"), obligacion.getImporteOriginal());
+        assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
+        assertNull(obligacion.getImporteLiquidacion());
+        assertNull(obligacion.getSaldoLiquidacion());
+        assertEquals(EstadoObligacion.PENDIENTE, obligacion.getEstado());
+    }
+
+    @Test
+    void deberiaRechazarSegundaValorizacionDeCierre() {
+        Obligacion obligacion = crearObligacionMultidivisa();
+        TipoCambio segundo = new TipoCambio(
+                new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT),
+                new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT),
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 9, 16, 12, 0),
+                "Cotización cierre resumen"
+        );
+
+        assertThrows(IllegalStateException.class, () -> obligacion.valorarCierre(segundo));
+        assertEquals(new BigDecimal("150000.00"), obligacion.getImporteValorizacionCierre());
+    }
+
+    @Test
+    void deberiaRechazarValorizacionDeCierreConMonedasIguales() {
+        Obligacion obligacion = new Obligacion(crearMovimiento());
+        Moneda ars = obligacion.getMonedaOriginal();
+        Moneda usd = new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
+
+        assertThrows(IllegalArgumentException.class, () -> obligacion.valorarCierre(
+                new TipoCambio(
+                        ars,
+                        usd,
+                        new BigDecimal("0.001"),
+                        LocalDateTime.of(2026, 9, 15, 12, 0),
+                        "Cotización cierre resumen"
+                )
+        ));
+    }
+
+    @Test
+    void deberiaRechazarTipoCambioNuloParaValorizacionDeCierre() {
+        Obligacion obligacion = new Obligacion(crearMovimiento());
+
+        assertThrows(NullPointerException.class, () -> obligacion.valorarCierre(null));
+        assertNull(obligacion.getImporteValorizacionCierre());
+        assertNull(obligacion.getTipoCambioCierre());
+    }
+
+    @Test
     void deberiaLiquidarObligacionMultidivisaConTipoCambioHistorico() {
         Moneda ars = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
         Moneda usd = new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
@@ -145,6 +210,20 @@ class ObligacionLiquidacionTest {
         assertEquals(new BigDecimal("150000.00"), obligacion.getImporteLiquidacion());
         assertEquals(new BigDecimal("150000.00"), obligacion.getSaldoLiquidacion());
         assertSame(primero, obligacion.getTipoCambioLiquidacion());
+    }
+
+    private Obligacion crearObligacionMultidivisa() {
+        Moneda ars = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
+        Obligacion obligacion = new Obligacion(crearMovimiento(usd, ars));
+        obligacion.valorarCierre(new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 12, 0),
+                "Cotización cierre resumen"
+        ));
+        return obligacion;
     }
 
     private Obligacion liquidarObligacionMultidivisa() {
