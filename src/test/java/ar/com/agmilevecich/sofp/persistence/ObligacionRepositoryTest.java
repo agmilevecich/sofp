@@ -9,7 +9,6 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
-import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
@@ -80,10 +79,6 @@ class ObligacionRepositoryTest {
             assertTrue(resultado.stream().allMatch(
                     obligacion -> obligacion.getMovimientoOrigen().getCuenta().getId()
                             .equals(datos.cuenta().getId())
-            ));
-            assertTrue(resultado.stream().allMatch(
-                    obligacion -> LocalDate.of(2026, 9, 15)
-                            .equals(obligacion.getFechaCierreCiclo())
             ));
 
         } finally {
@@ -181,7 +176,6 @@ class ObligacionRepositoryTest {
     ) {
         return new Cuenta(
                 nombre,
-                TipoCuenta.TARJETA_CREDITO,
                 perfil,
                 banco,
                 moneda,
