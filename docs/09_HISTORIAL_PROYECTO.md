@@ -56,36 +56,42 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 48. Integración de la valorización de cierre en el cálculo de crédito disponible.
 49. Validación de crédito de tarjeta con obligación multidivisa valorizada.
 50. Corrección del crédito utilizado proporcionalmente después de pagos parciales en obligaciones multidivisa valorizadas.
-51. Suite completa de regresión en **740/740 tests verdes**.
+51. Integración del cierre de ciclo desde `ObligacionesPanel`.
+52. Suite completa de regresión en **744/744 tests verdes**.
 
 ## Validación actual
 
-La suite general actual es **740/740**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **16/09/2026 15:54:16 -03:00**, con duración de 09:50 min.
+La suite general actual es **744/744**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **16/09/2026 18:47:51 -03:00**, con duración de 10:32 min.
 
-Validaciones específicas recientes:
-
-- `TipoCambioRepositoryTest`: 6/6.
-- `ObligacionServiceCierreTest`: 4/4.
-- `ObligacionRepositoryTest`: 7/7.
-- `MovimientoCreditoMultimonedaTest`: 1/1.
-- `PagoTarjetaServiceTest`: 10/10.
-- `ObligacionLiquidacionTest`: 13/13.
+La validación específica de `ObligacionesPanelTest` fue **6/6**, `BUILD SUCCESS`, finalizada **18:22:54 -03:00**.
 
 La copia local fue verificada con `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio.
 
 ## Pendientes actuales
 
-1. Definir el flujo de obtención y registro de la valorización de cierre dentro de la aplicación.
+1. Definir el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
 2. Definir el comportamiento de una obligación multidivisa todavía no valorizada al cierre.
-3. Completar cobertura de persistencia/UI del flujo integral de cierre y pago multidivisa.
-4. Política de eliminación de cuentas con historial.
-5. Abstracción `Clock`.
-6. Migraciones/versionado formal de esquema.
-7. Financiación avanzada.
-8. UI específica de tarjetas.
-9. Pasivos, patrimonio y análisis.
-10. Gestión de entidades financieras.
-11. Pulido de consola.
+3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
+4. Revisar consumos extranjeros sobre crédito antes de disponer de valorización.
+5. Política de eliminación de cuentas con historial.
+6. Abstracción `Clock`.
+7. Migraciones/versionado formal de esquema.
+8. Financiación avanzada.
+9. UI específica de tarjetas.
+10. Pasivos, patrimonio y análisis.
+11. Gestión de entidades financieras.
+12. Pulido de consola.
+
+## Estabilización futura antes de main
+
+Como etapa separada, previa al fast-forward a `main`:
+
+- arranque automático de H2 desde Java;
+- cierre limpio de H2;
+- ocultar salida técnica de consola;
+- logging técnico a archivo;
+- `JOptionPane` para fallos de conexión con base de datos y otros errores de arranque;
+- no mostrar una ventana parcialmente inicializada si el arranque falla.
 
 ## Continuidad Git
 
