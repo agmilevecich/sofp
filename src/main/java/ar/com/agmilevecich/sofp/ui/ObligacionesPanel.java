@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-/** Panel para consultar obligaciones del usuario y registrar sus pagos. */
+/** Panel para consultar obligaciones del usuario, cerrar ciclos y registrar sus pagos. */
 public class ObligacionesPanel extends JPanel {
 
     private static final DateTimeFormatter FORMATO_FECHA =
@@ -46,6 +46,7 @@ public class ObligacionesPanel extends JPanel {
     private final JComboBox<Cuenta> cuentaPagadoraCombo;
     private final JComboBox<Categoria> categoriaCombo;
     private final JTextField importePagoField;
+    private final JButton cerrarCicloButton;
     private final JButton registrarPagoButton;
 
     /** Constructor del shell sin contexto de usuario. */
@@ -60,8 +61,10 @@ public class ObligacionesPanel extends JPanel {
         cuentaPagadoraCombo = new JComboBox<>();
         categoriaCombo = new JComboBox<>();
         importePagoField = new JTextField(12);
+        cerrarCicloButton = new JButton("Cerrar ciclo");
         registrarPagoButton = new JButton("Registrar pago");
         construirPanel();
+        cerrarCicloButton.setEnabled(false);
         registrarPagoButton.setEnabled(false);
     }
 
@@ -92,12 +95,14 @@ public class ObligacionesPanel extends JPanel {
         cuentaPagadoraCombo = new JComboBox<>();
         categoriaCombo = new JComboBox<>();
         importePagoField = new JTextField(12);
+        cerrarCicloButton = new JButton("Cerrar ciclo");
         registrarPagoButton = new JButton("Registrar pago");
 
         configurarLista();
         configurarCombos();
         construirPanel();
-        obligacionesList.addListSelectionListener(evento -> actualizarEstadoBoton());
+        obligacionesList.addListSelectionListener(evento -> actualizarEstadoBotones());
+        cerrarCicloButton.addActionListener(evento -> cerrarCiclo());
         registrarPagoButton.addActionListener(evento -> registrarPago());
         if (pagoTarjetaService != null && cuentaService != null && categoriaService != null && perfilFinancieroId != null) {
             refrescarCuentasYCategorias();
@@ -119,6 +124,10 @@ public class ObligacionesPanel extends JPanel {
 
     public JTextField getImportePagoField() {
         return importePagoField;
+    }
+
+    public JButton getCerrarCicloButton() {
+        return cerrarCicloButton;
     }
 
     public JButton getRegistrarPagoButton() {
@@ -149,7 +158,7 @@ public class ObligacionesPanel extends JPanel {
             }
         }
 
-        actualizarEstadoBoton();
+        actualizarEstadoBotones();
     }
 
     /** Recarga las cuentas y categorías disponibles para registrar pagos coordinados. */
@@ -167,6 +176,21 @@ public class ObligacionesPanel extends JPanel {
         for (Categoria categoria : categoriaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId)) {
             categoriaCombo.addItem(categoria);
         }
+    }
+
+    /** Ejecuta el cierre del ciclo al que pertenece la obligación seleccionada. */
+    void cerrarCicloSeleccionado() {
+        Obligacion obligacion = Objects.requireNonNull(
+                obligacionesList.getSelectedValue(),
+                "La obligación es obligatoria"
+        );
+        Cuenta cuenta = obligacion.getMovimientoOrigen().getCuenta();
+        LocalDateTime fechaOrigen = obligacion.getFechaOrigen();
+        obligacionService.cerrarCiclo(
+                cuenta.getId(),
+                obligacion.getCicloFacturacion().getFechaCierre()
+        );
+        refrescar();
     }
 
     /** Registra el pago seleccionado mediante el servicio coordinador, sin mostrar diálogos. */
@@ -318,11 +342,15 @@ public class ObligacionesPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         panelPago.add(registrarPagoButton, constraints);
 
+        constraints.gridx = 3;
+        panelPago.add(cerrarCicloButton, constraints);
+
         add(panelPago, BorderLayout.SOUTH);
     }
 
-    private void actualizarEstadoBoton() {
+    private void actualizarEstadoBotones() {
         Obligacion seleccionada = obligacionesList.getSelectedValue();
+        cerrarCicloButton.setEnabled(seleccionada != null);
         registrarPagoButton.setEnabled(
                 pagoTarjetaService != null
                         && cuentaPagadoraCombo.getSelectedItem() != null
@@ -330,6 +358,25 @@ public class ObligacionesPanel extends JPanel {
                         && seleccionada != null
                         && seleccionada.getEstado() != EstadoObligacion.PAGADA
         );
+    }
+
+    private void cerrarCiclo() {
+        try {
+            cerrarCicloSeleccionado();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Ciclo cerrado correctamente",
+                    "Obligaciones",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "No se pudo cerrar el ciclo",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void registrarPago() {
