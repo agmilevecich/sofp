@@ -4,45 +4,39 @@
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit de código:** `50052cb` — `fix: calcular crédito multidivisa pendiente`.
+**Último commit de código antes de la actualización documental:** `48cf588` — `test: cubrir cierre de ciclo desde obligaciones`.
 
 La rama continúa separada de `main`; no se realizó merge.
 
 ## Bloque cerrado
 
-Se completó y validó el tratamiento del crédito utilizado para obligaciones multidivisa valorizadas al cierre.
+Se integró el cierre de ciclo desde `ObligacionesPanel` mediante el botón `Cerrar ciclo`. El panel delega la regla en `ObligacionService`, usa el ciclo persistido de la obligación y refresca la UI.
 
-La regla vigente es:
+Se agregaron pruebas para cierre multidivisa con valorización histórica y para ausencia de cotización histórica con fallo y rollback.
 
-- obligación en moneda de la tarjeta → usa `saldoPendiente`;
-- obligación multidivisa valorizada → usa la valorización histórica de cierre proporcional al saldo original todavía pendiente;
-- consumo sin obligación asociada → conserva el comportamiento existente;
-- obligación multidivisa sin valorización → no se inventa una conversión.
+Commits:
 
-La valorización de cierre sigue siendo independiente de la liquidación y del pago.
+- `a5e6a86` — `feat: permitir cerrar ciclo desde obligaciones`.
+- `48cf588` — `test: cubrir cierre de ciclo desde obligaciones`.
 
 ## Validación
 
 Suite general ejecutada por el usuario:
 
-- `mvn test`: **740/740**.
+- `mvn test`: **744/744**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 15:54:16 -03:00**.
-- Tiempo total: **09:50 min**.
+- Finalizada: **16/09/2026 18:47:51 -03:00**.
+- Tiempo total: **10:32 min**.
 
-Pruebas específicas de la etapa:
+Prueba específica inmediatamente anterior:
 
-- `TipoCambioRepositoryTest`: 6/6.
-- `ObligacionServiceCierreTest`: 4/4.
-- `ObligacionRepositoryTest`: 7/7.
-- `MovimientoCreditoMultimonedaTest`: 1/1.
-- `PagoTarjetaServiceTest`: 10/10.
-- `ObligacionLiquidacionTest`: 13/13.
+- `ObligacionesPanelTest`: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **16/09/2026 18:22:54 -03:00**.
 
-Validación final local informada: `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio.
+El usuario informó `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio, con la copia local alineada con GitHub y Bitbucket.
 
 ## Decisiones vigentes
 
@@ -52,18 +46,32 @@ Validación final local informada: `git diff` vacío, `git diff --check` sin obs
 4. No se realizan conversiones implícitas.
 5. El pago posterior es independiente de la valorización de cierre.
 6. Los pagos parciales reducen proporcionalmente el crédito valorizado mientras disminuye el `saldoPendiente` original.
+7. El cierre iniciado desde UI delega las reglas de negocio en el servicio y no recalcula fechas ni cotizaciones.
+8. Una obligación multidivisa sin cotización histórica necesaria para el cierre provoca error y rollback.
 
 ## Pendientes reales
 
-1. Definir el flujo de obtención y registro de la valorización de cierre dentro de la aplicación.
+1. Definir completamente el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
 2. Definir qué ocurre con una obligación multidivisa todavía no valorizada al cierre.
 3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
-4. Continuar luego con P2: eliminación de cuentas con historial, `Clock` y migraciones/versionado formal.
-5. P3: financiación avanzada, UI específica de tarjetas, pasivos/patrimonio/análisis, entidades financieras y pulido de consola.
+4. Revisar consumos extranjeros sobre crédito antes de disponer de valorización de cierre.
+5. P2: eliminación de cuentas con historial, `Clock` y migraciones/versionado formal.
+6. P3: financiación avanzada, UI específica de tarjetas, pasivos/patrimonio/análisis, entidades financieras y pulido de consola.
+
+## Estabilización futura — previa al fast-forward a main
+
+No implementar todavía. Antes de considerar `main` como versión estable se deberá diseñar e implementar:
+
+- arranque automático de H2 desde Java;
+- cierre limpio de H2;
+- ocultar la salida técnica de consola;
+- logging técnico a archivo;
+- `JOptionPane` para fallos de conexión con la base y otros errores de arranque;
+- no mostrar una ventana parcialmente inicializada si el arranque falla.
 
 ## Próximo paso
 
-Antes de modificar código, reconstruir nuevamente el estado desde GitHub y revisar el flujo actual de cierre/registro en servicios, repositorios y UI. Diseñar tests de la próxima regla de negocio antes de implementarla.
+Reconstruir el estado desde GitHub antes de modificar código. Revisar servicios, repositorios y UI relacionados con cierre multidivisa y diseñar tests de la siguiente regla de negocio antes de implementarla.
 
 ## Regla de continuidad
 
