@@ -104,7 +104,7 @@ class PagoTarjetaServiceTest {
 
     @Test
     void deberiaRegistrarPagoParcialEnMonedaOriginalAntesDeLiquidarMultidivisa() {
-        Obligacion obligacion = registrarGastoMultidivisa();
+        Obligacion obligacion = registrarGastoMultidivisaSinLiquidar();
         pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadoraUsd, categoriaPago, new BigDecimal("40.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago USD antes de liquidar", usuario.getId());
 
         assertEquals(new BigDecimal("60.00"), obligacion.getSaldoPendiente());
@@ -114,7 +114,7 @@ class PagoTarjetaServiceTest {
 
     @Test
     void deberiaLiquidarSoloElSaldoOriginalRestanteDespuesDePagoMultidivisa() {
-        Obligacion obligacion = registrarGastoMultidivisa();
+        Obligacion obligacion = registrarGastoMultidivisaSinLiquidar();
         pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadoraUsd, categoriaPago, new BigDecimal("40.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago USD antes de liquidar", usuario.getId());
 
         TipoCambio tipoCambio = new TipoCambio(usd, ars, new BigDecimal("1600.00"), LocalDateTime.of(2026, 9, 15, 12, 0), "Cotización manual");
@@ -130,7 +130,7 @@ class PagoTarjetaServiceTest {
 
     @Test
     void deberiaRechazarPagoEnMonedaDeLiquidacionAntesDeLiquidarUnaObligacionMultidivisa() {
-        Obligacion obligacion = registrarGastoMultidivisa();
+        Obligacion obligacion = registrarGastoMultidivisaSinLiquidar();
         assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("50000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago ARS antes de liquidar", usuario.getId()));
         assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
     }
@@ -230,7 +230,7 @@ class PagoTarjetaServiceTest {
         return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
     }
 
-    private Obligacion registrarGastoMultidivisa() {
+    private Obligacion registrarGastoMultidivisaSinLiquidar() {
         Movimiento movimiento = gastoService.registrar(
                 tarjeta,
                 categoriaCompras,
@@ -242,7 +242,11 @@ class PagoTarjetaServiceTest {
                 usuario.getId(),
                 1
         );
-        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+    }
+
+    private Obligacion registrarGastoMultidivisa() {
+        Obligacion obligacion = registrarGastoMultidivisaSinLiquidar();
         TipoCambio tipoCambio = new TipoCambio(
                 usd,
                 ars,
