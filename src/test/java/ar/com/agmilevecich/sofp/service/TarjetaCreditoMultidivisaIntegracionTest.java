@@ -206,7 +206,7 @@ class TarjetaCreditoMultidivisaIntegracionTest {
                 usuario.getId()
         );
 
-        assertEquals(BigDecimal.ZERO.setScale(2), obligacion.getSaldoLiquidacion());
+        assertEquals(0, obligacion.getSaldoLiquidacion().compareTo(BigDecimal.ZERO));
         assertEquals(EstadoObligacion.PAGADA, obligacion.getEstado());
         assertEquals(new BigDecimal("500000.00"),
                 cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
