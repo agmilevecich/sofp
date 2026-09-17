@@ -13,6 +13,7 @@ import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import ar.com.agmilevecich.sofp.persistence.PerfilFinancieroRepository;
+import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import ar.com.agmilevecich.sofp.persistence.UsuarioRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
@@ -24,6 +25,7 @@ import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
 import ar.com.agmilevecich.sofp.service.PerfilFinancieroService;
+import ar.com.agmilevecich.sofp.service.TipoCambioService;
 import ar.com.agmilevecich.sofp.service.UsuarioService;
 import jakarta.persistence.EntityManager;
 
@@ -109,6 +111,7 @@ public class Main {
         ObligacionRepository obligacionRepository = new ObligacionRepository(entityManager);
         OperacionFinancieraRepository operacionFinancieraRepository =
                 new OperacionFinancieraRepository(entityManager);
+        TipoCambioRepository tipoCambioRepository = new TipoCambioRepository(entityManager);
 
         CuentaService cuentaService = new CuentaService(
                 cuentaRepository,
@@ -143,6 +146,10 @@ public class Main {
                 movimientoRepository,
                 operacionFinancieraRepository
         );
+        TipoCambioService tipoCambioService = new TipoCambioService(
+                entityManager,
+                tipoCambioRepository
+        );
 
         MainFrame mainFrame = new MainFrame(
                 cuentaService,
@@ -155,7 +162,8 @@ public class Main {
                 usuario.getId(),
                 obligacionService,
                 operacionFinancieraService,
-                pagoTarjetaService
+                pagoTarjetaService,
+                tipoCambioService
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
