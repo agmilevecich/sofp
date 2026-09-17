@@ -3,37 +3,41 @@
 ## Estado documental — 17/09/2026
 
 **Rama de trabajo:** `feature/swing-shell`.
-**Último commit:** `2a789c1` — `test: persistir tipo de cambio de liquidacion`.
+**Último commit de código/test:** `9459357b` — `fix: comparar credito multidivisa sin escala`.
+**Último commit documental:** `b8b54da` — `docs: actualizar estado de continuidad`.
 
 ## Validación más reciente
 
-- `mvn test`: **756/756**.
+- `mvn test`: **761/761**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizado: **17/09/2026 15:50:11 -03:00**.
+- Finalizado: **17/09/2026 17:54:49 -03:00**.
 
-Validaciones específicas posteriores al bloque de crédito:
+## Validaciones específicas posteriores al bloque de crédito
 
-- `CuentaServiceCreditoTest`: **3/3**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 15:33:38 -03:00**.
-- `TarjetaCreditoPagoCreditoTest`: **5/5**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 15:36:06 -03:00**.
+- `TarjetaCreditoMultidivisaIntegracionTest`: **1/1**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 17:29:45 -03:00**.
+- `TarjetaCreditoPagoCreditoTest`: **5/5**.
+- `ObligacionServiceLiquidacionTest`: **4/4**.
+- Ejecución relacionada: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 17:40:50 -03:00**.
 
 ## Último bloque implementado
 
-### Crédito de tarjeta después de liquidación multidivisa
+### Ciclo integral de tarjeta multidivisa
 
-`ObligacionRepository` ahora calcula el crédito utilizado usando `saldoLiquidacion` cuando la obligación ya fue liquidada. Antes de la liquidación mantiene el cálculo sobre `saldoPendiente`, usando la valorización histórica de cierre proporcional cuando corresponde.
+La integración quedó cubierta mediante el flujo: consumo en USD, valorización al cierre, pago parcial en USD, liquidación del saldo restante en ARS con una cotización posterior y pago completo de la liquidación. La finalización de la liquidación libera el crédito utilizado.
 
-También se ajustó el filtro para considerar obligaciones con saldo pendiente o saldo de liquidación positivo. Esto permite liberar el crédito cuando se paga completamente la deuda de liquidación, aunque `saldoPendiente` conserve el importe original trasladado.
+`ObligacionRepository` calcula el crédito utilizado con `saldoLiquidacion` después de liquidar y con `saldoPendiente`/valorización proporcional antes de liquidar.
 
-Cobertura agregada para el flujo completo de pago parcial en moneda original, liquidación del saldo restante y pago total posterior en moneda de liquidación.
+Los commits de código/test más recientes fueron:
 
-Commits del bloque:
+- `c3bbce49` — `test: cubrir ciclo completo de tarjeta multidivisa`.
+- `a440051c` — `fix: comparar saldo de liquidacion sin escala en test`.
+- `e6b4993c` — `fix: comparar credito sin escala en test multidivisa`.
+- `9459357b` — `fix: comparar credito multidivisa sin escala`.
 
-- `c592cbc` — `fix: calcular credito sobre saldo de liquidacion`.
-- `20bb282` — `test: cubrir credito liberado tras liquidacion multidivisa`.
-- `2a789c1` — `test: persistir tipo de cambio de liquidacion`.
+Los tres últimos commits correctivos ajustan comparaciones `BigDecimal` del test y no modifican la lógica de negocio.
 
 ## Bloques multidivisa cerrados
 
@@ -47,16 +51,17 @@ Commits del bloque:
 - liberación del crédito después de pagar completamente la liquidación.
 - cierre de ciclo iniciado desde UI.
 - pagos en moneda original antes de liquidación y en moneda de liquidación después de liquidación.
+- integración completa del ciclo parcial → liquidación → pago.
 
 No se realizan conversiones implícitas.
 
 ## Próximo bloque
 
 1. Revisar `ObligacionService` y el flujo de cierre de resumen.
-2. Definir el comportamiento bancario de la valorización de consumos extranjeros al cierre, contrastando normativa BCRA y documentación vigente de la entidad de referencia.
-3. Definir el flujo completo de obtención/registro de la cotización histórica de cierre.
-4. Completar persistencia/UI de cierre, liquidación y pago multidivisa.
-5. Revisar el comportamiento de consumos extranjeros sobre crédito antes de disponer de valorización.
+2. Contrastar con normativa BCRA y documentación vigente de la entidad de referencia cómo se obtiene y aplica la cotización de cierre para consumos extranjeros.
+3. Definir obligaciones multidivisa todavía no valorizadas al cierre.
+4. Completar, si corresponde, persistencia/UI del flujo de cierre y pago multidivisa.
+5. Revisar consumos extranjeros sobre crédito antes de disponer de valorización.
 
 ## Estabilización futura
 
