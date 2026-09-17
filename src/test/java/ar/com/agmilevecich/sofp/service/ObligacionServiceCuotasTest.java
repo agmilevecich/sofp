@@ -12,11 +12,13 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
+import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,6 +134,48 @@ class ObligacionServiceCuotasTest {
     }
 
     @Test
+    void deberiaValorizarCadaCuotaConLaCotizacionDeSuPropioCierre() {
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.getTransaction().commit();
+
+        Movimiento movimiento = gastoService.registrar(
+                tarjeta,
+                categoria,
+                usd,
+                new BigDecimal("900.00"),
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Compra multidivisa en cuotas",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId(),
+                3
+        );
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+
+        TipoCambio cambioSeptiembre = registrarTipoCambio(usd, tarjeta.getMoneda(), new BigDecimal("1500.00"), LocalDateTime.of(2026, 9, 15, 23, 59));
+        TipoCambio cambioOctubre = registrarTipoCambio(usd, tarjeta.getMoneda(), new BigDecimal("1600.00"), LocalDateTime.of(2026, 10, 15, 23, 59));
+        TipoCambio cambioNoviembre = registrarTipoCambio(usd, tarjeta.getMoneda(), new BigDecimal("1700.00"), LocalDateTime.of(2026, 11, 15, 23, 59));
+
+        obligacionService.cerrarCiclo(tarjeta.getId(), LocalDate.of(2026, 9, 15));
+        obligacionService.cerrarCiclo(tarjeta.getId(), LocalDate.of(2026, 10, 15));
+        obligacionService.cerrarCiclo(tarjeta.getId(), LocalDate.of(2026, 11, 15));
+
+        entityManager.clear();
+        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId()).orElseThrow();
+        List<Cuota> cuotas = recargada.getCuotas();
+
+        assertEquals(0, new BigDecimal("450000.00").compareTo(cuotas.get(0).getImporteValorizacionCierre()));
+        assertEquals(cambioSeptiembre.getId(), cuotas.get(0).getTipoCambioCierre().getId());
+        assertEquals(0, new BigDecimal("480000.00").compareTo(cuotas.get(1).getImporteValorizacionCierre()));
+        assertEquals(cambioOctubre.getId(), cuotas.get(1).getTipoCambioCierre().getId());
+        assertEquals(0, new BigDecimal("510000.00").compareTo(cuotas.get(2).getImporteValorizacionCierre()));
+        assertEquals(cambioNoviembre.getId(), cuotas.get(2).getTipoCambioCierre().getId());
+        assertFalse(recargada.getCuotas().isEmpty());
+        assertEquals(null, recargada.getImporteValorizacionCierre());
+    }
+
+    @Test
     void deberiaIncluirLaObligacionEnCadaCierreQueContengaUnaCuotaPendiente() {
         Obligacion obligacion = registrarCompraEnTresCuotas(new BigDecimal("9000.00"));
 
@@ -171,6 +215,14 @@ class ObligacionServiceCuotasTest {
                 3
         );
         return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+    }
+
+    private TipoCambio registrarTipoCambio(Moneda origen, Moneda destino, BigDecimal cotizacion, LocalDateTime fechaHora) {
+        TipoCambio tipoCambio = new TipoCambio(origen, destino, cotizacion, fechaHora, "TEST");
+        entityManager.getTransaction().begin();
+        entityManager.persist(tipoCambio);
+        entityManager.getTransaction().commit();
+        return tipoCambio;
     }
 
     private void assertCiclo(Cuota cuota, LocalDate fechaCierre) {
