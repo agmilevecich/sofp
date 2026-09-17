@@ -182,8 +182,8 @@ class TarjetaCreditoMultidivisaIntegracionTest {
         );
 
         assertEquals(new BigDecimal("60.00"), obligacion.getSaldoPendiente());
-        assertEquals(new BigDecimal("410000.00"),
-                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+        assertEquals(0, cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+                .compareTo(new BigDecimal("410000.00")));
 
         obligacionService.liquidar(
                 obligacion.getId(),
@@ -193,8 +193,8 @@ class TarjetaCreditoMultidivisaIntegracionTest {
 
         assertEquals(new BigDecimal("96000.00"), obligacion.getImporteLiquidacion());
         assertEquals(new BigDecimal("96000.00"), obligacion.getSaldoLiquidacion());
-        assertEquals(new BigDecimal("404000.00"),
-                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+        assertEquals(0, cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+                .compareTo(new BigDecimal("404000.00")));
 
         pagoTarjetaService.registrarPago(
                 obligacion.getId(),
@@ -208,8 +208,8 @@ class TarjetaCreditoMultidivisaIntegracionTest {
 
         assertEquals(0, obligacion.getSaldoLiquidacion().compareTo(BigDecimal.ZERO));
         assertEquals(EstadoObligacion.PAGADA, obligacion.getEstado());
-        assertEquals(new BigDecimal("500000.00"),
-                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+        assertEquals(0, cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+                .compareTo(new BigDecimal("500000.00")));
     }
 
     private void registrarCotizacion(String cotizacion, LocalDateTime fechaHora) {
