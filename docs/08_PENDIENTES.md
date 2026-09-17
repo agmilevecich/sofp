@@ -3,9 +3,11 @@
 ## Estado auditado — 17/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `bdfe6855ac0a37a85c76fb55f7adb801223b0795`.
+**Rama de trabajo:** `feature/swing-shell` → último commit funcional `2a789c10e5399afc799d9f2cc5477e74ef799413`.
 
-Última validación informada: **755/755**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, finalizada **17/09/2026 14:43:54 -03:00**.
+No se realizó merge a `main`.
+
+Última validación informada: **756/756**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, finalizada **17/09/2026 15:50:11 -03:00**.
 
 ## Bloques cerrados
 
@@ -35,15 +37,25 @@
 - Liquidación multidivisa sobre el saldo original restante después de pagos parciales.
 - Flujo integral de pago parcial en moneda original → saldo original restante → liquidación → pago posterior en moneda de liquidación.
 - Semántica de `estado` después de una liquidación parcial: `saldoPendiente` puede conservar el saldo original ya trasladado a `saldoLiquidacion`; el pago de la liquidación lleva el estado a `PAGADA` sin descontar nuevamente ese saldo original.
+- Cálculo de crédito utilizado sobre `saldoLiquidacion` después de liquidar.
+- Liberación completa del crédito después de cancelar la deuda de liquidación.
 
 ## Decisiones multidivisa vigentes
 
-- `Obligacion.liquidar()` debe convertir únicamente el `saldoPendiente` original que permanece pendiente al momento de liquidar; no debe volver a convertir `importeOriginal` después de un pago parcial.
+- `Obligacion.liquidar()` convierte únicamente el `saldoPendiente` original que permanece pendiente al momento de liquidar.
 - No se introducen conversiones implícitas.
 - La cotización utilizada para la liquidación debe ser histórica, explícita y trazable.
 - Antes de la liquidación, una obligación multidivisa se paga en su moneda original.
 - Después de la liquidación, el saldo a pagar queda expresado en la moneda de liquidación mediante `saldoLiquidacion`.
-- `estado` representa el estado de la deuda que permanece exigible. Por eso, después de trasladar el saldo original a `saldoLiquidacion`, puede quedar `PAGADA` al cancelar la deuda de liquidación aunque `saldoPendiente` conserve el importe original trasladado.
+- El crédito utilizado antes de liquidar usa el saldo original y la valorización de cierre proporcional cuando corresponde.
+- El crédito utilizado después de liquidar usa `saldoLiquidacion`, evitando que el saldo original trasladado siga consumiendo crédito una vez cancelada la liquidación.
+- `estado` representa la deuda que permanece exigible; por eso el pago de la liquidación puede llevar el estado a `PAGADA` aunque `saldoPendiente` conserve el importe original trasladado.
+
+## Próximo paso lógico
+
+Revisar `ObligacionService` y definir el comportamiento de cierre de resumen de tarjeta siguiendo el flujo de una entidad financiera: fecha de cierre, obtención y persistencia de la cotización histórica, valorización de consumos extranjeros, tratamiento de obligaciones sin cotización disponible y relación entre cierre, liquidación y pago.
+
+La regla de negocio debe contrastarse con normativa BCRA y documentación vigente de la entidad tomada como referencia antes de modificar el modelo.
 
 ## P2 — Robustez
 
