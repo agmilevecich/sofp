@@ -114,7 +114,16 @@ public class ObligacionRepository {
                         SELECT o
                         FROM Obligacion o
                         WHERE o.movimientoOrigen.cuenta.id = :cuentaId
-                          AND o.fechaCierreCiclo = :fechaCierre
+                          AND (
+                              o.fechaCierreCiclo = :fechaCierre
+                              OR EXISTS (
+                                  SELECT c.id
+                                  FROM Cuota c
+                                  WHERE c.obligacion = o
+                                    AND c.fechaCierreCiclo = :fechaCierre
+                                    AND c.saldoPendiente > 0
+                              )
+                          )
                         ORDER BY o.movimientoOrigen.fechaHora, o.id
                         """,
                         Obligacion.class
