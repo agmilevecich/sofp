@@ -63,9 +63,7 @@ public class PagoTarjetaService {
             if (!Objects.equals(cuentaPagadora.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId())) {
                 throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
             }
-            if (!Objects.equals(cuentaPagadora.getMoneda(), obligacion.getMonedaLiquidacion())) {
-                throw new IllegalArgumentException("La cuenta pagadora y la moneda de liquidación de la obligación deben coincidir");
-            }
+            validarMonedaPagadora(obligacion, cuentaPagadora);
             if (importe.signum() <= 0) {
                 throw new IllegalArgumentException("El importe debe ser positivo");
             }
@@ -98,6 +96,15 @@ public class PagoTarjetaService {
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
+        }
+    }
+
+    private void validarMonedaPagadora(Obligacion obligacion, Cuenta cuentaPagadora) {
+        var monedaEsperada = obligacion.getSaldoLiquidacion() != null
+                ? obligacion.getMonedaLiquidacion()
+                : obligacion.getMonedaOriginal();
+        if (!Objects.equals(cuentaPagadora.getMoneda(), monedaEsperada)) {
+            throw new IllegalArgumentException("La cuenta pagadora y la moneda de pago de la obligación deben coincidir");
         }
     }
 
