@@ -3,11 +3,11 @@
 ## Estado auditado — 17/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → último commit funcional `2a789c10e5399afc799d9f2cc5477e74ef799413`.
+**Rama de trabajo:** `feature/swing-shell` → `9459357bfbd5665a3f6fd42405c901c70e71b23e`.
 
-No se realizó merge a `main`.
+La rama de trabajo está 816 commits por delante de `main` y 0 por detrás. No se realizó merge a `main`.
 
-Última validación informada: **756/756**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, finalizada **17/09/2026 15:50:11 -03:00**.
+Última validación informada: **761/761**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, finalizada **17/09/2026 17:54:49 -03:00**.
 
 ## Bloques cerrados
 
@@ -39,6 +39,7 @@ No se realizó merge a `main`.
 - Semántica de `estado` después de una liquidación parcial: `saldoPendiente` puede conservar el saldo original ya trasladado a `saldoLiquidacion`; el pago de la liquidación lleva el estado a `PAGADA` sin descontar nuevamente ese saldo original.
 - Cálculo de crédito utilizado sobre `saldoLiquidacion` después de liquidar.
 - Liberación completa del crédito después de cancelar la deuda de liquidación.
+- Validación de regresión completa con 761 tests.
 
 ## Decisiones multidivisa vigentes
 
