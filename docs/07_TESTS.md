@@ -4,20 +4,24 @@
 
 ### Validación más reciente
 
-- `mvn test`: **756/756**.
+- `mvn test`: **761/761**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **17/09/2026 15:50:11 -03:00**.
+- Finalizada: **17/09/2026 17:54:49 -03:00**.
 
-### Validaciones específicas del bloque de crédito
+### Validaciones específicas del bloque multidivisa
 
-`CuentaServiceCreditoTest`: **3/3**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 15:33:38 -03:00**.
+`TarjetaCreditoMultidivisaIntegracionTest`: **1/1**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 17:29:45 -03:00**.
 
-`TarjetaCreditoPagoCreditoTest`: **5/5**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 15:36:06 -03:00**.
+`TarjetaCreditoPagoCreditoTest`: **5/5**.
 
-La cobertura incorpora el caso de una obligación multidivisa pagada parcialmente en moneda original, luego liquidada y finalmente cancelada en moneda de liquidación, verificando que el crédito se libere por completo.
+`ObligacionServiceLiquidacionTest`: **4/4**.
+
+Ejecución conjunta de las dos suites relacionadas: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 17:40:50 -03:00**.
+
+La cobertura incorpora el ciclo completo de una obligación multidivisa: consumo en moneda original, valorización de cierre, pago parcial en moneda original, liquidación del saldo restante en moneda de liquidación y pago total posterior, verificando la liberación completa del crédito.
 
 ### Validaciones específicas relevantes anteriores
 
@@ -33,7 +37,7 @@ La cobertura actual confirma valorización histórica, crédito multidivisa, pro
 
 ### Evolución del último bloque
 
-La nueva prueba inicialmente encontró que el `TipoCambio` de liquidación debía estar persistido antes de asociarlo a una obligación. Se corrigió el test persistiendo explícitamente la cotización histórica y la suite completa quedó en **756/756**.
+La prueba de integración fue incorporada y posteriormente se corrigieron únicamente las aserciones `BigDecimal` para comparar valores monetarios sin depender de la escala. La lógica de negocio no fue modificada por esos commits correctivos.
 
 ### Pendiente de cobertura/diseño
 
