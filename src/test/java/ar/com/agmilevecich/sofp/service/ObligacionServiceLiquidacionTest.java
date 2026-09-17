@@ -4,6 +4,7 @@ import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.EstadoObligacion;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
@@ -158,7 +159,8 @@ class ObligacionServiceLiquidacionTest {
                 TipoMovimiento.EGRESO,
                 importe,
                 LocalDateTime.of(2026, 9, 17, 9, 0),
-                "Compra en dólares"
+                "Compra en dólares",
+                FormaPago.TARJETA_CREDITO
         );
 
         entityManager.getTransaction().begin();
