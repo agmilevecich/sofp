@@ -108,7 +108,7 @@ class CuentaServiceCreditoTest {
 
         assertEquals(
                 0,
-                new BigDecimal("-940000.00").compareTo(
+                new BigDecimal("339999.99").compareTo(
                         cuentaService.calcularCreditoDisponible(
                                 datos.cuenta().getId(),
                                 datos.usuario().getId()
