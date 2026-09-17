@@ -5,34 +5,44 @@
 ## Estado auditado — 17/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `2a789c10e5399afc799d9f2cc5477e74ef799413`.
+**Rama de trabajo:** `feature/swing-shell` → `9459357bfbd5665a3f6fd42405c901c70e71b23e`.
 
-No se realizó merge a `main`.
+La rama de trabajo está 816 commits por delante de `main` y 0 por detrás. No se realizó merge a `main`.
 
 ## Último bloque implementado
 
-### Crédito de tarjeta y liquidación multidivisa
+### Crédito de tarjeta y ciclo multidivisa
 
 Se corrigió el cálculo del crédito utilizado después de liquidar una obligación multidivisa. Una obligación ya liquidada utiliza `saldoLiquidacion`; una obligación todavía no liquidada utiliza su saldo pendiente y, cuando corresponde, la valorización histórica de cierre proporcional.
 
-El filtro del cálculo contempla tanto `saldoPendiente` como `saldoLiquidacion`, evitando que una obligación cuyo saldo original queda trasladado a liquidación siga consumiendo crédito después de pagar completamente la liquidación.
+Se agregó cobertura del flujo completo: consumo en USD → valorización al cierre → pago parcial en USD → liquidación del saldo restante a ARS con otra cotización → pago completo de la liquidación → liberación total del crédito.
 
-Se agregó cobertura específica para el caso: pago parcial en moneda original → liquidación del saldo restante → pago completo en moneda de liquidación → liberación total del crédito.
+Los últimos commits del bloque fueron:
 
-Commits recientes:
+- `c3bbce49` — `test: cubrir ciclo completo de tarjeta multidivisa`.
+- `a440051c` — `fix: comparar saldo de liquidacion sin escala en test`.
+- `e6b4993c` — `fix: comparar credito sin escala en test multidivisa`.
+- `9459357b` — `fix: comparar credito multidivisa sin escala`.
 
-- `c592cbc` — `fix: calcular credito sobre saldo de liquidacion`.
-- `20bb282` — `test: cubrir credito liberado tras liquidacion multidivisa`.
-- `2a789c1` — `test: persistir tipo de cambio de liquidacion`.
+Los dos últimos cambios son exclusivamente ajustes de aserciones `BigDecimal` en el test de integración; no modifican reglas de negocio.
 
 ## Validación más reciente informada por el usuario
 
-- `CuentaServiceCreditoTest`: **3/3**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- `TarjetaCreditoPagoCreditoTest`: **5/5**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- `mvn test`: **756/756**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **17/09/2026 15:50:11 -03:00**.
+### Suite específica multidivisa
 
-El usuario informó además `git diff` limpio, `git diff --check` sin observaciones, `git status` limpio y rama local alineada con `bitbucket/feature/swing-shell`.
+- `TarjetaCreditoMultidivisaIntegracionTest`: **1/1**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 17:29:45 -03:00**.
+
+### Suite relacionada
+
+- `TarjetaCreditoPagoCreditoTest`: **5/5**.
+- `ObligacionServiceLiquidacionTest`: **4/4**.
+- Total ejecución relacionada: **9/9**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 17:40:50 -03:00**.
+
+### Suite completa
+
+- `mvn test`: **761/761**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada **17/09/2026 17:54:49 -03:00**.
+- El usuario informó además `git diff` limpio, `git diff --check` sin observaciones, `git status` limpio y rama local alineada con `bitbucket/feature/swing-shell`.
 
 ## Estado consolidado
 
@@ -71,9 +81,9 @@ Reglas vigentes:
 
 ## Próximo bloque
 
-El próximo paso debe definirse a partir del comportamiento bancario que se quiere reproducir para el cierre de resumen de tarjeta. Antes de modificar código, revisar `ObligacionService`, `ObligacionesPanel`, el modelo de ciclos y las reglas de cotización, contrastándolos con la normativa BCRA y la documentación vigente de la entidad tomada como referencia.
+El próximo paso es revisar `ObligacionService` y el flujo de cierre de resumen de tarjeta antes de modificar código.
 
-En particular, todavía debe definirse y luego implementar el flujo completo de obtención/registro de la valorización de cierre, qué ocurre con consumos extranjeros sin cotización disponible al cierre y cómo se representa en UI la secuencia cierre → liquidación → pago.
+La revisión debe abarcar: fecha de cierre, selección y persistencia de la cotización histórica, valorización de consumos extranjeros, obligaciones sin cotización disponible al cierre y relación entre cierre, liquidación y pago. La regla de negocio debe mantenerse separada entre valorización de cierre y liquidación real, y debe contrastarse con normativa BCRA y documentación vigente de la entidad tomada como referencia.
 
 ## P2 — Robustez
 
