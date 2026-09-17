@@ -114,7 +114,7 @@ class ObligacionServiceLiquidacionTest {
 
         assertEquals(new BigDecimal("160000.00"), recargada.getImporteLiquidacion());
         assertEquals(new BigDecimal("160000.00"), recargada.getSaldoLiquidacion());
-        assertEquals(new BigDecimal("1600.00"), recargada.getTipoCambioLiquidacion().getCotizacion());
+        assertEquals(0, new BigDecimal("1600.00").compareTo(recargada.getTipoCambioLiquidacion().getCotizacion()));
     }
 
     @Test
