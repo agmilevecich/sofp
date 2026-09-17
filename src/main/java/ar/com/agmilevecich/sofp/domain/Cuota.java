@@ -24,6 +24,9 @@ public class Cuota extends EntidadAuditable {
     @Column(name = "importe_original", nullable = false, precision = 19, scale = 2)
     private BigDecimal importeOriginal;
 
+    @Column(name = "importe_valorizacion_cierre", precision = 19, scale = 2)
+    private BigDecimal importeValorizacionCierre;
+
     @Column(name = "saldo_pendiente", nullable = false, precision = 19, scale = 2)
     private BigDecimal saldoPendiente;
 
@@ -39,6 +42,10 @@ public class Cuota extends EntidadAuditable {
 
     @Column(name = "fecha_vencimiento", nullable = false)
     private LocalDate fechaVencimiento;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "tipo_cambio_cierre_id")
+    private TipoCambio tipoCambioCierre;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "obligacion_id", nullable = false)
@@ -70,6 +77,10 @@ public class Cuota extends EntidadAuditable {
         return importeOriginal;
     }
 
+    public BigDecimal getImporteValorizacionCierre() {
+        return importeValorizacionCierre;
+    }
+
     public BigDecimal getSaldoPendiente() {
         return saldoPendiente;
     }
@@ -90,8 +101,30 @@ public class Cuota extends EntidadAuditable {
         return fechaVencimiento;
     }
 
+    public TipoCambio getTipoCambioCierre() {
+        return tipoCambioCierre;
+    }
+
     public Obligacion getObligacion() {
         return obligacion;
+    }
+
+    public void valorarCierre(TipoCambio tipoCambio) {
+        Objects.requireNonNull(tipoCambio, "El tipo de cambio es obligatorio");
+        if (importeValorizacionCierre != null) {
+            throw new IllegalStateException("La cuota ya tiene una valorización de cierre");
+        }
+        if (obligacion.getMonedaOriginal().equals(obligacion.getMonedaLiquidacion())) {
+            throw new IllegalArgumentException("La cuota no requiere valorización de cierre mediante tipo de cambio");
+        }
+        if (!obligacion.getMonedaOriginal().equals(tipoCambio.getMonedaOrigen())) {
+            throw new IllegalArgumentException("La moneda de origen del tipo de cambio no coincide con la obligación");
+        }
+        if (!obligacion.getMonedaLiquidacion().equals(tipoCambio.getMonedaDestino())) {
+            throw new IllegalArgumentException("La moneda de destino del tipo de cambio no coincide con la obligación");
+        }
+        this.tipoCambioCierre = tipoCambio;
+        this.importeValorizacionCierre = tipoCambio.convertir(importeOriginal);
     }
 
     public void registrarPago(BigDecimal importe) {
