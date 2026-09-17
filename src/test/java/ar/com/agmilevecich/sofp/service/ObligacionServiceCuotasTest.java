@@ -29,6 +29,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ObligacionServiceCuotasTest {
 
@@ -128,6 +129,34 @@ class ObligacionServiceCuotasTest {
         assertEquals(LocalDate.of(2026, 9, 15), obligacion.getCuotas().get(0).getFechaCierreCiclo());
         assertEquals(LocalDate.of(2026, 10, 15), obligacion.getCuotas().get(1).getFechaCierreCiclo());
         assertEquals(LocalDate.of(2026, 11, 15), obligacion.getCuotas().get(2).getFechaCierreCiclo());
+    }
+
+    @Test
+    void deberiaIncluirLaObligacionEnCadaCierreQueContengaUnaCuotaPendiente() {
+        Obligacion obligacion = registrarCompraEnTresCuotas(new BigDecimal("9000.00"));
+
+        List<Obligacion> cierreSeptiembre = obligacionService.cerrarCiclo(
+                tarjeta.getId(), LocalDate.of(2026, 9, 15)
+        );
+
+        assertEquals(1, cierreSeptiembre.size());
+        assertEquals(obligacion.getId(), cierreSeptiembre.get(0).getId());
+        assertEquals(0, new BigDecimal("3000.00")
+                .compareTo(cierreSeptiembre.get(0).getCuotas().get(0).getSaldoPendiente()));
+
+        List<Obligacion> cierreOctubre = obligacionService.cerrarCiclo(
+                tarjeta.getId(), LocalDate.of(2026, 10, 15)
+        );
+
+        assertTrue(cierreOctubre.stream()
+                .anyMatch(o -> o.getId().equals(obligacion.getId())));
+
+        List<Obligacion> cierreNoviembre = obligacionService.cerrarCiclo(
+                tarjeta.getId(), LocalDate.of(2026, 11, 15)
+        );
+
+        assertTrue(cierreNoviembre.stream()
+                .anyMatch(o -> o.getId().equals(obligacion.getId())));
     }
 
     private Obligacion registrarCompraEnTresCuotas(BigDecimal importe) {
