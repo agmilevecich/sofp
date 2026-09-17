@@ -14,6 +14,7 @@ import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
+import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import jakarta.persistence.EntityManager;
