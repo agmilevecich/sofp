@@ -201,7 +201,7 @@ public class ObligacionesPanel extends JPanel {
                 "La obligación es obligatoria"
         );
         Cuenta cuenta = obligacion.getMovimientoOrigen().getCuenta();
-        LocalDateTime fechaCierre = obligacion.getCicloFacturacion().getFechaCierre();
+        LocalDate fechaCierre = obligacion.getCicloFacturacion().getFechaCierre();
 
         registrarCotizacionSiEsNecesaria(obligacion, cuenta, fechaCierre);
 
@@ -211,7 +211,7 @@ public class ObligacionesPanel extends JPanel {
 
     private void registrarCotizacionSiEsNecesaria(Obligacion obligacion,
                                                   Cuenta cuenta,
-                                                  LocalDateTime fechaCierre) {
+                                                  LocalDate fechaCierre) {
         if (tipoCambioService == null) {
             return;
         }
@@ -222,8 +222,7 @@ public class ObligacionesPanel extends JPanel {
             return;
         }
 
-        LocalDate fecha = fechaCierre.toLocalDate();
-        if (tipoCambioService.buscarPorMonedasYFecha(monedaOrigen, monedaDestino, fecha).isPresent()) {
+        if (tipoCambioService.buscarPorMonedasYFecha(monedaOrigen, monedaDestino, fechaCierre).isPresent()) {
             return;
         }
 
@@ -231,7 +230,7 @@ public class ObligacionesPanel extends JPanel {
                 tipoCambioService,
                 monedaOrigen,
                 monedaDestino,
-                fechaCierre
+                fechaCierre.atStartOfDay()
         );
         int resultado = JOptionPane.showConfirmDialog(
                 this,
