@@ -118,7 +118,8 @@ class ObligacionServiceCuotasTest {
                 LocalDateTime.of(2026, 9, 14, 12, 0),
                 "Compra con tarjeta en cuotas",
                 FormaPago.TARJETA_CREDITO,
-                usuario.getId()
+                usuario.getId(),
+                3
         );
 
         Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
@@ -137,7 +138,8 @@ class ObligacionServiceCuotasTest {
                 LocalDateTime.of(2026, 9, 10, 12, 0),
                 "Compra con tarjeta en cuotas",
                 FormaPago.TARJETA_CREDITO,
-                usuario.getId()
+                usuario.getId(),
+                3
         );
         return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
     }
