@@ -34,9 +34,11 @@ Cuando una obligación ya fue liquidada, `PagoTarjetaService` utiliza `saldoLiqu
 
 `Obligacion.valorarCierre(TipoCambio)` conserva `tipoCambioCierre` e `importeValorizacionCierre` y no modifica deuda original, saldos ni estado. La valorización sirve para expresar históricamente el consumo en la moneda de la tarjeta; no reemplaza `liquidar(TipoCambio)`.
 
-## D-052 — El crédito utilizado usa la valorización histórica de cierre
+## D-052 — El crédito utilizado usa la etapa real de la obligación
 
-Una obligación pendiente en la moneda de la tarjeta utiliza `saldoPendiente`. Una obligación multidivisa pendiente utiliza la valorización de cierre cuando existe, reducida proporcionalmente según el saldo original pendiente. No se realizan conversiones implícitas.
+Antes de liquidar, una obligación en la moneda de la tarjeta utiliza `saldoPendiente`. Una obligación multidivisa pendiente utiliza la valorización de cierre cuando existe, reducida proporcionalmente según el saldo original pendiente. Después de liquidar, el cálculo utiliza `saldoLiquidacion`.
+
+Esto evita doble contabilización del saldo original trasladado a liquidación y permite liberar completamente el crédito cuando la deuda de liquidación queda cancelada.
 
 ## D-053 — La valorización de cierre no disponible no se inventa
 
@@ -50,21 +52,27 @@ La valorización histórica de cierre no determina por sí sola la forma de pago
 
 `ObligacionesPanel` puede iniciar el cierre mediante `ObligacionService`. La UI no recalcula reglas de negocio ni inventa fechas o cotizaciones; obtiene el ciclo persistido de la obligación y delega la operación.
 
-## Actualización — 16/09/2026
+## D-056 — El crédito se libera con la deuda exigible real
 
-La valorización de cierre, su utilización para crédito disponible, el ajuste proporcional después de pagos parciales y el inicio del cierre desde UI quedaron implementados y validados.
+Una vez liquidada una obligación multidivisa, el saldo que determina el crédito utilizado es `saldoLiquidacion`. El hecho de que `saldoPendiente` conserve el importe original trasladado no implica que ese importe deba volver a contabilizarse para crédito.
 
-- `TipoCambioRepositoryTest`: 6/6.
-- `ObligacionServiceCierreTest`: 4/4.
-- `ObligacionRepositoryTest`: 7/7.
-- `MovimientoCreditoMultimonedaTest`: 1/1.
-- `PagoTarjetaServiceTest`: 10/10.
-- `ObligacionLiquidacionTest`: 13/13.
-- `ObligacionesPanelTest`: 6/6.
-- Suite general `mvn test`: **744/744**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 18:47:51 -03:00**.
+## Actualización — 17/09/2026
+
+El cálculo de crédito posterior a la liquidación quedó corregido y validado.
+
+- `c592cbc` — `fix: calcular credito sobre saldo de liquidacion`.
+- `20bb282` — `test: cubrir credito liberado tras liquidacion multidivisa`.
+- `2a789c1` — `test: persistir tipo de cambio de liquidacion`.
+- `CuentaServiceCreditoTest`: 3/3.
+- `TarjetaCreditoPagoCreditoTest`: 5/5.
+- Suite general `mvn test`: **756/756**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **17/09/2026 15:50:11 -03:00**.
 
 La validación local final informada dejó `git diff` vacío, `git diff --check` sin observaciones y working tree limpio.
+
+## Decisiones de negocio todavía abiertas
+
+No se fija todavía una regla de negocio sobre la cotización bancaria concreta utilizada para consumos extranjeros al cierre de resumen. Esa decisión debe contrastarse con normativa BCRA y documentación vigente de la entidad financiera de referencia antes de modificar el modelo.
 
 ## Decisiones de estabilización futura
 
