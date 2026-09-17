@@ -3,9 +3,9 @@
 ## Estado auditado — 17/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `d11e778480d319c1912142a94126fce2a2020e84` como último commit de código.
+**Rama de trabajo:** `feature/swing-shell` → `bdfe6855ac0a37a85c76fb55f7adb801223b0795`.
 
-Última validación informada: **750/750**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, finalizada **17/09/2026 13:29:26 -03:00**.
+Última validación informada: **755/755**, 0 fallos, 0 errores, 0 omitidos, `BUILD SUCCESS`, finalizada **17/09/2026 14:43:54 -03:00**.
 
 ## Bloques cerrados
 
@@ -30,14 +30,20 @@
 - Uso de la valorización para crédito disponible.
 - Corrección proporcional del crédito después de pagos parciales.
 - Cierre de ciclo iniciado desde `ObligacionesPanel`.
+- Pago multidivisa en moneda original antes de la liquidación.
+- Rechazo de pago en moneda de liquidación antes de liquidar una obligación multidivisa.
+- Liquidación multidivisa sobre el saldo original restante después de pagos parciales.
+- Flujo integral de pago parcial en moneda original → saldo original restante → liquidación → pago posterior en moneda de liquidación.
+- Semántica de `estado` después de una liquidación parcial: `saldoPendiente` puede conservar el saldo original ya trasladado a `saldoLiquidacion`; el pago de la liquidación lleva el estado a `PAGADA` sin descontar nuevamente ese saldo original.
 
-## Pendientes inmediatos — multidivisa
+## Decisiones multidivisa vigentes
 
-1. Definir el comportamiento de una obligación multidivisa que ya fue valorizada al cierre y continúa hacia liquidación y pago.
-2. Completar el flujo integral de cierre → liquidación → pago multidivisa en persistencia y UI.
-3. Revisar el comportamiento de consumos extranjeros sobre crédito antes de disponer de valorización de cierre.
-
-No se deben introducir conversiones implícitas.
+- `Obligacion.liquidar()` debe convertir únicamente el `saldoPendiente` original que permanece pendiente al momento de liquidar; no debe volver a convertir `importeOriginal` después de un pago parcial.
+- No se introducen conversiones implícitas.
+- La cotización utilizada para la liquidación debe ser histórica, explícita y trazable.
+- Antes de la liquidación, una obligación multidivisa se paga en su moneda original.
+- Después de la liquidación, el saldo a pagar queda expresado en la moneda de liquidación mediante `saldoLiquidacion`.
+- `estado` representa el estado de la deuda que permanece exigible. Por eso, después de trasladar el saldo original a `saldoLiquidacion`, puede quedar `PAGADA` al cancelar la deuda de liquidación aunque `saldoPendiente` conserve el importe original trasladado.
 
 ## P2 — Robustez
 
