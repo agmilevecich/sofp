@@ -85,6 +85,36 @@ class CuentaServiceCreditoTest {
         );
     }
 
+    @Test
+    void deberiaLiberarCreditoLuegoDePagarLaLiquidacionMultidivisa() {
+        Datos datos = persistirDatos();
+        Obligacion obligacion = datos.obligacion();
+        TipoCambio tipoCambioLiquidacion = new TipoCambio(
+                datos.usd(),
+                datos.ars(),
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 9, 16, 12, 0),
+                "TEST LIQUIDACION"
+        );
+
+        entityManager.getTransaction().begin();
+        obligacion.registrarPago(new BigDecimal("40.00"));
+        obligacion.liquidar(tipoCambioLiquidacion);
+        obligacion.registrarPagoLiquidacion(new BigDecimal("96000.00"));
+        entityManager.flush();
+        entityManager.getTransaction().commit();
+
+        assertEquals(
+                0,
+                new BigDecimal("500000.00").compareTo(
+                        cuentaService.calcularCreditoDisponible(
+                                datos.cuenta().getId(),
+                                datos.usuario().getId()
+                        )
+                )
+        );
+    }
+
     private Datos persistirDatos() {
         Usuario usuario = new Usuario(
                 "Ariel",
@@ -141,13 +171,15 @@ class CuentaServiceCreditoTest {
         entityManager.persist(obligacion);
         entityManager.getTransaction().commit();
 
-        return new Datos(usuario, cuenta, obligacion);
+        return new Datos(usuario, cuenta, obligacion, ars, usd);
     }
 
     private record Datos(
             Usuario usuario,
             Cuenta cuenta,
-            Obligacion obligacion
+            Obligacion obligacion,
+            Moneda ars,
+            Moneda usd
     ) {
     }
 }
