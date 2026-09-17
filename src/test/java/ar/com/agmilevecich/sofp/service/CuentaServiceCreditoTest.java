@@ -103,12 +103,20 @@ class CuentaServiceCreditoTest {
         obligacion.getCuotas().get(1).valorarCierre(cambioOctubre);
         obligacion.getCuotas().get(2).valorarCierre(cambioNoviembre);
 
+        assertEquals(new BigDecimal("33.33"), obligacion.getCuotas().get(0).getImporteOriginal());
+        assertEquals(new BigDecimal("33.33"), obligacion.getCuotas().get(1).getImporteOriginal());
+        assertEquals(new BigDecimal("33.34"), obligacion.getCuotas().get(2).getImporteOriginal());
+
+        assertEquals(new BigDecimal("49995.00"), obligacion.getCuotas().get(0).getImporteValorizacionCierre());
+        assertEquals(new BigDecimal("53328.00"), obligacion.getCuotas().get(1).getImporteValorizacionCierre());
+        assertEquals(new BigDecimal("56678.00"), obligacion.getCuotas().get(2).getImporteValorizacionCierre());
+
         entityManager.flush();
         entityManager.getTransaction().commit();
 
         assertEquals(
                 0,
-                new BigDecimal("339999.99").compareTo(
+                new BigDecimal("340999.00").compareTo(
                         cuentaService.calcularCreditoDisponible(
                                 datos.cuenta().getId(),
                                 datos.usuario().getId()
