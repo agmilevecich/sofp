@@ -1,24 +1,25 @@
 # SOFP — Tests
 
-## Estado de validación — 16/09/2026
+## Estado de validación — 17/09/2026
 
 ### Validación más reciente
 
-- `mvn test`: **744/744**.
+- `mvn test`: **756/756**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 18:47:51 -03:00**.
-- Tiempo total: **10:32 min**.
+- Finalizada: **17/09/2026 15:50:11 -03:00**.
 
-### Validación específica de cierre desde UI
+### Validaciones específicas del bloque de crédito
 
-`ObligacionesPanelTest`: **6/6**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **16/09/2026 18:22:54 -03:00**.
+`CuentaServiceCreditoTest`: **3/3**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 15:33:38 -03:00**.
 
-Los dos casos nuevos cubren cierre desde el panel de una obligación multidivisa con valorización histórica y fallo/rollback cuando falta la cotización histórica.
+`TarjetaCreditoPagoCreditoTest`: **5/5**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 15:36:06 -03:00**.
 
-### Validaciones específicas relevantes
+La cobertura incorpora el caso de una obligación multidivisa pagada parcialmente en moneda original, luego liquidada y finalmente cancelada en moneda de liquidación, verificando que el crédito se libere por completo.
+
+### Validaciones específicas relevantes anteriores
 
 - `TipoCambioRepositoryTest`: 6/6.
 - `ObligacionServiceCierreTest`: 4/4.
@@ -26,8 +27,13 @@ Los dos casos nuevos cubren cierre desde el panel de una obligación multidivisa
 - `MovimientoCreditoMultimonedaTest`: 1/1.
 - `PagoTarjetaServiceTest`: 10/10.
 - `ObligacionLiquidacionTest`: 13/13.
+- `ObligacionesPanelTest`: 6/6.
 
-La cobertura actual confirma valorización histórica, crédito multidivisa, proporcionalidad después de pagos parciales, liquidación/pago y cierre iniciado desde UI.
+La cobertura actual confirma valorización histórica, crédito multidivisa, proporcionalidad después de pagos parciales, liquidación/pago, liberación de crédito y cierre iniciado desde UI.
+
+### Evolución del último bloque
+
+La nueva prueba inicialmente encontró que el `TipoCambio` de liquidación debía estar persistido antes de asociarlo a una obligación. Se corrigió el test persistiendo explícitamente la cotización histórica y la suite completa quedó en **756/756**.
 
 ### Pendiente de cobertura/diseño
 
