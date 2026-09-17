@@ -43,7 +43,7 @@ public class Cuota extends EntidadAuditable {
     @Column(name = "fecha_vencimiento", nullable = false)
     private LocalDate fechaVencimiento;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tipo_cambio_cierre_id")
     private TipoCambio tipoCambioCierre;
 
