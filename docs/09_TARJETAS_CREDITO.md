@@ -1,6 +1,6 @@
 # SOFP — Diseño y adaptación de tarjetas de crédito
 
-## Estado auditado — 16/09/2026
+## Estado auditado — 17/09/2026
 
 **Rama:** `feature/swing-shell`
 
@@ -34,15 +34,16 @@ La cuenta calcula su saldo usando movimientos de su moneda. `MovimientoService` 
 
 `PagoTarjetaService` utiliza `saldoLiquidacion` cuando existe y, en obligaciones no liquidadas, `saldoPendiente`. La cuenta pagadora debe utilizar `monedaLiquidacion`. Se cubren pagos parciales y totales.
 
-## 6. Crédito disponible — IMPLEMENTADO PARA OBLIGACIONES VALORIZADAS
+## 6. Crédito disponible — IMPLEMENTADO
 
-El cálculo de crédito utilizado contempla la valorización de cierre:
+El cálculo de crédito utilizado contempla la etapa de la obligación:
 
-- obligación en moneda de la tarjeta → `saldoPendiente`;
-- obligación multidivisa valorizada → `importeValorizacionCierre` proporcional al saldo original todavía pendiente;
+- antes de liquidar, obligación en moneda de la tarjeta → `saldoPendiente`;
+- antes de liquidar, obligación multidivisa valorizada → `importeValorizacionCierre` proporcional al saldo original pendiente;
+- después de liquidar → `saldoLiquidacion`;
 - consumo de tarjeta sin obligación asociada → comportamiento existente.
 
-Ejemplo validado: USD 100 valorizados a ARS 1500 representan ARS 150.000 de crédito. Un pago parcial de USD 40 reduce el crédito utilizado a ARS 90.000; el pago total lo reduce a ARS 0.
+Ejemplo validado: USD 100 valorizados a ARS 1500 representan ARS 150.000 de crédito. Un pago parcial de USD 40 reduce el crédito utilizado a ARS 90.000. Si los USD 60 restantes se liquidan a ARS 1600 y luego se pagan ARS 96.000, el crédito vuelve al límite disponible completo.
 
 Una obligación multidivisa sin valorización de cierre no recibe una conversión implícita. Su comportamiento futuro debe definirse.
 
@@ -76,23 +77,28 @@ Los nuevos campos se mantienen nullable cuando corresponde y utilizan fallback p
 
 ## 14. Validación actual
 
-- `mvn test`: **740/740**.
+- `mvn test`: **756/756**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **16/09/2026 15:54:16 -03:00**.
-- Tiempo total: **09:50 min**.
+- Finalizada: **17/09/2026 15:50:11 -03:00**.
+
+Validaciones específicas del bloque:
+
+- `CuentaServiceCreditoTest`: **3/3**, `BUILD SUCCESS`, 17/09/2026 15:33:38 -03:00.
+- `TarjetaCreditoPagoCreditoTest`: **5/5**, `BUILD SUCCESS`, 17/09/2026 15:36:06 -03:00.
 
 ## 15. Orden de trabajo pendiente
 
-1. Definir el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
-2. Definir el comportamiento de consumos extranjeros todavía no valorizados al cierre.
-3. Completar persistencia/UI del cierre y pago multidivisa.
-4. Financiación avanzada.
-5. UI específica de tarjetas.
-6. Pasivos/patrimonio y análisis.
-7. Gestión de entidades financieras.
-8. Pulido de consola.
+1. Revisar `ObligacionService` y el flujo de cierre de resumen.
+2. Definir el comportamiento bancario de la cotización de consumos extranjeros al cierre, contrastando normativa BCRA y documentación vigente de la entidad de referencia.
+3. Definir obligaciones multidivisa todavía no valorizadas al cierre.
+4. Completar persistencia/UI del cierre y pago multidivisa.
+5. Financiación avanzada.
+6. UI específica de tarjetas.
+7. Pasivos/patrimonio y análisis.
+8. Gestión de entidades financieras.
+9. Pulido de consola.
 
 El calendario de feriados y una fecha efectiva separada requieren decisión de negocio antes de implementarse.
