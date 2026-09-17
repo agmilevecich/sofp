@@ -3,11 +3,13 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.EstadoObligacion;
+import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
+import ar.com.agmilevecich.sofp.service.TipoCambioService;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -24,8 +26,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -33,13 +35,14 @@ import java.util.Objects;
 /** Panel para consultar obligaciones del usuario, cerrar ciclos y registrar sus pagos. */
 public class ObligacionesPanel extends JPanel {
 
-    private static final DateTimeFormatter FORMATO_FECHA =
-            DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
+    private static final java.time.format.DateTimeFormatter FORMATO_FECHA =
+            java.time.format.DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
 
     private final ObligacionService obligacionService;
     private final PagoTarjetaService pagoTarjetaService;
     private final CuentaService cuentaService;
     private final CategoriaService categoriaService;
+    private final TipoCambioService tipoCambioService;
     private final Long perfilFinancieroId;
     private final Long usuarioId;
     private final JList<Obligacion> obligacionesList;
@@ -55,6 +58,7 @@ public class ObligacionesPanel extends JPanel {
         pagoTarjetaService = null;
         cuentaService = null;
         categoriaService = null;
+        tipoCambioService = null;
         perfilFinancieroId = null;
         usuarioId = null;
         obligacionesList = new JList<>();
@@ -70,7 +74,7 @@ public class ObligacionesPanel extends JPanel {
 
     /** Constructor de compatibilidad para consulta de obligaciones sin pago coordinado. */
     public ObligacionesPanel(ObligacionService obligacionService, Long usuarioId) {
-        this(obligacionService, null, null, null, null, usuarioId);
+        this(obligacionService, null, null, null, null, usuarioId, null);
     }
 
     public ObligacionesPanel(ObligacionService obligacionService,
@@ -79,6 +83,17 @@ public class ObligacionesPanel extends JPanel {
                              CategoriaService categoriaService,
                              Long perfilFinancieroId,
                              Long usuarioId) {
+        this(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
+                perfilFinancieroId, usuarioId, null);
+    }
+
+    public ObligacionesPanel(ObligacionService obligacionService,
+                             PagoTarjetaService pagoTarjetaService,
+                             CuentaService cuentaService,
+                             CategoriaService categoriaService,
+                             Long perfilFinancieroId,
+                             Long usuarioId,
+                             TipoCambioService tipoCambioService) {
         this.obligacionService = Objects.requireNonNull(
                 obligacionService,
                 "El ObligacionService es obligatorio"
@@ -86,6 +101,7 @@ public class ObligacionesPanel extends JPanel {
         this.pagoTarjetaService = pagoTarjetaService;
         this.cuentaService = cuentaService;
         this.categoriaService = categoriaService;
+        this.tipoCambioService = tipoCambioService;
         this.perfilFinancieroId = perfilFinancieroId;
         this.usuarioId = Objects.requireNonNull(
                 usuarioId,
@@ -185,12 +201,49 @@ public class ObligacionesPanel extends JPanel {
                 "La obligación es obligatoria"
         );
         Cuenta cuenta = obligacion.getMovimientoOrigen().getCuenta();
-        LocalDateTime fechaOrigen = obligacion.getFechaOrigen();
-        obligacionService.cerrarCiclo(
-                cuenta.getId(),
-                obligacion.getCicloFacturacion().getFechaCierre()
-        );
+        LocalDateTime fechaCierre = obligacion.getCicloFacturacion().getFechaCierre();
+
+        registrarCotizacionSiEsNecesaria(obligacion, cuenta, fechaCierre);
+
+        obligacionService.cerrarCiclo(cuenta.getId(), fechaCierre);
         refrescar();
+    }
+
+    private void registrarCotizacionSiEsNecesaria(Obligacion obligacion,
+                                                  Cuenta cuenta,
+                                                  LocalDateTime fechaCierre) {
+        if (tipoCambioService == null) {
+            return;
+        }
+
+        Moneda monedaOrigen = obligacion.getMoneda();
+        Moneda monedaDestino = cuenta.getMoneda();
+        if (Objects.equals(monedaOrigen, monedaDestino)) {
+            return;
+        }
+
+        LocalDate fecha = fechaCierre.toLocalDate();
+        if (tipoCambioService.buscarPorMonedasYFecha(monedaOrigen, monedaDestino, fecha).isPresent()) {
+            return;
+        }
+
+        TipoCambioDialog dialog = new TipoCambioDialog(
+                tipoCambioService,
+                monedaOrigen,
+                monedaDestino,
+                fechaCierre
+        );
+        int resultado = JOptionPane.showConfirmDialog(
+                this,
+                dialog,
+                "Registrar tipo de cambio histórico",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+        if (resultado != JOptionPane.OK_OPTION) {
+            throw new IllegalArgumentException("Cierre de ciclo cancelado");
+        }
+        dialog.registrar();
     }
 
     /** Registra el pago seleccionado mediante el servicio coordinador, sin mostrar diálogos. */
