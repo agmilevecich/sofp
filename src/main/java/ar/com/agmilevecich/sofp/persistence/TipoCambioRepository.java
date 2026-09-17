@@ -67,4 +67,47 @@ public class TipoCambioRepository {
                 .getResultStream()
                 .findFirst();
     }
+
+    /**
+     * Busca la última cotización disponible hasta el instante indicado.
+     * Permite representar la cotización vigente al momento de la cancelación,
+     * incluyendo la última cotización del día hábil anterior cuando no hubo
+     * una cotización posterior.
+     */
+    public Optional<TipoCambio> buscarPorMonedasYFechaHora(
+            Moneda monedaOrigen,
+            Moneda monedaDestino,
+            LocalDateTime fechaHora
+    ) {
+        Objects.requireNonNull(
+                monedaOrigen,
+                "La moneda de origen es obligatoria"
+        );
+        Objects.requireNonNull(
+                monedaDestino,
+                "La moneda de destino es obligatoria"
+        );
+        Objects.requireNonNull(
+                fechaHora,
+                "La fecha y hora son obligatorias"
+        );
+
+        return entityManager.createQuery(
+                        """
+                        SELECT tc
+                        FROM TipoCambio tc
+                        WHERE tc.monedaOrigen = :monedaOrigen
+                          AND tc.monedaDestino = :monedaDestino
+                          AND tc.fechaHora <= :fechaHora
+                        ORDER BY tc.fechaHora DESC, tc.id DESC
+                        """,
+                        TipoCambio.class
+                )
+                .setParameter("monedaOrigen", monedaOrigen)
+                .setParameter("monedaDestino", monedaDestino)
+                .setParameter("fechaHora", fechaHora)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();
+    }
 }
