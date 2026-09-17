@@ -97,6 +97,50 @@ class ObligacionLiquidacionTest {
     }
 
     @Test
+    void deberiaLiquidarSoloElSaldoOriginalPendiente() {
+        Moneda ars = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
+        Obligacion obligacion = new Obligacion(crearMovimiento(usd, ars));
+
+        obligacion.registrarPago(new BigDecimal("40.00"));
+        TipoCambio tipoCambio = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 9, 16, 12, 0),
+                "Cotización liquidación"
+        );
+
+        obligacion.liquidar(tipoCambio);
+
+        assertEquals(new BigDecimal("60.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("96000.00"), obligacion.getImporteLiquidacion());
+        assertEquals(new BigDecimal("96000.00"), obligacion.getSaldoLiquidacion());
+        assertSame(tipoCambio, obligacion.getTipoCambioLiquidacion());
+        assertEquals(EstadoObligacion.PARCIAL, obligacion.getEstado());
+    }
+
+    @Test
+    void deberiaRechazarLiquidacionSiLaDeudaOriginalYaFuePagada() {
+        Obligacion obligacion = crearObligacionMultidivisa();
+
+        obligacion.registrarPago(new BigDecimal("100.00"));
+
+        TipoCambio tipoCambio = new TipoCambio(
+                new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT),
+                new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT),
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 9, 16, 12, 0),
+                "Cotización liquidación"
+        );
+
+        assertThrows(IllegalStateException.class, () -> obligacion.liquidar(tipoCambio));
+        assertNull(obligacion.getImporteLiquidacion());
+        assertNull(obligacion.getSaldoLiquidacion());
+        assertEquals(EstadoObligacion.PAGADA, obligacion.getEstado());
+    }
+
+    @Test
     void deberiaRegistrarPagoParcialSobreSaldoDeLiquidacion() {
         Obligacion obligacion = liquidarObligacionMultidivisa();
 
