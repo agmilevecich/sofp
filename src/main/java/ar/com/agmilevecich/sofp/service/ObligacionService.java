@@ -10,6 +10,7 @@ import jakarta.persistence.EntityTransaction;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,18 +30,9 @@ public class ObligacionService {
     public ObligacionService(EntityManager entityManager,
                              ObligacionRepository obligacionRepository,
                              TipoCambioRepository tipoCambioRepository) {
-        this.entityManager = Objects.requireNonNull(
-                entityManager,
-                "El EntityManager es obligatorio"
-        );
-        this.obligacionRepository = Objects.requireNonNull(
-                obligacionRepository,
-                "El ObligacionRepository es obligatorio"
-        );
-        this.tipoCambioRepository = Objects.requireNonNull(
-                tipoCambioRepository,
-                "El TipoCambioRepository es obligatorio"
-        );
+        this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
+        this.obligacionRepository = Objects.requireNonNull(obligacionRepository, "El ObligacionRepository es obligatorio");
+        this.tipoCambioRepository = Objects.requireNonNull(tipoCambioRepository, "El TipoCambioRepository es obligatorio");
     }
 
     public Obligacion registrar(Movimiento movimientoOrigen) {
@@ -66,9 +58,7 @@ public class ObligacionService {
             transaction.commit();
             return guardada;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+            if (transaction.isActive()) transaction.rollback();
             throw e;
         }
     }
@@ -81,11 +71,7 @@ public class ObligacionService {
         return guardada;
     }
 
-    /**
-     * Valora las obligaciones de una cuenta cuyo ciclo tiene la fecha de cierre indicada.
-     * Las obligaciones en la moneda de liquidación no requieren tipo de cambio.
-     * Las obligaciones en otra moneda deben tener una cotización histórica del día de cierre.
-     */
+    /** Valora las obligaciones de una cuenta cuyo ciclo tiene la fecha de cierre indicada. */
     public List<Obligacion> cerrarCiclo(Long cuentaId, LocalDate fechaCierre) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
@@ -101,34 +87,25 @@ public class ObligacionService {
             transaction.commit();
             return obligaciones;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+            if (transaction.isActive()) transaction.rollback();
             throw e;
         }
     }
 
     private List<Obligacion> cerrarCicloEnTransaccion(Long cuentaId, LocalDate fechaCierre) {
-        List<Obligacion> obligaciones = obligacionRepository.listarPorCuentaYCierreCiclo(
-                cuentaId,
-                fechaCierre
-        );
+        List<Obligacion> obligaciones = obligacionRepository.listarPorCuentaYCierreCiclo(cuentaId, fechaCierre);
 
         for (Obligacion obligacion : obligaciones) {
-            if (obligacion.getMonedaOriginal().equals(obligacion.getMonedaLiquidacion())) {
-                continue;
-            }
+            if (obligacion.getMonedaOriginal().equals(obligacion.getMonedaLiquidacion())) continue;
 
-            Optional<TipoCambio> tipoCambio =
-                    tipoCambioRepository.buscarPorMonedasYFecha(
+            TipoCambio cambio = tipoCambioRepository.buscarPorMonedasYFecha(
                             obligacion.getMonedaOriginal(),
                             obligacion.getMonedaLiquidacion(),
                             fechaCierre
-                    );
-
-            TipoCambio cambio = tipoCambio.orElseThrow(() -> new IllegalArgumentException(
-                    "No existe cotización histórica para cerrar la obligación " + obligacion.getId()
-            ));
+                    )
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No existe cotización histórica para cerrar la obligación " + obligacion.getId()
+                    ));
 
             obligacion.valorarCierre(cambio);
         }
@@ -137,10 +114,14 @@ public class ObligacionService {
         return obligaciones;
     }
 
-    /** Registra un pago verificando que la obligación pertenezca al usuario autorizado. */
-    public Obligacion registrarPago(Long obligacionId, BigDecimal importe, Long usuarioId) {
-        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+    /**
+     * Convierte el saldo pendiente de una obligación multidivisa a la moneda de liquidación
+     * usando la última cotización disponible hasta el instante de cancelación.
+     */
+    public Obligacion liquidar(Long obligacionId, LocalDateTime fechaHoraLiquidacion, Long usuarioId) {
         Objects.requireNonNull(obligacionId, "El id de la obligación es obligatorio");
+        Objects.requireNonNull(fechaHoraLiquidacion, "La fecha y hora de liquidación son obligatorias");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
         EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -159,30 +140,58 @@ public class ObligacionService {
                 throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
             }
 
+            if (obligacion.getMonedaOriginal().equals(obligacion.getMonedaLiquidacion())) {
+                throw new IllegalArgumentException("La obligación ya está en la moneda de liquidación");
+            }
+
+            TipoCambio cambio = tipoCambioRepository.buscarPorMonedasYFechaHora(
+                            obligacion.getMonedaOriginal(),
+                            obligacion.getMonedaLiquidacion(),
+                            fechaHoraLiquidacion
+                    )
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "No existe cotización histórica para liquidar la obligación " + obligacion.getId()
+                    ));
+
+            obligacion.liquidar(cambio);
+            entityManager.flush();
+            transaction.commit();
+            return obligacion;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
+
+    /** Registra un pago verificando que la obligación pertenezca al usuario autorizado. */
+    public Obligacion registrarPago(Long obligacionId, BigDecimal importe, Long usuarioId) {
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Objects.requireNonNull(obligacionId, "El id de la obligación es obligatorio");
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            Obligacion obligacion = obligacionRepository.buscarPorId(obligacionId)
+                    .orElseThrow(() -> new IllegalArgumentException("La obligación no existe"));
+
+            Long propietarioId = obligacion.getMovimientoOrigen().getCuenta().getPerfilFinanciero().getUsuario().getId();
+            if (!usuarioId.equals(propietarioId)) {
+                throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
+            }
+
             obligacion.registrarPago(importe);
             entityManager.flush();
             transaction.commit();
             return obligacion;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+            if (transaction.isActive()) transaction.rollback();
             throw e;
         }
     }
 
-    public Optional<Obligacion> buscarPorId(Long id) {
-        return obligacionRepository.buscarPorId(id);
-    }
-
-    public Optional<Obligacion> buscarPorMovimientoOrigen(Long movimientoId) {
-        return obligacionRepository.buscarPorMovimientoOrigen(movimientoId);
-    }
-
-    public List<Obligacion> listarTodas() {
-        return obligacionRepository.listarTodas();
-    }
-
+    public Optional<Obligacion> buscarPorId(Long id) { return obligacionRepository.buscarPorId(id); }
+    public Optional<Obligacion> buscarPorMovimientoOrigen(Long movimientoId) { return obligacionRepository.buscarPorMovimientoOrigen(movimientoId); }
+    public List<Obligacion> listarTodas() { return obligacionRepository.listarTodas(); }
     public List<Obligacion> listarPorUsuario(Long usuarioId) {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         return obligacionRepository.listarPorUsuario(usuarioId);
@@ -197,9 +206,7 @@ public class ObligacionService {
             transaction.commit();
             return guardada;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+            if (transaction.isActive()) transaction.rollback();
             throw e;
         }
     }
