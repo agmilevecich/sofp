@@ -98,6 +98,7 @@ class CuentaServiceCreditoTest {
         );
 
         entityManager.getTransaction().begin();
+        entityManager.persist(tipoCambioLiquidacion);
         obligacion.registrarPago(new BigDecimal("40.00"));
         obligacion.liquidar(tipoCambioLiquidacion);
         obligacion.registrarPagoLiquidacion(new BigDecimal("96000.00"));
