@@ -20,6 +20,12 @@ public class TipoCambioRepository {
         );
     }
 
+    public TipoCambio guardar(TipoCambio tipoCambio) {
+        Objects.requireNonNull(tipoCambio, "El tipo de cambio es obligatorio");
+        entityManager.persist(tipoCambio);
+        return tipoCambio;
+    }
+
     public Optional<TipoCambio> buscarPorMonedasYFecha(
             Moneda monedaOrigen,
             Moneda monedaDestino,
