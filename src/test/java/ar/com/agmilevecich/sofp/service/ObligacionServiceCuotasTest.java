@@ -12,11 +12,13 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
+import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ObligacionServiceCuotasTest {
@@ -39,6 +42,8 @@ class ObligacionServiceCuotasTest {
     private Cuenta tarjeta;
     private Categoria categoria;
     private Usuario usuario;
+    private Moneda ars;
+    private Moneda usd;
 
     @BeforeEach
     void setUp() {
@@ -46,7 +51,11 @@ class ObligacionServiceCuotasTest {
 
         MovimientoRepository movimientoRepository = new MovimientoRepository(entityManager);
         MovimientoService movimientoService = new MovimientoService(entityManager, movimientoRepository);
-        obligacionService = new ObligacionService(entityManager, new ObligacionRepository(entityManager));
+        obligacionService = new ObligacionService(
+                entityManager,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager)
+        );
         gastoService = new GastoService(movimientoService, obligacionService);
 
         usuario = new Usuario(
@@ -57,7 +66,8 @@ class ObligacionServiceCuotasTest {
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco de Prueba", TipoInstitucionFinanciera.BANCO
         );
-        Moneda ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
         tarjeta = new Cuenta(
                 "Tarjeta principal", perfil, institucion, ars,
                 new BigDecimal("100000.00"), 15, 10
@@ -69,6 +79,7 @@ class ObligacionServiceCuotasTest {
         entityManager.persist(perfil);
         entityManager.persist(institucion);
         entityManager.persist(ars);
+        entityManager.persist(usd);
         entityManager.persist(tarjeta);
         entityManager.persist(categoria);
         entityManager.getTransaction().commit();
@@ -159,6 +170,54 @@ class ObligacionServiceCuotasTest {
                 .anyMatch(o -> o.getId().equals(obligacion.getId())));
     }
 
+    @Test
+    void deberiaValorarCadaCuotaMultidivisaConLaCotizacionDeSuCierre() {
+        Obligacion obligacion = registrarCompraUsdEnTresCuotas(new BigDecimal("900.00"));
+
+        TipoCambio cambioSeptiembre = registrarTipoCambio(
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 23, 59)
+        );
+        TipoCambio cambioOctubre = registrarTipoCambio(
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 10, 15, 23, 59)
+        );
+        TipoCambio cambioNoviembre = registrarTipoCambio(
+                new BigDecimal("1700.00"),
+                LocalDateTime.of(2026, 11, 15, 23, 59)
+        );
+
+        List<Obligacion> cierreSeptiembre = obligacionService.cerrarCiclo(
+                tarjeta.getId(), LocalDate.of(2026, 9, 15)
+        );
+
+        assertEquals(1, cierreSeptiembre.size());
+        assertEquals(obligacion.getId(), cierreSeptiembre.get(0).getId());
+        assertEquals(0, new BigDecimal("450000.00")
+                .compareTo(cierreSeptiembre.get(0).getImporteValorizacionCierre()));
+        assertEquals(cambioSeptiembre.getId(), cierreSeptiembre.get(0).getTipoCambioCierre().getId());
+
+        List<Obligacion> cierreOctubre = obligacionService.cerrarCiclo(
+                tarjeta.getId(), LocalDate.of(2026, 10, 15)
+        );
+
+        assertEquals(1, cierreOctubre.size());
+        assertEquals(obligacion.getId(), cierreOctubre.get(0).getId());
+        assertEquals(0, new BigDecimal("480000.00")
+                .compareTo(cierreOctubre.get(0).getImporteValorizacionCierre()));
+        assertEquals(cambioOctubre.getId(), cierreOctubre.get(0).getTipoCambioCierre().getId());
+
+        List<Obligacion> cierreNoviembre = obligacionService.cerrarCiclo(
+                tarjeta.getId(), LocalDate.of(2026, 11, 15)
+        );
+
+        assertEquals(1, cierreNoviembre.size());
+        assertEquals(obligacion.getId(), cierreNoviembre.get(0).getId());
+        assertEquals(0, new BigDecimal("510000.00")
+                .compareTo(cierreNoviembre.get(0).getImporteValorizacionCierre()));
+        assertEquals(cambioNoviembre.getId(), cierreNoviembre.get(0).getTipoCambioCierre().getId());
+    }
+
     private Obligacion registrarCompraEnTresCuotas(BigDecimal importe) {
         Movimiento movimiento = gastoService.registrar(
                 tarjeta,
@@ -171,6 +230,41 @@ class ObligacionServiceCuotasTest {
                 3
         );
         return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+    }
+
+    private Obligacion registrarCompraUsdEnTresCuotas(BigDecimal importe) {
+        Movimiento movimiento = gastoService.registrar(
+                tarjeta,
+                categoria,
+                usd,
+                importe,
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Compra USD con tarjeta en cuotas",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        obligacion.generarCuotas(3);
+        entityManager.getTransaction().begin();
+        entityManager.flush();
+        entityManager.getTransaction().commit();
+        return obligacion;
+    }
+
+    private TipoCambio registrarTipoCambio(BigDecimal cotizacion, LocalDateTime fechaHora) {
+        TipoCambio tipoCambio = new TipoCambio(
+                usd,
+                ars,
+                cotizacion,
+                fechaHora,
+                "TEST"
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(tipoCambio);
+        entityManager.getTransaction().commit();
+        return tipoCambio;
     }
 
     private void assertCiclo(Cuota cuota, LocalDate fechaCierre) {
