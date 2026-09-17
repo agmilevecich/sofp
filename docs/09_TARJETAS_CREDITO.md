@@ -32,7 +32,7 @@ La cuenta calcula su saldo usando movimientos de su moneda. `MovimientoService` 
 
 ## 5. Pago multidivisa — IMPLEMENTADO EN SERVICIO
 
-`PagoTarjetaService` utiliza `saldoLiquidacion` cuando existe y, en obligaciones no liquidadas, `saldoPendiente`. La cuenta pagadora debe utilizar `monedaLiquidacion`. Se cubren pagos parciales y totales.
+`PagoTarjetaService` utiliza `saldoLiquidacion` cuando existe y, en obligaciones no liquidadas, `saldoPendiente`. La cuenta pagadora debe utilizar la moneda exigible en cada etapa. Se cubren pagos parciales y totales.
 
 ## 6. Crédito disponible — IMPLEMENTADO
 
@@ -77,17 +77,17 @@ Los nuevos campos se mantienen nullable cuando corresponde y utilizan fallback p
 
 ## 14. Validación actual
 
-- `mvn test`: **756/756**.
+- `mvn test`: **761/761**.
 - Failures: 0.
 - Errors: 0.
 - Skipped: 0.
 - `BUILD SUCCESS`.
-- Finalizada: **17/09/2026 15:50:11 -03:00**.
+- Finalizada: **17/09/2026 17:54:49 -03:00**.
 
 Validaciones específicas del bloque:
 
-- `CuentaServiceCreditoTest`: **3/3**, `BUILD SUCCESS`, 17/09/2026 15:33:38 -03:00.
-- `TarjetaCreditoPagoCreditoTest`: **5/5**, `BUILD SUCCESS`, 17/09/2026 15:36:06 -03:00.
+- `TarjetaCreditoMultidivisaIntegracionTest`: **1/1**, `BUILD SUCCESS`, 17/09/2026 17:29:45 -03:00.
+- Ejecución relacionada `TarjetaCreditoPagoCreditoTest` + `ObligacionServiceLiquidacionTest`: **9/9**, `BUILD SUCCESS`, 17/09/2026 17:40:50 -03:00.
 
 ## 15. Orden de trabajo pendiente
 
