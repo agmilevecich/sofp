@@ -65,6 +65,59 @@ class CuentaServiceCreditoTest {
     }
 
     @Test
+    void deberiaCalcularCreditoUtilizadoSumandoLaValorizacionDeCadaCuotaMultidivisa() {
+        Datos datos = persistirDatos();
+        Obligacion obligacion = datos.obligacion();
+
+        entityManager.getTransaction().begin();
+
+        obligacion.generarCuotas(3);
+
+        TipoCambio cambioSeptiembre = new TipoCambio(
+                datos.usd(),
+                datos.ars(),
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 23, 59),
+                "TEST"
+        );
+        TipoCambio cambioOctubre = new TipoCambio(
+                datos.usd(),
+                datos.ars(),
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 10, 15, 23, 59),
+                "TEST"
+        );
+        TipoCambio cambioNoviembre = new TipoCambio(
+                datos.usd(),
+                datos.ars(),
+                new BigDecimal("1700.00"),
+                LocalDateTime.of(2026, 11, 15, 23, 59),
+                "TEST"
+        );
+
+        entityManager.persist(cambioSeptiembre);
+        entityManager.persist(cambioOctubre);
+        entityManager.persist(cambioNoviembre);
+
+        obligacion.getCuotas().get(0).valorarCierre(cambioSeptiembre);
+        obligacion.getCuotas().get(1).valorarCierre(cambioOctubre);
+        obligacion.getCuotas().get(2).valorarCierre(cambioNoviembre);
+
+        entityManager.flush();
+        entityManager.getTransaction().commit();
+
+        assertEquals(
+                0,
+                new BigDecimal("-940000.00").compareTo(
+                        cuentaService.calcularCreditoDisponible(
+                                datos.cuenta().getId(),
+                                datos.usuario().getId()
+                        )
+                )
+        );
+    }
+
+    @Test
     void deberiaReducirCreditoUtilizadoMultidivisaAlPagarParcialmente() {
         Datos datos = persistirDatos();
         Obligacion obligacion = datos.obligacion();
