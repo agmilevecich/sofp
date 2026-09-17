@@ -119,6 +119,7 @@ public class Obligacion extends EntidadAuditable {
     public void liquidar(TipoCambio tipoCambio) {
         Objects.requireNonNull(tipoCambio, "El tipo de cambio es obligatorio");
         if (importeLiquidacion != null) throw new IllegalStateException("La obligación ya tiene una liquidación");
+        if (saldoPendiente.signum() == 0) throw new IllegalStateException("La obligación ya está pagada en su moneda original");
         if (!getMonedaOriginal().equals(tipoCambio.getMonedaOrigen())) {
             throw new IllegalArgumentException("La moneda de origen del tipo de cambio no coincide con la obligación");
         }
@@ -126,7 +127,7 @@ public class Obligacion extends EntidadAuditable {
             throw new IllegalArgumentException("La moneda de destino del tipo de cambio no coincide con la obligación");
         }
         this.tipoCambioLiquidacion = tipoCambio;
-        this.importeLiquidacion = tipoCambio.convertir(importeOriginal);
+        this.importeLiquidacion = tipoCambio.convertir(saldoPendiente);
         this.saldoLiquidacion = this.importeLiquidacion;
     }
 
