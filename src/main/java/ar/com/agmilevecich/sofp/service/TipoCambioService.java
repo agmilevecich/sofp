@@ -1,11 +1,14 @@
 package ar.com.agmilevecich.sofp.service;
 
+import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
+import java.time.LocalDate;
 import java.util.Objects;
+import java.util.Optional;
 
 public class TipoCambioService {
 
@@ -53,5 +56,14 @@ public class TipoCambioService {
             }
             throw e;
         }
+    }
+
+    public Optional<TipoCambio> buscarPorMonedasYFecha(Moneda monedaOrigen,
+                                                       Moneda monedaDestino,
+                                                       LocalDate fecha) {
+        Objects.requireNonNull(monedaOrigen, "La moneda de origen es obligatoria");
+        Objects.requireNonNull(monedaDestino, "La moneda de destino es obligatoria");
+        Objects.requireNonNull(fecha, "La fecha es obligatoria");
+        return tipoCambioRepository.buscarPorMonedasYFecha(monedaOrigen, monedaDestino, fecha);
     }
 }
