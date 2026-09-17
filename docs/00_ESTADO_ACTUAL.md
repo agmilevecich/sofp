@@ -2,47 +2,49 @@
 
 > Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
-## Estado auditado — 16/09/2026
+## Estado auditado — 17/09/2026
 
 **Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
-**Rama de trabajo:** `feature/swing-shell` → `48cf588652ab9ad1d6f015ead69a6bfecd1c978e`.
+**Rama de trabajo:** `feature/swing-shell` → `2a789c10e5399afc799d9f2cc5477e74ef799413`.
 
 No se realizó merge a `main`.
 
 ## Último bloque implementado
 
-### Cierre de ciclo desde ObligacionesPanel
+### Crédito de tarjeta y liquidación multidivisa
 
-Se agregó el botón **Cerrar ciclo** a `ObligacionesPanel`. La UI delega el cierre en `ObligacionService`, utiliza el ciclo persistido de la obligación y refresca el panel.
+Se corrigió el cálculo del crédito utilizado después de liquidar una obligación multidivisa. Una obligación ya liquidada utiliza `saldoLiquidacion`; una obligación todavía no liquidada utiliza su saldo pendiente y, cuando corresponde, la valorización histórica de cierre proporcional.
 
-Se agregó cobertura para:
+El filtro del cálculo contempla tanto `saldoPendiente` como `saldoLiquidacion`, evitando que una obligación cuyo saldo original queda trasladado a liquidación siga consumiendo crédito después de pagar completamente la liquidación.
 
-- cierre desde UI de una obligación multidivisa con valorización histórica;
-- error cuando falta la cotización histórica de cierre;
-- rollback y ausencia de valorización ante ese error.
+Se agregó cobertura específica para el caso: pago parcial en moneda original → liquidación del saldo restante → pago completo en moneda de liquidación → liberación total del crédito.
 
-Commits:
+Commits recientes:
 
-- `a5e6a86` — `feat: permitir cerrar ciclo desde obligaciones`.
-- `48cf588` — `test: cubrir cierre de ciclo desde obligaciones`.
+- `c592cbc` — `fix: calcular credito sobre saldo de liquidacion`.
+- `20bb282` — `test: cubrir credito liberado tras liquidacion multidivisa`.
+- `2a789c1` — `test: persistir tipo de cambio de liquidacion`.
 
-## Validación más reciente
+## Validación más reciente informada por el usuario
 
-- `mvn test`: **744/744**.
-- Failures: 0.
-- Errors: 0.
-- Skipped: 0.
-- `BUILD SUCCESS`.
-- Finalizado: **16/09/2026 18:47:51 -03:00**.
-- Tiempo total: **10:32 min**.
+- `CuentaServiceCreditoTest`: **3/3**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `TarjetaCreditoPagoCreditoTest`: **5/5**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `mvn test`: **756/756**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **17/09/2026 15:50:11 -03:00**.
 
-Validación específica anterior: `ObligacionesPanelTest` **6/6**, `BUILD SUCCESS`, finalizada **16/09/2026 18:22:54 -03:00**.
+El usuario informó además `git diff` limpio, `git diff --check` sin observaciones, `git status` limpio y rama local alineada con `bitbucket/feature/swing-shell`.
 
-El usuario verificó `git status`, `git diff` y `git diff --check`: working tree limpio y sin observaciones. La rama local estaba alineada con GitHub y Bitbucket.
+## Estado consolidado
 
-## Estado multidivisa
+La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. El pago coordinado existe y está integrado en la UI.
 
-Resuelto:
+`CuentaService` protege integridad estructural y saldos por moneda. `MovimientoService` valida fondos por moneda. Las obligaciones conservan ciclo, vencimiento, gracia, cuotas y movimiento origen.
+
+El modelo multidivisa conserva moneda original, moneda de liquidación, cotizaciones históricas, valorización histórica de cierre, liquidación explícita y `saldoLiquidacion`.
+
+## Multidivisa actual
+
+Resuelto y validado:
 
 - saldos y fondos por moneda;
 - moneda original y moneda de liquidación;
@@ -51,22 +53,27 @@ Resuelto:
 - pagos parciales y totales sobre saldo de liquidación;
 - valorización histórica de cierre separada de la liquidación;
 - utilización de la valorización para crédito disponible;
-- ajuste proporcional del crédito utilizado después de pagos parciales;
-- cierre de ciclo iniciado desde `ObligacionesPanel`.
+- ajuste proporcional del crédito después de pagos parciales;
+- liberación del crédito después de cancelar la liquidación;
+- cierre de ciclo iniciado desde `ObligacionesPanel`;
+- pago multidivisa en moneda original antes de liquidar;
+- pago posterior en moneda de liquidación después de liquidar.
 
 Reglas vigentes:
 
 - no hay conversiones implícitas;
-- una obligación multidivisa sin cotización histórica necesaria para cierre provoca error y rollback;
-- valorización y liquidación siguen siendo conceptos separados;
-- el crédito usado por una obligación multidivisa valorizada se calcula proporcionalmente sobre el saldo original pendiente.
+- `Obligacion.liquidar()` convierte únicamente el saldo original pendiente al momento de liquidar;
+- la cotización utilizada para liquidación es histórica, explícita y trazable;
+- la valorización de cierre es independiente de la liquidación;
+- antes de liquidar, el pago multidivisa se aplica en moneda original;
+- después de liquidar, el pago se aplica sobre `saldoLiquidacion` en la moneda de liquidación;
+- el crédito utilizado se calcula sobre la deuda actualmente exigible: saldo pendiente antes de liquidación o saldo de liquidación después de ella.
 
-## Pendientes inmediatos
+## Próximo bloque
 
-1. Definir completamente el flujo de obtención/registro de la valorización de cierre dentro de la aplicación.
-2. Definir qué ocurre con una obligación multidivisa todavía no valorizada al cierre.
-3. Completar persistencia/UI del flujo integral de cierre y pago multidivisa.
-4. Revisar el comportamiento de consumos extranjeros sobre crédito antes de disponer de valorización de cierre.
+El próximo paso debe definirse a partir del comportamiento bancario que se quiere reproducir para el cierre de resumen de tarjeta. Antes de modificar código, revisar `ObligacionService`, `ObligacionesPanel`, el modelo de ciclos y las reglas de cotización, contrastándolos con la normativa BCRA y la documentación vigente de la entidad tomada como referencia.
+
+En particular, todavía debe definirse y luego implementar el flujo completo de obtención/registro de la valorización de cierre, qué ocurre con consumos extranjeros sin cotización disponible al cierre y cómo se representa en UI la secuencia cierre → liquidación → pago.
 
 ## P2 — Robustez
 
