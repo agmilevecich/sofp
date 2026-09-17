@@ -185,12 +185,23 @@ public class ObligacionRepository {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(moneda, "La moneda es obligatoria");
 
-        BigDecimal obligaciones = entityManager.createQuery(
+        BigDecimal obligacionesLiquidadas = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(o.saldoLiquidacion), 0)
+                        FROM Obligacion o
+                        WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.saldoLiquidacion IS NOT NULL
+                          AND o.saldoLiquidacion > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .getSingleResult();
+
+        BigDecimal obligacionesSinCuotas = entityManager.createQuery(
                         """
                         SELECT COALESCE(SUM(
                             CASE
-                                WHEN o.saldoLiquidacion IS NOT NULL
-                                    THEN o.saldoLiquidacion
                                 WHEN o.movimientoOrigen.moneda = :moneda
                                     THEN o.saldoPendiente
                                 WHEN o.importeValorizacionCierre IS NOT NULL
@@ -200,13 +211,42 @@ public class ObligacionRepository {
                         ), 0)
                         FROM Obligacion o
                         WHERE o.movimientoOrigen.cuenta.id = :cuentaId
-                          AND (o.saldoPendiente > 0 OR o.saldoLiquidacion > 0)
+                          AND o.saldoLiquidacion IS NULL
+                          AND o.saldoPendiente > 0
+                          AND o.cuotas IS EMPTY
                         """,
                         BigDecimal.class
                 )
                 .setParameter("cuentaId", cuentaId)
                 .setParameter("moneda", moneda)
                 .getSingleResult();
+
+        BigDecimal cuotas = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(
+                            CASE
+                                WHEN o.movimientoOrigen.moneda = :moneda
+                                    THEN c.saldoPendiente
+                                WHEN c.importeValorizacionCierre IS NOT NULL
+                                    THEN c.importeValorizacionCierre * c.saldoPendiente / c.importeOriginal
+                                ELSE 0
+                            END
+                        ), 0)
+                        FROM Obligacion o
+                        JOIN o.cuotas c
+                        WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.saldoLiquidacion IS NULL
+                          AND c.saldoPendiente > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("moneda", moneda)
+                .getSingleResult();
+
+        BigDecimal obligaciones = obligacionesLiquidadas
+                .add(obligacionesSinCuotas)
+                .add(cuotas);
 
         BigDecimal consumosSinObligacion = entityManager.createQuery(
                         """
