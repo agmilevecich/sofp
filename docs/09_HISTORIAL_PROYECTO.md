@@ -60,17 +60,21 @@ Los estados técnicos deben verificarse siempre contra código, tests y Git. Est
 52. Corrección del crédito utilizado después de liquidar una obligación multidivisa.
 53. Cobertura del flujo parcial → liquidación → pago total y liberación completa del crédito.
 54. Suite completa de regresión en **756/756 tests verdes**.
+55. Cobertura de integración del ciclo completo de tarjeta multidivisa y ajuste de comparaciones `BigDecimal` del test.
+56. Suite completa de regresión en **761/761 tests verdes**.
 
 ## Validación actual
 
-La suite general actual es **756/756**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 15:50:11 -03:00**.
+La suite general actual es **761/761**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 17:54:49 -03:00**.
 
 Validaciones específicas del último bloque:
 
-- `CuentaServiceCreditoTest`: 3/3, `BUILD SUCCESS`, 17/09/2026 15:33:38 -03:00.
-- `TarjetaCreditoPagoCreditoTest`: 5/5, `BUILD SUCCESS`, 17/09/2026 15:36:06 -03:00.
+- `TarjetaCreditoMultidivisaIntegracionTest`: 1/1, `BUILD SUCCESS`, 17/09/2026 17:29:45 -03:00.
+- `TarjetaCreditoPagoCreditoTest`: 5/5.
+- `ObligacionServiceLiquidacionTest`: 4/4.
+- Ejecución relacionada: 9/9, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 17/09/2026 17:40:50 -03:00.
 
-El usuario informó `git diff` limpio, `git diff --check` sin observaciones, `git status` limpio y rama local alineada con `bitbucket/feature/swing-shell`.
+El usuario informó `git diff` limpio, `git diff --check` sin observaciones, `git status` limpio y rama local alineada con `bitbucket/feature/swing-shell` antes de la actualización documental.
 
 ## Pendientes actuales
 
