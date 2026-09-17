@@ -1,5 +1,6 @@
 package ar.com.agmilevecich.sofp.service;
 
+import ar.com.agmilevecich.sofp.domain.Cuota;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.TipoCambio;
@@ -83,9 +84,9 @@ public class ObligacionService {
     }
 
     /**
-     * Valora las obligaciones de una cuenta cuyo ciclo tiene la fecha de cierre indicada.
-     * Las obligaciones en la moneda de liquidación no requieren tipo de cambio.
-     * Las obligaciones en otra moneda deben tener una cotización histórica del día de cierre.
+     * Valora el importe que corresponde al ciclo de cierre indicado.
+     * En obligaciones financiadas, la valorización pertenece a la cuota de ese ciclo;
+     * en obligaciones sin cuotas, se mantiene la valorización a nivel de obligación.
      */
     public List<Obligacion> cerrarCiclo(Long cuentaId, LocalDate fechaCierre) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
@@ -120,18 +121,31 @@ public class ObligacionService {
                 continue;
             }
 
-            Optional<TipoCambio> tipoCambio =
-                    tipoCambioRepository.buscarPorMonedasYFecha(
-                            obligacion.getMonedaOriginal(),
-                            obligacion.getMonedaLiquidacion(),
-                            fechaCierre
-                    );
+            Optional<TipoCambio> tipoCambio = tipoCambioRepository.buscarPorMonedasYFecha(
+                    obligacion.getMonedaOriginal(),
+                    obligacion.getMonedaLiquidacion(),
+                    fechaCierre
+            );
 
             TipoCambio cambio = tipoCambio.orElseThrow(() -> new IllegalArgumentException(
                     "No existe cotización histórica para cerrar la obligación " + obligacion.getId()
             ));
 
-            obligacion.valorarCierre(cambio);
+            if (obligacion.getCuotas().isEmpty()) {
+                if (obligacion.getImporteValorizacionCierre() == null) {
+                    obligacion.valorarCierre(cambio);
+                }
+            } else {
+                obligacion.getCuotas().stream()
+                        .filter(cuota -> fechaCierre.equals(cuota.getFechaCierreCiclo()))
+                        .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
+                        .findFirst()
+                        .ifPresent(cuota -> {
+                            if (cuota.getImporteValorizacionCierre() == null) {
+                                cuota.valorarCierre(cambio);
+                            }
+                        });
+            }
         }
 
         entityManager.flush();
