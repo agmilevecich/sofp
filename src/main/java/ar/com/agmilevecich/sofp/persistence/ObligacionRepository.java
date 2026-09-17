@@ -168,9 +168,9 @@ public class ObligacionRepository {
 
     /**
      * Calcula el crédito utilizado en la moneda de la tarjeta.
-     * Las obligaciones en la moneda de la tarjeta usan su saldo pendiente;
-     * las obligaciones en otra moneda usan su valorización histórica de cierre
-     * proporcional al saldo original todavía pendiente.
+     * Las obligaciones ya liquidadas usan el saldo de liquidación;
+     * las obligaciones todavía no liquidadas usan su saldo pendiente,
+     * valorizado al cierre cuando corresponda.
      */
     public BigDecimal sumarCreditoUtilizadoPorCuenta(Long cuentaId, Moneda moneda) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
@@ -180,6 +180,8 @@ public class ObligacionRepository {
                         """
                         SELECT COALESCE(SUM(
                             CASE
+                                WHEN o.saldoLiquidacion IS NOT NULL
+                                    THEN o.saldoLiquidacion
                                 WHEN o.movimientoOrigen.moneda = :moneda
                                     THEN o.saldoPendiente
                                 WHEN o.importeValorizacionCierre IS NOT NULL
@@ -189,7 +191,7 @@ public class ObligacionRepository {
                         ), 0)
                         FROM Obligacion o
                         WHERE o.movimientoOrigen.cuenta.id = :cuentaId
-                          AND o.saldoPendiente > 0
+                          AND (o.saldoPendiente > 0 OR o.saldoLiquidacion > 0)
                         """,
                         BigDecimal.class
                 )
