@@ -36,9 +36,11 @@ class PagoTarjetaServiceTest {
     private EntityManager entityManager;
     private Cuenta tarjeta;
     private Cuenta cuentaPagadora;
+    private Cuenta cuentaPagadoraUsd;
     private Categoria categoriaCompras;
     private Categoria categoriaPago;
     private Moneda ars;
+    private Moneda usd;
     private Usuario usuario;
     private GastoService gastoService;
     private ObligacionService obligacionService;
@@ -60,8 +62,10 @@ class PagoTarjetaServiceTest {
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera("Banco de Prueba", TipoInstitucionFinanciera.BANCO);
         ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
         tarjeta = new Cuenta("Visa", perfil, institucion, ars, new BigDecimal("500000.00"), 10, 25);
         cuentaPagadora = new Cuenta("Caja de ahorro", TipoCuenta.CAJA_AHORRO, perfil, institucion, ars);
+        cuentaPagadoraUsd = new Cuenta("Caja de ahorro USD", TipoCuenta.CAJA_AHORRO, perfil, institucion, usd);
         categoriaCompras = new Categoria("Compras", perfil);
         categoriaPago = new Categoria("Pago tarjeta", perfil);
         entityManager.getTransaction().begin();
@@ -69,11 +73,14 @@ class PagoTarjetaServiceTest {
         entityManager.persist(perfil);
         entityManager.persist(institucion);
         entityManager.persist(ars);
+        entityManager.persist(usd);
         entityManager.persist(tarjeta);
         entityManager.persist(cuentaPagadora);
+        entityManager.persist(cuentaPagadoraUsd);
         entityManager.persist(categoriaCompras);
         entityManager.persist(categoriaPago);
         entityManager.persist(new Movimiento(cuentaPagadora, categoriaPago, TipoMovimiento.INGRESO, new BigDecimal("200000.00"), LocalDateTime.of(2026, 9, 1, 9, 0), "Saldo inicial"));
+        entityManager.persist(new Movimiento(cuentaPagadoraUsd, categoriaPago, TipoMovimiento.INGRESO, new BigDecimal("100.00"), LocalDateTime.of(2026, 9, 1, 9, 0), "Saldo inicial USD"));
         entityManager.getTransaction().commit();
     }
 
@@ -93,6 +100,39 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("70000.00"), obligacion.getSaldoPendiente());
         assertEquals(new BigDecimal("150000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
         assertEquals(new BigDecimal("430000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+    }
+
+    @Test
+    void deberiaRegistrarPagoParcialEnMonedaOriginalAntesDeLiquidarMultidivisa() {
+        Obligacion obligacion = registrarGastoMultidivisa();
+        pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadoraUsd, categoriaPago, new BigDecimal("40.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago USD antes de liquidar", usuario.getId());
+
+        assertEquals(new BigDecimal("60.00"), obligacion.getSaldoPendiente());
+        assertEquals("PARCIAL", obligacion.getEstado().name());
+        assertEquals(new BigDecimal("60.00"), cuentaService.calcularSaldo(cuentaPagadoraUsd.getId(), usuario.getId()));
+    }
+
+    @Test
+    void deberiaLiquidarSoloElSaldoOriginalRestanteDespuesDePagoMultidivisa() {
+        Obligacion obligacion = registrarGastoMultidivisa();
+        pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadoraUsd, categoriaPago, new BigDecimal("40.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago USD antes de liquidar", usuario.getId());
+
+        TipoCambio tipoCambio = new TipoCambio(usd, ars, new BigDecimal("1600.00"), LocalDateTime.of(2026, 9, 15, 12, 0), "Cotización manual");
+        entityManager.getTransaction().begin();
+        entityManager.persist(tipoCambio);
+        obligacion.liquidar(tipoCambio);
+        entityManager.getTransaction().commit();
+
+        assertEquals(new BigDecimal("60.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("96000.00"), obligacion.getImporteLiquidacion());
+        assertEquals(new BigDecimal("96000.00"), obligacion.getSaldoLiquidacion());
+    }
+
+    @Test
+    void deberiaRechazarPagoEnMonedaDeLiquidacionAntesDeLiquidarUnaObligacionMultidivisa() {
+        Obligacion obligacion = registrarGastoMultidivisa();
+        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("50000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago ARS antes de liquidar", usuario.getId()));
+        assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
     }
 
     @Test
@@ -191,11 +231,6 @@ class PagoTarjetaServiceTest {
     }
 
     private Obligacion registrarGastoMultidivisa() {
-        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
-        entityManager.getTransaction().begin();
-        entityManager.persist(usd);
-        entityManager.getTransaction().commit();
-
         Movimiento movimiento = gastoService.registrar(
                 tarjeta,
                 categoriaCompras,
