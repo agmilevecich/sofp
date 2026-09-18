@@ -49,6 +49,14 @@ public class Financiacion extends EntidadAuditable {
         return saldoCapital;
     }
 
+    public boolean estaPendiente() {
+        return saldoCapital.signum() > 0;
+    }
+
+    public boolean estaCancelada() {
+        return saldoCapital.signum() == 0;
+    }
+
     public void registrarPago(BigDecimal importe) {
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
         if (pago.compareTo(saldoCapital) > 0) {
