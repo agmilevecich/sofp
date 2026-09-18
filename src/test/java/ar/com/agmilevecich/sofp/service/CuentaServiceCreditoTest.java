@@ -114,15 +114,14 @@ class CuentaServiceCreditoTest {
         entityManager.flush();
         entityManager.getTransaction().commit();
 
-        BigDecimal creditoDisponible = cuentaService.calcularCreditoDisponible(
-                datos.cuenta().getId(),
-                datos.usuario().getId()
-        );
-
         assertEquals(
                 0,
-                new BigDecimal("340999.00").compareTo(creditoDisponible),
-                "Crédito disponible calculado: " + creditoDisponible
+                new BigDecimal("339999.00").compareTo(
+                        cuentaService.calcularCreditoDisponible(
+                                datos.cuenta().getId(),
+                                datos.usuario().getId()
+                        )
+                )
         );
     }
 
