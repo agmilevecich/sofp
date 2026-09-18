@@ -179,3 +179,27 @@ El cálculo de crédito multidivisa, la valorización histórica de cierre, la l
 ### Regla de continuidad para la próxima sesión
 
 Reconstruir desde GitHub antes de cualquier cambio: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que la documentación histórica representa el estado actual si contradice código o tests.
+
+## Actualización — auditoría BCRA de tarjetas — 18/09/2026
+
+Se revisó nuevamente el flujo de tarjeta de crédito con foco en consumos en moneda extranjera, cierre, liquidación, pagos, crédito disponible, ciclos y temporalidad.
+
+### Hallazgo corregido
+
+`TipoCambioRepository.buscarPorMonedasYFechaHora` antes podía reutilizar silenciosamente una cotización de días anteriores cuando no existía una cotización del día de cancelación. Eso no representa correctamente la regla BCRA para un día hábil: la referencia es el momento de cancelación. Ahora:
+
+- día hábil: solo se acepta una cotización del mismo día y hasta la hora de cancelación;
+- sábado/domingo: se utiliza la última cotización del viernes anterior;
+- si no existe una cotización aplicable, la liquidación se rechaza en lugar de inventar/reutilizar una cotización anterior;
+- las liquidaciones anteriores al consumo y futuras son rechazadas;
+- la valorización de cierre sigue separada de la liquidación efectiva.
+
+La Comunicación A 8307 del BCRA permite cancelar consumos en moneda extranjera en esa moneda o en pesos y, cuando se cancela en pesos, establece como máximo el tipo de cambio vendedor correspondiente al momento de cancelación, o al día hábil inmediato anterior cuando el pago ocurre en un día inhábil. Para débito automático en cuentas de la propia entidad existe una regla específica de cierre del día hábil del pago.
+
+### Cobertura agregada
+
+Se agregaron pruebas para cancelación en sábado, ausencia de cotización del día hábil y validaciones temporales. La ejecución local de estas pruebas y de la suite completa queda pendiente de ser informada; no se registra ningún resultado no ejecutado.
+
+### Limitación explícita
+
+El código no infiere feriados argentinos a partir del calendario semanal. Para automatizar correctamente cualquier día inhábil distinto de sábado/domingo deberá incorporarse un calendario bancario explícito y actualizado. Hasta entonces, la operación se rechaza si no existe una cotización aplicable al día seleccionado.
