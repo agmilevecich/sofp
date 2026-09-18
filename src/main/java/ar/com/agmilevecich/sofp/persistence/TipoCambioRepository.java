@@ -31,18 +31,9 @@ public class TipoCambioRepository {
             Moneda monedaDestino,
             LocalDate fecha
     ) {
-        Objects.requireNonNull(
-                monedaOrigen,
-                "La moneda de origen es obligatoria"
-        );
-        Objects.requireNonNull(
-                monedaDestino,
-                "La moneda de destino es obligatoria"
-        );
-        Objects.requireNonNull(
-                fecha,
-                "La fecha es obligatoria"
-        );
+        Objects.requireNonNull(monedaOrigen, "La moneda de origen es obligatoria");
+        Objects.requireNonNull(monedaDestino, "La moneda de destino es obligatoria");
+        Objects.requireNonNull(fecha, "La fecha es obligatoria");
 
         LocalDateTime inicio = fecha.atStartOfDay();
         LocalDateTime fin = fecha.plusDays(1).atStartOfDay();
@@ -82,13 +73,11 @@ public class TipoCambioRepository {
             Moneda monedaDestino,
             LocalDateTime fechaHora
     ) {
-        Objects.requireNonNull(
-                monedaOrigen,
-                "La moneda de origen es obligatoria"
-        );
-        Objects.requireNonNull(
-                monedaDestino,
-            LocalDate fecha = fechaHora.toLocalDate();
+        Objects.requireNonNull(monedaOrigen, "La moneda de origen es obligatoria");
+        Objects.requireNonNull(monedaDestino, "La moneda de destino es obligatoria");
+        Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+
+        LocalDate fecha = fechaHora.toLocalDate();
         LocalDate fechaCotizacion = switch (fecha.getDayOfWeek()) {
             case SATURDAY -> fecha.minusDays(1);
             case SUNDAY -> fecha.minusDays(2);
@@ -117,10 +106,6 @@ public class TipoCambioRepository {
                 .setParameter("inicio", inicio)
                 .setParameter("fin", fin)
                 .setParameter("limite", limite)
-                .setMaxResults(1)
-                .getResultStream()
-                .findFirst();onedaDestino", monedaDestino)
-                .setParameter("fechaHora", fechaHora)
                 .setMaxResults(1)
                 .getResultStream()
                 .findFirst();
