@@ -156,3 +156,26 @@ No fijar una nueva regla de negocio por inferencia: primero documentar la regla 
 La auditoría actual confirma que el núcleo multidivisa está consolidado: moneda original y de liquidación separadas, cotizaciones históricas trazables, valorización de cierre independiente, liquidación explícita, pagos en la moneda correspondiente y cálculo de crédito coherente antes y después de liquidar.
 
 La suite completa conocida y validada es **756/756**, con 0 failures, 0 errors y 0 skipped. El próximo bloque es definir y modelar correctamente el comportamiento de cierre de resumen de tarjeta, comenzando por `ObligacionService`.
+
+
+## Actualización de continuidad — cierre 17/09/2026 22:51 -03:00
+
+Esta sección supersede cualquier validación anterior de este documento cuando haya contradicción.
+
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD actual: `b4a9bc6b4f64ce191f90eb9e4dd4291356e0574c` — `test: corregir expectativas de valorizacion multidivisa`.
+- `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
+- Comparación GitHub: `feature/swing-shell` está 847 commits por delante de `main` y 0 por detrás.
+- No se realizó merge a `main`.
+- Último bloque: corrección de expectativas de tests para reflejar que la valorización de cierre de obligaciones financiadas se almacena en la cuota; no se modificó producción en este último commit.
+- Validación específica posterior: 8/8 tests verdes, 0 failures, 0 errors, `BUILD SUCCESS`, informada por el usuario.
+- Validación final: `mvn test` con **769/769 tests**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 22:51:16 -03:00**, informada por el usuario.
+- Validación Git local final: `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio; rama local al día con `bitbucket/feature/swing-shell`, informado por el usuario.
+
+### Punto exacto para retomar
+
+El cálculo de crédito multidivisa, la valorización histórica de cierre, la liquidación explícita, los pagos antes/después de liquidar y el cierre iniciado desde `ObligacionesPanel` están cubiertos por tests. El siguiente bloque debe comenzar con una revisión de `ObligacionService` y de sus clases relacionadas para definir el flujo de cierre de resumen de tarjeta siguiendo reglas bancarias reales. Antes de modificar código se debe contrastar la cotización de cierre de consumos extranjeros con normativa BCRA y documentación vigente de la entidad financiera de referencia. No inventar una regla de negocio por inferencia.
+
+### Regla de continuidad para la próxima sesión
+
+Reconstruir desde GitHub antes de cualquier cambio: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que la documentación histórica representa el estado actual si contradice código o tests.
