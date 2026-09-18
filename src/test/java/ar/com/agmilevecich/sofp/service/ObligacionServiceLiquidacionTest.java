@@ -137,6 +137,70 @@ class ObligacionServiceLiquidacionTest {
     }
 
     @Test
+    void deberiaUsarLaCotizacionDelDiaHabilAnteriorSiLaLiquidacionEsElSabado() {
+        Obligacion obligacion = crearObligacionUsd(new BigDecimal("100.00"));
+        TipoCambio viernes = guardarTipoCambio(
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 18, 17, 30)
+        );
+
+        Obligacion actualizada = obligacionService.liquidar(
+                obligacion.getId(),
+                LocalDateTime.of(2026, 9, 19, 12, 0),
+                usuario.getId()
+        );
+
+        assertEquals(viernes.getId(), actualizada.getTipoCambioLiquidacion().getId());
+        assertEquals(new BigDecimal("150000.00"), actualizada.getImporteLiquidacion());
+    }
+
+    @Test
+    void noDeberiaUsarUnaCotizacionAnteriorSiLaLiquidacionEsEnDiaHabilSinCotizacion() {
+        Obligacion obligacion = crearObligacionUsd(new BigDecimal("100.00"));
+        guardarTipoCambio(
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 18, 17, 30)
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacionService.liquidar(
+                        obligacion.getId(),
+                        LocalDateTime.of(2026, 9, 21, 10, 0),
+                        usuario.getId()
+                )
+        );
+    }
+
+    @Test
+    void noDeberiaPermitirLiquidacionAnteriorAlConsumo() {
+        Obligacion obligacion = crearObligacionUsd(new BigDecimal("100.00"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacionService.liquidar(
+                        obligacion.getId(),
+                        LocalDateTime.of(2026, 9, 17, 8, 59),
+                        usuario.getId()
+                )
+        );
+    }
+
+    @Test
+    void noDeberiaPermitirLiquidacionFutura() {
+        Obligacion obligacion = crearObligacionUsd(new BigDecimal("100.00"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacionService.liquidar(
+                        obligacion.getId(),
+                        LocalDateTime.now().plusMinutes(1),
+                        usuario.getId()
+                )
+        );
+    }
+
+    @Test
     void deberiaRechazarLiquidacionDeUsuarioNoAutorizado() {
         Obligacion obligacion = crearObligacionUsd(new BigDecimal("100.00"));
         guardarTipoCambio(new BigDecimal("1600.00"), LocalDateTime.of(2026, 9, 17, 15, 0));
