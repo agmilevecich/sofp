@@ -92,6 +92,49 @@ class ObligacionRepositoryTest {
     }
 
     @Test
+    void noDeberiaListarUnaObligacionFinanciadaSiLaCuotaDelCierreYaEstaPagada() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Datos datos = crearDatos();
+            Obligacion obligacion = crearObligacion(
+                    datos.cuenta(), datos.categoria(),
+                    LocalDateTime.of(2026, 9, 10, 10, 0),
+                    "Consumo financiado"
+            );
+            obligacion.generarCuotas(2);
+            obligacion.getCuotas().get(0).registrarPago(new BigDecimal("50.00"));
+
+            ObligacionRepository repository = new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            em.persist(obligacion.getMovimientoOrigen());
+            repository.guardar(obligacion);
+            em.getTransaction().commit();
+
+            List<Obligacion> resultado = repository.listarPorCuentaYCierreCiclo(
+                    datos.cuenta().getId(),
+                    LocalDate.of(2026, 9, 15)
+            );
+
+            assertTrue(resultado.isEmpty());
+
+            resultado = repository.listarPorCuentaYCierreCiclo(
+                    datos.cuenta().getId(),
+                    obligacion.getCuotas().get(1).getFechaCierreCiclo()
+            );
+
+            assertEquals(1, resultado.size());
+            assertEquals(obligacion.getId(), resultado.get(0).getId());
+
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
     void deberiaDevolverListaVaciaSiNoHayObligacionesParaElCierre() {
         JpaTestManager.close();
         EntityManager em = JpaTestManager.createEntityManager();
