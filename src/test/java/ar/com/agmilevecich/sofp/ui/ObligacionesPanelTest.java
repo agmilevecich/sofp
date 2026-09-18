@@ -240,8 +240,8 @@ class ObligacionesPanelTest {
         panel.cerrarCicloSeleccionado();
 
         Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId()).orElseThrow();
-        assertEquals(new BigDecimal("150000.00"), actualizada.getImporteValorizacionCierre());
-        assertEquals(new BigDecimal("1500.00"), actualizada.getTipoCambioCierre().getCotizacion());
+        assertEquals(new BigDecimal("150000.00"), actualizada.getCuotas().get(0).getImporteValorizacionCierre());
+        assertEquals(new BigDecimal("1500.00"), actualizada.getCuotas().get(0).getTipoCambioCierre().getCotizacion());
     }
 
     @Test

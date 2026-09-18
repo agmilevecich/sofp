@@ -167,7 +167,7 @@ class TarjetaCreditoMultidivisaIntegracionTest {
 
         obligacionService.cerrarCiclo(tarjeta.getId(), LocalDate.of(2026, 9, 10));
 
-        assertEquals(new BigDecimal("150000.00"), obligacion.getImporteValorizacionCierre());
+        assertEquals(new BigDecimal("150000.00"), obligacion.getCuotas().get(0).getImporteValorizacionCierre());
         assertEquals(0, cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
                 .compareTo(new BigDecimal("350000.00")));
 

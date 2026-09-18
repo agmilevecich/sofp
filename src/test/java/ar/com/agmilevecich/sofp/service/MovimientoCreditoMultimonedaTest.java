@@ -128,13 +128,13 @@ class MovimientoCreditoMultimonedaTest {
 
         entityManager.getTransaction().begin();
         entityManager.persist(tipoCambioCierre);
-        obligacion.valorarCierre(tipoCambioCierre);
+        obligacion.getCuotas().get(0).valorarCierre(tipoCambioCierre);
         entityManager.flush();
         entityManager.getTransaction().commit();
 
         assertEquals(
                 new BigDecimal("45000.00"),
-                obligacion.getImporteValorizacionCierre()
+                obligacion.getCuotas().get(0).getImporteValorizacionCierre()
         );
 
         Movimiento consumoArs = movimientoService.registrar(
