@@ -170,6 +170,28 @@ class ObligacionServiceCierreTest {
     }
 
     @Test
+    void noDeberiaPermitirCerrarUnaFechaQueNoEsElCierreConfiguradoDeLaTarjeta() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacionService.cerrarCiclo(
+                        tarjeta.getId(),
+                        FECHA_CIERRE.plusDays(1)
+                )
+        );
+    }
+
+    @Test
+    void noDeberiaPermitirCerrarUnaCuentaInexistente() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacionService.cerrarCiclo(
+                        Long.MAX_VALUE,
+                        FECHA_CIERRE
+                )
+        );
+    }
+
+    @Test
     void deberiaRevertirTodoElCierreSiFaltaUnaCotizacionMultidivisa() {
         Obligacion obligacionUsd = registrarConsumo(usd, new BigDecimal("100.00"));
         Obligacion obligacionEur = registrarConsumo(eur, new BigDecimal("100.00"));
