@@ -215,7 +215,8 @@ class ObligacionServiceCierreTest {
         Obligacion recargada = obligacionService.listarTodas().get(0);
 
         assertEquals(0, new BigDecimal("150000.00")
-                .compareTo(recargada.getImporteValorizacionCierre()));
+                .compareTo(recargada.getCuotas().get(0).getImporteValorizacionCierre()));
+        assertNull(recargada.getImporteValorizacionCierre());
         assertEquals(EstadoObligacion.PENDIENTE, recargada.getEstado());
     }
 
