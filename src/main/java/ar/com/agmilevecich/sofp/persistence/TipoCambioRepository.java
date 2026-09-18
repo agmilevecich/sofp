@@ -69,10 +69,13 @@ public class TipoCambioRepository {
     }
 
     /**
-     * Busca la última cotización disponible hasta el instante indicado.
-     * Permite representar la cotización vigente al momento de la cancelación,
-     * incluyendo la última cotización del día hábil anterior cuando no hubo
-     * una cotización posterior.
+     * Busca la cotización aplicable a una cancelación de consumos en moneda
+     * extranjera según la regla temporal del BCRA: en día hábil se toma una
+     * cotización del mismo día hasta el momento de cancelación; en sábado o
+     * domingo se toma la última cotización del viernes anterior.
+     *
+     * Los feriados no se infieren: para tratarlos como día inhábil se deberá
+     * incorporar un calendario bancario explícito al dominio.
      */
     public Optional<TipoCambio> buscarPorMonedasYFechaHora(
             Moneda monedaOrigen,
@@ -85,12 +88,16 @@ public class TipoCambioRepository {
         );
         Objects.requireNonNull(
                 monedaDestino,
-                "La moneda de destino es obligatoria"
-        );
-        Objects.requireNonNull(
-                fechaHora,
-                "La fecha y hora son obligatorias"
-        );
+            LocalDate fecha = fechaHora.toLocalDate();
+        LocalDate fechaCotizacion = switch (fecha.getDayOfWeek()) {
+            case SATURDAY -> fecha.minusDays(1);
+            case SUNDAY -> fecha.minusDays(2);
+            default -> fecha;
+        };
+
+        LocalDateTime inicio = fechaCotizacion.atStartOfDay();
+        LocalDateTime fin = fechaCotizacion.plusDays(1).atStartOfDay();
+        LocalDateTime limite = fechaCotizacion.equals(fecha) ? fechaHora : fin;
 
         return entityManager.createQuery(
                         """
@@ -98,13 +105,21 @@ public class TipoCambioRepository {
                         FROM TipoCambio tc
                         WHERE tc.monedaOrigen = :monedaOrigen
                           AND tc.monedaDestino = :monedaDestino
-                          AND tc.fechaHora <= :fechaHora
+                          AND tc.fechaHora >= :inicio
+                          AND tc.fechaHora < :fin
+                          AND tc.fechaHora <= :limite
                         ORDER BY tc.fechaHora DESC, tc.id DESC
                         """,
                         TipoCambio.class
                 )
                 .setParameter("monedaOrigen", monedaOrigen)
                 .setParameter("monedaDestino", monedaDestino)
+                .setParameter("inicio", inicio)
+                .setParameter("fin", fin)
+                .setParameter("limite", limite)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();onedaDestino", monedaDestino)
                 .setParameter("fechaHora", fechaHora)
                 .setMaxResults(1)
                 .getResultStream()
