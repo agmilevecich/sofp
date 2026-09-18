@@ -138,15 +138,18 @@ class ObligacionServiceLiquidacionTest {
 
     @Test
     void deberiaUsarLaCotizacionDelDiaHabilAnteriorSiLaLiquidacionEsElSabado() {
-        Obligacion obligacion = crearObligacionUsd(new BigDecimal("100.00"));
+        Obligacion obligacion = crearObligacionUsd(
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 10, 9, 0)
+        );
         TipoCambio viernes = guardarTipoCambio(
                 new BigDecimal("1500.00"),
-                LocalDateTime.of(2026, 9, 18, 17, 30)
+                LocalDateTime.of(2026, 9, 11, 17, 30)
         );
 
         Obligacion actualizada = obligacionService.liquidar(
                 obligacion.getId(),
-                LocalDateTime.of(2026, 9, 19, 12, 0),
+                LocalDateTime.of(2026, 9, 12, 12, 0),
                 usuario.getId()
         );
 
@@ -216,13 +219,17 @@ class ObligacionServiceLiquidacionTest {
     }
 
     private Obligacion crearObligacionUsd(BigDecimal importe) {
+        return crearObligacionUsd(importe, LocalDateTime.of(2026, 9, 17, 9, 0));
+    }
+
+    private Obligacion crearObligacionUsd(BigDecimal importe, LocalDateTime fechaOrigen) {
         Movimiento movimiento = new Movimiento(
                 cuenta,
                 categoria,
                 usd,
                 TipoMovimiento.EGRESO,
                 importe,
-                LocalDateTime.of(2026, 9, 17, 9, 0),
+                fechaOrigen,
                 "Compra en dólares",
                 FormaPago.TARJETA_CREDITO
         );
