@@ -87,7 +87,7 @@ class ObligacionRepositoryTest {
             ));
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
@@ -130,7 +130,7 @@ class ObligacionRepositoryTest {
             assertEquals(obligacion.getId(), resultado.get(0).getId());
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
@@ -155,7 +155,7 @@ class ObligacionRepositoryTest {
             assertTrue(resultado.isEmpty());
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
@@ -175,7 +175,7 @@ class ObligacionRepositoryTest {
             );
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
@@ -193,7 +193,7 @@ class ObligacionRepositoryTest {
             );
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
@@ -233,7 +233,7 @@ class ObligacionRepositoryTest {
             assertEquals(0, new BigDecimal("150000.00").compareTo(resultado));
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
@@ -274,7 +274,7 @@ class ObligacionRepositoryTest {
             assertEquals(0, new BigDecimal("90000.00").compareTo(resultado));
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
@@ -315,7 +315,7 @@ class ObligacionRepositoryTest {
             assertEquals(0, BigDecimal.ZERO.compareTo(resultado));
 
         } finally {
-            em.close();
+            JpaTestManager.close();
         }
     }
 
