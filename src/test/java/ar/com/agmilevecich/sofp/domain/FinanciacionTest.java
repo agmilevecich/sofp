@@ -24,6 +24,8 @@ class FinanciacionTest {
         assertEquals(LocalDate.of(2026, 9, 26), financiacion.getFechaInicio());
         assertEquals(new BigDecimal("240000.00"), financiacion.getCapitalOriginal());
         assertEquals(new BigDecimal("240000.00"), financiacion.getSaldoCapital());
+        assertTrue(financiacion.estaPendiente());
+        assertFalse(financiacion.estaCancelada());
     }
 
     @Test
@@ -37,6 +39,23 @@ class FinanciacionTest {
         financiacion.registrarPago(new BigDecimal("80000.00"));
 
         assertEquals(new BigDecimal("160000.00"), financiacion.getSaldoCapital());
+        assertTrue(financiacion.estaPendiente());
+        assertFalse(financiacion.estaCancelada());
+    }
+
+    @Test
+    void deberiaCancelarFinanciacionAlPagarTodoElCapital() {
+        Financiacion financiacion = new Financiacion(
+                crearObligacion(),
+                LocalDate.of(2026, 9, 26),
+                new BigDecimal("240000.00")
+        );
+
+        financiacion.registrarPago(new BigDecimal("240000.00"));
+
+        assertEquals(BigDecimal.ZERO.setScale(2), financiacion.getSaldoCapital());
+        assertFalse(financiacion.estaPendiente());
+        assertTrue(financiacion.estaCancelada());
     }
 
     @Test
