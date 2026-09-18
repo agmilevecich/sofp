@@ -170,3 +170,28 @@ Pendientes conocidos: calendario bancario/feriados, fecha efectiva separada del 
 ### Regla de continuidad
 
 En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que una documentación histórica representa el estado actual si contradice código o tests.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 18/09/2026 20:35 -03:00
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción.
+
+### Financiación de tarjeta — bloque iniciado
+
+Implementado y validado el modelo persistente de capital financiado:
+
+- entidad `Financiacion`;
+- relación `Obligacion -> financiaciones`;
+- fecha de inicio, capital original y saldo de capital;
+- estados pendiente/cancelada;
+- pago sobre capital sin superar el saldo;
+- persistencia y tests de aislamiento JPA;
+- `FinanciacionTest`: 9/9, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, informado por el usuario el 18/09/2026 20:32:49 -03:00.
+
+Commits del bloque: `8252cff`, `7994754`, `f001f19`, `a76a949`, `7c0c4aa`, `1a6a071`, `8a4cd0a`, `0da28cc`.
+
+### Próximo cambio
+
+Conectar el pago parcial de tarjeta con la creación de una `Financiacion` por el capital impago. Antes de modificar `PagoTarjetaService` se debe revisar su flujo actual y los tests existentes. No implementar todavía intereses, TNA, punitorios ni CFT.
+
+La suite completa más reciente informada sigue siendo 779/779, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 18/09/2026 15:04:44 -03:00. No se registra una suite completa posterior como ejecutada.
