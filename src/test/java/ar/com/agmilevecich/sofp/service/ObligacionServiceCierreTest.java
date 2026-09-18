@@ -11,6 +11,7 @@ import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCambio;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
@@ -176,6 +177,29 @@ class ObligacionServiceCierreTest {
                 () -> obligacionService.cerrarCiclo(
                         tarjeta.getId(),
                         FECHA_CIERRE.plusDays(1)
+                )
+        );
+    }
+
+    @Test
+    void noDeberiaPermitirCerrarUnaCuentaQueNoEsTarjetaDeCredito() {
+        Cuenta cuentaAhorro = new Cuenta(
+                "Caja de ahorro",
+                TipoCuenta.CAJA_AHORRO,
+                tarjeta.getPerfilFinanciero(),
+                tarjeta.getInstitucionFinanciera(),
+                ars
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(cuentaAhorro);
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacionService.cerrarCiclo(
+                        cuentaAhorro.getId(),
+                        FECHA_CIERRE
                 )
         );
     }
