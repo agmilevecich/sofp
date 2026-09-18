@@ -111,6 +111,22 @@ public class ObligacionService {
     }
 
     private List<Obligacion> cerrarCicloEnTransaccion(Long cuentaId, LocalDate fechaCierre) {
+        ar.com.agmilevecich.sofp.domain.Cuenta cuenta = entityManager.find(
+                ar.com.agmilevecich.sofp.domain.Cuenta.class,
+                cuentaId
+        );
+        if (cuenta == null) {
+            throw new IllegalArgumentException("La cuenta no existe");
+        }
+        if (cuenta.getTipoCuenta() != ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO) {
+            throw new IllegalArgumentException("La cuenta no es una tarjeta de crédito");
+        }
+
+        LocalDate cierreEsperado = cuenta.calcularCicloFacturacion(fechaCierre).getFechaCierre();
+        if (!fechaCierre.equals(cierreEsperado)) {
+            throw new IllegalArgumentException("La fecha indicada no corresponde al día de cierre de la tarjeta");
+        }
+
         List<Obligacion> obligaciones = obligacionRepository.listarPorCuentaYCierreCiclo(
                 cuentaId,
                 fechaCierre
