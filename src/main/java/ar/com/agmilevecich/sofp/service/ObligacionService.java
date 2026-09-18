@@ -112,13 +112,13 @@ public class ObligacionService {
 
     private List<Obligacion> cerrarCicloEnTransaccion(Long cuentaId, LocalDate fechaCierre) {
         ar.com.agmilevecich.sofp.domain.Cuenta cuenta = entityManager.find(
-                ar.com.agmilevecich.sofp.domain.Cuenta.class,
+                Cuenta.class,
                 cuentaId
         );
         if (cuenta == null) {
             throw new IllegalArgumentException("La cuenta no existe");
         }
-        if (cuenta.getTipoCuenta() != ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO) {
+        if (cuenta.getTipoCuenta() != TipoCuenta.TARJETA_CREDITO) {
             throw new IllegalArgumentException("La cuenta no es una tarjeta de crédito");
         }
 
