@@ -89,6 +89,53 @@ class TipoCambioRepositoryTest {
     }
 
     @Test
+    void deberiaUsarLaUltimaCotizacionDelViernesSiLaCancelacionEsElSabado() {
+        Moneda ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        TipoCambio viernes = new TipoCambio(
+                usd, ars, new BigDecimal("1500.0000000000"),
+                LocalDateTime.of(2026, 9, 18, 17, 30), "Fuente test"
+        );
+
+        em.getTransaction().begin();
+        em.persist(ars);
+        em.persist(usd);
+        em.persist(viernes);
+        em.getTransaction().commit();
+
+        TipoCambioRepository repository = new TipoCambioRepository(em);
+
+        Optional<TipoCambio> resultado = repository.buscarPorMonedasYFechaHora(
+                usd, ars, LocalDateTime.of(2026, 9, 19, 12, 0)
+        );
+
+        assertTrue(resultado.isPresent());
+        assertEquals(viernes.getId(), resultado.get().getId());
+    }
+
+    @Test
+    void noDeberiaUsarCotizacionDeUnDiaAnteriorSiLaCancelacionEsEnDiaHabil() {
+        Moneda ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        TipoCambio viernes = new TipoCambio(
+                usd, ars, new BigDecimal("1500.0000000000"),
+                LocalDateTime.of(2026, 9, 18, 17, 30), "Fuente test"
+        );
+
+        em.getTransaction().begin();
+        em.persist(ars);
+        em.persist(usd);
+        em.persist(viernes);
+        em.getTransaction().commit();
+
+        TipoCambioRepository repository = new TipoCambioRepository(em);
+
+        assertTrue(repository.buscarPorMonedasYFechaHora(
+                usd, ars, LocalDateTime.of(2026, 9, 21, 10, 0)
+        ).isEmpty());
+    }
+
+    @Test
     void deberiaDevolverOptionalVacioSiNoHayCotizacion() {
         Moneda ars = new Moneda(
                 "ARS", "Peso argentino", 2, TipoMoneda.FIAT
