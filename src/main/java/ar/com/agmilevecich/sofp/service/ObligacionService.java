@@ -179,6 +179,13 @@ public class ObligacionService {
                 throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
             }
 
+            if (fechaHoraLiquidacion.isBefore(obligacion.getFechaOrigen())) {
+                throw new IllegalArgumentException("La fecha de liquidación no puede ser anterior al consumo que origina la obligación");
+            }
+            if (fechaHoraLiquidacion.isAfter(LocalDateTime.now())) {
+                throw new IllegalArgumentException("La fecha de liquidación no puede ser futura");
+            }
+
             if (obligacion.getMonedaOriginal().equals(obligacion.getMonedaLiquidacion())) {
                 throw new IllegalArgumentException("La obligación ya está en la moneda de liquidación");
             }
