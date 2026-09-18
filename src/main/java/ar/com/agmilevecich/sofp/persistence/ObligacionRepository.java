@@ -205,7 +205,14 @@ public class ObligacionRepository {
                                 WHEN o.movimientoOrigen.moneda = :moneda
                                     THEN o.saldoPendiente
                                 WHEN o.importeValorizacionCierre IS NOT NULL
-                                    THEN o.importeValorizacionCierre * o.saldoPendiente / o.importeOriginal
+                                    THEN CASE
+                                        WHEN o.saldoPendiente = o.importeOriginal
+                                            THEN o.importeValorizacionCierre
+                                        ELSE FUNCTION('ROUND',
+                                            o.importeValorizacionCierre * o.saldoPendiente / o.importeOriginal,
+                                            2
+                                        )
+                                    END
                                 ELSE 0
                             END
                         ), 0)
@@ -228,7 +235,14 @@ public class ObligacionRepository {
                                 WHEN o.movimientoOrigen.moneda = :moneda
                                     THEN c.saldoPendiente
                                 WHEN c.importeValorizacionCierre IS NOT NULL
-                                    THEN c.importeValorizacionCierre * c.saldoPendiente / c.importeOriginal
+                                    THEN CASE
+                                        WHEN c.saldoPendiente = c.importeOriginal
+                                            THEN c.importeValorizacionCierre
+                                        ELSE FUNCTION('ROUND',
+                                            c.importeValorizacionCierre * c.saldoPendiente / c.importeOriginal,
+                                            2
+                                        )
+                                    END
                                 ELSE 0
                             END
                         ), 0)
