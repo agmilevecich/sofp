@@ -135,6 +135,49 @@ class ObligacionRepositoryTest {
     }
 
     @Test
+    void deberiaPersistirYRecuperarLasFinanciacionesDeUnaObligacion() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Datos datos = crearDatos();
+            Obligacion obligacion = crearObligacion(
+                    datos.cuenta(), datos.categoria(),
+                    LocalDateTime.of(2026, 9, 10, 10, 0),
+                    "Consumo financiado"
+            );
+            Financiacion financiacion = new Financiacion(
+                    obligacion,
+                    LocalDate.of(2026, 9, 26),
+                    new BigDecimal("240.00")
+            );
+            obligacion.agregarFinanciacion(financiacion);
+
+            ObligacionRepository repository = new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            em.persist(obligacion.getMovimientoOrigen());
+            repository.guardar(obligacion);
+            em.getTransaction().commit();
+
+            em.clear();
+
+            Obligacion recuperada = repository.buscarPorId(obligacion.getId()).orElseThrow();
+
+            assertEquals(1, recuperada.getFinanciaciones().size());
+            Financiacion recuperadaFinanciacion = recuperada.getFinanciaciones().get(0);
+            assertEquals(new BigDecimal("240.00"), recuperadaFinanciacion.getCapitalOriginal());
+            assertEquals(new BigDecimal("240.00"), recuperadaFinanciacion.getSaldoCapital());
+            assertEquals(LocalDate.of(2026, 9, 26), recuperadaFinanciacion.getFechaInicio());
+            assertEquals(obligacion.getId(), recuperadaFinanciacion.getObligacion().getId());
+
+        } finally {
+            JpaTestManager.close();
+        }
+    }
+
+    @Test
     void deberiaDevolverListaVaciaSiNoHayObligacionesParaElCierre() {
         JpaTestManager.close();
         EntityManager em = JpaTestManager.createEntityManager();
