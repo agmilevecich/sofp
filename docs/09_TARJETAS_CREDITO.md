@@ -192,3 +192,33 @@ Pendientes conocidos: calendario bancario/feriados, fecha efectiva separada del 
 ### Regla de continuidad
 
 En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que una documentación histórica representa el estado actual si contradice código o tests.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 18/09/2026 20:35 -03:00
+
+### Financiación — modelo base implementado
+
+Se agregó `Financiacion` como entidad persistente vinculada a `Obligacion`. El modelo actual representa capital financiado, fecha de inicio y saldo de capital, con pago de capital y estados derivados pendiente/cancelada.
+
+También quedó implementada y validada la persistencia de la relación con la obligación y su cobertura de tests.
+
+`FinanciacionTest`: 9/9, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, informado el 18/09/2026 20:32:49 -03:00.
+
+### Financiación de resumen — todavía pendiente
+
+Todavía NO existe la coordinación automática del flujo:
+
+**pago parcial del resumen → capital impago → Financiacion → siguiente ciclo.**
+
+El próximo trabajo será revisar `PagoTarjetaService`, `Obligacion` y sus tests para implementar solamente esa primera conexión. Intereses, TNA, punitorios, CFT y refinanciación quedan para una etapa posterior y no deben introducirse todavía.
+
+La suite completa más reciente informada: 779/779, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 18/09/2026 15:04:44 -03:00. La prueba específica de financiación posterior fue 9/9; no se registra una nueva suite completa posterior.
+
+### Punto exacto para mañana
+
+1. Reconstruir estado desde GitHub.
+2. Revisar `PagoTarjetaService` y tests de pagos parciales.
+3. Determinar cómo queda el saldo de la obligación después del pago.
+4. Definir el punto mínimo para crear la financiación.
+5. Tests: pago parcial crea financiación; pago total no crea financiación; saldo financiado correcto; persistencia si corresponde.
+6. Implementar y ejecutar tests específicos antes de la suite general.
