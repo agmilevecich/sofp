@@ -130,8 +130,9 @@ class ObligacionServiceCierreTest {
 
         assertEquals(1, cerradas.size());
         assertEquals(0, new BigDecimal("150000.00")
-                .compareTo(cerradas.get(0).getImporteValorizacionCierre()));
-        assertEquals(tipoCambio.getId(), cerradas.get(0).getTipoCambioCierre().getId());
+                .compareTo(cerradas.get(0).getCuotas().get(0).getImporteValorizacionCierre()));
+        assertEquals(tipoCambio.getId(), cerradas.get(0).getCuotas().get(0).getTipoCambioCierre().getId());
+        assertNull(cerradas.get(0).getImporteValorizacionCierre());
         assertEquals(new BigDecimal("100.00"), cerradas.get(0).getSaldoPendiente());
         assertEquals(EstadoObligacion.PENDIENTE, cerradas.get(0).getEstado());
     }
@@ -163,8 +164,9 @@ class ObligacionServiceCierreTest {
         assertNull(arsCerrada.getImporteValorizacionCierre());
         assertNull(arsCerrada.getTipoCambioCierre());
         assertEquals(0, new BigDecimal("150000.00")
-                .compareTo(usdCerrada.getImporteValorizacionCierre()));
-        assertEquals(tipoCambio.getId(), usdCerrada.getTipoCambioCierre().getId());
+                .compareTo(usdCerrada.getCuotas().get(0).getImporteValorizacionCierre()));
+        assertEquals(tipoCambio.getId(), usdCerrada.getCuotas().get(0).getTipoCambioCierre().getId());
+        assertNull(usdCerrada.getImporteValorizacionCierre());
     }
 
     @Test
@@ -242,8 +244,9 @@ class ObligacionServiceCierreTest {
                 .orElseThrow();
 
         assertEquals(0, new BigDecimal("150000.00")
-                .compareTo(cerrada.getImporteValorizacionCierre()));
+                .compareTo(cerrada.getCuotas().get(0).getImporteValorizacionCierre()));
         assertEquals(new BigDecimal("60.00"), cerrada.getSaldoPendiente());
+        assertNull(cerrada.getImporteValorizacionCierre());
         assertEquals(EstadoObligacion.PARCIAL, cerrada.getEstado());
     }
 
