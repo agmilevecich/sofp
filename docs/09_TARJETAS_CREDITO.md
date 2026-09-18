@@ -125,3 +125,12 @@ El cálculo de crédito multidivisa, la valorización histórica de cierre, la l
 ### Regla de continuidad para la próxima sesión
 
 Reconstruir desde GitHub antes de cualquier cambio: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que la documentación histórica representa el estado actual si contradice código o tests.
+## Auditoría BCRA — cancelación de consumos en moneda extranjera — 18/09/2026
+
+Se contrastó el flujo con la Comunicación A 8307 del BCRA y su material vigente sobre consumos en moneda extranjera. Para tarjetas emitidas por entidades financieras, el consumo puede cancelarse en moneda extranjera o en pesos; si se cancela en pesos, el tipo de cambio vendedor aplicable tiene como máximo el del momento de cancelación, o el día hábil inmediato anterior cuando el pago se efectúa en día inhábil. Para débito automático en cuenta de la propia entidad aplica el tipo de cambio vendedor por medios electrónicos del cierre del mismo día hábil del pago. cite pendiente en documentación local: fuente BCRA A8307 / web oficial.
+
+En SOFP se mantiene separada la valorización de cierre de la liquidación efectiva. La liquidación ya no puede tomar silenciosamente una cotización de un día hábil anterior cuando la cancelación ocurre en un día hábil sin cotización disponible. En sábado/domingo se toma la última cotización del viernes anterior. Los feriados no se infieren mediante calendario de días de semana: requieren un calendario bancario explícito antes de automatizar esa selección.
+
+También se agregó validación para impedir liquidaciones fechadas antes del consumo o en el futuro.
+
+La suite de pruebas de esta modificación todavía debe ejecutarse localmente; no se registra aquí ningún resultado no informado.
