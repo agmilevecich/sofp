@@ -132,18 +132,14 @@ public class ObligacionService {
             ));
 
             if (obligacion.getCuotas().isEmpty()) {
-                if (obligacion.getImporteValorizacionCierre() == null) {
-                    obligacion.valorarCierre(cambio);
-                }
+                obligacion.valorarCierre(cambio);
             } else {
                 obligacion.getCuotas().stream()
                         .filter(cuota -> fechaCierre.equals(cuota.getFechaCierreCiclo()))
                         .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
                         .findFirst()
                         .ifPresent(cuota -> {
-                            if (cuota.getImporteValorizacionCierre() == null) {
-                                cuota.valorarCierre(cambio);
-                            }
+                            cuota.valorarCierre(cambio);
                         });
             }
         }
