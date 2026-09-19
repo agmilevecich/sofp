@@ -295,6 +295,8 @@ public class ObligacionRepository {
                         SELECT COALESCE(SUM(COALESCE(f.saldoValorizacion, f.saldoCapital)), 0)
                         FROM Financiacion f
                         WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
+                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
                           AND f.saldoCapital > 0
                         """,
                         BigDecimal.class
@@ -307,6 +309,8 @@ public class ObligacionRepository {
                         SELECT COALESCE(SUM(f.saldoValorizacion), 0)
                         FROM Financiacion f
                         WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
+                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
                           AND f.obligacion.saldoLiquidacion IS NULL
                           AND f.saldoCapital > 0
                         """,
@@ -315,11 +319,26 @@ public class ObligacionRepository {
                 .setParameter("cuentaId", cuentaId)
                 .getSingleResult();
 
+        BigDecimal refinanciaciones = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(r.saldoPlan), 0)
+                        FROM Refinanciacion r
+                        WHERE r.obligacionOrigen.movimientoOrigen.cuenta.id = :cuentaId
+                          AND r.moneda = :moneda
+                          AND r.saldoPlan > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("moneda", moneda)
+                .getSingleResult();
+
         BigDecimal obligaciones = obligacionesLiquidadas
                 .add(obligacionesSinCuotas)
                 .add(cuotas)
                 .subtract(financiacionesNoLiquidadas)
-                .add(financiaciones);
+                .add(financiaciones)
+                .add(refinanciaciones);
 
         BigDecimal consumosSinObligacion = entityManager.createQuery(
                         """
