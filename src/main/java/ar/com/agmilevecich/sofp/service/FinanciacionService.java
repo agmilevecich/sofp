@@ -195,6 +195,94 @@ public class FinanciacionService {
         }
     }
 
+    public CargoFinanciero calcularPunitorio(Long financiacionId,
+                                             LocalDate fechaHasta,
+                                             Long usuarioId) {
+        Objects.requireNonNull(financiacionId, "El id de la financiación es obligatorio");
+        Objects.requireNonNull(fechaHasta, "La fecha de cálculo es obligatoria");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            Financiacion financiacion = entityManager.find(Financiacion.class, financiacionId);
+            if (financiacion == null) {
+                throw new IllegalArgumentException("La financiación no existe");
+            }
+            validarPropietario(usuarioId, financiacion);
+
+            LocalDate fechaDesde = financiacion.getFechaUltimoCalculoPunitorio();
+            if (!fechaHasta.isAfter(fechaDesde) || !financiacion.estaPendiente()) {
+                throw new IllegalArgumentException("No existe un período de punitorio pendiente");
+            }
+
+            BigDecimal capital = financiacion.getSaldoCapital();
+            List<TasaInteres> tasas = entityManager.createQuery(
+                    """
+                    SELECT t
+                    FROM TasaInteres t
+                    WHERE t.cuenta = :cuenta
+                      AND t.tipo = :tipo
+                      AND t.fechaDesde <= :fechaHasta
+                      AND (t.fechaHasta IS NULL OR t.fechaHasta >= :fechaDesde)
+                    ORDER BY t.fechaDesde ASC, t.id ASC
+                    """,
+                    TasaInteres.class
+            )
+            .setParameter("cuenta", financiacion.getObligacion().getMovimientoOrigen().getCuenta())
+            .setParameter("tipo", TipoTasaInteres.TNA_PUNITORIA)
+            .setParameter("fechaDesde", fechaDesde)
+            .setParameter("fechaHasta", fechaHasta)
+            .getResultList();
+
+            if (tasas.isEmpty()) {
+                throw new IllegalArgumentException("No existe TNA punitoria vigente para el período");
+            }
+
+            BigDecimal punitorio = BigDecimal.ZERO;
+            LocalDate dia = fechaDesde;
+            int diasCalculados = 0;
+            while (dia.isBefore(fechaHasta)) {
+                LocalDate fechaDia = dia;
+                TasaInteres tasa = tasas.stream()
+                        .filter(t -> t.vigenteEn(fechaDia))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "No existe TNA punitoria vigente para " + fechaDia
+                        ));
+                punitorio = punitorio.add(
+                        capital.multiply(tasa.getTasaAnual())
+                                .divide(new BigDecimal("100"), 12, RoundingMode.HALF_UP)
+                                .divide(new BigDecimal("365"), 12, RoundingMode.HALF_UP)
+                );
+                diasCalculados++;
+                dia = dia.plusDays(1);
+            }
+
+            punitorio = punitorio.setScale(2, RoundingMode.HALF_UP);
+            TasaInteres tasaReferencia = tasas.stream()
+                    .filter(t -> t.vigenteEn(fechaHasta.minusDays(1)))
+                    .findFirst()
+                    .orElse(tasas.get(0));
+
+            CargoFinanciero cargo = financiacion.registrarPunitorio(
+                    punitorio,
+                    fechaHasta,
+                    capital,
+                    tasaReferencia.getTasaAnual(),
+                    diasCalculados
+            );
+            entityManager.flush();
+            transaction.commit();
+            return cargo;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+
     private void validarPropietario(Long usuarioId, Financiacion financiacion) {
         Long propietarioId = financiacion.getObligacion()
                 .getMovimientoOrigen()
