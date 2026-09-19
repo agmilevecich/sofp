@@ -237,7 +237,8 @@ public class ObligacionRepository {
                                         WHEN o.saldoPendiente = o.importeOriginal
                                             THEN o.importeValorizacionCierre
                                         ELSE FUNCTION('ROUND',
-                                            o.importeValorizacionCierre * o.saldoPendiente / o.importeOriginal,
+                                            o.importeValorizacionCierre
+                                                * FUNCTION('ROUND', o.saldoPendiente / o.importeOriginal, 10),
                                             2
                                         )
                                     END
@@ -269,7 +270,8 @@ public class ObligacionRepository {
                                         WHEN c.saldoPendiente = c.importeOriginal
                                             THEN c.importeValorizacionCierre
                                         ELSE FUNCTION('ROUND',
-                                            c.importeValorizacionCierre * c.saldoPendiente / c.importeOriginal,
+                                            c.importeValorizacionCierre
+                                                * FUNCTION('ROUND', c.saldoPendiente / c.importeOriginal, 10),
                                             2
                                         )
                                     END
