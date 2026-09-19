@@ -186,6 +186,35 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaAplicarElExcedenteDelPagoDeFinanciacionSobreLaSiguienteCuota() {
+        Obligacion obligacion = registrarGasto("120000.00", 3);
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("20000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago parcial", usuario.getId()
+        );
+
+        LocalDateTime fechaFinanciacion = obligacion.getCuotas().get(0).getFechaVencimiento()
+                .plusDays(1).atTime(10, 0);
+        obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion.toLocalDate(), usuario.getId()
+        ).orElseThrow();
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("60000.00"),
+                fechaFinanciacion,
+                "Pago financiacion y cuota siguiente", usuario.getId()
+        );
+
+        assertEquals(new BigDecimal("0.00"), obligacion.getFinanciaciones().get(0).getSaldoCapital());
+        assertEquals(new BigDecimal("0.00"), obligacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(new BigDecimal("20.00"), obligacion.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("60.00"), obligacion.getSaldoPendiente());
+    }
+
+    @Test
     void deberiaRegistrarPagoCompletoYDejarLaObligacionPagada() {
         Obligacion obligacion = registrarGasto("120000.00");
         pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("120000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId());
