@@ -282,6 +282,20 @@ class ObligacionServiceCierreTest {
         assertEquals(new BigDecimal("80.00"), financiacion.getSaldoCapital());
         assertEquals(fechaFinanciacion, financiacion.getFechaInicio());
         assertEquals(1, obligacion.getFinanciaciones().size());
+
+        entityManager.clear();
+        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId()).orElseThrow();
+        assertEquals(1, recargada.getFinanciaciones().size());
+        assertEquals(new BigDecimal("80.00"), recargada.getFinanciaciones().get(0).getSaldoCapital());
+    }
+
+    @Test
+    void noDeberiaCrearFinanciacionAntesDelVencimiento() {
+        Obligacion obligacion = registrarConsumo(ars, new BigDecimal("120.00"));
+        var financiacion = obligacionService.financiarSaldoImpago(
+                obligacion.getId(), obligacion.getFechaLimitePago(), usuarioId
+        );
+        assertTrue(financiacion.isEmpty());
     }
 
     @Test
