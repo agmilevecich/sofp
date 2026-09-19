@@ -128,13 +128,13 @@ public class ObligacionRepository {
                         SELECT o
                         FROM Obligacion o
                         WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
                           AND (
                               (
                                   o.cuotas IS EMPTY
                                   AND o.fechaCierreCiclo = :fechaCierre
-                                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
-                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
-                          AND o.saldoPendiente > 0
+                                  AND o.saldoPendiente > 0
                               )
                               OR EXISTS (
                                   SELECT c.id
