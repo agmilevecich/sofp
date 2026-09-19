@@ -274,7 +274,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
 
         private void persistir(Obligacion obligacion) {
             em.getTransaction().begin();
-            em.persist(obligacion);
+            em.merge(obligacion);
             em.getTransaction().commit();
             em.clear();
         }
