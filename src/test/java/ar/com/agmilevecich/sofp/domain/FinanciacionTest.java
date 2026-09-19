@@ -119,7 +119,7 @@ class FinanciacionTest {
                         obligacion,
                         LocalDate.of(2026, 9, 26),
                         new BigDecimal("40.00"),
-                        obligacion.getMonedaOriginal(),
+                        obligacion.getMonedaLiquidacion(),
                         null,
                         false
                 )
