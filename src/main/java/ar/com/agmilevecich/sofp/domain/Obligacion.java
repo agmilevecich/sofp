@@ -77,12 +77,21 @@ public class Obligacion extends EntidadAuditable {
                                           Moneda moneda,
                                           TipoCambio tipoCambioValorizacion,
                                           boolean origenLiquidacion) {
+        Objects.requireNonNull(capital, "El capital financiado es obligatorio");
+        if (capital.signum() <= 0) {
+            throw new IllegalArgumentException("El capital financiado debe ser positivo");
+        }
         if (origenLiquidacion) {
             if (saldoLiquidacion == null) {
                 throw new IllegalStateException("La financiación sobre liquidación requiere una liquidación");
             }
             if (capital.compareTo(saldoLiquidacion) > 0) {
                 throw new IllegalArgumentException("El capital financiado no puede superar el saldo de liquidación");
+            }
+        } else {
+            BigDecimal saldoDisponible = getSaldoNoFinanciadoParaLiquidacion();
+            if (capital.compareTo(saldoDisponible) > 0) {
+                throw new IllegalArgumentException("El capital financiado no puede superar el saldo no financiado pendiente");
             }
         }
         Financiacion financiacion = new Financiacion(
