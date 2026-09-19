@@ -41,6 +41,27 @@ class ObligacionRepositoryFinanciacionCreditoTest {
     }
 
     @Test
+    void cargosFinancierosPendientesDeFinanciacionContinuanConsumientoCredito() {
+        try (Fixture fixture = new Fixture()) {
+            Obligacion obligacion = fixture.crearObligacion(new BigDecimal("100000.00"), fixture.ars);
+            Financiacion financiacion = obligacion.crearFinanciacion(
+                    LocalDate.of(2026, 9, 26),
+                    new BigDecimal("100000.00")
+            );
+            financiacion.registrarInteres(
+                    new BigDecimal("200.00"),
+                    LocalDate.of(2026, 9, 28),
+                    new BigDecimal("100000.00"),
+                    new BigDecimal("36.5000"),
+                    2
+            );
+            fixture.persistir(obligacion);
+
+            assertCredito(fixture, "100200.00");
+        }
+    }
+
+    @Test
     void pagoParcialDeFinanciacionReduceCreditoUtilizado() {
         try (Fixture fixture = new Fixture()) {
             Obligacion obligacion = fixture.crearObligacion(new BigDecimal("100000.00"), fixture.ars);
