@@ -148,3 +148,29 @@ Se revisaron ciclos, cuotas, cierres, valorización, liquidación multidivisa, c
 ### Criterio de cierre
 
 Tarjeta de Crédito no debe considerarse cerrada hasta que los gaps anteriores estén cubiertos o explícitamente documentados como fuera de alcance, y exista una suite completa verde sobre el HEAD final.
+
+
+## ESTADO CANÓNICO — AUDITORÍA 100% TARJETA — 19/09/2026
+
+La auditoría integral continúa sobre `feature/swing-shell`. Se revisaron código, tests, comparación con `main`, CI y documentación.
+
+Cambios de esta fase:
+- pruebas de TNA con cambio de tasa dentro del período;
+- prueba de idempotencia del cálculo de intereses;
+- prueba de interés sobre capital luego de pago parcial;
+- prueba de doble reversión de pago de refinanciación;
+- actualización de documentación de tarjeta y auditoría integral.
+
+La ejecución CI anterior sobre `45ece879` falló en compilación, no en una prueba funcional. El error concreto fue una llamada de `PagoTarjetaService` que no coincidía con el constructor vigente de `PagoTarjeta`. La rama actual está tres commits por delante de ese SHA y ya contiene la corrección. La nueva ejecución CI fue iniciada sobre el estado actualizado.
+
+### Gaps que permanecen
+
+1. Motor de intereses/TNA propio de refinanciación: requiere definir modalidad de amortización.
+2. Punitorios ligados al pago mínimo: debe integrarse con el historial de pagos; no corresponde aplicar punitorios si el mínimo fue abonado en la fecha correspondiente.
+3. Financiación multidivisa seguida de liquidación en otra moneda: falta regla explícita de conversión/cotización.
+4. Cancelación anticipada de financiación y API directa de pago de refinanciación pueden omitir el movimiento financiero canónico.
+5. Cargos financieros y crédito disponible: falta completar la valorización trazable de cargos posteriores en financiación multidivisa.
+6. UI: faltan operaciones de alta y detalle avanzado de financiación/refinanciación.
+7. Calendario bancario de feriados, `Clock` y migraciones de esquema.
+
+No se modifica `main` y no se inventan reglas contables donde falta una decisión financiera material.
