@@ -158,6 +158,26 @@ class ObligacionTest {
     }
 
     @Test
+    void deberiaAnularObligacionSinBorrarSuOrigen() {
+        Movimiento movimiento = crearMovimiento(FormaPago.TARJETA_CREDITO);
+        Obligacion obligacion = new Obligacion(movimiento);
+
+        obligacion.anular();
+
+        assertEquals(EstadoObligacion.ANULADA, obligacion.getEstado());
+        assertEquals(new BigDecimal("0.00"), obligacion.getSaldoPendiente());
+        assertEquals(movimiento, obligacion.getMovimientoOrigen());
+    }
+
+    @Test
+    void noDeberiaAnularObligacionDespuesDeUnPago() {
+        Obligacion obligacion = new Obligacion(crearMovimiento(FormaPago.TARJETA_CREDITO));
+        obligacion.registrarPago(new BigDecimal("100.00"));
+
+        assertThrows(IllegalStateException.class, obligacion::anular);
+    }
+
+    @Test
     void deberiaRegistrarPagoParcial() {
 
         Obligacion obligacion = new Obligacion(
