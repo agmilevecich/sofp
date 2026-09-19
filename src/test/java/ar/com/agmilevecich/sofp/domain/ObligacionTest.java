@@ -359,4 +359,41 @@ class ObligacionTest {
                 formaPago
         );
     }
+    @Test
+    void noDeberiaPermitirFinanciarMasQueElSaldoNoFinanciadoPendiente() {
+        Financiacion primera = obligacion.crearFinanciacion(
+                LocalDate.of(2026, 9, 26),
+                new BigDecimal("60000.00")
+        );
+
+        assertEquals(new BigDecimal("60000.00"), primera.getSaldoCapital());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacion.crearFinanciacion(
+                        LocalDate.of(2026, 10, 26),
+                        new BigDecimal("50000.01")
+                )
+        );
+    }
+
+    @Test
+    void noDeberiaPermitirFinanciacionConCapitalNuloONoPositivo() {
+        assertThrows(
+                NullPointerException.class,
+                () -> obligacion.crearFinanciacion(
+                        LocalDate.of(2026, 9, 26),
+                        null
+                )
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> obligacion.crearFinanciacion(
+                        LocalDate.of(2026, 9, 26),
+                        BigDecimal.ZERO
+                )
+        );
+    }
+
 }
