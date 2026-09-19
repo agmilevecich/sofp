@@ -188,3 +188,8 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## BUILD CANÓNICO — 19/09/2026
+
+Último build local verde conocido: **797/797** sobre `ba2027168`, 19/09/2026 11:44 -03:00.
+
+HEAD actual: `bcb994d`. GitHub Actions Maven Test run #86 (push) y #87 (pull request) terminaron en failure durante `Run tests`. Por lo tanto el build actual de la feature **no está verde** y debe diagnosticarse antes de seguir ampliando funcionalidad.
