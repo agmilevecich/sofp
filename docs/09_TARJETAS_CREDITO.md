@@ -334,3 +334,10 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## ESTADO CANÓNICO DE TARJETA DE CRÉDITO — 19/09/2026
+
+El código actual contiene el bloque avanzado de tarjeta: ciclos/cuotas, cierre y valorización, liquidación multidivisa, crédito disponible, financiación, pago mínimo, TNA histórica, interés financiero, punitorio, cargos, refinanciación, cancelación anticipada, pagos/reversiones con trazabilidad y UI Swing específica.
+
+Los commits recientes también corrigen transacciones, financiación multidivisa, reversión y aplicación del estado de obligación durante el cierre.
+
+**Estado de cierre:** todavía no se puede declarar terminada. El HEAD `bcb994d` tiene GitHub Actions fallido en `Run tests`. El próximo trabajo es diagnóstico y validación, no agregar funcionalidad por inercia.
