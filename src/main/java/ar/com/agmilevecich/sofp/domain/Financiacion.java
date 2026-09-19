@@ -44,6 +44,9 @@ public class Financiacion extends EntidadAuditable {
     @Column(name = "origen_liquidacion")
     private Boolean origenLiquidacion;
 
+    @Column(name = "fecha_ultimo_calculo_interes")
+    private LocalDate fechaUltimoCalculoInteres;
+
     @OneToMany(mappedBy = "financiacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("fechaGeneracion ASC, id ASC")
     private List<CargoFinanciero> cargos = new ArrayList<>();
@@ -79,6 +82,7 @@ public class Financiacion extends EntidadAuditable {
         this.importeValorizacion = valorizar(capitalOriginal);
         this.saldoValorizacion = this.importeValorizacion;
         this.saldoCapital = this.capitalOriginal;
+        this.fechaUltimoCalculoInteres = this.fechaInicio;
     }
 
     private BigDecimal valorizar(BigDecimal capital) {
@@ -134,6 +138,36 @@ public class Financiacion extends EntidadAuditable {
             throw new IllegalArgumentException("El cargo debe pertenecer a esta financiación");
         }
         cargos.add(cargo);
+    }
+
+    public LocalDate getFechaUltimoCalculoInteres() {
+        return fechaUltimoCalculoInteres != null ? fechaUltimoCalculoInteres : fechaInicio;
+    }
+
+    public CargoFinanciero registrarInteres(BigDecimal importe,
+                                            LocalDate fechaHasta,
+                                            BigDecimal capitalBase,
+                                            BigDecimal tasaAnual,
+                                            int dias) {
+        Objects.requireNonNull(fechaHasta, "La fecha hasta es obligatoria");
+        if (fechaHasta.isBefore(getFechaUltimoCalculoInteres())) {
+            throw new IllegalArgumentException("La fecha del interés no puede ser anterior al último cálculo");
+        }
+        CargoFinanciero cargo = new CargoFinanciero(
+                obligacion,
+                this,
+                getMoneda(),
+                TipoCargoFinanciero.INTERES_FINANCIERO,
+                importe,
+                fechaHasta,
+                capitalBase,
+                tasaAnual,
+                dias,
+                "Interés financiero de financiación"
+        );
+        agregarCargo(cargo);
+        fechaUltimoCalculoInteres = fechaHasta;
+        return cargo;
     }
 
     public BigDecimal getSaldoCargosPendiente() {
