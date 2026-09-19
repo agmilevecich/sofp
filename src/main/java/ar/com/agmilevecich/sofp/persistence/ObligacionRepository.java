@@ -100,16 +100,30 @@ public class ObligacionRepository {
             Long cuentaId,
             LocalDate fechaCierre
     ) {
-        Objects.requireNonNull(
-                cuentaId,
-                "El id de la cuenta es obligatorio"
-        );
-        Objects.requireNonNull(
-                fechaCierre,
-                "La fecha de cierre es obligatoria"
-        );
+        return listarPorCuentaYCierreCiclo(cuentaId, null, fechaCierre);
+    }
 
-        return entityManager.createQuery(
+    public List<Obligacion> listarPorCuentaYCierreCiclo(
+            Long cuentaId,
+            LocalDate fechaInicioCiclo,
+            LocalDate fechaCierre
+    ) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
+
+        String condicionFinanciacion = fechaInicioCiclo == null
+                ? ""
+                : """
+                          OR EXISTS (
+                              SELECT f.id
+                              FROM Financiacion f
+                              WHERE f.obligacion = o
+                                AND f.fechaInicio > :fechaInicioCiclo
+                                AND f.fechaInicio <= :fechaCierre
+                          )
+                        """;
+
+        var query = entityManager.createQuery(
                         """
                         SELECT o
                         FROM Obligacion o
@@ -127,14 +141,20 @@ public class ObligacionRepository {
                                     AND c.fechaCierreCiclo = :fechaCierre
                                     AND c.saldoPendiente > 0
                               )
+                        """ + condicionFinanciacion + """
                           )
                         ORDER BY o.movimientoOrigen.fechaHora, o.id
                         """,
                         Obligacion.class
                 )
                 .setParameter("cuentaId", cuentaId)
-                .setParameter("fechaCierre", fechaCierre)
-                .getResultList();
+                .setParameter("fechaCierre", fechaCierre);
+
+        if (fechaInicioCiclo != null) {
+            query.setParameter("fechaInicioCiclo", fechaInicioCiclo);
+        }
+
+        return query.getResultList();
     }
 
     /** Suma el crédito pendiente y los consumos de tarjeta todavía no materializados como obligación. */
