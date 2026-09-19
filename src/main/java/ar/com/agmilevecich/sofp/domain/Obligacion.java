@@ -270,12 +270,13 @@ public class Obligacion extends EntidadAuditable {
             if (!financiacion.getMoneda().equals(getMonedaLiquidacion())) {
                 throw new IllegalArgumentException("La financiación sobre liquidación debe utilizar la moneda de liquidación");
             }
-        } else if (pago.compareTo(saldoPendiente) > 0) {
-            throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
         }
 
         BigDecimal capitalPagado = financiacion.registrarPago(pago);
         if (!financiacion.esSobreLiquidacion() && capitalPagado.signum() > 0) {
+            if (capitalPagado.compareTo(saldoPendiente) > 0) {
+                throw new IllegalArgumentException("El capital pagado supera el saldo pendiente");
+            }
             if (!cuotas.isEmpty()) {
                 Cuota cuota = cuotas.stream()
                         .filter(c -> c.getFechaVencimiento().plusDays(1).equals(financiacion.getFechaInicio()))
