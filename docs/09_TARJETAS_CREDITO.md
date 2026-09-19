@@ -370,3 +370,47 @@ No asumir que la suite local falla por el mismo motivo que CI hasta disponer del
 
 ### Regla permanente
 Reconstruir el estado desde GitHub antes de cada modificación. Prioridad: código actual → tests → commits → `main` → documentación. No modificar `main` automáticamente.
+
+
+## AUDITORÍA INTEGRAL DE TARJETA — 19/09/2026 18:57 -03:00
+
+La auditoría del 100% del bloque de tarjeta se realizó sobre el código, tests, commits y documentación de `feature/swing-shell`, sin tomar la documentación histórica como fuente de verdad.
+
+### Correcciones realizadas durante la auditoría
+
+- El crédito utilizado ahora incluye el saldo pendiente de una `Refinanciacion`.
+- Una financiación asociada a una obligación ya `REFINANCIADA` deja de contarse por separado para evitar doble contabilización.
+- El pago de una refinanciación pasó a formar parte del flujo real de `PagoTarjetaService`, con movimiento financiero y trazabilidad en `PagoTarjeta`.
+- Se incorporó la referencia a la refinanciación y su importe dentro de `PagoTarjeta`.
+- Se implementó la reversión de pagos de refinanciación, restaurando cuotas, saldo del plan y crédito disponible, junto con el movimiento compensatorio.
+- Se agregaron pruebas de crédito pendiente de refinanciación, pago, reversión y liberación/restauración del crédito.
+
+### Regla consolidada
+
+Una deuda refinanciada continúa consumiendo el límite de la tarjeta mientras el plan tenga saldo pendiente. El pago reduce ese consumo y su reversión lo restaura. La obligación original permanece como historial `REFINANCIADA`; el saldo económico activo reside en el plan de refinanciación.
+
+### Cobertura auditada
+
+Se revisaron ciclos, cuotas, cierres, valorización, liquidación multidivisa, crédito disponible, financiación, intereses TNA, punitorios, pago mínimo, pagos parciales/totales, reversión, refinanciación, cuotas refinanciadas, estados, trazabilidad, fechas, moneda y UI Swing.
+
+### Gaps funcionales que permanecen abiertos
+
+1. La refinanciación todavía almacena `tasaAnual`, pero no tiene un motor propio de intereses periódicos/TNA ni punitorios equivalentes al de `Financiacion`.
+2. `FinanciacionService.cancelarAnticipadamente()` modifica la deuda directamente sin registrar por sí mismo un movimiento de salida de fondos. El flujo financiero canónico debe pasar por `PagoTarjetaService`.
+3. El cálculo de punitorios no está vinculado de forma explícita al cumplimiento del pago mínimo; la regla de mora/punitorio debe quedar integrada con el historial de pagos del resumen.
+4. `TarjetasCreditoPanel` muestra límite, disponible, consumido, ciclo, vencimiento, obligaciones, pago mínimo y financiaciones, pero todavía no expone de forma completa las operaciones de crear financiación/refinanciación ni el detalle completo de cuotas refinanciadas, TNA, punitorios y cargos.
+5. El calendario de días inhábiles sigue limitado a sábado/domingo; los feriados requieren un calendario bancario explícito.
+6. `LocalDateTime.now()` continúa utilizándose en validaciones de fechas futuras; una abstracción `Clock` mejoraría determinismo.
+7. No existe todavía versionado formal de esquema de base de datos.
+8. La suite completa sobre el estado posterior a estas correcciones no está validada por el asistente. GitHub Actions de los commits de esta auditoría termina en `Run tests = failure`; el detalle de log excede el límite de recuperación disponible. Por lo tanto, no se declara verde ni cerrada la tarjeta.
+
+### Estado Git
+
+- Rama: `feature/swing-shell`.
+- HEAD auditado: `45ece8797094df0ac5506808cfae2939ca66ae03` — `fix: ajustar prueba de pago refinanciado`.
+- `main`: `4b8100d7242d3cd030d0a903098a93cc5b8e547f`.
+- No se realizó merge a `main`.
+
+### Criterio de cierre
+
+Tarjeta de Crédito no debe considerarse cerrada hasta que los gaps anteriores estén cubiertos o explícitamente documentados como fuera de alcance, y exista una suite completa verde sobre el HEAD final.
