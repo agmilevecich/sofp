@@ -239,3 +239,20 @@ También se agregó idempotencia para no crear dos financiaciones del mismo cicl
 Los nuevos tests todavía no fueron ejecutados localmente; el siguiente paso de validación es ObligacionServiceCierreTest, luego PagoTarjetaServiceTest y finalmente la suite completa.
 
 Pendiente inmediato: pagos posteriores al vencimiento sobre la financiación. Después se abordarán intereses/TNA/punitorios/CFT según las decisiones de negocio ya registradas.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:00 -03:00
+
+### Financiación — pago posterior conectado
+
+Ya está conectado el pago posterior al vencimiento con Financiacion:
+
+- se identifica la financiación pendiente por fecha;
+- el pago se aplica primero al capital financiado;
+- la deuda original y la financiación se mantienen sincronizadas;
+- un excedente puede aplicarse a la siguiente cuota si ambas deudas están en la misma moneda;
+- no se mezclan automáticamente la moneda original de una financiación y una liquidación posterior en otra moneda.
+
+Tests agregados para pago sobre financiación y excedente sobre cuota siguiente.
+
+La validación local todavía está pendiente.
