@@ -178,11 +178,11 @@ public class Financiacion extends EntidadAuditable {
     }
 
     public boolean estaPendiente() {
-        return saldoCapital.signum() > 0;
+        return saldoCapital.signum() > 0 || getSaldoCargosPendiente().signum() > 0;
     }
 
     public boolean estaCancelada() {
-        return saldoCapital.signum() == 0;
+        return saldoCapital.signum() == 0 && getSaldoCargosPendiente().signum() == 0;
     }
 
     public BigDecimal registrarPago(BigDecimal importe) {
