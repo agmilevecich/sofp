@@ -68,6 +68,38 @@ public class Obligacion extends EntidadAuditable {
         financiaciones.add(financiacion);
     }
 
+    public Financiacion crearFinanciacion(LocalDate fechaInicio, BigDecimal capital) {
+        Financiacion financiacion = new Financiacion(this, fechaInicio, capital);
+        agregarFinanciacion(financiacion);
+        return financiacion;
+    }
+
+    public BigDecimal getSaldoPendienteDelCiclo(LocalDate fechaCierre) {
+        Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
+        if (cuotas.isEmpty()) {
+            return fechaCierre.equals(fechaCierreCiclo) ? saldoPendiente : BigDecimal.ZERO.setScale(2);
+        }
+        return cuotas.stream()
+                .filter(cuota -> fechaCierre.equals(cuota.getFechaCierreCiclo()))
+                .map(Cuota::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO.setScale(2), BigDecimal::add);
+    }
+
+    public LocalDate getFechaInicioFinanciacion(LocalDate fechaCierre) {
+        Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
+        if (cuotas.isEmpty()) {
+            if (!fechaCierre.equals(fechaCierreCiclo)) {
+                throw new IllegalArgumentException("La fecha de cierre no corresponde al ciclo de la obligación");
+            }
+            return fechaVencimiento.plusDays(1);
+        }
+        return cuotas.stream()
+                .filter(cuota -> fechaCierre.equals(cuota.getFechaCierreCiclo()))
+                .findFirst()
+                .map(cuota -> cuota.getFechaVencimiento().plusDays(1))
+                .orElseThrow(() -> new IllegalArgumentException("La fecha de cierre no corresponde a una cuota de la obligación"));
+    }
+
     public Moneda getMonedaOriginal() { return monedaOriginal != null ? monedaOriginal : movimientoOrigen.getMoneda(); }
     public Moneda getMonedaLiquidacion() { return monedaLiquidacion != null ? monedaLiquidacion : movimientoOrigen.getCuenta().getMoneda(); }
     public TipoCambio getTipoCambioCierre() { return tipoCambioCierre; }
