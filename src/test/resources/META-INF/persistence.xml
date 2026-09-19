@@ -23,6 +23,7 @@
         <class>ar.com.agmilevecich.sofp.domain.Obligacion</class>
         <class>ar.com.agmilevecich.sofp.domain.Cuota</class>
         <class>ar.com.agmilevecich.sofp.domain.Financiacion</class>
+        <class>ar.com.agmilevecich.sofp.domain.CargoFinanciero</class>
         <class>ar.com.agmilevecich.sofp.domain.TipoCambio</class>
 
         <properties>
