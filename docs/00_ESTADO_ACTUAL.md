@@ -195,3 +195,22 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## ACTUALIZACIÓN CANÓNICA — 19/09/2026
+
+Esta sección supersede estados anteriores cuando exista contradicción. La fuente de verdad es código, tests y commits actuales de GitHub.
+
+- Rama: `feature/swing-shell`.
+- HEAD: `bcb994d` — `fix: aplicar estado de obligacion a todas las ramas del cierre`.
+- `main`: `4b8100d`, sincronizada entre GitHub y Bitbucket según verificación local del usuario.
+- No se realizó merge a `main`.
+- Última suite completa local verde informada: **797/797**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 19/09/2026 11:44 -03:00, sobre el commit anterior `ba2027168`.
+- Después de esa suite se agregaron nuevos commits; por tanto 797/797 no valida el HEAD actual.
+- GitHub Actions sobre `bcb994d` (Maven Test run #86 por push y #87 por pull request) terminó en **failure** en `Run tests`. Checkout y Setup Java fueron exitosos.
+
+### Estado funcional actual
+
+El código contiene ciclos/cuotas, cierre y valorización, liquidación multidivisa, financiación, pago mínimo, TNA/intereses, punitorios, cargos, refinanciación, cancelación anticipada, pagos y reversiones con trazabilidad, crédito y UI Swing de tarjetas. Esto describe implementación existente, no validación final del HEAD.
+
+### Próximo paso
+
+Diagnosticar la falla de CI, ejecutar tests específicos de cierre/financiación/pagos/reversiones/refinanciación, luego suite completa y validación Git local. No considerar Tarjeta de Crédito terminada hasta recuperar una suite verde sobre el HEAD actual.
