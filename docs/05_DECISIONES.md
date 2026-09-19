@@ -197,3 +197,12 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## DECISIONES DE CONTINUIDAD — 19/09/2026
+
+- La documentación nunca declara validada una funcionalidad solamente por existir en código.
+- La última suite local verde conocida es 797/797 sobre `ba2027168`; no valida los commits posteriores.
+- El HEAD `bcb994d` tiene CI fallido en el paso `Run tests`; el estado actual es implementación + validación pendiente.
+- Ciclos y cuotas conservan fechas históricas y la valorización de cierre permanece separada de la liquidación.
+- Financiaciones conservan moneda y valorización explícitas; no hay conversión implícita entre monedas.
+- Capital, intereses, punitorios y cargos se mantienen separados y trazables.
+- Tarjeta de Crédito no se considera cerrada hasta tener tests específicos, relacionados y suite completa verdes sobre el HEAD actual.
