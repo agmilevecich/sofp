@@ -226,3 +226,8 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## HITO DE CONTINUIDAD — 19/09/2026
+
+La rama `feature/swing-shell` avanzó desde el último punto local verde `ba2027168` hasta `bcb994d`, incorporando y corrigiendo bloques de financiación, intereses, cargos, refinanciación, pagos/reversiones y cierre de obligaciones.
+
+La última suite local verde conocida sigue siendo 797/797 sobre `ba2027168`. GitHub Actions sobre `bcb994d` falló en la etapa de tests. El siguiente hito es recuperar una validación verde del HEAD actual.
