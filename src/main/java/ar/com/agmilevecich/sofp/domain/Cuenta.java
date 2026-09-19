@@ -20,6 +20,8 @@ public class Cuenta extends EntidadAuditable {
     @Column(name = "dia_cierre") private Integer diaCierre;
     @Column(name = "dia_vencimiento") private Integer diaVencimiento;
     @Column(name = "dias_gracia") private Integer diasGracia = 0;
+    @Column(name = "porcentaje_pago_minimo", precision = 5, scale = 2) private BigDecimal porcentajePagoMinimo = BigDecimal.ZERO;
+    @Column(name = "importe_minimo_pago", precision = 19, scale = 2) private BigDecimal importeMinimoPago = BigDecimal.ZERO;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "perfil_financiero_id", nullable = false) private PerfilFinanciero perfilFinanciero;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "institucion_financiera_id", nullable = false) private InstitucionFinanciera institucionFinanciera;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "moneda_id", nullable = false) private Moneda moneda;
@@ -48,6 +50,8 @@ public class Cuenta extends EntidadAuditable {
     public Integer getDiaCierre() { return diaCierre; }
     public Integer getDiaVencimiento() { return diaVencimiento; }
     public Integer getDiasGracia() { return diasGracia == null ? 0 : diasGracia; }
+    public BigDecimal getPorcentajePagoMinimo() { return porcentajePagoMinimo == null ? BigDecimal.ZERO : porcentajePagoMinimo; }
+    public BigDecimal getImporteMinimoPago() { return importeMinimoPago == null ? BigDecimal.ZERO.setScale(2) : importeMinimoPago; }
     public PerfilFinanciero getPerfilFinanciero() { return perfilFinanciero; }
     public InstitucionFinanciera getInstitucionFinanciera() { return institucionFinanciera; }
     public Moneda getMoneda() { return moneda; }
@@ -58,14 +62,47 @@ public class Cuenta extends EntidadAuditable {
     public void cambiarInstitucionFinanciera(InstitucionFinanciera institucionFinanciera) { this.institucionFinanciera = Objects.requireNonNull(institucionFinanciera, "La institución financiera es obligatoria"); }
     public void cambiarMoneda(Moneda moneda) { this.moneda = Objects.requireNonNull(moneda, "La moneda es obligatoria"); }
 
-    public void configurarDatosCredito(BigDecimal limiteCredito, Integer diaCierre, Integer diaVencimiento) { configurarDatosCredito(limiteCredito, diaCierre, diaVencimiento, 0); }
+    public void configurarDatosCredito(BigDecimal limiteCredito, Integer diaCierre, Integer diaVencimiento) {
+        configurarDatosCredito(limiteCredito, diaCierre, diaVencimiento, 0, BigDecimal.ZERO, BigDecimal.ZERO);
+    }
 
-    public void configurarDatosCredito(BigDecimal limiteCredito, Integer diaCierre, Integer diaVencimiento, Integer diasGracia) {
+    public void configurarDatosCredito(BigDecimal limiteCredito,
+                                       Integer diaCierre,
+                                       Integer diaVencimiento,
+                                       Integer diasGracia) {
+        configurarDatosCredito(
+                limiteCredito, diaCierre, diaVencimiento, diasGracia,
+                BigDecimal.ZERO, BigDecimal.ZERO
+        );
+    }
+
+    public void configurarDatosCredito(BigDecimal limiteCredito,
+                                       Integer diaCierre,
+                                       Integer diaVencimiento,
+                                       Integer diasGracia,
+                                       BigDecimal porcentajePagoMinimo,
+                                       BigDecimal importeMinimoPago) {
         this.limiteCredito = Objects.requireNonNull(limiteCredito, "El límite de crédito es obligatorio");
         if (limiteCredito.signum() <= 0) throw new IllegalArgumentException("El límite de crédito debe ser positivo");
         this.diaCierre = validarDia(diaCierre, "El día de cierre es obligatorio");
         this.diaVencimiento = validarDia(diaVencimiento, "El día de vencimiento es obligatorio");
         this.diasGracia = validarDiasGracia(diasGracia);
+        this.porcentajePagoMinimo = validarPorcentajePagoMinimo(porcentajePagoMinimo);
+        this.importeMinimoPago = validarImporteMinimoPago(importeMinimoPago);
+    }
+
+    public BigDecimal calcularPagoMinimo(BigDecimal deuda) {
+        Objects.requireNonNull(deuda, "La deuda es obligatoria");
+        if (deuda.signum() < 0) {
+            throw new IllegalArgumentException("La deuda no puede ser negativa");
+        }
+        if (deuda.signum() == 0) {
+            return BigDecimal.ZERO.setScale(2);
+        }
+        BigDecimal porcentaje = deuda
+                .multiply(getPorcentajePagoMinimo())
+                .divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
+        return porcentaje.max(getImporteMinimoPago()).min(deuda).setScale(2, java.math.RoundingMode.HALF_UP);
     }
 
     public CicloFacturacion calcularCicloFacturacion(LocalDate fechaConsumo) {
@@ -115,6 +152,22 @@ public class Cuenta extends EntidadAuditable {
         Objects.requireNonNull(dia, mensaje);
         if (dia < 1 || dia > 31) throw new IllegalArgumentException("El día debe estar entre 1 y 31");
         return dia;
+    }
+
+    private BigDecimal validarPorcentajePagoMinimo(BigDecimal porcentaje) {
+        Objects.requireNonNull(porcentaje, "El porcentaje de pago mínimo es obligatorio");
+        if (porcentaje.signum() < 0 || porcentaje.compareTo(new BigDecimal("100")) > 0) {
+            throw new IllegalArgumentException("El porcentaje de pago mínimo debe estar entre 0 y 100");
+        }
+        return porcentaje.setScale(2);
+    }
+
+    private BigDecimal validarImporteMinimoPago(BigDecimal importe) {
+        Objects.requireNonNull(importe, "El importe mínimo de pago es obligatorio");
+        if (importe.signum() < 0) {
+            throw new IllegalArgumentException("El importe mínimo de pago no puede ser negativo");
+        }
+        return importe.setScale(2);
     }
 
     private int validarDiasGracia(Integer diasGracia) {
