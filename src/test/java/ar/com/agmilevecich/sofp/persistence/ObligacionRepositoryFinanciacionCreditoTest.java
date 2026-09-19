@@ -166,7 +166,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
             );
             obligacion.liquidar(tipoCambio);
             Financiacion financiacion = obligacion.crearFinanciacion(
-                    LocalDateTime.of(2026, 9, 26).toLocalDate(),
+                    java.time.LocalDate.of(2026, 9, 26),
                     new BigDecimal("150000.00"),
                     fixture.ars,
                     null,
