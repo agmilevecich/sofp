@@ -262,29 +262,30 @@ public class Obligacion extends EntidadAuditable {
         }
 
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
-        if (pago.compareTo(financiacion.getSaldoCapital()) > 0) {
-            throw new IllegalArgumentException("El pago no puede superar el saldo de la financiación");
+        if (pago.compareTo(financiacion.getSaldoTotalPendiente()) > 0) {
+            throw new IllegalArgumentException("El pago no puede superar el saldo total de la financiación");
         }
 
         if (financiacion.esSobreLiquidacion()) {
             if (!financiacion.getMoneda().equals(getMonedaLiquidacion())) {
                 throw new IllegalArgumentException("La financiación sobre liquidación debe utilizar la moneda de liquidación");
             }
-        } else {
+        } else if (pago.compareTo(saldoPendiente) > 0) {
+            throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
+        }
+
+        BigDecimal capitalPagado = financiacion.registrarPago(pago);
+        if (!financiacion.esSobreLiquidacion() && capitalPagado.signum() > 0) {
             if (!cuotas.isEmpty()) {
                 Cuota cuota = cuotas.stream()
                         .filter(c -> c.getFechaVencimiento().plusDays(1).equals(financiacion.getFechaInicio()))
                         .findFirst()
                         .orElseThrow(() -> new IllegalArgumentException("La financiación no corresponde a una cuota de esta obligación"));
-                cuota.registrarPago(pago);
+                cuota.registrarPago(capitalPagado);
             }
-            if (pago.compareTo(saldoPendiente) > 0) {
-                throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
-            }
-            saldoPendiente = saldoPendiente.subtract(pago);
+            saldoPendiente = saldoPendiente.subtract(capitalPagado);
         }
 
-        financiacion.registrarPago(pago);
         estado = estaCompletamentePagada() ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
     }
 
