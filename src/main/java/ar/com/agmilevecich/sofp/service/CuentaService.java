@@ -6,9 +6,9 @@ import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
-import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
@@ -22,15 +22,25 @@ public class CuentaService {
 
     private final CuentaRepository cuentaRepository;
     private final MovimientoRepository movimientoRepository;
+    private final ObligacionRepository obligacionRepository;
     private final EntityManager entityManager;
 
     public CuentaService(
             CuentaRepository cuentaRepository,
             MovimientoRepository movimientoRepository,
             EntityManager entityManager) {
+        this(cuentaRepository, movimientoRepository, new ObligacionRepository(entityManager), entityManager);
+    }
+
+    public CuentaService(
+            CuentaRepository cuentaRepository,
+            MovimientoRepository movimientoRepository,
+            ObligacionRepository obligacionRepository,
+            EntityManager entityManager) {
 
         this.cuentaRepository = Objects.requireNonNull(cuentaRepository, "El CuentaRepository es obligatorio");
         this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El MovimientoRepository es obligatorio");
+        this.obligacionRepository = Objects.requireNonNull(obligacionRepository, "El ObligacionRepository es obligatorio");
         this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
     }
 
@@ -38,7 +48,24 @@ public class CuentaService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
         validarPropietario(usuarioId, cuenta);
-        return cuentaRepository.guardar(cuenta);
+        EntityTransaction transaction = entityManager.getTransaction();
+        boolean transactionIniciadaPorElServicio = !transaction.isActive();
+        try {
+            if (transactionIniciadaPorElServicio) {
+                transaction.begin();
+            }
+            Cuenta registrada = cuentaRepository.guardar(cuenta);
+            entityManager.flush();
+            if (transactionIniciadaPorElServicio) {
+                transaction.commit();
+            }
+            return registrada;
+        } catch (RuntimeException e) {
+            if (transactionIniciadaPorElServicio && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     public Optional<Cuenta> buscarPorId(Long id, Long usuarioId) {
@@ -68,17 +95,34 @@ public class CuentaService {
     public BigDecimal calcularSaldo(Long cuentaId, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
-        obtenerCuentaAutorizada(cuentaId, usuarioId);
+        Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
 
-        return calcularSaldoInterno(cuentaId);
+        return calcularSaldoInterno(cuentaId, cuenta.getMoneda());
+    }
+
+    public BigDecimal calcularCreditoDisponible(Long cuentaId, Long usuarioId) {
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
+
+        if (cuenta.getTipoCuenta() != TipoCuenta.TARJETA_CREDITO) {
+            throw new IllegalArgumentException("La cuenta no es una tarjeta de crédito");
+        }
+
+        BigDecimal utilizado = obligacionRepository.sumarCreditoUtilizadoPorCuenta(
+                cuentaId,
+                cuenta.getMoneda()
+        );
+
+        return cuenta.calcularCreditoDisponible(utilizado);
     }
 
     public List<EvolucionSaldoCuenta> obtenerEvolucionSaldo(Long cuentaId, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
-        obtenerCuentaAutorizada(cuentaId, usuarioId);
+        Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
 
-        return obtenerEvolucionSaldoInterno(cuentaId);
+        return obtenerEvolucionSaldoInterno(cuentaId, cuenta.getMoneda());
     }
 
     /* API interna de compatibilidad para tests y coordinación interna del paquete. */
@@ -103,34 +147,47 @@ public class CuentaService {
 
     BigDecimal calcularSaldo(Long cuentaId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
-        return calcularSaldoInterno(cuentaId);
+        Optional<Cuenta> cuenta = cuentaRepository.buscarPorId(cuentaId);
+        if (cuenta.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return calcularSaldoInterno(cuentaId, cuenta.get().getMoneda());
     }
 
     List<EvolucionSaldoCuenta> obtenerEvolucionSaldo(Long cuentaId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
-        return obtenerEvolucionSaldoInterno(cuentaId);
+        Cuenta cuenta = obtenerCuenta(cuentaId);
+        return obtenerEvolucionSaldoInterno(cuentaId, cuenta.getMoneda());
     }
 
-    private BigDecimal calcularSaldoInterno(Long cuentaId) {
+    private BigDecimal calcularSaldoInterno(Long cuentaId, Moneda moneda) {
         List<Movimiento> movimientos = movimientoRepository.listarPorCuenta(cuentaId);
         BigDecimal saldo = BigDecimal.ZERO;
         for (Movimiento movimiento : movimientos) {
-            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
+            if (!Objects.equals(movimiento.getMoneda(), moneda)) {
+                continue;
+            }
+            if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO) {
+            } else if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO) {
                 saldo = saldo.subtract(movimiento.getImporte());
             }
         }
         return saldo;
     }
 
-    private List<EvolucionSaldoCuenta> obtenerEvolucionSaldoInterno(Long cuentaId) {
+    private List<EvolucionSaldoCuenta> obtenerEvolucionSaldoInterno(Long cuentaId, Moneda moneda) {
         List<EvolucionSaldoCuenta> evolucion = new ArrayList<>();
         BigDecimal saldo = BigDecimal.ZERO;
         for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
-            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
+            if (!Objects.equals(movimiento.getMoneda(), moneda)) {
+                continue;
+            }
+            if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO) {
                 saldo = saldo.add(movimiento.getImporte());
-            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO) {
+            } else if (movimiento.getTipoMovimiento() == ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO) {
                 saldo = saldo.subtract(movimiento.getImporte());
             }
             evolucion.add(new EvolucionSaldoCuenta(movimiento.getFechaHora(), saldo));
@@ -177,6 +234,7 @@ public class CuentaService {
         validarIds(cuentaId, usuarioId);
         Objects.requireNonNull(tipoCuenta, "El tipo de cuenta es obligatorio");
         Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
+        validarCambioTipoCuenta(cuenta, tipoCuenta);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
@@ -213,6 +271,9 @@ public class CuentaService {
         validarIds(cuentaId, usuarioId);
         Objects.requireNonNull(moneda, "La moneda es obligatoria");
         Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
+        if (!Objects.equals(cuenta.getMoneda().getId(), moneda.getId()) && tieneMovimientos(cuentaId)) {
+            throw new IllegalArgumentException("No se puede cambiar la moneda de una cuenta con movimientos financieros");
+        }
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
@@ -239,7 +300,7 @@ public class CuentaService {
             transaction.commit();
             return actualizada;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
+            if (transaction.isActive()) entityManager.getTransaction().rollback();
             throw e;
         }
     }
@@ -282,6 +343,23 @@ public class CuentaService {
     private void validarIds(Long cuentaId, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+    }
+
+    private boolean tieneMovimientos(Long cuentaId) {
+        return !movimientoRepository.listarPorCuenta(cuentaId).isEmpty();
+    }
+
+    private void validarCambioTipoCuenta(Cuenta cuenta, TipoCuenta nuevoTipo) {
+        if (cuenta.getTipoCuenta() == nuevoTipo) {
+            return;
+        }
+        if (tieneMovimientos(cuenta.getId())) {
+            throw new IllegalArgumentException("No se puede cambiar el tipo de una cuenta con movimientos financieros");
+        }
+        if (cuenta.getTipoCuenta() == TipoCuenta.TARJETA_CREDITO
+                || nuevoTipo == TipoCuenta.TARJETA_CREDITO) {
+            throw new IllegalArgumentException("El tipo de tarjeta de crédito debe gestionarse con su configuración específica");
+        }
     }
 
     public void eliminar(Long cuentaId, Long usuarioId) {

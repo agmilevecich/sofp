@@ -2,9 +2,13 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
@@ -17,22 +21,51 @@ import java.util.Optional;
 public class MovimientoService {
 
     private final MovimientoRepository movimientoRepository;
+    private final ObligacionRepository obligacionRepository;
     private final EntityManager entityManager;
 
     public MovimientoService(EntityManager entityManager, MovimientoRepository movimientoRepository) {
+        this(entityManager, movimientoRepository, new ObligacionRepository(entityManager));
+    }
+
+    public MovimientoService(EntityManager entityManager,
+                             MovimientoRepository movimientoRepository,
+                             ObligacionRepository obligacionRepository) {
         this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
         this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El repositorio de movimientos es obligatorio");
+        this.obligacionRepository = Objects.requireNonNull(obligacionRepository, "El repositorio de obligaciones es obligatorio");
+    }
+
+    EntityManager entityManager() {
+        return entityManager;
     }
 
     public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
                                 BigDecimal importe, LocalDateTime fechaHora, String descripcion,
                                 Long usuarioId) {
+        return registrar(cuenta, categoria, cuenta.getMoneda(), tipoMovimiento, importe, fechaHora, descripcion, null, usuarioId);
+    }
+
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, TipoMovimiento tipoMovimiento,
+                                BigDecimal importe, LocalDateTime fechaHora, String descripcion,
+                                FormaPago formaPago, Long usuarioId) {
+        return registrar(cuenta, categoria, cuenta.getMoneda(), tipoMovimiento, importe, fechaHora, descripcion, formaPago, usuarioId);
+    }
+
+    /** Registra un movimiento indicando expresamente su moneda económica. */
+    public Movimiento registrar(Cuenta cuenta, Categoria categoria, Moneda moneda,
+                                TipoMovimiento tipoMovimiento, BigDecimal importe,
+                                LocalDateTime fechaHora, String descripcion,
+                                FormaPago formaPago, Long usuarioId) {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         validarPropietario(usuarioId, cuenta);
         validarPropietario(usuarioId, categoria);
         validarPerfilFinanciero(cuenta, categoria);
         if (!cuenta.isActiva()) throw new IllegalArgumentException("No se puede registrar un movimiento en una cuenta desactivada");
-        return guardar(new Movimiento(cuenta, categoria, tipoMovimiento, importe, fechaHora, descripcion));
+        Objects.requireNonNull(moneda, "La moneda es obligatoria");
+        validarSaldoDisponible(cuenta, moneda, tipoMovimiento, importe, formaPago, null);
+        validarCreditoDisponible(cuenta, moneda, tipoMovimiento, importe, formaPago, null);
+        return guardar(new Movimiento(cuenta, categoria, moneda, tipoMovimiento, importe, fechaHora, descripcion, formaPago));
     }
 
     public Optional<Movimiento> buscarPorId(Long id, Long usuarioId) {
@@ -108,6 +141,9 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
+        validarSaldoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
+        validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.modificarTipoMovimiento(tipoMovimiento));
     }
 
@@ -115,6 +151,9 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(importe, "El importe es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
+        validarSaldoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
+        validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         return modificar(movimiento, () -> movimiento.cambiarImporte(importe));
     }
 
@@ -122,12 +161,14 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
         return modificar(movimiento, () -> movimiento.cambiarFechaHora(fechaHora));
     }
 
     public void eliminar(Long movimientoId, Long usuarioId) {
         validarIds(movimientoId, usuarioId);
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoSinObligacion(movimiento);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
@@ -140,7 +181,19 @@ public class MovimientoService {
         }
     }
 
+    private void validarMovimientoSinObligacion(Movimiento movimiento) {
+        if (obligacionRepository.buscarPorMovimientoOrigen(movimiento.getId()).isPresent()) {
+            throw new IllegalArgumentException("No se puede modificar ni eliminar un movimiento que es origen de una obligación");
+        }
+    }
+
     private Movimiento guardar(Movimiento movimiento) {
+        if (entityManager.getTransaction().isActive()) {
+            Movimiento guardado = movimientoRepository.guardar(movimiento);
+            entityManager.flush();
+            return guardado;
+        }
+
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
@@ -167,6 +220,69 @@ public class MovimientoService {
             if (transaction.isActive()) transaction.rollback();
             throw e;
         }
+    }
+
+    private void validarSaldoDisponible(Cuenta cuenta, Moneda moneda, TipoMovimiento tipoMovimiento,
+                                        BigDecimal importe, FormaPago formaPago,
+                                        Movimiento movimientoActual) {
+        if (tipoMovimiento != TipoMovimiento.EGRESO || formaPago == FormaPago.TARJETA_CREDITO) return;
+
+        BigDecimal saldoDisponible = calcularSaldo(cuenta.getId(), moneda);
+        if (movimientoActual != null && Objects.equals(movimientoActual.getMoneda(), moneda)) {
+            if (movimientoActual.getTipoMovimiento() == TipoMovimiento.INGRESO) {
+                saldoDisponible = saldoDisponible.subtract(movimientoActual.getImporte());
+            } else if (movimientoActual.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimientoActual.getFormaPago() != FormaPago.TARJETA_CREDITO) {
+                saldoDisponible = saldoDisponible.add(movimientoActual.getImporte());
+            }
+        }
+
+        if (saldoDisponible.compareTo(importe) < 0) {
+            throw new IllegalArgumentException("No hay fondos suficientes en la cuenta para registrar el egreso");
+        }
+    }
+
+    private void validarCreditoDisponible(Cuenta cuenta, Moneda moneda,
+                                          TipoMovimiento tipoMovimiento, BigDecimal importe,
+                                          FormaPago formaPago, Movimiento movimientoActual) {
+        if (cuenta.getTipoCuenta() != TipoCuenta.TARJETA_CREDITO
+                || tipoMovimiento != TipoMovimiento.EGRESO
+                || formaPago != FormaPago.TARJETA_CREDITO
+                || !Objects.equals(cuenta.getMoneda(), moneda)) {
+            return;
+        }
+
+        BigDecimal creditoUtilizado = calcularCreditoUtilizado(cuenta, moneda);
+        if (movimientoActual != null
+                && movimientoActual.getTipoMovimiento() == TipoMovimiento.EGRESO
+                && movimientoActual.getFormaPago() == FormaPago.TARJETA_CREDITO
+                && Objects.equals(movimientoActual.getMoneda(), moneda)) {
+            creditoUtilizado = creditoUtilizado.subtract(movimientoActual.getImporte());
+        }
+
+        BigDecimal creditoDisponible = cuenta.calcularCreditoDisponible(creditoUtilizado);
+
+        if (creditoDisponible.compareTo(importe) < 0) {
+            throw new IllegalArgumentException("El consumo supera el crédito disponible de la tarjeta");
+        }
+    }
+
+    private BigDecimal calcularCreditoUtilizado(Cuenta cuenta, Moneda moneda) {
+        return obligacionRepository.sumarCreditoUtilizadoPorCuenta(cuenta.getId(), moneda);
+    }
+
+    private BigDecimal calcularSaldo(Long cuentaId, Moneda moneda) {
+        BigDecimal saldo = BigDecimal.ZERO;
+        for (Movimiento movimiento : movimientoRepository.listarPorCuenta(cuentaId)) {
+            if (!Objects.equals(movimiento.getMoneda(), moneda)) continue;
+            if (movimiento.getTipoMovimiento() == TipoMovimiento.INGRESO) {
+                saldo = saldo.add(movimiento.getImporte());
+            } else if (movimiento.getTipoMovimiento() == TipoMovimiento.EGRESO
+                    && movimiento.getFormaPago() != FormaPago.TARJETA_CREDITO) {
+                saldo = saldo.subtract(movimiento.getImporte());
+            }
+        }
+        return saldo;
     }
 
     private void validarPerfilFinanciero(Cuenta cuenta, Categoria categoria) {

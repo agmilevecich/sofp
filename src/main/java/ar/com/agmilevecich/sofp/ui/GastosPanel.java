@@ -1,0 +1,395 @@
+package ar.com.agmilevecich.sofp.ui;
+
+import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
+import ar.com.agmilevecich.sofp.service.CategoriaService;
+import ar.com.agmilevecich.sofp.service.CuentaService;
+import ar.com.agmilevecich.sofp.service.GastoService;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+/** Formulario especializado para registrar gastos como movimientos de egreso. */
+public class GastosPanel extends JPanel {
+
+    private final GastoService gastoService;
+    private final CuentaService cuentaService;
+    private final CategoriaService categoriaService;
+    private final Long perfilFinancieroId;
+    private final Long usuarioId;
+    private final Runnable onGastoRegistrado;
+    private final JComboBox<Cuenta> cuentaComboBox;
+    private final JComboBox<Categoria> categoriaComboBox;
+    private final JComboBox<FormaPago> formaPagoComboBox;
+    private final JComboBox<Integer> cuotasComboBox;
+    private final JTextField importeField;
+    private final DatePicker fechaField;
+    private final JTextField descripcionField;
+    private final JButton registrarButton;
+
+    /** Constructor del shell sin contexto de usuario. */
+    public GastosPanel() {
+        gastoService = null;
+        cuentaService = null;
+        categoriaService = null;
+        perfilFinancieroId = null;
+        usuarioId = null;
+        onGastoRegistrado = null;
+        cuentaComboBox = new JComboBox<>();
+        categoriaComboBox = new JComboBox<>();
+        formaPagoComboBox = new JComboBox<>();
+        cuotasComboBox = crearCuotasComboBox();
+        importeField = new JTextField(16);
+        fechaField = crearFechaPicker();
+        descripcionField = new JTextField(16);
+        registrarButton = new JButton("Registrar gasto");
+        construirFormulario();
+        registrarButton.setEnabled(false);
+    }
+
+    public GastosPanel(GastoService gastoService,
+                       CuentaService cuentaService,
+                       CategoriaService categoriaService,
+                       Long perfilFinancieroId,
+                       Long usuarioId) {
+        this(gastoService, cuentaService, categoriaService,
+                perfilFinancieroId, usuarioId, null);
+    }
+
+    public GastosPanel(GastoService gastoService,
+                       CuentaService cuentaService,
+                       CategoriaService categoriaService,
+                       Long perfilFinancieroId,
+                       Long usuarioId,
+                       Runnable onGastoRegistrado) {
+        this.gastoService = Objects.requireNonNull(gastoService, "El GastoService es obligatorio");
+        this.cuentaService = Objects.requireNonNull(cuentaService, "El CuentaService es obligatorio");
+        this.categoriaService = Objects.requireNonNull(categoriaService, "El CategoriaService es obligatorio");
+        this.perfilFinancieroId = Objects.requireNonNull(
+                perfilFinancieroId,
+                "El id del perfil financiero es obligatorio"
+        );
+        this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        this.onGastoRegistrado = onGastoRegistrado;
+
+        cuentaComboBox = new JComboBox<>();
+        categoriaComboBox = new JComboBox<>();
+        formaPagoComboBox = new JComboBox<>();
+        cuotasComboBox = crearCuotasComboBox();
+        importeField = new JTextField(16);
+        fechaField = crearFechaPicker();
+        descripcionField = new JTextField(16);
+        registrarButton = new JButton("Registrar gasto");
+
+        configurarRenderers();
+        cargarCuentas();
+        cargarCategorias();
+        cargarFormasPago();
+        formaPagoComboBox.addActionListener(evento -> actualizarCuentasSegunFormaPago());
+        construirFormulario();
+        registrarButton.addActionListener(evento -> registrar());
+    }
+
+    public JComboBox<Cuenta> getCuentaComboBox() {
+        return cuentaComboBox;
+    }
+
+    public JComboBox<Categoria> getCategoriaComboBox() {
+        return categoriaComboBox;
+    }
+
+    public JComboBox<FormaPago> getFormaPagoComboBox() {
+        return formaPagoComboBox;
+    }
+
+    public JComboBox<Integer> getCuotasComboBox() {
+        return cuotasComboBox;
+    }
+
+    public JTextField getImporteField() {
+        return importeField;
+    }
+
+    public DatePicker getFechaField() {
+        return fechaField;
+    }
+
+    public JTextField getDescripcionField() {
+        return descripcionField;
+    }
+
+    public JButton getRegistrarButton() {
+        return registrarButton;
+    }
+
+    /** Recarga las cuentas activas del perfil sin reconstruir el formulario. */
+    public void actualizarCuentas() {
+        if (cuentaService == null) {
+            return;
+        }
+        cargarCuentas();
+    }
+
+    private JComboBox<Integer> crearCuotasComboBox() {
+        JComboBox<Integer> comboBox = new JComboBox<>();
+        for (int cantidad = 1; cantidad <= 12; cantidad++) {
+            comboBox.addItem(cantidad);
+        }
+        comboBox.setSelectedItem(1);
+        return comboBox;
+    }
+
+    private DatePicker crearFechaPicker() {
+        DatePickerSettings dateSettings = new DatePickerSettings(new Locale("es", "AR"));
+        dateSettings.setAllowEmptyDates(true);
+        dateSettings.setFirstDayOfWeek(DayOfWeek.SUNDAY);
+        dateSettings.setFormatForDatesCommonEra("dd/MM/uuuu");
+        dateSettings.setFormatForDatesBeforeCommonEra("dd/MM/uuuu");
+        DatePicker datePicker = new DatePicker(dateSettings);
+        datePicker.setDate(LocalDate.now());
+        return datePicker;
+    }
+
+    private void configurarRenderers() {
+        cuentaComboBox.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    javax.swing.JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setText(value instanceof Cuenta cuenta ? cuenta.getNombre() : "Seleccione una cuenta");
+                return this;
+            }
+        });
+        categoriaComboBox.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    javax.swing.JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setText(value instanceof Categoria categoria ? categoria.getNombre() : "Seleccione una categoría");
+                return this;
+            }
+        });
+        formaPagoComboBox.setRenderer(new javax.swing.DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    javax.swing.JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setText(valorFormaPago((FormaPago) value));
+                return this;
+            }
+        });
+    }
+
+    private String valorFormaPago(FormaPago formaPago) {
+        if (formaPago == null) return "Seleccione una forma de pago";
+        return switch (formaPago) {
+            case EFECTIVO -> "Efectivo";
+            case TRANSFERENCIA -> "Transferencia";
+            case TARJETA_DEBITO -> "Tarjeta de débito";
+            case TARJETA_CREDITO -> "Tarjeta de crédito";
+            case QR -> "QR";
+        };
+    }
+
+    private void cargarCuentas() {
+        cuentaComboBox.removeAllItems();
+        List<Cuenta> cuentas = cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId);
+        for (Cuenta cuenta : cuentas) {
+            if (cuenta.isActiva()) {
+                cuentaComboBox.addItem(cuenta);
+            }
+        }
+        cuentaComboBox.setSelectedItem(null);
+    }
+
+    private void actualizarCuentasSegunFormaPago() {
+        if (cuentaService == null) {
+            return;
+        }
+
+        FormaPago formaPago = (FormaPago) formaPagoComboBox.getSelectedItem();
+        if (formaPago != FormaPago.TARJETA_CREDITO) {
+            cargarCuentas();
+            return;
+        }
+
+        cuentaComboBox.removeAllItems();
+        List<Cuenta> cuentas = cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId);
+        for (Cuenta cuenta : cuentas) {
+            if (cuenta.isActiva() && cuenta.getTipoCuenta() == TipoCuenta.TARJETA_CREDITO) {
+                cuentaComboBox.addItem(cuenta);
+            }
+        }
+        cuentaComboBox.setSelectedItem(null);
+    }
+
+    private void cargarCategorias() {
+        List<Categoria> categorias = categoriaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId);
+        for (Categoria categoria : categorias) {
+            if (categoria.isActiva()) {
+                categoriaComboBox.addItem(categoria);
+            }
+        }
+        categoriaComboBox.setSelectedItem(null);
+    }
+
+    private void cargarFormasPago() {
+        for (FormaPago formaPago : FormaPago.values()) {
+            formaPagoComboBox.addItem(formaPago);
+        }
+        formaPagoComboBox.setSelectedItem(null);
+    }
+
+    private void construirFormulario() {
+        setLayout(new BorderLayout(12, 12));
+        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        JLabel titulo = new JLabel("Gastos");
+        titulo.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+        add(titulo, BorderLayout.NORTH);
+
+        JPanel panelFormulario = new JPanel(new GridBagLayout());
+        panelFormulario.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createEtchedBorder(),
+                "Registrar gasto",
+                TitledBorder.LEFT,
+                TitledBorder.TOP
+        ));
+
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.insets = new Insets(6, 6, 6, 6);
+        constraints.anchor = GridBagConstraints.WEST;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.weightx = 0.0;
+
+        agregarCampo(panelFormulario, new JLabel("Cuenta"), cuentaComboBox, constraints, 0, 0);
+        agregarCampo(panelFormulario, new JLabel("Categoría"), categoriaComboBox, constraints, 2, 0);
+        agregarCampo(panelFormulario, new JLabel("Forma de pago"), formaPagoComboBox, constraints, 0, 1);
+        agregarCampo(panelFormulario, new JLabel("Importe"), importeField, constraints, 2, 1);
+        agregarCampo(panelFormulario, new JLabel("Cuotas"), cuotasComboBox, constraints, 0, 2);
+        agregarCampo(panelFormulario, new JLabel("Fecha"), fechaField, constraints, 2, 2);
+        agregarCampo(panelFormulario, new JLabel("Descripción"), descripcionField, constraints, 0, 3);
+
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        constraints.gridwidth = 4;
+        constraints.weightx = 1.0;
+        constraints.anchor = GridBagConstraints.EAST;
+        panelFormulario.add(registrarButton, constraints);
+
+        add(panelFormulario, BorderLayout.NORTH);
+    }
+
+    private void agregarCampo(JPanel panel,
+                              JLabel etiqueta,
+                              java.awt.Component campo,
+                              GridBagConstraints constraints,
+                              int columna,
+                              int fila) {
+        constraints.gridx = columna;
+        constraints.gridy = fila;
+        constraints.gridwidth = 1;
+        constraints.weightx = 0.0;
+        panel.add(etiqueta, constraints);
+
+        constraints.gridx = columna + 1;
+        constraints.weightx = 1.0;
+        panel.add(campo, constraints);
+    }
+
+    private void registrar() {
+        try {
+            registrarGasto();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Gasto registrado correctamente",
+                    "Gastos",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            limpiarFormulario();
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "No se pudo registrar el gasto",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    /** Ejecuta el alta sin diálogos, para permitir su prueba desde la UI. */
+    void registrarGasto() {
+        Cuenta cuenta = (Cuenta) Objects.requireNonNull(
+                cuentaComboBox.getSelectedItem(),
+                "La cuenta es obligatoria"
+        );
+        Categoria categoria = (Categoria) Objects.requireNonNull(
+                categoriaComboBox.getSelectedItem(),
+                "La categoría es obligatoria"
+        );
+        FormaPago formaPago = (FormaPago) Objects.requireNonNull(
+                formaPagoComboBox.getSelectedItem(),
+                "La forma de pago es obligatoria"
+        );
+        java.math.BigDecimal importe = new java.math.BigDecimal(importeField.getText().trim());
+        LocalDate fecha = Objects.requireNonNull(
+                fechaField.getDate(),
+                "La fecha es obligatoria"
+        );
+        LocalDateTime fechaHora = LocalDateTime.of(fecha, LocalTime.now());
+        String descripcion = descripcionField.getText().trim();
+        Integer cantidadCuotas = (Integer) Objects.requireNonNull(
+                cuotasComboBox.getSelectedItem(),
+                "La cantidad de cuotas es obligatoria"
+        );
+
+        gastoService.registrar(cuenta, categoria, importe, fechaHora, descripcion, formaPago, usuarioId, cantidadCuotas);
+
+        if (onGastoRegistrado != null) {
+            onGastoRegistrado.run();
+        }
+    }
+
+    private void limpiarFormulario() {
+        importeField.setText("");
+        fechaField.setDate(LocalDate.now());
+        descripcionField.setText("");
+        cuentaComboBox.setSelectedItem(null);
+        categoriaComboBox.setSelectedItem(null);
+        formaPagoComboBox.setSelectedItem(null);
+        cuotasComboBox.setSelectedItem(1);
+    }
+}

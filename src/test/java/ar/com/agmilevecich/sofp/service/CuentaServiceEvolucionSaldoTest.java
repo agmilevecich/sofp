@@ -51,8 +51,11 @@ class CuentaServiceEvolucionSaldoTest {
 
     @Test
     void deberiaDevolverListaVaciaCuandoLaCuentaNoTieneMovimientos() {
+        DatosCuenta datos = crearDatosCuenta("evolucion.sin.movimientos");
+        persistir(datos);
+
         List<EvolucionSaldoCuenta> evolucion =
-                cuentaService.obtenerEvolucionSaldo(999L);
+                cuentaService.obtenerEvolucionSaldo(datos.cuenta().getId());
 
         assertTrue(evolucion.isEmpty());
     }

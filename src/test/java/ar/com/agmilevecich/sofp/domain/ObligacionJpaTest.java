@@ -1,0 +1,300 @@
+package ar.com.agmilevecich.sofp.domain;
+
+import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ObligacionJpaTest {
+
+    @Test
+    void deberiaPersistirObligacionConMovimientoDeOrigen() {
+
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.obligacion.jpa@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil = new PerfilFinanciero(
+                "Personal",
+                usuario
+        );
+
+        InstitucionFinanciera banco = new InstitucionFinanciera(
+                "Banco Santander",
+                TipoInstitucionFinanciera.BANCO
+        );
+
+        Moneda moneda = new Moneda(
+                "ARS",
+                "Peso Argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        Cuenta cuenta = new Cuenta(
+                "Visa",
+                perfil,
+                banco,
+                moneda,
+                new BigDecimal("500000.00"),
+                15,
+                10
+        );
+
+        Categoria categoria = new Categoria(
+                "Supermercado",
+                perfil
+        );
+
+        Movimiento movimiento = new Movimiento(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("10000.00"),
+                LocalDateTime.of(2026, 9, 4, 12, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO
+        );
+
+        Obligacion obligacion = new Obligacion(movimiento);
+
+        em.getTransaction().begin();
+        em.persist(usuario);
+        em.persist(perfil);
+        em.persist(banco);
+        em.persist(moneda);
+        em.persist(cuenta);
+        em.persist(categoria);
+        em.persist(movimiento);
+        em.persist(obligacion);
+        em.getTransaction().commit();
+
+        Long id = obligacion.getId();
+
+        em.clear();
+
+        Obligacion recuperada = em.find(Obligacion.class, id);
+
+        assertNotNull(recuperada);
+        assertEquals(new BigDecimal("10000.00"), recuperada.getImporteOriginal());
+        assertEquals(new BigDecimal("10000.00"), recuperada.getSaldoPendiente());
+        assertEquals(EstadoObligacion.PENDIENTE, recuperada.getEstado());
+        assertEquals(movimiento.getId(), recuperada.getMovimientoOrigen().getId());
+
+        em.close();
+        JpaTestManager.close();
+    }
+
+    @Test
+    void deberiaPersistirObligacionConSusCuotas() {
+
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.obligacion.cuotas.jpa@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil = new PerfilFinanciero(
+                "Personal",
+                usuario
+        );
+
+        InstitucionFinanciera banco = new InstitucionFinanciera(
+                "Banco Santander",
+                TipoInstitucionFinanciera.BANCO
+        );
+
+        Moneda moneda = new Moneda(
+                "ARS",
+                "Peso Argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        Cuenta tarjeta = new Cuenta(
+                "Visa",
+                perfil,
+                banco,
+                moneda,
+                new BigDecimal("500000.00"),
+                15,
+                10
+        );
+
+        Categoria categoria = new Categoria(
+                "Supermercado",
+                perfil
+        );
+
+        Movimiento movimiento = new Movimiento(
+                tarjeta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("120000.00"),
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Compra en cuotas",
+                FormaPago.TARJETA_CREDITO
+        );
+
+        Obligacion obligacion = new Obligacion(movimiento);
+        obligacion.generarCuotas(3);
+
+        em.getTransaction().begin();
+        em.persist(usuario);
+        em.persist(perfil);
+        em.persist(banco);
+        em.persist(moneda);
+        em.persist(tarjeta);
+        em.persist(categoria);
+        em.persist(movimiento);
+        em.persist(obligacion);
+        em.getTransaction().commit();
+
+        Long id = obligacion.getId();
+
+        em.clear();
+
+        Obligacion recuperada = em.find(Obligacion.class, id);
+
+        assertNotNull(recuperada);
+        assertEquals(3, recuperada.getCuotas().size());
+        assertEquals(1, recuperada.getCuotas().get(0).getNumero());
+        assertEquals(new BigDecimal("40000.00"), recuperada.getCuotas().get(0).getImporteOriginal());
+        assertEquals(new BigDecimal("40000.00"), recuperada.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(EstadoObligacion.PENDIENTE, recuperada.getCuotas().get(0).getEstado());
+        assertEquals(LocalDate.of(2026, 8, 16), recuperada.getCuotas().get(0).getFechaInicioCiclo());
+        assertEquals(LocalDate.of(2026, 9, 15), recuperada.getCuotas().get(0).getFechaCierreCiclo());
+        assertEquals(LocalDate.of(2026, 10, 12), recuperada.getCuotas().get(0).getFechaVencimiento());
+        assertEquals(2, recuperada.getCuotas().get(1).getNumero());
+        assertEquals(3, recuperada.getCuotas().get(2).getNumero());
+        assertEquals(new BigDecimal("120000.00"), recuperada.getCuotas().stream()
+                .map(Cuota::getImporteOriginal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        assertSame(recuperada, recuperada.getCuotas().get(0).getObligacion());
+
+        em.close();
+        JpaTestManager.close();
+    }
+
+    @Test
+    void deberiaPersistirMonedasOriginalYLiquidacionEnConsumoMultidivisa() {
+
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        Usuario usuario = new Usuario(
+                "Ariel",
+                "Milevecich",
+                "ariel.obligacion.multidivisa.jpa@test.com",
+                "hash"
+        );
+
+        PerfilFinanciero perfil = new PerfilFinanciero(
+                "Personal",
+                usuario
+        );
+
+        InstitucionFinanciera banco = new InstitucionFinanciera(
+                "Banco Santander",
+                TipoInstitucionFinanciera.BANCO
+        );
+
+        Moneda ars = new Moneda(
+                "ARS",
+                "Peso Argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        Moneda usd = new Moneda(
+                "USD",
+                "Dólar Estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        Cuenta tarjeta = new Cuenta(
+                "Visa ARS",
+                perfil,
+                banco,
+                ars,
+                new BigDecimal("2000000.00"),
+                15,
+                10
+        );
+
+        Categoria categoria = new Categoria(
+                "Compra exterior",
+                perfil
+        );
+
+        Movimiento movimiento = new Movimiento(
+                tarjeta,
+                categoria,
+                usd,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 15, 12, 0),
+                "Consumo USD en tarjeta ARS",
+                FormaPago.TARJETA_CREDITO
+        );
+
+        Obligacion obligacion = new Obligacion(movimiento);
+
+        TipoCambio tipoCambioCierre = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 15, 23, 59),
+                "Cotizacion cierre"
+        );
+        obligacion.valorarCierre(tipoCambioCierre);
+
+        em.getTransaction().begin();
+        em.persist(usuario);
+        em.persist(perfil);
+        em.persist(banco);
+        em.persist(ars);
+        em.persist(usd);
+        em.persist(tarjeta);
+        em.persist(categoria);
+        em.persist(movimiento);
+        em.persist(tipoCambioCierre);
+        em.persist(obligacion);
+        em.getTransaction().commit();
+
+        Long id = obligacion.getId();
+        Long tipoCambioId = tipoCambioCierre.getId();
+
+        em.clear();
+
+        Obligacion recuperada = em.find(Obligacion.class, id);
+
+        assertNotNull(recuperada);
+        assertEquals(new BigDecimal("100.00"), recuperada.getImporteOriginal());
+        assertEquals(new BigDecimal("100.00"), recuperada.getSaldoPendiente());
+        assertEquals(usd.getId(), recuperada.getMonedaOriginal().getId());
+        assertEquals(ars.getId(), recuperada.getMonedaLiquidacion().getId());
+        assertEquals(new BigDecimal("150000.00"), recuperada.getImporteValorizacionCierre());
+        assertNotNull(recuperada.getTipoCambioCierre());
+        assertEquals(tipoCambioId, recuperada.getTipoCambioCierre().getId());
+        assertEquals(0, new BigDecimal("1500.00").compareTo(recuperada.getTipoCambioCierre().getCotizacion()));
+        assertNull(recuperada.getImporteLiquidacion());
+        assertEquals(movimiento.getId(), recuperada.getMovimientoOrigen().getId());
+
+        em.close();
+        JpaTestManager.close();
+    }
+}

@@ -2,18 +2,30 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
+import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.TipoMoneda;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
+import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -25,6 +37,7 @@ class CategoriaServiceTest {
 
     @BeforeEach
     void setUp() {
+        JpaTestManager.close();
         entityManager = JpaTestManager.createEntityManager();
         categoriaRepository = new CategoriaRepository(entityManager);
         categoriaService = new CategoriaService(entityManager, categoriaRepository);
@@ -155,9 +168,62 @@ class CategoriaServiceTest {
         Categoria categoria = crearCategoriaPersistida(usuario, "Alimentación");
         Long categoriaId = categoria.getId();
 
-        categoriaService.eliminar(categoriaId, usuario.getId());
+        assertTrue(categoriaService.eliminar(categoriaId, usuario.getId()));
 
         assertTrue(categoriaService.buscarPorId(categoriaId).isEmpty());
+    }
+
+    @Test
+    void deberiaDesactivarCategoriaConMovimientosYConservarElHistorial() {
+        Usuario usuario = crearUsuario("eliminar.con.movimientos");
+        PerfilFinanciero perfil = crearPerfil(usuario, "Perfil principal");
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco de Prueba",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Moneda moneda = new Moneda(
+                "ARS",
+                "Peso argentino",
+                2,
+                TipoMoneda.FIAT
+        );
+        Cuenta cuenta = new Cuenta(
+                "Cuenta principal",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucion,
+                moneda
+        );
+        Categoria categoria = new Categoria("Alimentación", perfil);
+        Movimiento movimiento = new Movimiento(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("1000.00"),
+                LocalDateTime.of(2026, 9, 4, 10, 0),
+                "Movimiento histórico"
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usuario);
+        entityManager.persist(perfil);
+        entityManager.persist(institucion);
+        entityManager.persist(moneda);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria);
+        entityManager.persist(movimiento);
+        entityManager.getTransaction().commit();
+
+        assertFalse(categoriaService.eliminar(categoria.getId(), usuario.getId()));
+        entityManager.clear();
+
+        Categoria conservada = categoriaService.buscarPorId(categoria.getId()).orElseThrow();
+        assertFalse(conservada.isActiva());
+
+        List<Movimiento> movimientos = new MovimientoRepository(entityManager)
+                .listarPorCategoria(categoria.getId());
+        assertEquals(1, movimientos.size());
+        assertEquals(movimiento.getId(), movimientos.get(0).getId());
     }
 
     @Test

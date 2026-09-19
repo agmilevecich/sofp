@@ -1,0 +1,375 @@
+package ar.com.agmilevecich.sofp.service;
+
+import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.Cuenta;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoCuenta;
+import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.TipoMoneda;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
+import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
+import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class MovimientoServiceSaldoTest {
+
+    private EntityManager entityManager;
+    private MovimientoService movimientoService;
+    private CuentaService cuentaService;
+
+    private Usuario usuario;
+    private PerfilFinanciero perfilFinanciero;
+    private Cuenta cuenta;
+    private Categoria categoria;
+
+    @BeforeEach
+    void setUp() {
+
+        entityManager = JpaTestManager.createEntityManager();
+
+        MovimientoRepository movimientoRepository =
+                new MovimientoRepository(entityManager);
+
+        movimientoService =
+                new MovimientoService(
+                        entityManager,
+                        movimientoRepository
+                );
+
+        cuentaService =
+                new CuentaService(
+                        new CuentaRepository(entityManager),
+                        movimientoRepository,
+                        entityManager
+                );
+
+        usuario = new Usuario(
+                "Juan",
+                "Pérez",
+                "juan.saldo." + System.nanoTime() + "@test.com",
+                "hash"
+        );
+
+        perfilFinanciero =
+                new PerfilFinanciero(
+                        "Perfil principal",
+                        usuario
+                );
+
+        usuario.agregarPerfilFinanciero(perfilFinanciero);
+
+        InstitucionFinanciera institucionFinanciera =
+                new InstitucionFinanciera(
+                        "Banco de Prueba",
+                        TipoInstitucionFinanciera.BANCO
+                );
+
+        Moneda moneda =
+                new Moneda(
+                        "ARS",
+                        "Peso argentino",
+                        2,
+                        TipoMoneda.FIAT
+                );
+
+        cuenta =
+                new Cuenta(
+                        "Cuenta principal",
+                        TipoCuenta.CAJA_AHORRO,
+                        perfilFinanciero,
+                        institucionFinanciera,
+                        moneda
+                );
+
+        categoria =
+                new Categoria(
+                        "Alimentación",
+                        perfilFinanciero
+                );
+
+        entityManager.getTransaction().begin();
+
+        entityManager.persist(usuario);
+        entityManager.persist(perfilFinanciero);
+        entityManager.persist(institucionFinanciera);
+        entityManager.persist(moneda);
+        entityManager.persist(cuenta);
+        entityManager.persist(categoria);
+
+        entityManager.getTransaction().commit();
+    }
+
+    @AfterEach
+    void tearDown() {
+
+        if (entityManager != null
+                && entityManager.isOpen()) {
+
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+
+            entityManager.close();
+        }
+
+        JpaTestManager.close();
+    }
+
+    @Test
+    void deberiaRechazarEgresoCuandoSuperaElSaldoDisponible() {
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 7, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("100.01"),
+                        LocalDateTime.of(2026, 9, 7, 11, 0),
+                        "Egreso sin saldo suficiente",
+                        usuario.getId()
+                )
+        );
+    }
+
+    @Test
+    void deberiaPermitirEgresoExactamenteIgualAlSaldoDisponible() {
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 7, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
+        Movimiento egreso =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("100.00"),
+                        LocalDateTime.of(2026, 9, 7, 11, 0),
+                        "Egreso por saldo exacto",
+                        usuario.getId()
+                );
+
+        assertNotNull(egreso);
+        assertEquals(
+                new BigDecimal("100.00"),
+                egreso.getImporte()
+        );
+        assertEquals(
+                TipoMovimiento.EGRESO,
+                egreso.getTipoMovimiento()
+        );
+    }
+
+    @Test
+    void deberiaPermitirAumentarImporteDeEgresoHastaElSaldoDisponible() {
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 7, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
+        Movimiento egreso =
+                movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("40.00"),
+                        LocalDateTime.of(2026, 9, 7, 11, 0),
+                        "Egreso original",
+                        usuario.getId()
+                );
+
+        Movimiento actualizado =
+                movimientoService.modificarImporte(
+                        egreso.getId(),
+                        usuario.getId(),
+                        new BigDecimal("100.00")
+                );
+
+        assertNotNull(actualizado);
+        assertEquals(
+                new BigDecimal("100.00"),
+                actualizado.getImporte()
+        );
+    }
+
+    @Test
+    void deberiaIgnorarEgresoConTarjetaDeCreditoAlCalcularSaldoDeCuenta() {
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 7, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("30.00"),
+                LocalDateTime.of(2026, 9, 7, 11, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("100.00"),
+                cuentaService.calcularSaldo(cuenta.getId(), usuario.getId())
+        );
+    }
+
+    @Test
+    void deberiaCalcularCreditoDisponibleDeTarjeta() {
+        Cuenta tarjeta = crearTarjeta();
+
+        movimientoService.registrar(
+                tarjeta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("150000.00"),
+                LocalDateTime.of(2026, 9, 9, 10, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("350000.00"),
+                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+        );
+    }
+
+    @Test
+    void deberiaPermitirConsumirElLimiteExactoDeLaTarjeta() {
+        Cuenta tarjeta = crearTarjeta();
+
+        movimientoService.registrar(
+                tarjeta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("500000.00"),
+                LocalDateTime.of(2026, 9, 9, 10, 0),
+                "Compra por límite exacto",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("0.00"),
+                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+        );
+    }
+
+    @Test
+    void deberiaRechazarConsumoQueSupereElLimiteDeLaTarjeta() {
+        Cuenta tarjeta = crearTarjeta();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        tarjeta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("500000.01"),
+                        LocalDateTime.of(2026, 9, 9, 10, 0),
+                        "Compra superior al límite",
+                        FormaPago.TARJETA_CREDITO,
+                        usuario.getId()
+                )
+        );
+    }
+
+    @Test
+    void deberiaIgnorarConsumoEnMonedaDiferenteParaElCreditoDisponible() {
+        Cuenta tarjeta = crearTarjeta();
+        Moneda usd = new Moneda(
+                "USD",
+                "Dólar estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.getTransaction().commit();
+
+        movimientoService.registrar(
+                tarjeta,
+                categoria,
+                usd,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("600.00"),
+                LocalDateTime.of(2026, 9, 9, 11, 0),
+                "Compra en dólares",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        assertEquals(
+                new BigDecimal("500000.00"),
+                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+        );
+    }
+
+    private Cuenta crearTarjeta() {
+        Cuenta tarjeta = new Cuenta(
+                "Visa Santander",
+                perfilFinanciero,
+                entityManager.find(InstitucionFinanciera.class, entityManager.createQuery(
+                        "SELECT i FROM InstitucionFinanciera i", InstitucionFinanciera.class
+                ).setMaxResults(1).getSingleResult().getId()),
+                cuenta.getMoneda(),
+                new BigDecimal("500000.00"),
+                10,
+                25
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(tarjeta);
+        entityManager.getTransaction().commit();
+        return tarjeta;
+    }
+}

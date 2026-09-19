@@ -51,6 +51,27 @@ public class UsuarioService {
         return usuarioRepository.buscarPorEmail(email);
     }
 
+    public Optional<Usuario> autenticar(
+            String email,
+            String password) {
+
+        Objects.requireNonNull(
+                email,
+                "El email del usuario es obligatorio"
+        );
+        Objects.requireNonNull(
+                password,
+                "La contraseña es obligatoria"
+        );
+
+        return usuarioRepository.buscarPorEmail(email)
+                .filter(Usuario::isActivo)
+                .filter(usuario -> PasswordService.matches(
+                        password,
+                        usuario.getPasswordHash()
+                ));
+    }
+
     public List<Usuario> listarTodos() {
 
         return usuarioRepository.listarTodos();

@@ -1,54 +1,197 @@
 # SOFP — Estado actual
 
-> Documento de continuidad. El código y los tests actuales son la fuente de verdad técnica.
+> Documento de continuidad. La fuente de verdad técnica es el código, los tests y los commits actuales; `docs/` es documentación auxiliar.
 
-## Estado verificado — 31/08/2026
+## Actualización de continuidad — 18/09/2026 20:35 -03:00
 
-**Rama estable:** `main`  
-**Último commit integrado:** `75d0a18` — `docs: actualizar contexto tras cierre de seguridad`  
-**Feature integrada:** `feature/seguridad-aislamiento-datos` mediante fast-forward.  
-**GitHub y Bitbucket:** sincronizados en `75d0a18`.  
-**Working tree local:** limpio.
+Esta sección supersede cualquier estado, validación o próximo paso anterior cuando exista contradicción.
 
-## Validación final de seguridad
+### Estado Git
 
-La auditoría transversal de seguridad y aislamiento de datos quedó completada antes de integrar la feature en `main`.
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- No se realizó merge a `main`.
+- Último commit de código/documentación funcional antes de esta actualización: `0da28cc` — `test: cubrir estado de financiacion`.
+- La rama contiene el bloque de financiación de tarjeta implementado y validado.
 
-Suite general ejecutada localmente el **31/08/2026**:
+### Último bloque implementado — Financiación
 
-- Tests run: **512**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **15:25 min**
+Se incorporó la entidad persistente `Financiacion`, relacionada con `Obligacion`.
 
-`AislamientoDatosServiceTest`: **7/7 en verde**.
+Implementado:
 
-La primera ejecución de ese test tuvo 7 fallos por datos de prueba inválidos: el código de moneda generado excedía `VARCHAR(10)`. Se corrigió el fixture; la segunda ejecución quedó 7/7 en verde.
+- `Financiacion` con obligación, fecha de inicio, capital original y saldo de capital.
+- Validación de obligación, fecha e importe positivo.
+- Registro de pagos sobre el capital sin permitir superar el saldo.
+- Estados derivados `estaPendiente()` y `estaCancelada()`.
+- Relación `Obligacion -> financiaciones` con cascade y orphan removal.
+- Persistencia y recuperación de financiaciones.
+- Inclusión de `Financiacion` en la unidad de persistencia de tests.
+- Cobertura específica de la entidad y de su persistencia.
+- Cobertura de los estados pendiente/cancelada.
 
-## Seguridad implementada
+Commits del bloque:
 
-- `PerfilFinancieroService`: lecturas y alta protegidas por usuario propietario.
-- `CuentaService`: lecturas por ID, listados por perfil, saldo, evolución y alta protegidos por usuario.
-- `CategoriaService`: lectura por ID, listado por perfil y alta protegidos por usuario.
-- `MovimientoService`: lectura por ID, listados por cuenta/categoría y alta protegidos por usuario.
-- `PosicionActivoService`: consulta pública protegida por propietario del perfil.
-- `CarteraActivoService`: posiciones, valorizaciones, reporte, composición y movimientos protegidos por propietario del perfil.
-- `OperacionFinancieraService`: transferencia, compra y venta exigen usuario y validan propiedad de los recursos involucrados.
-- Se cerraron caminos internos que podían permitir saltar validaciones públicas.
-- `AislamientoDatosServiceTest` cubre recursos propios y ajenos y los principales caminos de lectura/creación.
+- `8252cff` — `feat: agregar relación de financiaciones a obligaciones`.
+- `7994754` — `feat: agregar entidad de financiacion de tarjeta`.
+- `f001f19` — `test: cubrir entidad de financiacion de tarjeta`.
+- `a76a949` — `test: cubrir persistencia de financiacion`.
+- `7c0c4aa` — `fix: importar financiacion en test de obligaciones`.
+- `1a6a071` — `fix: incluir financiacion en unidad de persistencia de tests`.
+- `8a4cd0a` — `feat: exponer estado de financiacion`.
+- `0da28cc` — `test: cubrir estado de financiacion`.
 
-## Estado de la interfaz
+### Validación más reciente informada por el usuario
 
-La implementación de Swing todavía no comenzó.
+`FinanciacionTest`:
 
-La siguiente etapa es **Fase 8 — Interfaz de usuario**, partiendo del estado real del código y servicios existentes, sin asumir clases de UI no implementadas.
+- 9/9 tests.
+- 0 failures.
+- 0 errors.
+- 0 skipped.
+- `BUILD SUCCESS`.
+- Finalizado: 18/09/2026 20:32:49 -03:00.
 
-## Próximo paso
+Suite completa más reciente conocida:
 
-1. Reconstruir desde `main` la estructura actual de `src/main/java`, especialmente paquetes y servicios disponibles para UI.
-2. Revisar tests y convenciones existentes antes de crear clases Swing.
-3. Definir la arquitectura mínima de la interfaz.
-4. Implementar el primer bloque Swing con cambios pequeños y verificables.
-5. Mantener documentación y tests actualizados durante la etapa.
+- `mvn test`: 779/779.
+- 0 failures.
+- 0 errors.
+- 0 skipped.
+- `BUILD SUCCESS`.
+- Finalizada: 18/09/2026 15:04:44 -03:00.
+
+La suite completa de 779 fue ejecutada antes de la validación específica de `FinanciacionTest`. No se registra una nueva suite completa posterior como resultado informado.
+
+### Aislamiento JPA/H2
+
+Se corrigió el aislamiento de `ObligacionRepositoryTest`: los tests cierran ahora el contexto JPA mediante `JpaTestManager.close()`, evitando reutilizar un `EntityManagerFactory` entre tests y los consiguientes conflictos de claves únicas en H2.
+
+### Estado funcional de tarjetas
+
+Resuelto y validado:
+
+- consumos con obligación;
+- ciclos, cuotas, vencimiento y gracia;
+- valorización histórica de cierre;
+- liquidación histórica explícita;
+- pagos parciales y totales;
+- tarjetas multidivisa;
+- cálculo y liberación de crédito utilizado;
+- selección histórica de cotización para liquidación;
+- persistencia de financiación como modelo de dominio.
+
+Todavía NO está implementado el flujo completo de negocio:
+
+**pago parcial del resumen → creación automática de financiación → incorporación al siguiente resumen → intereses/cargos.**
+
+### Decisiones vigentes para financiación
+
+Por ahora `Financiacion` representa únicamente capital financiado. No se implementaron todavía intereses, TNA, punitorios, CFT ni refinanciación.
+
+La regla de negocio acordada para el próximo bloque es: si un pago de tarjeta deja capital impago del resumen, esa parte podrá convertirse en financiación para el siguiente ciclo. La fecha de inicio propuesta es el día siguiente al vencimiento, pero debe verificarse contra el flujo actual de `PagoTarjetaService` antes de codificarla.
+
+No inventar tasas ni fórmulas. La financiación de intereses se diseñará posteriormente con histórico de tasas, base diaria, fechas efectivas y redondeo explícitos.
+
+### Próximo paso exacto
+
+Antes de modificar código:
+
+1. revisar el estado actual de `PagoTarjetaService`;
+2. revisar `Obligacion`, `Financiacion` y los tests de pagos parciales;
+3. determinar exactamente cómo queda `saldoPendiente) después de un pago parcial;
+4. definir el punto mínimo donde el servicio crea la financiación;
+5. agregar primero tests para pago parcial → financiación;
+6. agregar test de pago total → sin financiación;
+7. validar persistencia si corresponde;
+8. ejecutar tests específicos y relacionados antes de una nueva suite completa.
+
+El próximo cambio debe ser mínimo y no debe introducir todavía intereses ni tasas.
+
+### Regla de continuidad
+
+En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo.
+
+No asumir resultados locales no informados. No modificar `main` automáticamente.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026
+
+### Primer bloque de financiación conectado
+
+Se implementó el primer flujo funcional de financiación sin introducir intereses ni tasas:
+
+- Obligacion calcula el saldo pendiente correspondiente a un ciclo concreto.
+- ObligacionService.financiarSaldoImpago(...) crea la financiación únicamente después del vencimiento efectivo.
+- Con cuotas, se financia solamente el saldo impago de la cuota vencida; no se incluyen cuotas futuras.
+- La fecha de inicio de la financiación es el día siguiente al vencimiento del ciclo.
+- La operación es idempotente para el mismo ciclo.
+- Las financiaciones pasan a ser visibles en el ciclo siguiente mediante ObligacionRepository.listarPorCuentaYCierreCiclo(...).
+
+Tests agregados en ObligacionServiceCierreTest para creación, pago total, fecha de vencimiento, cuotas futuras, persistencia, idempotencia y aparición en el ciclo siguiente.
+
+No se registra todavía una ejecución local de estos nuevos tests. Deben ejecutarse después de sincronizar la rama.
+
+### Próximo bloque
+
+El flujo todavía no está completo como medio de pago: PagoTarjetaService aún no deriva los pagos posteriores al vencimiento hacia Financiacion. Tampoco están implementados intereses, TNA, punitorios, CFT ni refinanciación.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:00 -03:00
+
+### Pagos sobre financiación conectados
+
+Se completó la siguiente parte del flujo:
+
+**financiación vencida → pago posterior → reducción del saldo de financiación y de la deuda subyacente.**
+
+PagoTarjetaService ahora detecta una financiación pendiente cuya fecha de inicio ya alcanzó la fecha del pago. En moneda original:
+
+- el pago se aplica primero a la financiación;
+- si sobra importe, continúa sobre la siguiente deuda/cuota;
+- la cuota que originó la financiación queda actualizada junto con el saldo de la obligación;
+- si la obligación ya tiene liquidación en otra moneda, el pago queda limitado al saldo de la financiación en su moneda original para evitar mezclar monedas.
+
+Se agregaron tests para pago sobre financiación y distribución del excedente sobre la cuota siguiente.
+
+La validación local de estos cambios todavía no fue ejecutada.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:44 -03:00
+
+Esta actualización supersede cualquier validación anterior cuando exista contradicción. La fuente de verdad sigue siendo el código, los tests y GitHub.
+
+### Estado actual confirmado
+
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- No se realizó merge a `main`.
+- HEAD previo al cierre documental: `ba2027168bcd172517990cd996aefaad5294da76` — `test: corregir saldo total de obligacion`.
+- Comparación con `main`: 927 commits por delante, 0 por detrás.
+- Suite completa: **797/797**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite finalizada: **19/09/2026 11:44:00 -03:00**, 16:28 min.
+- `PagoTarjetaServiceTest`: **15/15**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `ObligacionServiceCierreTest`: **15/15**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Validación Git local informada por el usuario: `git diff` limpio, `git diff --check` sin observaciones y `git status` limpio.
+
+### Bloque funcional cerrado
+
+Queda validado el flujo básico de financiación de tarjeta:
+
+**pago parcial → vencimiento → creación de Financiacion → pago posterior → cancelación de financiación → excedente sobre cuota siguiente cuando corresponde.**
+
+La coordinación entre financiación y obligación está cubierta por tests y la suite completa no presenta regresiones.
+
+No se implementan todavía intereses, TNA, punitorios, CFT ni refinanciación.
+
+### Regla multidivisa pendiente
+
+No existe conversión implícita entre la moneda original de una financiación y una liquidación posterior en otra moneda. Antes de modificar este comportamiento debe definirse explícitamente la regla de conversión, la cotización aplicable y su trazabilidad. No inventar una conversión por inferencia.
+
+### Próximo paso
+
+Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde GitHub y revisar código, tests y reglas de negocio relacionadas con el caso multidivisa financiación + liquidación. El siguiente cambio debe ser mínimo y comenzar por tests de la regla de negocio definida.
+
+### Continuidad
+
+No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.

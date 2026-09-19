@@ -1,55 +1,138 @@
 # SOFP — Contexto para continuar con ChatGPT
 
+## Estado — 15/09/2026
+
 La fuente de verdad es el código, Git y los tests actuales; `docs/` es documentación auxiliar y puede quedar desactualizada. Antes de proponer cambios, reconstruir siempre el estado desde GitHub.
 
-## Estado — 01/09/2026
+**Rama estable:** `main` → `a4be85913847200cb70976d5266d9cbba10b3100`.
+**Rama de trabajo:** `feature/swing-shell`.
+**Último commit de código validado:** `e95585e043290eebb5789f2b628b1edcef8a7344` — `test: cubrir pagos multidivisa en PagoTarjetaService`.
 
-**Rama estable:** `main`.  
-Último commit integrado: `96f3d99` — `docs: cerrar historial de build de seguridad`.  
-La rama `feature/seguridad-aislamiento-datos` fue integrada en `main` mediante fast-forward.
+## Validación general
 
-**Rama de trabajo:** `feature/swing-shell`.  
-**Último commit funcional previo al bloque documental:** `6621615` — `test: cubrir navegacion de reportes`.  
-La rama está **52 commits por delante de `main` y 0 commits por detrás**.
+Suite general actual: **718/718**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **15/09/2026 20:05:19 -03:00**.
 
-## Shell Swing — Fase 8
+## Estado actual
 
-El bloque actual está implementado en `feature/swing-shell` con `MainFrame`, `HeaderPanel`, `SidebarPanel`, `InicioPanel`, `CuentasPanel`, `MovimientosPanel`, `InversionesPanel`, `ReportesPanel`, `StatusBarPanel` y `ui.Main`.
+La Fase Swing está integrada. Gastos con tarjeta generan movimiento + obligación + cuotas. `PagoTarjetaService` coordina pagos reales y la UI de obligaciones está integrada.
 
-`MainFrame` usa `CardLayout` y navega entre Inicio, Cuentas, Movimientos, Inversiones y Reportes. La UI integra los servicios existentes respetando el contexto de usuario/perfil y no duplica reglas de negocio. `ReportesPanel` utiliza el reporte de movimientos de inversión existente en `CarteraActivoService`.
+La multidivisa general respeta la moneda de cada saldo y movimiento.
 
-## Seguridad
+El modelo de obligación multidivisa conserva moneda original, moneda de liquidación y `TipoCambio` histórico. `saldoLiquidacion` permite aplicar pagos en la moneda de liquidación sin alterar el saldo original.
 
-La auditoría transversal de seguridad y aislamiento de datos quedó completada e integrada en `main`, cubriendo perfiles, cuentas, categorías, movimientos, posiciones/cartera y operaciones financieras, con autorización por propietario y cobertura transversal en `AislamientoDatosServiceTest`.
+`PagoTarjetaService` usa el saldo liquidado cuando existe y exige que la cuenta pagadora esté en la moneda de liquidación. No realiza conversiones implícitas.
 
-## Tests
+## Próximo bloque
 
-Suite general ejecutada localmente el **01/09/2026**:
+1. Revisar `git diff`, `git diff --check` y `git status`.
+2. Definir el impacto de consumos extranjeros sobre crédito disponible.
+3. Diseñar tests de esa regla antes de modificar el cálculo.
+4. Completar persistencia/UI del pago multidivisa.
 
-- Tests run: **529**
-- Failures: **0**
-- Errors: **0**
-- Skipped: **0**
-- `BUILD SUCCESS`
-- Duración: **14:25 min**
-- Finalización: **19:25:53 -03:00**
+## Regla de continuidad
 
-Validación específica de reportes: `ReportesPanelTest` **3/3**, `MainFrameReportesTest` **1/1**, total **4/4**. La suite relacionada de UI quedó en **13/13**.
+Antes de cada cambio: revisar implementación, clases relacionadas, repositorios, tests y reglas de negocio. Luego cambio mínimo → tests específicos → relacionados → suite → diff → diff-check → status → documentación.
 
-Una ejecución previa había detectado artefactos compilados obsoletos en `target`; la limpieza de Maven permitió la ejecución definitiva de **529/529** sin modificar código ni tests por ese motivo.
+No modificar `main`, no asumir resultados locales no informados y no considerar terminado un bloque solo porque compila.
 
-Surefire mostró durante ejecuciones de UI un mensaje de espera posterior a `System.exit(0)`, pero el build terminó con `BUILD SUCCESS`, sin failures ni errors. No se modificó código especulativamente por ese mensaje.
 
-## Continuidad
+## Actualización de continuidad — cierre 17/09/2026 22:51 -03:00
 
-- No hacer merge automático a `main`.
-- No crear nuevas ramas para continuar este trabajo; seguir sobre `feature/swing-shell`.
-- Antes de modificar una clase, revisar implementación actual, clases relacionadas, servicios, repositorios, tests y reglas de negocio.
-- Mantener cambios pequeños y descriptivos.
-- No duplicar lógica de negocio en la UI.
-- Después de cambios importantes: tests específicos, tests relacionados y suite completa cuando corresponda; revisar diff, `git diff --check` y `git status`.
-- Ante una nueva sesión de SOFP, reconstruir el estado desde GitHub: código → tests → commits → `main` → documentación.
+Esta sección supersede cualquier validación anterior de este documento cuando haya contradicción.
 
-## Próximo paso
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD actual: `b4a9bc6b4f64ce191f90eb9e4dd4291356e0574c` — `test: corregir expectativas de valorizacion multidivisa`.
+- `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
+- Comparación GitHub: 847 commits por delante de `main`, 0 por detrás. No se realizó merge a `main`.
+- Último bloque: corrección de expectativas de tests para reflejar que la valorización de cierre de obligaciones financiadas se almacena en la cuota; no se modificó producción en este último commit.
+- Validación específica posterior: 8/8 tests verdes, 0 failures, 0 errors, `BUILD SUCCESS`, informada por el usuario.
+- Validación final: `mvn test` con **769/769 tests**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **17/09/2026 22:51:16 -03:00**, informada por el usuario.
+- Validación Git local final: `git diff` vacío, `git diff --check` sin observaciones y `git status` limpio; rama local al día con `bitbucket/feature/swing-shell`, informado por el usuario.
 
-El alcance actual del shell Swing queda validado. El próximo trabajo debe definirse como un nuevo bloque funcional de Fase 8, partiendo del estado real de `feature/swing-shell`.
+### Punto exacto para retomar
+
+El cálculo de crédito multidivisa, la valorización histórica de cierre, la liquidación explícita, los pagos antes/después de liquidar y el cierre iniciado desde `ObligacionesPanel` están cubiertos por tests. El siguiente bloque debe comenzar con una revisión de `ObligacionService` y sus clases relacionadas para definir el flujo de cierre de resumen de tarjeta siguiendo reglas bancarias reales. Antes de modificar código se debe contrastar la cotización de cierre de consumos extranjeros con normativa BCRA y documentación vigente de la entidad financiera de referencia. No inventar una regla de negocio por inferencia.
+
+### Regla de continuidad para la próxima sesión
+
+Reconstruir desde GitHub antes de cualquier cambio: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que la documentación histórica representa el estado actual si contradice código o tests.
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 18/09/2026 11:15 -03:00
+
+Esta sección supersede cualquier estado, validación o próximo paso anterior de este documento cuando exista contradicción. La fuente de verdad sigue siendo el código, los tests y GitHub.
+
+### Estado Git
+
+- Rama de trabajo: `feature/swing-shell`.
+- `main`: `a4be85913847200cb70976d5266d9cbba10b3100`.
+- HEAD de trabajo antes de esta actualización documental: `4a027006e05cfabc1d203dbb84e3712e855aa19d` — `test: corregir fecha histórica de liquidación en sábado`.
+- La auditoría de tarjetas quedó validada sin modificar `main`.
+
+### Auditoría de tarjetas de crédito cerrada
+
+La auditoría del flujo de tarjetas se completó respetando la separación entre consumo, valorización de cierre, liquidación y pago.
+
+- Día hábil: se utiliza una cotización del mismo día y hasta el instante de liquidación.
+- Sábado/domingo: se utiliza la última cotización disponible del viernes anterior.
+- Día hábil sin cotización aplicable: no se reutiliza silenciosamente una cotización de días anteriores.
+- Los feriados no se infieren: requieren un calendario bancario explícito.
+- No se permiten liquidaciones anteriores al consumo ni fechas de liquidación futuras.
+
+La valorización de cierre continúa siendo independiente de la liquidación efectiva. El consumo conserva su moneda original y la obligación conserva además la moneda de liquidación.
+
+### Tests informados por el usuario
+
+- `TipoCambioRepositoryTest` + `ObligacionServiceLiquidacionTest`: **16/16**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **18/09/2026 10:58:33 -03:00**.
+- Bloque relacionado de tarjetas: **26/26**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **18/09/2026 11:01:22 -03:00**.
+- `mvn test`: **775/775**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **18/09/2026 11:15:25 -03:00**, 12:42 min.
+- `git diff`: limpio; `git diff --check`: sin observaciones; `git status`: working tree limpio; rama local al día con `bitbucket/feature/swing-shell`.
+
+### Punto exacto para retomar
+
+La auditoría de tarjetas está cerrada y validada. No hay un fallo pendiente en el comportamiento auditado. El próximo trabajo funcional, si se continúa con tarjetas, debe partir de una revisión del flujo de cierre de resumen y de cualquier regla de negocio todavía no implementada, manteniendo la normativa BCRA como referencia y sin inventar reglas por inferencia.
+
+Pendientes conocidos: calendario bancario/feriados, fecha efectiva separada del movimiento, financiación avanzada, UI específica de tarjetas, política de eliminación de cuentas con historial, `Clock`, migraciones formales y estabilización de arranque H2 antes del futuro fast-forward a `main`.
+
+### Regla de continuidad
+
+En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que una documentación histórica representa el estado actual si contradice código o tests.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:44 -03:00
+
+Esta actualización supersede cualquier validación anterior cuando exista contradicción. La fuente de verdad sigue siendo el código, los tests y GitHub.
+
+### Estado actual confirmado
+
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- No se realizó merge a `main`.
+- HEAD previo al cierre documental: `ba2027168bcd172517990cd996aefaad5294da76` — `test: corregir saldo total de obligacion`.
+- Comparación con `main`: 927 commits por delante, 0 por detrás.
+- Suite completa: **797/797**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite finalizada: **19/09/2026 11:44:00 -03:00**, 16:28 min.
+- `PagoTarjetaServiceTest`: **15/15**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `ObligacionServiceCierreTest`: **15/15**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Validación Git local informada por el usuario: `git diff` limpio, `git diff --check` sin observaciones y `git status` limpio.
+
+### Bloque funcional cerrado
+
+Queda validado el flujo básico de financiación de tarjeta:
+
+**pago parcial → vencimiento → creación de Financiacion → pago posterior → cancelación de financiación → excedente sobre cuota siguiente cuando corresponde.**
+
+La coordinación entre financiación y obligación está cubierta por tests y la suite completa no presenta regresiones.
+
+No se implementan todavía intereses, TNA, punitorios, CFT ni refinanciación.
+
+### Regla multidivisa pendiente
+
+No existe conversión implícita entre la moneda original de una financiación y una liquidación posterior en otra moneda. Antes de modificar este comportamiento debe definirse explícitamente la regla de conversión, la cotización aplicable y su trazabilidad. No inventar una conversión por inferencia.
+
+### Próximo paso
+
+Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde GitHub y revisar código, tests y reglas de negocio relacionadas con el caso multidivisa financiación + liquidación. El siguiente cambio debe ser mínimo y comenzar por tests de la regla de negocio definida.
+
+### Continuidad
+
+No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.

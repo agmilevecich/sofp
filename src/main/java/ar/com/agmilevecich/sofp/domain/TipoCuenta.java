@@ -33,5 +33,10 @@ public enum TipoCuenta {
     /**
      * Cuenta destinada a la administración de criptoactivos.
      */
-    CRIPTOACTIVOS
+    CRIPTOACTIVOS,
+
+    /**
+     * Cuenta especializada que representa una tarjeta de crédito.
+     */
+    TARJETA_CREDITO
 }
