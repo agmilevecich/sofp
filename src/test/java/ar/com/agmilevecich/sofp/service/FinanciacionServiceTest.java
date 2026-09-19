@@ -89,6 +89,7 @@ class FinanciacionServiceTest {
             }
             entityManager.close();
         }
+        JpaTestManager.close();
     }
 
     @Test
