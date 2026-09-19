@@ -137,6 +137,7 @@ public class PagoTarjetaService {
             PagoTarjeta pagoTarjeta = new PagoTarjeta(
                     obligacion,
                     financiacionPendiente,
+                    null,
                     movimientoPago,
                     cuentaPagadora,
                     categoria,
