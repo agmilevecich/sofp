@@ -228,3 +228,30 @@ PagoTarjetaService ya reconoce financiaciones pendientes y aplica los pagos post
 Pendiente inmediato: completar y validar el comportamiento multidivisa cuando una obligación financiada también tiene liquidación en otra moneda. No asumir conversiones implícitas.
 
 Siguen fuera de este bloque intereses, TNA, punitorios, CFT y refinanciación.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:44 -03:00
+
+Esta sección supersede las validaciones anteriores cuando exista contradicción.
+
+### Cierre del bloque de financiación de tarjeta
+
+- Rama: `feature/swing-shell`.
+- HEAD: `ba2027168bcd172517990cd996aefaad5294da76` — `test: corregir saldo total de obligacion`.
+- Comparación con `main`: **927 commits por delante, 0 por detrás**.
+- `PagoTarjetaServiceTest`: **15/15** verde.
+- `ObligacionServiceCierreTest`: **15/15** verde.
+- Suite completa: **797/797** verde, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Validación Git local: `git diff` limpio, `git diff --check` sin observaciones y `git status` limpio.
+
+El bloque de financiación básica de tarjeta queda validado.
+
+### Pendiente funcional inmediato
+
+No se deben agregar todavía intereses, TNA, punitorios, CFT ni refinanciación.
+
+El próximo análisis, si se continúa con tarjetas, debe concentrarse en el caso multidivisa en el que una obligación ya tiene una financiación en moneda original y posteriormente existe una liquidación en otra moneda. Antes de modificar código debe definirse explícitamente la regla de conversión y su trazabilidad; no se debe asumir una conversión implícita.
+
+### Continuidad
+
+Para la próxima sesión: reconstruir nuevamente desde GitHub antes de cualquier cambio y priorizar código y tests sobre documentación histórica.
