@@ -211,7 +211,7 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("0.00"), obligacion.getFinanciaciones().get(0).getSaldoCapital());
         assertEquals(new BigDecimal("0.00"), obligacion.getCuotas().get(0).getSaldoPendiente());
         assertEquals(new BigDecimal("20000.00"), obligacion.getCuotas().get(1).getSaldoPendiente());
-        assertEquals(new BigDecimal("60.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("60000.00"), obligacion.getSaldoPendiente());
     }
 
     @Test
