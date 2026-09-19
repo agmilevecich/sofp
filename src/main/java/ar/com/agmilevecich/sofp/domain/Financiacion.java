@@ -47,6 +47,9 @@ public class Financiacion extends EntidadAuditable {
     @Column(name = "fecha_ultimo_calculo_interes")
     private LocalDate fechaUltimoCalculoInteres;
 
+    @Column(name = "fecha_ultimo_calculo_punitorio")
+    private LocalDate fechaUltimoCalculoPunitorio;
+
     @OneToMany(mappedBy = "financiacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("fechaGeneracion ASC, id ASC")
     private List<CargoFinanciero> cargos = new ArrayList<>();
@@ -83,6 +86,7 @@ public class Financiacion extends EntidadAuditable {
         this.saldoValorizacion = this.importeValorizacion;
         this.saldoCapital = this.capitalOriginal;
         this.fechaUltimoCalculoInteres = this.fechaInicio;
+        this.fechaUltimoCalculoPunitorio = this.fechaInicio;
     }
 
     private BigDecimal valorizar(BigDecimal capital) {
@@ -142,6 +146,36 @@ public class Financiacion extends EntidadAuditable {
 
     public LocalDate getFechaUltimoCalculoInteres() {
         return fechaUltimoCalculoInteres != null ? fechaUltimoCalculoInteres : fechaInicio;
+    }
+
+    public LocalDate getFechaUltimoCalculoPunitorio() {
+        return fechaUltimoCalculoPunitorio != null ? fechaUltimoCalculoPunitorio : fechaInicio;
+    }
+
+    public CargoFinanciero registrarPunitorio(BigDecimal importe,
+                                              LocalDate fechaHasta,
+                                              BigDecimal capitalBase,
+                                              BigDecimal tasaAnual,
+                                              int dias) {
+        Objects.requireNonNull(fechaHasta, "La fecha hasta es obligatoria");
+        if (fechaHasta.isBefore(getFechaUltimoCalculoPunitorio())) {
+            throw new IllegalArgumentException("La fecha del punitorio no puede ser anterior al último cálculo");
+        }
+        CargoFinanciero cargo = new CargoFinanciero(
+                obligacion,
+                this,
+                getMoneda(),
+                TipoCargoFinanciero.INTERES_PUNITORIO,
+                importe,
+                fechaHasta,
+                capitalBase,
+                tasaAnual,
+                dias,
+                "Interés punitorio de financiación"
+        );
+        agregarCargo(cargo);
+        fechaUltimoCalculoPunitorio = fechaHasta;
+        return cargo;
     }
 
     public CargoFinanciero registrarInteres(BigDecimal importe,
