@@ -133,6 +133,30 @@ public class Refinanciacion extends EntidadAuditable {
         }
     }
 
+    public void revertirPago(BigDecimal importe) {
+        BigDecimal monto = Validaciones.importePositivo(importe, "El importe de la reversión es obligatorio");
+        BigDecimal pagado = totalPlan.subtract(saldoPlan);
+        if (monto.compareTo(pagado) > 0) {
+            throw new IllegalArgumentException("La reversión supera los pagos de la refinanciación");
+        }
+
+        BigDecimal restante = monto;
+        for (int i = cuotas.size() - 1; i >= 0 && restante.signum() > 0; i--) {
+            CuotaRefinanciacion cuota = cuotas.get(i);
+            BigDecimal pagadoCuota = cuota.getImporteOriginal().subtract(cuota.getSaldoPendiente());
+            BigDecimal restaurar = restante.min(pagadoCuota);
+            if (restaurar.signum() > 0) {
+                cuota.revertirPago(restaurar);
+                restante = restante.subtract(restaurar);
+            }
+        }
+
+        saldoPlan = saldoPlan.add(monto);
+        if (estado == EstadoRefinanciacion.CANCELADA) {
+            estado = EstadoRefinanciacion.ACTIVA;
+        }
+    }
+
     private BigDecimal validarNoNegativo(BigDecimal importe, String mensaje) {
         Objects.requireNonNull(importe, mensaje + " es obligatorio");
         if (importe.signum() < 0) {
