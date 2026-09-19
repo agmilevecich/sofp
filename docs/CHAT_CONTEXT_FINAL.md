@@ -163,3 +163,8 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## CONTEXTO CANÓNICO FINAL — 19/09/2026
+
+El contexto anterior queda supersedido por el estado real de GitHub. HEAD `bcb994d`; `main` `4b8100d`; última suite local verde conocida 797/797 sobre `ba2027168`; CI actual fallido en `Run tests`.
+
+La próxima sesión debe comenzar por diagnóstico y validación del HEAD, no por asumir que Tarjeta de Crédito está terminada.
