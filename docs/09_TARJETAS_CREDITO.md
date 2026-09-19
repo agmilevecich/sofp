@@ -414,3 +414,38 @@ Se revisaron ciclos, cuotas, cierres, valorización, liquidación multidivisa, c
 ### Criterio de cierre
 
 Tarjeta de Crédito no debe considerarse cerrada hasta que los gaps anteriores estén cubiertos o explícitamente documentados como fuera de alcance, y exista una suite completa verde sobre el HEAD final.
+
+
+## AUDITORÍA INTEGRAL — 19/09/2026
+
+Esta sección supersede las conclusiones anteriores cuando exista contradicción. La auditoría se realizó sobre el código y tests actuales de `feature/swing-shell`, y se contrastó la normativa vigente relevante del BCRA para pagos de consumos en moneda extranjera y punitorios.
+
+### Estado técnico verificado
+
+- Consumo con tarjeta: implementado mediante `Movimiento` + `Obligacion`.
+- Límite y crédito disponible: implementados y cubiertos por pruebas de moneda original, liquidación, valorización de cierre, financiación y refinanciación.
+- Ciclos y cuotas: implementados, con cierre histórico y protección contra segundo cierre.
+- Liquidación multidivisa: explícita y trazable mediante `TipoCambio`; no se reutiliza silenciosamente una cotización de otro día hábil.
+- Pagos parciales/totales: implementados mediante `PagoTarjetaService`.
+- Financiación: creación al vencimiento, pago posterior, cargos financieros, reversión de pagos y efecto sobre el crédito disponible.
+- Refinanciación: plan, cuotas, pago mediante `PagoTarjetaService`, reversión y efecto sobre el crédito disponible.
+- TNA histórica: cálculo diario simple sobre 365 días; se agregaron pruebas para cambios de tasa dentro del período, límite de vigencia y no duplicación del mismo período.
+- UI: existe `TarjetasCreditoPanel` con consulta de límite, disponible, consumido, ciclo, vencimiento, obligaciones, pago mínimo y financiaciones.
+
+### Hallazgos que no deben considerarse cerrados
+
+1. Refinanciación: `tasaAnual` se almacena pero no existe todavía un motor de amortización/interés periódico propio. No se debe inventar si la tasa representa cuota francesa, interés simple u otra modalidad.
+2. Punitorios: el cálculo de `FinanciacionService` no está conectado todavía con el cumplimiento del pago mínimo del resumen. La Ley 25.065 establece que no corresponde aplicar punitorios cuando se efectuó el pago mínimo en la fecha correspondiente. citeturn5search2
+3. Financiación multidivisa + liquidación posterior: el modelo no convierte implícitamente una financiación en moneda original a otra moneda de liquidación. La conversión y cotización aplicables a ese caso deben quedar explícitamente trazadas antes de automatizarla.
+4. Cancelación anticipada de financiación: `FinanciacionService.cancelarAnticipadamente()` modifica el estado económico directamente y no crea por sí misma el movimiento financiero. El flujo canónico debe ser un pago de tarjeta con cuenta pagadora y categoría.
+5. `RefinanciacionService.registrarPago()` permite modificar directamente el plan sin pasar por el movimiento financiero canónico. Debe quedar como API interna o sustituirse por el flujo de `PagoTarjetaService`.
+6. Crédito por cargos financieros: el cálculo de crédito utilizado debe revisarse para cargos de financiación, especialmente en multidivisa. El capital valorizado está contemplado, pero los cargos generados posteriormente requieren una regla de valorización trazable.
+7. UI específica: todavía faltan operaciones de crear financiación/refinanciación y una vista completa de cuotas refinanciadas, TNA, punitorios y cargos.
+8. Calendario bancario: sábado/domingo están tratados; feriados requieren una fuente/calendario bancario explícito.
+9. Determinismo temporal: persiste `LocalDateTime.now()` en validaciones; conviene introducir `Clock`.
+10. Esquema: no existe versionado formal de base de datos.
+
+### Criterio de cierre
+
+La tarjeta no se declara cerrada todavía. Los puntos 1, 2, 3 y 4 afectan reglas contables/financieras que deben quedar determinadas y trazables; el resto son tareas técnicas que pueden seguir cerrándose sin modificar `main`.
+
