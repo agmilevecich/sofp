@@ -174,3 +174,25 @@ La ejecución CI anterior sobre `45ece879` falló en compilación, no en una pru
 7. Calendario bancario de feriados, `Clock` y migraciones de esquema.
 
 No se modifica `main` y no se inventan reglas contables donde falta una decisión financiera material.
+
+
+## ESTADO CANÓNICO — AUDITORÍA 100% TARJETA — 19/09/2026
+
+HEAD posterior a la corrección de integridad: ff2103e381854b165de3f6fa23e5c41510541248 — test: cubrir limites de financiacion de obligacion.
+
+### Corrección más reciente
+Se endureció Obligacion.crearFinanciacion(...): capital obligatorio y positivo, y nunca superior al saldo no financiado pendiente. Se agregaron pruebas de nulo/cero y sobre-financiación.
+
+### Estado
+La auditoría técnica del módulo continúa sin modificar main. Los flujos de crédito, financiación, refinanciación, pagos y reversiones tienen cobertura específica.
+
+### Pendientes materiales
+- modalidad de intereses/amortización de refinanciación;
+- conversión trazable de financiación multidivisa cuando la liquidación posterior utiliza otra moneda;
+- integración exacta del pago mínimo con punitorios;
+- UI avanzada para alta/detalle de financiación y refinanciación.
+
+No se inventa ninguna de estas reglas. Se continúa cerrando todo lo que puede determinarse objetivamente desde el modelo y las reglas ya existentes.
+
+### Validación
+La suite completa verde conocida sigue siendo anterior al HEAD actual. GitHub Actions del estado anterior fue relanzado; además, los nuevos commits deberán generar una ejecución propia. La tarjeta no se declara cerrada hasta recuperar BUILD SUCCESS sobre el HEAD final.
