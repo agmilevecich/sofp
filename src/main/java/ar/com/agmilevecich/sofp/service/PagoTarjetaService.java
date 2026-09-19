@@ -97,7 +97,16 @@ public class PagoTarjetaService {
             );
 
             if (financiacionPendiente != null) {
-                obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
+                if (obligacion.getSaldoLiquidacion() != null) {
+                    obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
+                } else {
+                    BigDecimal pagoFinanciacion = importe.min(financiacionPendiente.getSaldoCapital());
+                    obligacion.registrarPagoFinanciacion(financiacionPendiente, pagoFinanciacion);
+                    BigDecimal restante = importe.subtract(pagoFinanciacion);
+                    if (restante.signum() > 0) {
+                        obligacion.registrarPago(restante);
+                    }
+                }
             } else if (obligacion.getSaldoLiquidacion() != null) {
                 obligacion.registrarPagoLiquidacion(importe);
             } else {
