@@ -48,6 +48,7 @@ class PagoTarjetaServiceTest {
     private ObligacionService obligacionService;
     private CuentaService cuentaService;
     private PagoTarjetaService pagoTarjetaService;
+    private RefinanciacionService refinanciacionService;
 
     @BeforeEach
     void setUp() {
@@ -59,6 +60,7 @@ class PagoTarjetaServiceTest {
         gastoService = new GastoService(movimientoService, obligacionService);
         cuentaService = new CuentaService(new CuentaRepository(entityManager), movimientoRepository, obligacionRepository, entityManager);
         pagoTarjetaService = new PagoTarjetaService(entityManager, movimientoRepository, obligacionRepository);
+        refinanciacionService = new RefinanciacionService(entityManager);
         usuario = new Usuario("Juan", "Pérez", "pago.tarjeta." + System.nanoTime() + "@test.com", "hash");
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
@@ -180,6 +182,70 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
         assertEquals("PAGADA", obligacion.getEstado().name());
         assertEquals(new BigDecimal("50000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
+    @Test
+    void deberiaRegistrarPagoDeRefinanciacionYReducirCredito() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        var refinanciacion = refinanciacionService.crear(
+                obligacion.getId(),
+                usuario.getId(),
+                java.time.LocalDate.of(2026, 9, 10),
+                3,
+                new BigDecimal("6000.00"),
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000")
+        );
+
+        PagoTarjeta pago = pagoTarjetaService.registrarPago(
+                obligacion.getId(),
+                cuentaPagadora,
+                categoriaPago,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Pago refinanciacion",
+                usuario.getId()
+        );
+
+        assertEquals(refinanciacion.getId(), pago.getRefinanciacion().getId());
+        assertEquals(new BigDecimal("76000.00"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("424000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+        assertEquals(new BigDecimal("150000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
+    @Test
+    void deberiaRevertirPagoDeRefinanciacionYRestaurarCredito() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        refinanciacionService.crear(
+                obligacion.getId(),
+                usuario.getId(),
+                java.time.LocalDate.of(2026, 9, 10),
+                3,
+                new BigDecimal("6000.00"),
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000")
+        );
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(),
+                cuentaPagadora,
+                categoriaPago,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Pago refinanciacion",
+                usuario.getId()
+        );
+
+        PagoTarjeta pago = pagoTarjetaService.revertirUltimoPago(
+                obligacion.getId(),
+                usuario.getId(),
+                LocalDateTime.of(2026, 9, 11, 12, 0)
+        );
+
+        assertEquals("REVERSADO", pago.getEstado().name());
+        assertEquals(new BigDecimal("126000.00"), pago.getRefinanciacion().getSaldoPlan());
+        assertEquals(new BigDecimal("374000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+        assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
 
     @Test
