@@ -69,9 +69,40 @@ public class Obligacion extends EntidadAuditable {
     }
 
     public Financiacion crearFinanciacion(LocalDate fechaInicio, BigDecimal capital) {
-        Financiacion financiacion = new Financiacion(this, fechaInicio, capital);
+        return crearFinanciacion(fechaInicio, capital, getMonedaOriginal(), null, false);
+    }
+
+    public Financiacion crearFinanciacion(LocalDate fechaInicio,
+                                          BigDecimal capital,
+                                          Moneda moneda,
+                                          TipoCambio tipoCambioValorizacion,
+                                          boolean origenLiquidacion) {
+        Financiacion financiacion = new Financiacion(
+                this, fechaInicio, capital, moneda, tipoCambioValorizacion, origenLiquidacion
+        );
         agregarFinanciacion(financiacion);
         return financiacion;
+    }
+
+    public BigDecimal getSaldoFinanciadoPendiente() {
+        return financiaciones.stream()
+                .filter(Financiacion::estaPendiente)
+                .map(Financiacion::getSaldoCapital)
+                .reduce(BigDecimal.ZERO.setScale(2), BigDecimal::add);
+    }
+
+    public BigDecimal getSaldoNoFinanciadoParaLiquidacion() {
+        BigDecimal saldo = saldoPendiente.subtract(getSaldoFinanciadoPendiente());
+        return saldo.signum() < 0 ? BigDecimal.ZERO.setScale(2) : saldo;
+    }
+
+    private boolean estaCompletamentePagada() {
+        if (financiaciones.stream().anyMatch(Financiacion::estaPendiente)) {
+            return false;
+        }
+        return saldoLiquidacion != null
+                ? saldoLiquidacion.signum() == 0
+                : saldoPendiente.signum() == 0;
     }
 
     public BigDecimal getSaldoPendienteDelCiclo(LocalDate fechaCierre) {
@@ -154,11 +185,12 @@ public class Obligacion extends EntidadAuditable {
     public void liquidar(TipoCambio tipoCambio) {
         Objects.requireNonNull(tipoCambio, "El tipo de cambio es obligatorio");
         if (importeLiquidacion != null) throw new IllegalStateException("La obligación ya tiene una liquidación");
-        if (saldoPendiente.signum() == 0) throw new IllegalStateException("La obligación ya está pagada en su moneda original");
+        BigDecimal saldoParaLiquidar = getSaldoNoFinanciadoParaLiquidacion();
+        if (saldoParaLiquidar.signum() == 0) throw new IllegalStateException("No existe saldo no financiado para liquidar");
         if (!getMonedaOriginal().equals(tipoCambio.getMonedaOrigen())) throw new IllegalArgumentException("La moneda de origen del tipo de cambio no coincide con la obligación");
         if (!getMonedaLiquidacion().equals(tipoCambio.getMonedaDestino())) throw new IllegalArgumentException("La moneda de destino del tipo de cambio no coincide con la obligación");
         this.tipoCambioLiquidacion = tipoCambio;
-        this.importeLiquidacion = tipoCambio.convertir(saldoPendiente);
+        this.importeLiquidacion = tipoCambio.convertir(saldoParaLiquidar);
         this.saldoLiquidacion = this.importeLiquidacion;
     }
 
@@ -173,21 +205,30 @@ public class Obligacion extends EntidadAuditable {
             throw new IllegalArgumentException("El pago no puede superar el saldo de la financiación");
         }
 
-        if (cuotas.isEmpty()) {
+        if (financiacion.esSobreLiquidacion()) {
+            if (saldoLiquidacion == null) {
+                throw new IllegalStateException("La financiación sobre liquidación requiere una liquidación");
+            }
+            if (pago.compareTo(saldoLiquidacion) > 0) {
+                throw new IllegalArgumentException("El pago no puede superar el saldo de liquidación");
+            }
+            saldoLiquidacion = saldoLiquidacion.subtract(pago);
+        } else {
+            if (!cuotas.isEmpty()) {
+                Cuota cuota = cuotas.stream()
+                        .filter(c -> c.getFechaVencimiento().plusDays(1).equals(financiacion.getFechaInicio()))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("La financiación no corresponde a una cuota de esta obligación"));
+                cuota.registrarPago(pago);
+            }
             if (pago.compareTo(saldoPendiente) > 0) {
                 throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
             }
-        } else {
-            Cuota cuota = cuotas.stream()
-                    .filter(c -> c.getFechaVencimiento().plusDays(1).equals(financiacion.getFechaInicio()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("La financiación no corresponde a una cuota de esta obligación"));
-            cuota.registrarPago(pago);
+            saldoPendiente = saldoPendiente.subtract(pago);
         }
 
-        saldoPendiente = saldoPendiente.subtract(pago);
         financiacion.registrarPago(pago);
-        estado = saldoPendiente.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
+        estado = estaCompletamentePagada() ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
     }
 
     public void registrarPago(BigDecimal importe) {
@@ -216,6 +257,6 @@ public class Obligacion extends EntidadAuditable {
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
         if (pago.compareTo(saldoLiquidacion) > 0) throw new IllegalArgumentException("El pago no puede superar el saldo de liquidación");
         saldoLiquidacion = saldoLiquidacion.subtract(pago);
-        estado = saldoLiquidacion.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
+        estado = estaCompletamentePagada() ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
     }
 }
