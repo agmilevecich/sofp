@@ -24,6 +24,10 @@
         <class>ar.com.agmilevecich.sofp.domain.Cuota</class>
         <class>ar.com.agmilevecich.sofp.domain.Financiacion</class>
         <class>ar.com.agmilevecich.sofp.domain.CargoFinanciero</class>
+        <class>ar.com.agmilevecich.sofp.domain.TasaInteres</class>
+        <class>ar.com.agmilevecich.sofp.domain.PagoTarjeta</class>
+        <class>ar.com.agmilevecich.sofp.domain.Refinanciacion</class>
+        <class>ar.com.agmilevecich.sofp.domain.CuotaRefinanciacion</class>
         <class>ar.com.agmilevecich.sofp.domain.TipoCambio</class>
 
         <properties>
