@@ -96,7 +96,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
                     LocalDateTime.of(2026, 9, 26, 0, 0).toLocalDate(),
                     new BigDecimal("100000.00")
             );
-            financiacion.registrarPago(new BigDecimal("40000.00"));
+            obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("40000.00"));
             fixture.persistir(obligacion);
 
             assertCredito(fixture, "60000.00");
@@ -111,7 +111,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
                     LocalDateTime.of(2026, 9, 26, 0, 0).toLocalDate(),
                     new BigDecimal("100000.00")
             );
-            financiacion.registrarPago(new BigDecimal("100000.00"));
+            obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("100000.00"));
             fixture.persistir(obligacion);
 
             assertCredito(fixture, "0.00");
@@ -174,7 +174,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
 
             assertCredito(fixture, "150000.00");
 
-            financiacion.registrarPago(new BigDecimal("40.00"));
+            obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("40.00"));
             fixture.merge(obligacion);
 
             assertCredito(fixture, "90000.00");
@@ -221,6 +221,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
             obligacion.marcarRefinanciada();
 
             fixture.em.getTransaction().begin();
+            fixture.em.persist(obligacion);
             fixture.em.persist(refinanciacion);
             fixture.em.getTransaction().commit();
             fixture.em.clear();
@@ -261,12 +262,12 @@ class ObligacionRepositoryFinanciacionCreditoTest {
 
             assertCredito(fixture, "150000.00");
 
-            financiacion.registrarPago(new BigDecimal("50000.00"));
+            obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("50000.00"));
             fixture.merge(obligacion);
 
             assertCredito(fixture, "100000.00");
 
-            financiacion.registrarPago(new BigDecimal("100000.00"));
+            obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("100000.00"));
             fixture.merge(obligacion);
 
             assertCredito(fixture, "0.00");
