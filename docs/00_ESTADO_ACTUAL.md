@@ -113,3 +113,25 @@ El próximo cambio debe ser mínimo y no debe introducir todavía intereses ni t
 En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo.
 
 No asumir resultados locales no informados. No modificar `main` automáticamente.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026
+
+### Primer bloque de financiación conectado
+
+Se implementó el primer flujo funcional de financiación sin introducir intereses ni tasas:
+
+- Obligacion calcula el saldo pendiente correspondiente a un ciclo concreto.
+- ObligacionService.financiarSaldoImpago(...) crea la financiación únicamente después del vencimiento efectivo.
+- Con cuotas, se financia solamente el saldo impago de la cuota vencida; no se incluyen cuotas futuras.
+- La fecha de inicio de la financiación es el día siguiente al vencimiento del ciclo.
+- La operación es idempotente para el mismo ciclo.
+- Las financiaciones pasan a ser visibles en el ciclo siguiente mediante ObligacionRepository.listarPorCuentaYCierreCiclo(...).
+
+Tests agregados en ObligacionServiceCierreTest para creación, pago total, fecha de vencimiento, cuotas futuras, persistencia, idempotencia y aparición en el ciclo siguiente.
+
+No se registra todavía una ejecución local de estos nuevos tests. Deben ejecutarse después de sincronizar la rama.
+
+### Próximo bloque
+
+El flujo todavía no está completo como medio de pago: PagoTarjetaService aún no deriva los pagos posteriores al vencimiento hacia Financiacion. Tampoco están implementados intereses, TNA, punitorios, CFT ni refinanciación.
