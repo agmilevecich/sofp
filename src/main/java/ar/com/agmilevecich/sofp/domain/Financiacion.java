@@ -248,7 +248,9 @@ public class Financiacion extends EntidadAuditable {
         BigDecimal valorizacionPago = getSaldoValorizacion()
                 .multiply(pagoCapital)
                 .divide(saldoAnterior, 2, java.math.RoundingMode.HALF_UP);
-        saldoValorizacion = getSaldoValorizacion().subtract(valorizacionPago);
+        saldoValorizacion = getSaldoValorizacion()
+                .subtract(valorizacionPago)
+                .setScale(2, java.math.RoundingMode.HALF_UP);
         if (saldoCapital.signum() == 0) {
             saldoValorizacion = BigDecimal.ZERO.setScale(2);
         }
