@@ -76,3 +76,15 @@ No existe conversión implícita entre la moneda original de una financiación y
 
 Si se continúa con Tarjeta de Crédito, reconstruir nuevamente desde GitHub y revisar código, tests y reglas de negocio del caso multidivisa financiación + liquidación antes de proponer cambios.
 
+\n\n## ESTADO CANÓNICO — 19/09/2026
+
+- Rama: `feature/swing-shell`.
+- HEAD: `bcb994d` — `fix: aplicar estado de obligacion a todas las ramas del cierre`.
+- `main`: `4b8100d`, sincronizada entre GitHub y Bitbucket según verificación local del usuario.
+- No hay merge a `main`.
+- Última suite local verde conocida: **797/797** sobre `ba2027168`.
+- CI de `bcb994d`: **failure** en `Run tests`.
+
+### Próximo paso único
+
+Diagnosticar la falla de CI del HEAD actual y recuperar una suite verde antes de considerar cerrada Tarjeta de Crédito o avanzar a otra funcionalidad.
