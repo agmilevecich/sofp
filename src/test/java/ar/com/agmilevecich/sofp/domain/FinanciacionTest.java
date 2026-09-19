@@ -59,6 +59,49 @@ class FinanciacionTest {
     }
 
     @Test
+    void deberiaConservarMonedaCotizacionYValorizacionDeFinanciacionMultidivisa() {
+        Obligacion obligacion = crearObligacionMultidivisa();
+        Moneda usd = obligacion.getMonedaOriginal();
+        Moneda ars = obligacion.getMonedaLiquidacion();
+        TipoCambio cambio = new TipoCambio(
+                usd, ars, new BigDecimal("1500.00"),
+                LocalDateTime.of(2026, 9, 10, 18, 0), "TEST"
+        );
+
+        Financiacion financiacion = new Financiacion(
+                obligacion,
+                LocalDate.of(2026, 9, 26),
+                new BigDecimal("40.00"),
+                usd,
+                cambio,
+                false
+        );
+
+        assertEquals(usd, financiacion.getMoneda());
+        assertSame(cambio, financiacion.getTipoCambioValorizacion());
+        assertEquals(new BigDecimal("60000.00"), financiacion.getImporteValorizacion());
+        financiacion.registrarPago(new BigDecimal("10.00"));
+        assertEquals(new BigDecimal("30.00"), financiacion.getSaldoCapital());
+        assertEquals(new BigDecimal("45000.00"), financiacion.getSaldoValorizacion());
+    }
+
+    @Test
+    void noDeberiaCrearFinanciacionMultidivisaSinCotizacion() {
+        Obligacion obligacion = crearObligacionMultidivisa();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                new Financiacion(
+                        obligacion,
+                        LocalDate.of(2026, 9, 26),
+                        new BigDecimal("40.00"),
+                        obligacion.getMonedaOriginal(),
+                        null,
+                        false
+                )
+        );
+    }
+
+    @Test
     void deberiaRechazarObligacionNula() {
         assertThrows(NullPointerException.class, () ->
                 new Financiacion(null, LocalDate.of(2026, 9, 26), new BigDecimal("240000.00")));
@@ -120,6 +163,31 @@ class FinanciacionTest {
         );
 
         assertThrows(IllegalArgumentException.class, () -> obligacion.agregarFinanciacion(otra));
+    }
+
+    private Obligacion crearObligacionMultidivisa() {
+        Usuario usuario = new Usuario(
+                "Ariel", "Milevecich",
+                "ariel.financiacion.fx." + System.nanoTime() + "@test.com", "hash"
+        );
+        PerfilFinanciero perfil = new PerfilFinanciero("Personal", usuario);
+        InstitucionFinanciera banco = new InstitucionFinanciera(
+                "Banco Santander", TipoInstitucionFinanciera.BANCO
+        );
+        Moneda ars = new Moneda("ARS", "Peso Argentino", 2, TipoMoneda.FIAT);
+        Moneda usd = new Moneda("USD", "Dólar Estadounidense", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta(
+                "Tarjeta", perfil, banco, ars,
+                new BigDecimal("500000.00"), 15, 10
+        );
+        Categoria categoria = new Categoria("Supermercado", perfil);
+        Movimiento movimiento = new Movimiento(
+                cuenta, categoria, usd, TipoMovimiento.EGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 4, 12, 0),
+                "Compra USD", FormaPago.TARJETA_CREDITO
+        );
+        return new Obligacion(movimiento);
     }
 
     private Obligacion crearObligacion() {
