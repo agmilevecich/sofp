@@ -295,3 +295,15 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## PENDIENTES REALES — 19/09/2026
+
+1. Diagnosticar la falla de CI del HEAD `bcb994d`.
+2. Revalidar cierre de ciclos/cuotas tras los últimos cambios de estado de obligación.
+3. Revalidar financiación multidivisa y valorización.
+4. Revalidar TNA/intereses, punitorios y cargos.
+5. Revalidar refinanciación y cancelación anticipada.
+6. Revalidar pagos, reversiones y trazabilidad.
+7. Revalidar panel Swing e integración de tarjetas.
+8. Ejecutar suite completa verde y documentar el resultado.
+
+Estos puntos son pendientes de **validación**; no implican que la funcionalidad esté ausente del código.
