@@ -228,19 +228,18 @@ public class Obligacion extends EntidadAuditable {
         if (estado == EstadoObligacion.ANULADA) {
             throw new IllegalStateException("La obligación ya está anulada");
         }
+        if (saldoPendiente.compareTo(importeOriginal) != 0
+                || (saldoLiquidacion != null && saldoLiquidacion.compareTo(importeLiquidacion) != 0)
+                || !financiaciones.isEmpty()) {
+            throw new IllegalStateException(
+                    "La obligación ya tiene pagos, liquidación o financiación y requiere una reversión compensatoria"
+            );
+        }
         estado = EstadoObligacion.ANULADA;
         saldoPendiente = BigDecimal.ZERO.setScale(2);
         if (saldoLiquidacion != null) {
             saldoLiquidacion = BigDecimal.ZERO.setScale(2);
         }
-        financiaciones.forEach(financiacion -> {
-            if (financiacion.estaPendiente()) {
-                while (financiacion.estaPendiente()) {
-                    BigDecimal pago = financiacion.getSaldoTotalPendiente();
-                    financiacion.registrarPago(pago);
-                }
-            }
-        });
     }
 
     public boolean estaEnMora(LocalDate fechaPago) {
