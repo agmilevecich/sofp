@@ -290,6 +290,29 @@ class ObligacionServiceCierreTest {
     }
 
     @Test
+    void deberiaIncluirLaFinanciacionEnElCicloSiguiente() {
+        Obligacion obligacion = registrarConsumo(ars, new BigDecimal("120.00"));
+        obligacionService.registrarPago(obligacion.getId(), new BigDecimal("40.00"), usuarioId);
+
+        LocalDate fechaFinanciacion = obligacion.getFechaLimitePago().plusDays(1);
+        obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion, usuarioId
+        ).orElseThrow();
+
+        LocalDate siguienteCierre = obligacion.getCicloFacturacion()
+                .getFechaCierre()
+                .plusMonths(1);
+
+        List<Obligacion> siguienteResumen = obligacionService.cerrarCiclo(
+                tarjeta.getId(), siguienteCierre
+        );
+
+        assertEquals(1, siguienteResumen.size());
+        assertEquals(obligacion.getId(), siguienteResumen.get(0).getId());
+        assertEquals(1, siguienteResumen.get(0).getFinanciaciones().size());
+    }
+
+    @Test
     void noDeberiaCrearFinanciacionAntesDelVencimiento() {
         Obligacion obligacion = registrarConsumo(ars, new BigDecimal("120.00"));
         var financiacion = obligacionService.financiarSaldoImpago(
