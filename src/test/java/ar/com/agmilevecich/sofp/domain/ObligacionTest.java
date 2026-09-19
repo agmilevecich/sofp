@@ -361,7 +361,9 @@ class ObligacionTest {
     }
     @Test
     void noDeberiaPermitirFinanciarMasQueElSaldoNoFinanciadoPendiente() {
-        Obligacion obligacion = new Obligacion(crearMovimiento(FormaPago.TARJETA_CREDITO));
+        Movimiento movimiento = crearMovimiento(FormaPago.TARJETA_CREDITO);
+        movimiento.cambiarImporte(new BigDecimal("100000.00"));
+        Obligacion obligacion = new Obligacion(movimiento);
         Financiacion primera = obligacion.crearFinanciacion(
                 LocalDate.of(2026, 9, 26),
                 new BigDecimal("60000.00")
