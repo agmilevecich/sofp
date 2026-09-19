@@ -203,7 +203,7 @@ class PagoTarjetaServiceTest {
 
         pagoTarjetaService.registrarPago(
                 obligacion.getId(), cuentaPagadora, categoriaPago,
-                new BigDecimal("60000.00"),
+                new BigDecimal("40000.00"),
                 fechaFinanciacion,
                 "Pago financiacion y cuota siguiente", usuario.getId()
         );
