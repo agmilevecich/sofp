@@ -449,3 +449,23 @@ Esta sección supersede las conclusiones anteriores cuando exista contradicción
 
 La tarjeta no se declara cerrada todavía. Los puntos 1, 2, 3 y 4 afectan reglas contables/financieras que deben quedar determinadas y trazables; el resto son tareas técnicas que pueden seguir cerrándose sin modificar `main`.
 
+
+
+## AUDITORÍA INTEGRAL — ACTUALIZACIÓN 19/09/2026
+
+Se revisó nuevamente el código actual de feature/swing-shell, tests, comparación con main, servicios, dominio, persistencia y UI.
+
+### Corrección técnica incorporada
+Obligacion.crearFinanciacion(...) ahora impide capital nulo/no positivo y evita que varias financiaciones superen el saldo no financiado pendiente. Esto protege el dominio incluso cuando la financiación se crea fuera de ObligacionService.financiarSaldoImpago(...).
+
+### Regla vigente
+Una financiación pendiente continúa consumiendo crédito. Los pagos reducen el consumo; las reversiones lo restauran. Una refinanciación pendiente continúa consumiendo crédito mientras su plan tenga saldo. La obligación origen queda como historial REFINANCIADA.
+
+### Resultado de auditoría
+No se detectó otra inconsistencia técnica inequívoca que pueda corregirse sin introducir una política financiera no especificada. Quedan identificados como decisiones materiales la modalidad de amortización de refinanciaciones, la conversión de financiación multidivisa cuando posteriormente se liquida en otra moneda y la integración exacta del pago mínimo con punitorios.
+
+### Referencia normativa utilizada
+Argentina.gob.ar, Ley 25.065 / material oficial sobre tarjetas: el pago mínimo evita la mora y el saldo restante puede generar interés compensatorio; los punitorios corresponden cuando no se paga al menos el mínimo. La normativa también establece que los punitorios no son capitalizables.
+
+### Validación pendiente del HEAD
+El último mvn test verde informado corresponde a un commit anterior. La CI del estado auditado debe terminar verde antes del cierre definitivo.
