@@ -117,6 +117,57 @@ class FinanciacionServiceTest {
     }
 
     @Test
+    void deberiaCalcularInteresConTasasDiferentesDentroDelMismoPeriodo() {
+        Financiacion financiacion = entityManager.createQuery(
+                "SELECT f FROM Financiacion f", Financiacion.class
+        ).getSingleResult();
+
+        service.registrarTna(
+                tarjeta.getId(), usuarioId,
+                TipoTasaInteres.TNA_FINANCIERA,
+                LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 10),
+                new BigDecimal("36.5000"), "TEST TASA 1"
+        );
+        service.registrarTna(
+                tarjeta.getId(), usuarioId,
+                TipoTasaInteres.TNA_FINANCIERA,
+                LocalDate.of(2026, 9, 11), null,
+                new BigDecimal("73.0000"), "TEST TASA 2"
+        );
+
+        CargoFinanciero cargo = service.calcularInteres(
+                financiacion.getId(), LocalDate.of(2026, 9, 12), usuarioId
+        );
+
+        assertEquals(new BigDecimal("300.00"), cargo.getImporteOriginal());
+        assertEquals(2, cargo.getDiasCalculo());
+    }
+
+    @Test
+    void noDeberiaGenerarInteresDosVecesParaElMismoPeriodo() {
+        Financiacion financiacion = entityManager.createQuery(
+                "SELECT f FROM Financiacion f", Financiacion.class
+        ).getSingleResult();
+
+        service.registrarTna(
+                tarjeta.getId(), usuarioId,
+                TipoTasaInteres.TNA_FINANCIERA,
+                LocalDate.of(2026, 9, 1), null,
+                new BigDecimal("36.5000"), "TEST"
+        );
+
+        service.calcularInteres(financiacion.getId(), LocalDate.of(2026, 9, 12), usuarioId);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.calcularInteres(
+                        financiacion.getId(), LocalDate.of(2026, 9, 12), usuarioId
+                )
+        );
+        assertEquals(new BigDecimal("200.00"), financiacion.getSaldoCargosPendiente());
+    }
+
+    @Test
     void deberiaCalcularPunitorioSeparadoDelInteresFinanciero() {
         Financiacion financiacion = entityManager.createQuery(
                 "SELECT f FROM Financiacion f", Financiacion.class
