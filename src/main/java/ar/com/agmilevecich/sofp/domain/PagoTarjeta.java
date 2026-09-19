@@ -19,6 +19,10 @@ public class PagoTarjeta extends EntidadAuditable {
     @JoinColumn(name = "financiacion_id")
     private Financiacion financiacion;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "refinanciacion_id")
+    private Refinanciacion refinanciacion;
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "movimiento_id", nullable = false, unique = true)
     private Movimiento movimiento;
@@ -44,6 +48,9 @@ public class PagoTarjeta extends EntidadAuditable {
     @Column(name = "importe_obligacion", nullable = false, precision = 19, scale = 2)
     private BigDecimal importeObligacion;
 
+    @Column(name = "importe_refinanciacion", nullable = false, precision = 19, scale = 2)
+    private BigDecimal importeRefinanciacion;
+
     @Column(name = "fecha_hora", nullable = false)
     private LocalDateTime fechaHora;
 
@@ -66,8 +73,25 @@ public class PagoTarjeta extends EntidadAuditable {
                        BigDecimal importeFinanciacion,
                        BigDecimal importeObligacion,
                        LocalDateTime fechaHora) {
+        this(obligacion, financiacion, null, movimiento, cuentaPagadora, categoria, moneda,
+                importe, importeFinanciacion, importeObligacion, BigDecimal.ZERO, fechaHora);
+    }
+
+    public PagoTarjeta(Obligacion obligacion,
+                       Financiacion financiacion,
+                       Refinanciacion refinanciacion,
+                       Movimiento movimiento,
+                       Cuenta cuentaPagadora,
+                       Categoria categoria,
+                       Moneda moneda,
+                       BigDecimal importe,
+                       BigDecimal importeFinanciacion,
+                       BigDecimal importeObligacion,
+                       BigDecimal importeRefinanciacion,
+                       LocalDateTime fechaHora) {
         this.obligacion = Objects.requireNonNull(obligacion, "La obligación es obligatoria");
         this.financiacion = financiacion;
+        this.refinanciacion = refinanciacion;
         this.movimiento = Objects.requireNonNull(movimiento, "El movimiento es obligatorio");
         this.cuentaPagadora = Objects.requireNonNull(cuentaPagadora, "La cuenta pagadora es obligatoria");
         this.categoria = Objects.requireNonNull(categoria, "La categoría es obligatoria");
@@ -75,7 +99,8 @@ public class PagoTarjeta extends EntidadAuditable {
         this.importe = Validaciones.importePositivo(importe, "El importe es obligatorio");
         this.importeFinanciacion = validarNoNegativo(importeFinanciacion, "El importe de financiación");
         this.importeObligacion = validarNoNegativo(importeObligacion, "El importe de obligación");
-        if (this.importeFinanciacion.add(this.importeObligacion).compareTo(this.importe) != 0) {
+        this.importeRefinanciacion = validarNoNegativo(importeRefinanciacion, "El importe de refinanciación");
+        if (this.importeFinanciacion.add(this.importeObligacion).add(this.importeRefinanciacion).compareTo(this.importe) != 0) {
             throw new IllegalArgumentException("La distribución del pago no coincide con el importe");
         }
         this.fechaHora = Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
@@ -84,6 +109,7 @@ public class PagoTarjeta extends EntidadAuditable {
 
     public Obligacion getObligacion() { return obligacion; }
     public Financiacion getFinanciacion() { return financiacion; }
+    public Refinanciacion getRefinanciacion() { return refinanciacion; }
     public Movimiento getMovimiento() { return movimiento; }
     public Cuenta getCuentaPagadora() { return cuentaPagadora; }
     public Categoria getCategoria() { return categoria; }
@@ -91,6 +117,7 @@ public class PagoTarjeta extends EntidadAuditable {
     public BigDecimal getImporte() { return importe; }
     public BigDecimal getImporteFinanciacion() { return importeFinanciacion; }
     public BigDecimal getImporteObligacion() { return importeObligacion; }
+    public BigDecimal getImporteRefinanciacion() { return importeRefinanciacion; }
     public LocalDateTime getFechaHora() { return fechaHora; }
     public EstadoPagoTarjeta getEstado() { return estado; }
     public LocalDateTime getFechaReversion() { return fechaReversion; }
