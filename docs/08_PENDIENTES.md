@@ -195,3 +195,25 @@ Commits del bloque: `8252cff`, `7994754`, `f001f19`, `a76a949`, `7c0c4aa`, `1a6a
 Conectar el pago parcial de tarjeta con la creación de una `Financiacion` por el capital impago. Antes de modificar `PagoTarjetaService` se debe revisar su flujo actual y los tests existentes. No implementar todavía intereses, TNA, punitorios ni CFT.
 
 La suite completa más reciente informada sigue siendo 779/779, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 18/09/2026 15:04:44 -03:00. No se registra una suite completa posterior como ejecutada.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026
+
+### Financiación de resumen — primer paso implementado
+
+Se corrigió el diseño para que la financiación no nazca al registrar un pago parcial. La financiación se crea al procesar un ciclo ya vencido, por el saldo que quedó impago en ese ciclo.
+
+Implementado:
+
+- cálculo del saldo pendiente del ciclo;
+- financiación del primer ciclo vencido con saldo;
+- financiación únicamente de la cuota vencida cuando existen cuotas;
+- no financiación antes del vencimiento;
+- no financiación cuando el ciclo quedó totalmente pagado;
+- persistencia;
+- idempotencia;
+- inclusión de la obligación financiada en el ciclo siguiente.
+
+Pendiente inmediato: hacer que PagoTarjetaService aplique correctamente los pagos posteriores al vencimiento al saldo de Financiacion, sin confundirlos con cuotas futuras.
+
+No implementar todavía intereses, TNA, punitorios, CFT ni refinanciación.
