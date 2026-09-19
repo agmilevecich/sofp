@@ -212,6 +212,31 @@ class FinanciacionServiceTest {
     }
 
     @Test
+    void deberiaCalcularInteresSobreElCapitalRestanteDespuesDeUnPagoParcial() {
+        Financiacion financiacion = entityManager.createQuery(
+                "SELECT f FROM Financiacion f", Financiacion.class
+        ).getSingleResult();
+
+        entityManager.getTransaction().begin();
+        financiacion.registrarPago(new BigDecimal("40000.00"));
+        entityManager.getTransaction().commit();
+
+        service.registrarTna(
+                tarjeta.getId(), usuarioId,
+                TipoTasaInteres.TNA_FINANCIERA,
+                LocalDate.of(2026, 9, 1), null,
+                new BigDecimal("36.5000"), "TEST"
+        );
+
+        CargoFinanciero cargo = service.calcularInteres(
+                financiacion.getId(), LocalDate.of(2026, 9, 12), usuarioId
+        );
+
+        assertEquals(new BigDecimal("120.00"), cargo.getImporteOriginal());
+        assertEquals(new BigDecimal("60000.00"), cargo.getCapitalBase());
+    }
+
+    @Test
     void noDeberiaCalcularInteresSinTnaVigente() {
         Financiacion financiacion = entityManager.createQuery(
                 "SELECT f FROM Financiacion f", Financiacion.class
