@@ -115,8 +115,9 @@ public class FinanciacionService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean propia = !transaction.isActive();
         try {
-            transaction.begin();
+            if (propia) transaction.begin();
             Financiacion financiacion = entityManager.find(Financiacion.class, financiacionId);
             if (financiacion == null) {
                 throw new IllegalArgumentException("La financiación no existe");
@@ -185,10 +186,10 @@ public class FinanciacionService {
                     diasCalculados
             );
             entityManager.flush();
-            transaction.commit();
+            if (propia) transaction.commit();
             return cargo;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
+            if (propia && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
@@ -203,8 +204,9 @@ public class FinanciacionService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean propia = !transaction.isActive();
         try {
-            transaction.begin();
+            if (propia) transaction.begin();
             Financiacion financiacion = entityManager.find(Financiacion.class, financiacionId);
             if (financiacion == null) {
                 throw new IllegalArgumentException("La financiación no existe");
@@ -273,10 +275,10 @@ public class FinanciacionService {
                     diasCalculados
             );
             entityManager.flush();
-            transaction.commit();
+            if (propia) transaction.commit();
             return cargo;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
+            if (propia && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
@@ -289,8 +291,9 @@ public class FinanciacionService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
         EntityTransaction transaction = entityManager.getTransaction();
+        boolean propia = !transaction.isActive();
         try {
-            transaction.begin();
+            if (propia) transaction.begin();
             Financiacion financiacion = entityManager.find(Financiacion.class, financiacionId);
             if (financiacion == null) {
                 throw new IllegalArgumentException("La financiación no existe");
@@ -303,10 +306,10 @@ public class FinanciacionService {
             BigDecimal saldo = financiacion.getSaldoTotalPendiente();
             financiacion.getObligacion().registrarPagoFinanciacion(financiacion, saldo);
             entityManager.flush();
-            transaction.commit();
+            if (propia) transaction.commit();
             return financiacion;
         } catch (RuntimeException e) {
-            if (transaction.isActive()) {
+            if (propia && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
