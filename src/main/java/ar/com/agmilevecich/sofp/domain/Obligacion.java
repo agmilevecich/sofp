@@ -162,6 +162,34 @@ public class Obligacion extends EntidadAuditable {
         this.saldoLiquidacion = this.importeLiquidacion;
     }
 
+    public void registrarPagoFinanciacion(Financiacion financiacion, BigDecimal importe) {
+        Objects.requireNonNull(financiacion, "La financiación es obligatoria");
+        if (financiacion.getObligacion() != this) {
+            throw new IllegalArgumentException("La financiación debe pertenecer a esta obligación");
+        }
+
+        BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
+        if (pago.compareTo(financiacion.getSaldoCapital()) > 0) {
+            throw new IllegalArgumentException("El pago no puede superar el saldo de la financiación");
+        }
+
+        if (cuotas.isEmpty()) {
+            if (pago.compareTo(saldoPendiente) > 0) {
+                throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
+            }
+        } else {
+            Cuota cuota = cuotas.stream()
+                    .filter(c -> c.getFechaVencimiento().plusDays(1).equals(financiacion.getFechaInicio()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("La financiación no corresponde a una cuota de esta obligación"));
+            cuota.registrarPago(pago);
+        }
+
+        saldoPendiente = saldoPendiente.subtract(pago);
+        financiacion.registrarPago(pago);
+        estado = saldoPendiente.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
+    }
+
     public void registrarPago(BigDecimal importe) {
         if (estado == EstadoObligacion.PAGADA) throw new IllegalStateException("La obligación ya está pagada");
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
