@@ -230,4 +230,6 @@ No asumir resultados locales posteriores a esta actualización. Después de sinc
 
 La rama `feature/swing-shell` avanzó desde el último punto local verde `ba2027168` hasta `bcb994d`, incorporando y corrigiendo bloques de financiación, intereses, cargos, refinanciación, pagos/reversiones y cierre de obligaciones.
 
-La última suite local verde conocida sigue siendo 797/797 sobre `ba2027168`. GitHub Actions sobre `bcb994d` falló en la etapa de tests. El siguiente hito es recuperar una validación verde del HEAD actual.
+La última suite local verde conocida sigue siendo 797/797 sobre `ba2027168`. GitHub Actions sobre `bcb994d` falló en la etapa de tests. El siguiente hito es recuperar una validación verde del HEAD actual.\n\n## NOTA DE VALIDACIÓN — 19/09/2026
+
+La suite 797/797 no debe interpretarse como validación de los commits posteriores a `ba2027168`. Esta distinción queda registrada para evitar que una futura sesión tome un resultado histórico como resultado del HEAD actual.
