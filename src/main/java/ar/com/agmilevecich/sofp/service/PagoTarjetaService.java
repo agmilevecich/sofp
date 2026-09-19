@@ -7,6 +7,7 @@ import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PagoTarjeta;
+import ar.com.agmilevecich.sofp.domain.TipoTasaInteres;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
@@ -66,6 +67,7 @@ public class PagoTarjetaService {
                 throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
             }
             Financiacion financiacionPendiente = buscarFinanciacionPendiente(obligacion, fechaHora);
+            actualizarInteresesSiCorresponde(financiacionPendiente, fechaHora.toLocalDate(), obligacion);
             validarMonedaPagadora(obligacion, cuentaPagadora, financiacionPendiente);
             if (importe.signum() <= 0) {
                 throw new IllegalArgumentException("El importe debe ser positivo");
@@ -210,6 +212,30 @@ public class PagoTarjetaService {
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
+        }
+    }
+
+    private void actualizarInteresesSiCorresponde(Financiacion financiacion,
+                                                   java.time.LocalDate fecha,
+                                                   Obligacion obligacion) {
+        if (financiacion == null || !financiacion.estaPendiente()) {
+            return;
+        }
+        FinanciacionService financiacionService = new FinanciacionService(entityManager);
+        Long cuentaId = obligacion.getMovimientoOrigen().getCuenta().getId();
+        if (financiacionService.buscarTasaVigente(cuentaId, TipoTasaInteres.TNA_FINANCIERA, fecha).isPresent()
+                && fecha.isAfter(financiacion.getFechaUltimoCalculoInteres())) {
+            financiacionService.calcularInteres(
+                    financiacion.getId(), fecha,
+                    obligacion.getMovimientoOrigen().getCuenta().getPerfilFinanciero().getUsuario().getId()
+            );
+        }
+        if (financiacionService.buscarTasaVigente(cuentaId, TipoTasaInteres.TNA_PUNITORIA, fecha).isPresent()
+                && fecha.isAfter(financiacion.getFechaUltimoCalculoPunitorio())) {
+            financiacionService.calcularPunitorio(
+                    financiacion.getId(), fecha,
+                    obligacion.getMovimientoOrigen().getCuenta().getPerfilFinanciero().getUsuario().getId()
+            );
         }
     }
 
