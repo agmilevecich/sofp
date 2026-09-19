@@ -222,3 +222,20 @@ La suite completa más reciente informada: 779/779, 0 failures, 0 errors, 0 skip
 4. Definir el punto mínimo para crear la financiación.
 5. Tests: pago parcial crea financiación; pago total no crea financiación; saldo financiado correcto; persistencia si corresponde.
 6. Implementar y ejecutar tests específicos antes de la suite general.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026
+
+### Financiación — conexión con vencimiento implementada
+
+El modelo base de Financiacion ahora tiene su primera conexión funcional con el ciclo de tarjeta:
+
+**pago parcial → llega el vencimiento → se determina saldo impago del ciclo → se crea Financiacion → la obligación vuelve a aparecer en el ciclo siguiente.**
+
+La financiación no se crea en el momento del pago parcial. Cuando existen cuotas, solamente se toma el saldo de la cuota vencida; las cuotas futuras quedan fuera.
+
+También se agregó idempotencia para no crear dos financiaciones del mismo ciclo y cobertura de persistencia.
+
+Los nuevos tests todavía no fueron ejecutados localmente; el siguiente paso de validación es ObligacionServiceCierreTest, luego PagoTarjetaServiceTest y finalmente la suite completa.
+
+Pendiente inmediato: pagos posteriores al vencimiento sobre la financiación. Después se abordarán intereses/TNA/punitorios/CFT según las decisiones de negocio ya registradas.
