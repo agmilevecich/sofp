@@ -90,6 +90,15 @@ public class CargoFinanciero extends EntidadAuditable {
 
     public boolean estaPendiente() { return saldoPendiente.signum() > 0; }
 
+    public void registrarReversion(BigDecimal importe) {
+        BigDecimal monto = Validaciones.importePositivo(importe, "El importe de la reversión es obligatorio");
+        BigDecimal pagado = importeOriginal.subtract(saldoPendiente);
+        if (monto.compareTo(pagado) > 0) {
+            throw new IllegalArgumentException("La reversión supera el importe pagado del cargo");
+        }
+        saldoPendiente = saldoPendiente.add(monto);
+    }
+
     public void registrarPago(BigDecimal importe) {
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
         if (pago.compareTo(saldoPendiente) > 0) {
