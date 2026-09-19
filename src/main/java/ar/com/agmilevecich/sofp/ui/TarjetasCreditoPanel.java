@@ -83,6 +83,7 @@ public class TarjetasCreditoPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         JPanel resumen = new JPanel(new GridBagLayout());
+        resumen.add(new JLabel("Tarjetas"));
         resumen.setBorder(BorderFactory.createTitledBorder("Tarjeta de crédito"));
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(4, 8, 4, 8);
