@@ -284,3 +284,29 @@ La ejecución remota que falló sobre el commit anterior fue diagnosticada: GitH
 ### Conclusión
 
 No se declara cerrada Tarjeta de Crédito todavía. No se requiere modificar `main`. Los hallazgos de reglas financieras quedan documentados sin inventar una política contable; los hallazgos puramente técnicos continúan cerrándose sobre `feature/swing-shell`.
+
+
+## ACTUALIZACIÓN — AUDITORÍA 100% — CIERRE TÉCNICO DE FINANCIACIÓN — 19/09/2026
+
+La revisión sobre el HEAD actual agregó una validación de integridad que faltaba en el modelo: una obligación no puede acumular capital financiado por encima de su saldo no financiado pendiente. Esto evita sobre-financiación y doble contabilización desde la API de dominio, no solamente desde el flujo de servicio.
+
+### Cambio realizado
+- Obligacion.crearFinanciacion(...) ahora exige capital positivo y limita el capital nuevo al saldo no financiado pendiente.
+- Se mantienen las reglas específicas para financiación sobre liquidación.
+- Se agregaron pruebas para capital nulo/cero y para intento de segunda financiación que supera el saldo disponible.
+
+### Estado de la auditoría
+El núcleo funcional auditado comprende consumo, límite, crédito disponible, ciclos, cuotas, cierre, valorización, liquidación multidivisa, pagos, reversión, financiación, cargos financieros, TNA, punitorios, pago mínimo, refinanciación y UI de consulta. Los flujos financieros canónicos de pago/reversión permanecen en PagoTarjetaService.
+
+### Pendientes que no se resuelven por inferencia
+1. Refinanciación: falta definir modalidad de amortización/interés periódico. La entidad almacena tasaAnual, pero no alcanza para inferir si corresponde sistema francés, interés simple u otra modalidad.
+2. Financiación multidivisa seguida de liquidación posterior en otra moneda: falta una regla explícita de conversión, cotización y trazabilidad.
+3. Punitorios: el sistema todavía debe integrar el cumplimiento del pago mínimo del resumen con la generación de punitorios. La información oficial argentina indica que pagar al menos el mínimo evita la mora/punitorios, mientras el saldo restante puede generar intereses compensatorios. Fuente: Ley 25.065 / Argentina.gob.ar.
+4. UI avanzada: la pantalla de tarjetas permite consulta y pago, pero no expone todavía de forma completa la creación/detalle avanzado de financiación y refinanciación.
+5. Calendario bancario de feriados, Clock y migraciones formales siguen siendo mejoras técnicas pendientes.
+
+### Validación
+El último resultado local verde informado anteriormente no corresponde al HEAD actual. GitHub Actions sobre el estado previo falló en Run tests; se relanzó esa ejecución para separar fallo transitorio de fallo reproducible. Después de los commits de esta auditoría debe existir una nueva ejecución de CI antes de declarar la rama verde.
+
+### Criterio de cierre
+Tarjeta de Crédito no se declara cerrada hasta disponer de suite completa verde sobre el HEAD final y resolver o documentar explícitamente los tres puntos financieros que requieren decisión de negocio: modalidad de refinanciación, conversión de financiación multidivisa y regla exacta de punitorios/pago mínimo.
