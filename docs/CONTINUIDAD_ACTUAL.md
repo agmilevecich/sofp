@@ -88,3 +88,19 @@ Si se continúa con Tarjeta de Crédito, reconstruir nuevamente desde GitHub y r
 ### Próximo paso único
 
 Diagnosticar la falla de CI del HEAD actual y recuperar una suite verde antes de considerar cerrada Tarjeta de Crédito o avanzar a otra funcionalidad.
+
+## ESTADO CANÓNICO DE CONTINUIDAD — 19/09/2026
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción. La fuente de verdad es el código, los tests y los commits actuales de GitHub.
+
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD: `bcb994d` — `fix: aplicar estado de obligacion a todas las ramas del cierre`.
+- `main`: `4b8100d`; el usuario verificó que `main`, `github/main` y `bitbucket/main` están sincronizadas en ese commit.
+- No se realizó merge a `main`.
+- Última suite completa local verde conocida: **797/797**, 0 failures, 0 errors, 0 skipped, sobre `ba2027168`, 19/09/2026 11:44 -03:00.
+- Después se agregaron nuevos commits; 797/797 no valida el HEAD actual.
+- GitHub Actions sobre `bcb994d`: **failure** en `Run tests`.
+- El usuario está ejecutando ahora la suite general local y todavía no informó el resultado final.
+
+### Próximo paso único
+Diagnosticar el fallo concreto del HEAD actual, distinguir producción/test/entorno, aplicar el cambio mínimo, ejecutar tests específicos y suite completa, y documentar el resultado real. No considerar cerrada Tarjeta de Crédito ni avanzar a otra funcionalidad hasta recuperar una suite verde.
