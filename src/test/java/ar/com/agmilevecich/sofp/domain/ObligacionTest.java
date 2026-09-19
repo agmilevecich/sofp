@@ -361,6 +361,7 @@ class ObligacionTest {
     }
     @Test
     void noDeberiaPermitirFinanciarMasQueElSaldoNoFinanciadoPendiente() {
+        Obligacion obligacion = new Obligacion(crearMovimiento(FormaPago.TARJETA_CREDITO));
         Financiacion primera = obligacion.crearFinanciacion(
                 LocalDate.of(2026, 9, 26),
                 new BigDecimal("60000.00")
@@ -379,6 +380,7 @@ class ObligacionTest {
 
     @Test
     void noDeberiaPermitirFinanciacionConCapitalNuloONoPositivo() {
+        Obligacion obligacion = new Obligacion(crearMovimiento(FormaPago.TARJETA_CREDITO));
         assertThrows(
                 NullPointerException.class,
                 () -> obligacion.crearFinanciacion(
