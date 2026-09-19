@@ -132,7 +132,9 @@ public class ObligacionRepository {
                               (
                                   o.cuotas IS EMPTY
                                   AND o.fechaCierreCiclo = :fechaCierre
-                                  AND o.saldoPendiente > 0
+                                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
+                          AND o.saldoPendiente > 0
                               )
                               OR EXISTS (
                                   SELECT c.id
@@ -214,6 +216,8 @@ public class ObligacionRepository {
                         SELECT COALESCE(SUM(o.saldoLiquidacion), 0)
                         FROM Obligacion o
                         WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
                           AND o.saldoLiquidacion IS NOT NULL
                           AND o.saldoLiquidacion > 0
                         """,
@@ -242,6 +246,8 @@ public class ObligacionRepository {
                         ), 0)
                         FROM Obligacion o
                         WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
                           AND o.saldoLiquidacion IS NULL
                           AND o.saldoPendiente > 0
                           AND o.cuotas IS EMPTY
@@ -273,6 +279,8 @@ public class ObligacionRepository {
                         FROM Obligacion o
                         JOIN o.cuotas c
                         WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
                           AND o.saldoLiquidacion IS NULL
                           AND c.saldoPendiente > 0
                         """,
