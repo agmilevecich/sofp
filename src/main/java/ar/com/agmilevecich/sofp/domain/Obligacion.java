@@ -217,7 +217,7 @@ public class Obligacion extends EntidadAuditable {
         }
 
         if (financiacion.esSobreLiquidacion()) {
-            if (financiacion.getMoneda() != getMonedaLiquidacion()) {
+            if (!financiacion.getMoneda().equals(getMonedaLiquidacion())) {
                 throw new IllegalArgumentException("La financiación sobre liquidación debe utilizar la moneda de liquidación");
             }
         } else {
