@@ -124,7 +124,7 @@ public class PagoTarjetaService {
 
     private void validarMonedaPagadora(Obligacion obligacion, Cuenta cuentaPagadora, Financiacion financiacionPendiente) {
         var monedaEsperada = financiacionPendiente != null
-                ? obligacion.getMonedaOriginal()
+                ? financiacionPendiente.getMoneda()
                 : obligacion.getSaldoLiquidacion() != null
                     ? obligacion.getMonedaLiquidacion()
                     : obligacion.getMonedaOriginal();
