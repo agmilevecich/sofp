@@ -76,7 +76,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
                     new BigDecimal("36.5000"),
                     2
             );
-            financiacion.registrarPago(new BigDecimal("200.00"));
+            obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("200.00"));
             fixture.persistir(obligacion);
 
             assertCredito(fixture, "100000.00");
@@ -144,7 +144,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
                     LocalDateTime.of(2026, 9, 26, 0, 0).toLocalDate(),
                     new BigDecimal("60000.00")
             );
-            financiacion.registrarPago(new BigDecimal("20000.00"));
+            obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("20000.00"));
             fixture.persistir(obligacion);
 
             assertCredito(fixture, "80000.00");
@@ -359,7 +359,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
 
         private void persistir(Obligacion obligacion) {
             em.getTransaction().begin();
-            em.merge(obligacion);
+            em.persist(obligacion);
             em.getTransaction().commit();
             em.clear();
         }
