@@ -136,3 +136,8 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## ACTUALIZACIÓN CANÓNICA — 19/09/2026
+
+Rama `feature/swing-shell`, HEAD `bcb994d`. `main` está en `4b8100d` y permanece sin merge. Último resultado local verde: 797/797 sobre `ba2027168`. CI del HEAD actual falla en `Run tests`.
+
+Prioridad: diagnosticar, corregir y validar antes de seguir ampliando Tarjeta de Crédito.
