@@ -307,3 +307,32 @@ No asumir resultados locales posteriores a esta actualización. Después de sinc
 8. Ejecutar suite completa verde y documentar el resultado.
 
 Estos puntos son pendientes de **validación**; no implican que la funcionalidad esté ausente del código.
+
+## ESTADO CANÓNICO DE CONTINUIDAD — 19/09/2026
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción. La fuente de verdad es el código, los tests y los commits actuales de GitHub.
+
+### Git
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD: `bcb994d` — `fix: aplicar estado de obligacion a todas las ramas del cierre`.
+- Rama estable: `main`.
+- `main`: `4b8100d` — `fix: retirar servicio de financiacion agregado accidentalmente en main`.
+- El usuario verificó localmente que `main`, `github/main` y `bitbucket/main` apuntan al mismo commit `4b8100d`.
+- No se realizó merge de `feature/swing-shell` a `main`.
+
+### Estado de Tarjeta de Crédito
+El código actual contiene ciclos/cuotas, cierre y valorización histórica, liquidación multidivisa explícita, crédito, financiación, pago mínimo, TNA/interés financiero, punitorios, cargos financieros, refinanciación, cancelación anticipada, pagos, reversiones y trazabilidad, además de integración Swing. La existencia de estos componentes no equivale a validación final del HEAD.
+
+### Validación
+- Última suite completa local verde informada: **797/797**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 19/09/2026 11:44 -03:00, sobre `ba2027168`.
+- Después de esa suite se incorporaron nuevos commits; por tanto 797/797 no valida `bcb994d`.
+- GitHub Actions sobre `bcb994d` terminó con **failure** en `Run tests`; Checkout y Setup Java finalizaron correctamente.
+- El usuario está ejecutando ahora la suite general local sobre el estado actual y todavía no informó el resultado final.
+
+### Punto exacto de continuidad
+Primero obtener el fallo concreto de la suite local/CI; identificar si corresponde a producción, test o entorno; corregir con el cambio mínimo; ejecutar tests específicos y suite completa; revisar `git diff`, `git diff --check` y `git status`; y actualizar nuevamente esta documentación con el resultado real.
+
+No asumir que la suite local falla por el mismo motivo que CI hasta disponer del stack trace o resultado concreto. No considerar terminada Tarjeta de Crédito ni avanzar a otra funcionalidad hasta recuperar una suite verde sobre el HEAD actual.
+
+### Regla permanente
+Reconstruir el estado desde GitHub antes de cada modificación. Prioridad: código actual → tests → commits → `main` → documentación. No modificar `main` automáticamente.
