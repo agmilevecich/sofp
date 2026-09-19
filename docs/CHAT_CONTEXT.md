@@ -210,3 +210,8 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## CONTEXTO CANÓNICO — 19/09/2026
+
+Continuar desde `feature/swing-shell`, HEAD `bcb994d`. No modificar `main`.
+
+Última suite local verde conocida: 797/797 sobre `ba2027168`. GitHub Actions del HEAD actual falla en `Run tests`. Antes de nuevo desarrollo, diagnosticar esa falla y reconstruir el estado desde código/tests/commits.
