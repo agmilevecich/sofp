@@ -256,3 +256,41 @@ Ya está conectado el pago posterior al vencimiento con Financiacion:
 Tests agregados para pago sobre financiación y excedente sobre cuota siguiente.
 
 La validación local todavía está pendiente.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:44 -03:00
+
+### Financiación — validación completa cerrada
+
+Quedó validado el bloque de pagos posteriores al vencimiento sobre financiación.
+
+Resultados informados por el usuario:
+
+- `PagoTarjetaServiceTest`: **15/15**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **19/09/2026 11:13:29 -03:00**.
+- `ObligacionServiceCierreTest`: **15/15**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizado **19/09/2026 11:26:06 -03:00**.
+- Suite completa `mvn test`: **797/797**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **19/09/2026 11:44:00 -03:00**.
+
+La suite completa confirma además el comportamiento de regresión del resto del sistema.
+
+### Validación Git local
+
+Después de la suite:
+
+- `git diff`: limpio.
+- `git diff --check`: sin observaciones.
+- `git status`: working tree limpio.
+- rama local: `feature/swing-shell`, al día con `bitbucket/feature/swing-shell`.
+
+### Estado funcional
+
+El bloque queda cerrado en cuanto a la coordinación básica de financiación:
+
+**pago parcial → vencimiento → creación de Financiacion → pago posterior → cancelación de financiación → excedente sobre cuota siguiente cuando corresponde.**
+
+No se implementan todavía intereses, TNA, punitorios, CFT ni refinanciación.
+
+También queda explícito que no existe conversión implícita entre la moneda original de una financiación y una liquidación posterior en otra moneda. Ese caso requiere una decisión de negocio antes de modificar el comportamiento.
+
+### Próximo paso
+
+Si se continúa con Tarjeta de Crédito, el próximo trabajo debe comenzar reconstruyendo nuevamente el estado desde GitHub y revisando las reglas pendientes, especialmente el comportamiento multidivisa de una obligación financiada y posteriormente liquidada. No introducir conversiones por inferencia.
