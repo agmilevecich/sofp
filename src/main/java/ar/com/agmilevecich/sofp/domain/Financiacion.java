@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "financiaciones")
@@ -40,6 +43,10 @@ public class Financiacion extends EntidadAuditable {
 
     @Column(name = "origen_liquidacion")
     private Boolean origenLiquidacion;
+
+    @OneToMany(mappedBy = "financiacion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("fechaGeneracion ASC, id ASC")
+    private List<CargoFinanciero> cargos = new ArrayList<>();
 
     protected Financiacion() {}
 
@@ -115,6 +122,25 @@ public class Financiacion extends EntidadAuditable {
 
     public boolean esSobreLiquidacion() {
         return Boolean.TRUE.equals(origenLiquidacion);
+    }
+
+    public List<CargoFinanciero> getCargos() {
+        return Collections.unmodifiableList(cargos);
+    }
+
+    public void agregarCargo(CargoFinanciero cargo) {
+        Objects.requireNonNull(cargo, "El cargo es obligatorio");
+        if (cargo.getFinanciacion() != this) {
+            throw new IllegalArgumentException("El cargo debe pertenecer a esta financiación");
+        }
+        cargos.add(cargo);
+    }
+
+    public BigDecimal getSaldoCargosPendiente() {
+        return cargos.stream()
+                .filter(CargoFinanciero::estaPendiente)
+                .map(CargoFinanciero::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO.setScale(2), BigDecimal::add);
     }
 
     public boolean estaPendiente() {
