@@ -73,13 +73,13 @@ public class PagoTarjetaService {
                     ? obligacion.getSaldoLiquidacion()
                     : obligacion.getSaldoPendiente();
             if (financiacionPendiente != null) {
-                saldoPendiente = financiacionPendiente.getSaldoCapital();
+                saldoPendiente = financiacionPendiente.getSaldoTotalPendiente();
                 if (obligacion.getSaldoLiquidacion() == null) {
                     saldoPendiente = obligacion.getSaldoPendiente();
                 }
                 if (obligacion.getSaldoLiquidacion() != null
-                        && importe.compareTo(financiacionPendiente.getSaldoCapital()) > 0) {
-                    throw new IllegalArgumentException("El pago supera el saldo de la financiación en la moneda original");
+                        && importe.compareTo(financiacionPendiente.getSaldoTotalPendiente()) > 0) {
+                    throw new IllegalArgumentException("El pago supera el saldo total de la financiación");
                 }
             }
             if (importe.compareTo(saldoPendiente) > 0) {
@@ -100,7 +100,7 @@ public class PagoTarjetaService {
                 if (obligacion.getSaldoLiquidacion() != null) {
                     obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
                 } else {
-                    BigDecimal pagoFinanciacion = importe.min(financiacionPendiente.getSaldoCapital());
+                    BigDecimal pagoFinanciacion = importe.min(financiacionPendiente.getSaldoTotalPendiente());
                     obligacion.registrarPagoFinanciacion(financiacionPendiente, pagoFinanciacion);
                     BigDecimal restante = importe.subtract(pagoFinanciacion);
                     if (restante.signum() > 0) {
