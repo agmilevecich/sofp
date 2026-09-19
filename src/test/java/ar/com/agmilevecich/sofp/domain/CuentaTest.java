@@ -94,6 +94,66 @@ class CuentaTest {
     }
 
     @Test
+    void deberiaCalcularPagoMinimoUsandoElMayorEntrePorcentajeYMinimoAbsoluto() {
+        Cuenta tarjeta = crearTarjeta();
+        tarjeta.configurarDatosCredito(
+                new BigDecimal("500000.00"), 10, 25, 0,
+                new BigDecimal("20.00"), new BigDecimal("15000.00")
+        );
+
+        assertEquals(new BigDecimal("20000.00"), tarjeta.calcularPagoMinimo(new BigDecimal("100000.00")));
+    }
+
+    @Test
+    void deberiaLimitarPagoMinimoAlTotalDeLaDeuda() {
+        Cuenta tarjeta = crearTarjeta();
+        tarjeta.configurarDatosCredito(
+                new BigDecimal("500000.00"), 10, 25, 0,
+                new BigDecimal("20.00"), new BigDecimal("15000.00")
+        );
+
+        assertEquals(new BigDecimal("10000.00"), tarjeta.calcularPagoMinimo(new BigDecimal("10000.00")));
+    }
+
+    @Test
+    void deberiaCalcularPagoMinimoCeroCuandoNoHayDeuda() {
+        Cuenta tarjeta = crearTarjeta();
+        tarjeta.configurarDatosCredito(
+                new BigDecimal("500000.00"), 10, 25, 0,
+                new BigDecimal("20.00"), new BigDecimal("15000.00")
+        );
+
+        assertEquals(BigDecimal.ZERO.setScale(2), tarjeta.calcularPagoMinimo(BigDecimal.ZERO));
+    }
+
+    @Test
+    void noDeberiaPermitirPorcentajeDePagoMinimoFueraDeRango() {
+        Cuenta tarjeta = crearTarjeta();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                tarjeta.configurarDatosCredito(
+                        new BigDecimal("500000.00"), 10, 25, 0,
+                        new BigDecimal("100.01"), BigDecimal.ZERO
+                ));
+        assertThrows(IllegalArgumentException.class, () ->
+                tarjeta.configurarDatosCredito(
+                        new BigDecimal("500000.00"), 10, 25, 0,
+                        new BigDecimal("-0.01"), BigDecimal.ZERO
+                ));
+    }
+
+    @Test
+    void noDeberiaPermitirMinimoAbsolutoNegativo() {
+        Cuenta tarjeta = crearTarjeta();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                tarjeta.configurarDatosCredito(
+                        new BigDecimal("500000.00"), 10, 25, 0,
+                        new BigDecimal("20.00"), new BigDecimal("-1.00")
+                ));
+    }
+
+    @Test
     void deberiaCalcularCreditoDisponible() {
         Cuenta tarjeta = crearTarjeta();
 
