@@ -42,3 +42,37 @@ Pendientes conocidos: calendario bancario/feriados, fecha efectiva separada del 
 ### Regla de continuidad
 
 En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que una documentación histórica representa el estado actual si contradice código o tests.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:44 -03:00
+
+Esta actualización supersede cualquier validación anterior cuando exista contradicción. La fuente de verdad sigue siendo el código, los tests y GitHub.
+
+### Estado actual confirmado
+
+- Rama: `feature/swing-shell`.
+- `main`: rama estable; no se realizó merge.
+- HEAD de código antes de esta actualización documental: `ba2027168bcd172517990cd996aefaad5294da76` — `test: corregir saldo total de obligacion`.
+- Comparación con `main`: 927 commits por delante, 0 por detrás.
+- Suite completa: **797/797**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **19/09/2026 11:44:00 -03:00**, 16:28 min.
+- `PagoTarjetaServiceTest`: **15/15** verde.
+- `ObligacionServiceCierreTest`: **15/15** verde.
+- `git diff`: limpio; `git diff --check`: sin observaciones; `git status`: working tree limpio.
+
+### Bloque cerrado
+
+Queda validado el flujo:
+
+**pago parcial → vencimiento → Financiacion → pago posterior → cancelación de financiación → excedente sobre cuota siguiente cuando corresponde.**
+
+No se implementan todavía intereses, TNA, punitorios, CFT ni refinanciación.
+
+### Pendiente
+
+No existe conversión implícita entre la moneda original de una financiación y una liquidación posterior en otra moneda. Antes de modificar este comportamiento debe definirse explícitamente la regla de conversión, cotización y trazabilidad.
+
+### Próximo paso
+
+Si se continúa con Tarjeta de Crédito, reconstruir nuevamente desde GitHub y revisar código, tests y reglas de negocio del caso multidivisa financiación + liquidación antes de proponer cambios.
+
