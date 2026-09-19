@@ -380,6 +380,30 @@ public class ObligacionService {
         }
     }
 
+    public Obligacion anular(Long obligacionId, Long usuarioId) {
+        Objects.requireNonNull(obligacionId, "El id de la obligación es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            Obligacion obligacion = obligacionRepository.buscarPorId(obligacionId)
+                    .orElseThrow(() -> new IllegalArgumentException("La obligación no existe"));
+            Long propietarioId = obligacion.getMovimientoOrigen()
+                    .getCuenta().getPerfilFinanciero().getUsuario().getId();
+            if (!usuarioId.equals(propietarioId)) {
+                throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
+            }
+            obligacion.anular();
+            entityManager.flush();
+            transaction.commit();
+            return obligacion;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
+
     public Optional<Obligacion> buscarPorId(Long id) {
         return obligacionRepository.buscarPorId(id);
     }
