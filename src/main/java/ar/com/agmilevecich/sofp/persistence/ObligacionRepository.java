@@ -282,9 +282,36 @@ public class ObligacionRepository {
                 .setParameter("moneda", moneda)
                 .getSingleResult();
 
+        BigDecimal financiaciones = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(f.saldoValorizacion), 0)
+                        FROM Financiacion f
+                        WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
+                          AND f.saldoCapital > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .getSingleResult();
+
+        BigDecimal financiacionesNoLiquidadas = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(f.saldoValorizacion), 0)
+                        FROM Financiacion f
+                        WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
+                          AND f.obligacion.saldoLiquidacion IS NULL
+                          AND f.saldoCapital > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .getSingleResult();
+
         BigDecimal obligaciones = obligacionesLiquidadas
                 .add(obligacionesSinCuotas)
-                .add(cuotas);
+                .add(cuotas)
+                .subtract(financiacionesNoLiquidadas)
+                .add(financiaciones);
 
         BigDecimal consumosSinObligacion = entityManager.createQuery(
                         """
