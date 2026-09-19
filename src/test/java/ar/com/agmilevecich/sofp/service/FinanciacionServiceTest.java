@@ -139,6 +139,27 @@ class FinanciacionServiceTest {
     }
 
     @Test
+    void deberiaCancelarAnticipadamenteSinGenerarInteresFuturo() {
+        Financiacion financiacion = entityManager.createQuery(
+                "SELECT f FROM Financiacion f", Financiacion.class
+        ).getSingleResult();
+
+        service.registrarTna(
+                tarjeta.getId(), usuarioId,
+                TipoTasaInteres.TNA_FINANCIERA,
+                LocalDate.of(2026, 9, 1), null,
+                new BigDecimal("36.5000"), "TEST"
+        );
+        service.calcularInteres(financiacion.getId(), LocalDate.of(2026, 9, 12), usuarioId);
+
+        service.cancelarAnticipadamente(financiacion.getId(), usuarioId);
+
+        assertEquals(new BigDecimal("0.00"), financiacion.getSaldoCapital());
+        assertEquals(new BigDecimal("0.00"), financiacion.getSaldoCargosPendiente());
+        assertEquals(new BigDecimal("0.00"), financiacion.getSaldoTotalPendiente());
+    }
+
+    @Test
     void noDeberiaCalcularInteresSinTnaVigente() {
         Financiacion financiacion = entityManager.createQuery(
                 "SELECT f FROM Financiacion f", Financiacion.class
