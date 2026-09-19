@@ -169,3 +169,10 @@ Si se continúa con Tarjeta de Crédito, primero reconstruir el estado desde Git
 ### Continuidad
 
 No asumir resultados locales posteriores a esta actualización. Después de sincronizar la rama, el usuario debe ejecutar nuevamente los tests solo cuando exista un cambio de código que lo justifique.
+\n\n## ESTADO DE TESTS — 19/09/2026
+
+Último resultado local verde informado: `mvn test` = **797/797**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 19/09/2026 11:44 -03:00, sobre `ba2027168`.
+
+Desde entonces la rama llegó a `bcb994d`. GitHub Actions falló en `Run tests` tanto por push como por pull request. No debe reutilizarse 797/797 como validación del HEAD actual.
+
+Próxima validación: diagnosticar CI; ejecutar cierre/financiación/pagos/reversiones/refinanciación; luego `mvn test` completo; finalmente `git diff`, `git diff --check` y `git status`.
