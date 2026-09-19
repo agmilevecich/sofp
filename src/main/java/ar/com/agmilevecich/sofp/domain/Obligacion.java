@@ -164,6 +164,56 @@ public class Obligacion extends EntidadAuditable {
         return vencimiento.plusDays(gracia);
     }
 
+    public BigDecimal getDeudaParaPagoMinimo() {
+        if (saldoLiquidacion != null) {
+            BigDecimal deuda = saldoLiquidacion;
+            for (Financiacion financiacion : financiaciones) {
+                if (financiacion.estaPendiente()) {
+                    deuda = deuda.add(financiacion.getSaldoValorizacion());
+                }
+            }
+            return deuda.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        if (getMonedaOriginal().equals(getMonedaLiquidacion())) {
+            return saldoPendiente.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        if (cuotas.isEmpty()) {
+            if (importeValorizacionCierre == null) {
+                throw new IllegalStateException("No existe valorización de cierre para calcular el pago mínimo multidivisa");
+            }
+            return importeValorizacionCierre
+                    .multiply(saldoPendiente)
+                    .divide(importeOriginal, 2, RoundingMode.HALF_UP);
+        }
+
+        return cuotas.stream()
+                .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
+                .map(cuota -> {
+                    if (cuota.getImporteValorizacionCierre() == null) {
+                        throw new IllegalStateException("No existe valorización de cierre para calcular el pago mínimo multidivisa");
+                    }
+                    return cuota.getImporteValorizacionCierre()
+                            .multiply(cuota.getSaldoPendiente())
+                            .divide(cuota.getImporteOriginal(), 2, RoundingMode.HALF_UP);
+                })
+                .reduce(BigDecimal.ZERO.setScale(2), BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal calcularPagoMinimo() {
+        return movimientoOrigen.getCuenta().calcularPagoMinimo(getDeudaParaPagoMinimo());
+    }
+
+    public boolean cumplePagoMinimo(BigDecimal importePagado) {
+        Objects.requireNonNull(importePagado, "El importe pagado es obligatorio");
+        if (importePagado.signum() < 0) {
+            throw new IllegalArgumentException("El importe pagado no puede ser negativo");
+        }
+        return importePagado.compareTo(calcularPagoMinimo()) >= 0;
+    }
+
     public boolean estaEnMora(LocalDate fechaPago) {
         Objects.requireNonNull(fechaPago, "La fecha de pago es obligatoria");
         return fechaPago.isAfter(getFechaLimitePago());
