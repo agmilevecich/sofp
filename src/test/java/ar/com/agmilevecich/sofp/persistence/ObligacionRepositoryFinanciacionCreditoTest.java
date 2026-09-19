@@ -175,6 +175,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
             assertCredito(fixture, "150000.00");
 
             obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("40.00"));
+            assertEquals(new BigDecimal("90000.00"), financiacion.getSaldoValorizacion());
             fixture.merge(obligacion);
 
             assertCredito(fixture, "90000.00");
