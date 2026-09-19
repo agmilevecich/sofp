@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
@@ -63,13 +64,24 @@ public class PagoTarjetaService {
             if (!Objects.equals(cuentaPagadora.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId())) {
                 throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
             }
-            validarMonedaPagadora(obligacion, cuentaPagadora);
+            Financiacion financiacionPendiente = buscarFinanciacionPendiente(obligacion, fechaHora);
+            validarMonedaPagadora(obligacion, cuentaPagadora, financiacionPendiente);
             if (importe.signum() <= 0) {
                 throw new IllegalArgumentException("El importe debe ser positivo");
             }
             BigDecimal saldoPendiente = obligacion.getSaldoLiquidacion() != null
                     ? obligacion.getSaldoLiquidacion()
                     : obligacion.getSaldoPendiente();
+            if (financiacionPendiente != null) {
+                saldoPendiente = financiacionPendiente.getSaldoCapital();
+                if (obligacion.getSaldoLiquidacion() == null) {
+                    saldoPendiente = obligacion.getSaldoPendiente();
+                }
+                if (obligacion.getSaldoLiquidacion() != null
+                        && importe.compareTo(financiacionPendiente.getSaldoCapital()) > 0) {
+                    throw new IllegalArgumentException("El pago supera el saldo de la financiación en la moneda original");
+                }
+            }
             if (importe.compareTo(saldoPendiente) > 0) {
                 throw new IllegalArgumentException("El pago supera el saldo pendiente de la obligación");
             }
@@ -84,7 +96,9 @@ public class PagoTarjetaService {
                     importe, fechaHora, descripcion, FormaPago.TRANSFERENCIA
             );
 
-            if (obligacion.getSaldoLiquidacion() != null) {
+            if (financiacionPendiente != null) {
+                obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
+            } else if (obligacion.getSaldoLiquidacion() != null) {
                 obligacion.registrarPagoLiquidacion(importe);
             } else {
                 obligacion.registrarPago(importe);
@@ -99,13 +113,23 @@ public class PagoTarjetaService {
         }
     }
 
-    private void validarMonedaPagadora(Obligacion obligacion, Cuenta cuentaPagadora) {
-        var monedaEsperada = obligacion.getSaldoLiquidacion() != null
-                ? obligacion.getMonedaLiquidacion()
-                : obligacion.getMonedaOriginal();
+    private void validarMonedaPagadora(Obligacion obligacion, Cuenta cuentaPagadora, Financiacion financiacionPendiente) {
+        var monedaEsperada = financiacionPendiente != null
+                ? obligacion.getMonedaOriginal()
+                : obligacion.getSaldoLiquidacion() != null
+                    ? obligacion.getMonedaLiquidacion()
+                    : obligacion.getMonedaOriginal();
         if (!Objects.equals(cuentaPagadora.getMoneda(), monedaEsperada)) {
             throw new IllegalArgumentException("La cuenta pagadora y la moneda de pago de la obligación deben coincidir");
         }
+    }
+
+    private Financiacion buscarFinanciacionPendiente(Obligacion obligacion, LocalDateTime fechaHora) {
+        return obligacion.getFinanciaciones().stream()
+                .filter(Financiacion::estaPendiente)
+                .filter(financiacion -> !fechaHora.toLocalDate().isBefore(financiacion.getFechaInicio()))
+                .findFirst()
+                .orElse(null);
     }
 
     private void validarFechaPago(Obligacion obligacion, LocalDateTime fechaHora) {
