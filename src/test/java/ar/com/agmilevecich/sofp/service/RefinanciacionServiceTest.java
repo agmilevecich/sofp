@@ -81,6 +81,7 @@ class RefinanciacionServiceTest {
             if (entityManager.getTransaction().isActive()) entityManager.getTransaction().rollback();
             entityManager.close();
         }
+        JpaTestManager.close();
     }
 
     @Test
