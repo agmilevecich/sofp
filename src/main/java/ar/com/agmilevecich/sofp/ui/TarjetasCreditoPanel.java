@@ -65,6 +65,7 @@ public class TarjetasCreditoPanel extends JPanel {
         this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
         construir();
+        tarjetasCombo.addActionListener(e -> actualizarTarjeta());
         cargarDatos();
     }
 
@@ -185,7 +186,6 @@ public class TarjetasCreditoPanel extends JPanel {
         categoriaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId)
                 .forEach(categoriaCombo::addItem);
 
-        tarjetasCombo.addActionListener(e -> actualizarTarjeta());
         actualizarTarjeta();
     }
 
