@@ -285,7 +285,7 @@ public class FinanciacionService {
         }
     }
 
-    public Financiacion cancelarAnticipadamente(Long financiacionId,
+    Financiacion cancelarAnticipadamente(Long financiacionId,
                                                    Long usuarioId) {
         Objects.requireNonNull(financiacionId, "El id de la financiación es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
