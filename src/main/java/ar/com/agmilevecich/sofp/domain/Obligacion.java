@@ -214,6 +214,35 @@ public class Obligacion extends EntidadAuditable {
         return importePagado.compareTo(calcularPagoMinimo()) >= 0;
     }
 
+    public void marcarRefinanciada() {
+        if (estado == EstadoObligacion.PAGADA) {
+            throw new IllegalStateException("La obligación ya está pagada");
+        }
+        if (estado == EstadoObligacion.REFINANCIADA) {
+            throw new IllegalStateException("La obligación ya está refinanciada");
+        }
+        estado = EstadoObligacion.REFINANCIADA;
+    }
+
+    public void anular() {
+        if (estado == EstadoObligacion.ANULADA) {
+            throw new IllegalStateException("La obligación ya está anulada");
+        }
+        estado = EstadoObligacion.ANULADA;
+        saldoPendiente = BigDecimal.ZERO.setScale(2);
+        if (saldoLiquidacion != null) {
+            saldoLiquidacion = BigDecimal.ZERO.setScale(2);
+        }
+        financiaciones.forEach(financiacion -> {
+            if (financiacion.estaPendiente()) {
+                while (financiacion.estaPendiente()) {
+                    BigDecimal pago = financiacion.getSaldoTotalPendiente();
+                    financiacion.registrarPago(pago);
+                }
+            }
+        });
+    }
+
     public boolean estaEnMora(LocalDate fechaPago) {
         Objects.requireNonNull(fechaPago, "La fecha de pago es obligatoria");
         return fechaPago.isAfter(getFechaLimitePago());
@@ -291,7 +320,7 @@ public class Obligacion extends EntidadAuditable {
     }
 
     public void registrarPago(BigDecimal importe) {
-        if (estado == EstadoObligacion.PAGADA) throw new IllegalStateException("La obligación ya está pagada");
+        if (estado == EstadoObligacion.PAGADA || estado == EstadoObligacion.REFINANCIADA || estado == EstadoObligacion.ANULADA) throw new IllegalStateException("La obligación no admite pagos en su estado actual");
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
         if (pago.compareTo(saldoPendiente) > 0) throw new IllegalArgumentException("El pago no puede superar el saldo pendiente");
         if (cuotas.isEmpty()) saldoPendiente = saldoPendiente.subtract(pago);
@@ -311,6 +340,7 @@ public class Obligacion extends EntidadAuditable {
     }
 
     public void registrarPagoLiquidacion(BigDecimal importe) {
+        if (estado == EstadoObligacion.REFINANCIADA || estado == EstadoObligacion.ANULADA) throw new IllegalStateException("La obligación no admite pagos en su estado actual");
         if (saldoLiquidacion == null) throw new IllegalStateException("La obligación no tiene una liquidación");
         if (saldoLiquidacion.signum() == 0) throw new IllegalStateException("La liquidación ya está pagada");
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
