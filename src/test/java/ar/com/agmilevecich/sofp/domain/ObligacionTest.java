@@ -71,6 +71,30 @@ class ObligacionTest {
     }
 
     @Test
+    void deberiaCalcularPagoMinimoDeLaObligacion() {
+        Obligacion obligacion = new Obligacion(crearMovimiento(FormaPago.TARJETA_CREDITO));
+        obligacion.getMovimientoOrigen().getCuenta().configurarDatosCredito(
+                new BigDecimal("500000.00"), 15, 10, 0,
+                new BigDecimal("20.00"), new BigDecimal("1500.00")
+        );
+
+        assertEquals(new BigDecimal("3001.00"), obligacion.calcularPagoMinimo());
+    }
+
+    @Test
+    void deberiaDeterminarSiElPagoCumpleElMinimo() {
+        Obligacion obligacion = new Obligacion(crearMovimiento(FormaPago.TARJETA_CREDITO));
+        obligacion.getMovimientoOrigen().getCuenta().configurarDatosCredito(
+                new BigDecimal("500000.00"), 15, 10, 0,
+                new BigDecimal("20.00"), new BigDecimal("1500.00")
+        );
+
+        assertFalse(obligacion.cumplePagoMinimo(new BigDecimal("3000.00")));
+        assertTrue(obligacion.cumplePagoMinimo(new BigDecimal("3001.00")));
+        assertTrue(obligacion.cumplePagoMinimo(new BigDecimal("5000.00")));
+    }
+
+    @Test
     void deberiaRegistrarPagoParcial() {
 
         Obligacion obligacion = new Obligacion(
