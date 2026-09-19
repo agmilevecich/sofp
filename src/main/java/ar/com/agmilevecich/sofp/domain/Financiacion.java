@@ -185,19 +185,43 @@ public class Financiacion extends EntidadAuditable {
         return saldoCapital.signum() == 0;
     }
 
-    public void registrarPago(BigDecimal importe) {
+    public BigDecimal registrarPago(BigDecimal importe) {
         BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
-        if (pago.compareTo(saldoCapital) > 0) {
-            throw new IllegalArgumentException("El pago no puede superar el saldo de capital");
+        BigDecimal saldoTotal = getSaldoTotalPendiente();
+        if (pago.compareTo(saldoTotal) > 0) {
+            throw new IllegalArgumentException("El pago no puede superar el saldo total de la financiación");
         }
+
+        BigDecimal restante = pago;
+        for (CargoFinanciero cargo : cargos) {
+            if (restante.signum() == 0) {
+                break;
+            }
+            BigDecimal pagoCargo = restante.min(cargo.getSaldoPendiente());
+            if (pagoCargo.signum() > 0) {
+                cargo.registrarPago(pagoCargo);
+                restante = restante.subtract(pagoCargo);
+            }
+        }
+
+        if (restante.signum() == 0) {
+            return BigDecimal.ZERO.setScale(2);
+        }
+
         BigDecimal saldoAnterior = saldoCapital;
-        saldoCapital = saldoCapital.subtract(pago);
+        BigDecimal pagoCapital = restante.min(saldoCapital);
+        saldoCapital = saldoCapital.subtract(pagoCapital);
         BigDecimal valorizacionPago = getSaldoValorizacion()
-                .multiply(pago)
+                .multiply(pagoCapital)
                 .divide(saldoAnterior, 2, java.math.RoundingMode.HALF_UP);
         saldoValorizacion = getSaldoValorizacion().subtract(valorizacionPago);
         if (saldoCapital.signum() == 0) {
             saldoValorizacion = BigDecimal.ZERO.setScale(2);
         }
+        return pagoCapital;
+    }
+
+    public BigDecimal getSaldoTotalPendiente() {
+        return saldoCapital.add(getSaldoCargosPendiente());
     }
 }
