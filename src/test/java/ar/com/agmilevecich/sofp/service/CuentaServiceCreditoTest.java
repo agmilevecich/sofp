@@ -4,6 +4,7 @@ import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
@@ -62,6 +63,40 @@ class CuentaServiceCreditoTest {
                         )
                 )
         );
+    }
+
+    @Test
+    void deberiaSumarFinanciacionMultidivisaYSaldoLiquidadoAlCreditoUtilizado() {
+        Datos datos = persistirDatos();
+        entityManager.getTransaction().begin();
+
+        Financiacion financiacion = datos.obligacion().crearFinanciacion(
+                java.time.LocalDate.of(2026, 9, 26),
+                new BigDecimal("40.00"),
+                datos.usd(),
+                datos.obligacion().getTipoCambioCierre(),
+                false
+        );
+        TipoCambio cambioLiquidacion = new TipoCambio(
+                datos.usd(),
+                datos.ars(),
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 9, 26, 10, 0),
+                "TEST LIQ"
+        );
+        entityManager.persist(cambioLiquidacion);
+        datos.obligacion().liquidar(cambioLiquidacion);
+        entityManager.getTransaction().commit();
+
+        assertEquals(
+                0,
+                new BigDecimal("344000.00").compareTo(
+                        cuentaService.calcularCreditoDisponible(
+                                datos.cuenta().getId(), datos.usuario().getId()
+                        )
+                )
+        );
+        assertEquals(new BigDecimal("40.00"), financiacion.getSaldoCapital());
     }
 
     @Test
