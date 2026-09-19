@@ -127,6 +127,18 @@ public class Cuota extends EntidadAuditable {
         this.importeValorizacionCierre = tipoCambio.convertir(importeOriginal);
     }
 
+    public void revertirPago(BigDecimal importe) {
+        BigDecimal monto = Validaciones.importePositivo(importe, "El importe de la reversión es obligatorio");
+        BigDecimal pagado = importeOriginal.subtract(saldoPendiente);
+        if (monto.compareTo(pagado) > 0) {
+            throw new IllegalArgumentException("La reversión supera el importe pagado de la cuota");
+        }
+        saldoPendiente = saldoPendiente.add(monto);
+        estado = saldoPendiente.compareTo(importeOriginal) == 0
+                ? EstadoObligacion.PENDIENTE
+                : EstadoObligacion.PARCIAL;
+    }
+
     public void registrarPago(BigDecimal importe) {
         if (estado == EstadoObligacion.PAGADA) {
             throw new IllegalStateException("La cuota ya está pagada");
