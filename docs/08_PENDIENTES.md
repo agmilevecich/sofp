@@ -217,3 +217,14 @@ Implementado:
 Pendiente inmediato: hacer que PagoTarjetaService aplique correctamente los pagos posteriores al vencimiento al saldo de Financiacion, sin confundirlos con cuotas futuras.
 
 No implementar todavía intereses, TNA, punitorios, CFT ni refinanciación.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:00 -03:00
+
+### Financiación — pagos posteriores implementados
+
+PagoTarjetaService ya reconoce financiaciones pendientes y aplica los pagos posteriores al vencimiento sobre ellas. El pago reduce simultáneamente la financiación y la deuda subyacente; un excedente puede continuar sobre la siguiente cuota cuando la obligación todavía no fue liquidada.
+
+Pendiente inmediato: completar y validar el comportamiento multidivisa cuando una obligación financiada también tiene liquidación en otra moneda. No asumir conversiones implícitas.
+
+Siguen fuera de este bloque intereses, TNA, punitorios, CFT y refinanciación.
