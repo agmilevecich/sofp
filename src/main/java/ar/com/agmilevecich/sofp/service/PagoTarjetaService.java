@@ -7,6 +7,7 @@ import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PagoTarjeta;
+import ar.com.agmilevecich.sofp.domain.Refinanciacion;
 import ar.com.agmilevecich.sofp.domain.TipoTasaInteres;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
@@ -67,15 +68,18 @@ public class PagoTarjetaService {
                 throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
             }
             Financiacion financiacionPendiente = buscarFinanciacionPendiente(obligacion, fechaHora);
+            Refinanciacion refinanciacionPendiente = buscarRefinanciacionPendiente(obligacion, fechaHora);
             actualizarInteresesSiCorresponde(financiacionPendiente, fechaHora.toLocalDate(), obligacion);
-            validarMonedaPagadora(obligacion, cuentaPagadora, financiacionPendiente);
+            validarMonedaPagadora(obligacion, cuentaPagadora, financiacionPendiente, refinanciacionPendiente);
             if (importe.signum() <= 0) {
                 throw new IllegalArgumentException("El importe debe ser positivo");
             }
             BigDecimal saldoPendiente = obligacion.getSaldoLiquidacion() != null
                     ? obligacion.getSaldoLiquidacion()
                     : obligacion.getSaldoPendiente();
-            if (financiacionPendiente != null) {
+            if (refinanciacionPendiente != null) {
+                saldoPendiente = refinanciacionPendiente.getSaldoPlan();
+            } else if (financiacionPendiente != null) {
                 saldoPendiente = financiacionPendiente.getSaldoTotalPendiente();
                 if (obligacion.getSaldoLiquidacion() == null) {
                     saldoPendiente = obligacion.getSaldoPendiente()
@@ -101,13 +105,19 @@ public class PagoTarjetaService {
             );
 
             BigDecimal importeFinanciacion = BigDecimal.ZERO.setScale(2);
+            BigDecimal importeRefinanciacion = BigDecimal.ZERO.setScale(2);
             BigDecimal importeObligacion = importe;
-            if (financiacionPendiente != null) {
+            if (refinanciacionPendiente != null) {
+                importeRefinanciacion = importe;
+                importeObligacion = BigDecimal.ZERO.setScale(2);
+            } else if (financiacionPendiente != null) {
                 importeFinanciacion = importe.min(financiacionPendiente.getSaldoTotalPendiente());
                 importeObligacion = importe.subtract(importeFinanciacion);
             }
 
-            if (financiacionPendiente != null) {
+            if (refinanciacionPendiente != null) {
+                refinanciacionPendiente.registrarPago(importe);
+            } else if (financiacionPendiente != null) {
                 if (obligacion.getSaldoLiquidacion() != null) {
                     obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
                 } else {
@@ -134,6 +144,7 @@ public class PagoTarjetaService {
                     importe,
                     importeFinanciacion,
                     importeObligacion,
+                    importeRefinanciacion,
                     fechaHora
             );
             entityManager.persist(pagoTarjeta);
@@ -175,7 +186,10 @@ public class PagoTarjetaService {
             validarPropietario(usuarioId, pago.getObligacion());
 
             if (pago.getObligacion().getEstado() == ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
-                    || pago.getObligacion().getEstado() == ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA) {
+                    && pago.getRefinanciacion() == null) {
+                throw new IllegalStateException("La obligación no admite reversión del pago de origen después de refinanciarse");
+            }
+            if (pago.getObligacion().getEstado() == ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA) {
                 throw new IllegalStateException("La obligación no admite reversión en su estado actual");
             }
 
@@ -188,6 +202,11 @@ public class PagoTarjetaService {
                 if (pago.getImporteFinanciacion().signum() > 0) {
                     pago.getFinanciacion().revertirPago(pago.getImporteFinanciacion());
                 }
+            }
+
+            if (pago.getRefinanciacion() != null
+                    && pago.getImporteRefinanciacion().signum() > 0) {
+                pago.getRefinanciacion().revertirPago(pago.getImporteRefinanciacion());
             }
 
             if (pago.getImporteObligacion().signum() > 0) {
@@ -239,12 +258,17 @@ public class PagoTarjetaService {
         }
     }
 
-    private void validarMonedaPagadora(Obligacion obligacion, Cuenta cuentaPagadora, Financiacion financiacionPendiente) {
-        var monedaEsperada = financiacionPendiente != null
-                ? financiacionPendiente.getMoneda()
-                : obligacion.getSaldoLiquidacion() != null
-                    ? obligacion.getMonedaLiquidacion()
-                    : obligacion.getMonedaOriginal();
+    private void validarMonedaPagadora(Obligacion obligacion,
+                                        Cuenta cuentaPagadora,
+                                        Financiacion financiacionPendiente,
+                                        Refinanciacion refinanciacionPendiente) {
+        var monedaEsperada = refinanciacionPendiente != null
+                ? refinanciacionPendiente.getMoneda()
+                : financiacionPendiente != null
+                    ? financiacionPendiente.getMoneda()
+                    : obligacion.getSaldoLiquidacion() != null
+                        ? obligacion.getMonedaLiquidacion()
+                        : obligacion.getMonedaOriginal();
         if (!Objects.equals(cuentaPagadora.getMoneda(), monedaEsperada)) {
             throw new IllegalArgumentException("La cuenta pagadora y la moneda de pago de la obligación deben coincidir");
         }
@@ -256,6 +280,26 @@ public class PagoTarjetaService {
                 .filter(financiacion -> !fechaHora.toLocalDate().isBefore(financiacion.getFechaInicio()))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private Refinanciacion buscarRefinanciacionPendiente(Obligacion obligacion, LocalDateTime fechaHora) {
+        return entityManager.createQuery(
+                """
+                SELECT r
+                FROM Refinanciacion r
+                WHERE r.obligacionOrigen.id = :obligacionId
+                  AND r.estado = ar.com.agmilevecich.sofp.domain.EstadoRefinanciacion.ACTIVA
+                  AND r.fechaInicio <= :fecha
+                ORDER BY r.id DESC
+                """,
+                Refinanciacion.class
+        )
+        .setParameter("obligacionId", obligacion.getId())
+        .setParameter("fecha", fechaHora.toLocalDate())
+        .setMaxResults(1)
+        .getResultStream()
+        .findFirst()
+        .orElse(null);
     }
 
     private void validarFechaPago(Obligacion obligacion, LocalDateTime fechaHora) {
