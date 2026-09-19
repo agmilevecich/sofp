@@ -58,7 +58,8 @@ public class Financiacion extends EntidadAuditable {
         this.capitalOriginal = Validaciones.importePositivo(capitalOriginal, "El capital original es obligatorio");
         this.moneda = Objects.requireNonNull(moneda, "La moneda de la financiación es obligatoria");
         this.origenLiquidacion = origenLiquidacion;
-        if (!moneda.equals(obligacion.getMoneda()) && tipoCambioValorizacion == null) {
+        Moneda monedaReferencia = origenLiquidacion ? obligacion.getMonedaLiquidacion() : obligacion.getMonedaOriginal();
+        if (!moneda.equals(monedaReferencia) && tipoCambioValorizacion == null) {
             throw new IllegalArgumentException("La financiación multidivisa requiere una cotización de valorización");
         }
         if (tipoCambioValorizacion != null) {
