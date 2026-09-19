@@ -338,6 +338,42 @@ public class Obligacion extends EntidadAuditable {
         estado = saldoPendiente.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
     }
 
+    public void revertirPago(BigDecimal importe) {
+        if (estado == EstadoObligacion.REFINANCIADA || estado == EstadoObligacion.ANULADA) {
+            throw new IllegalStateException("La obligación no admite reversión en su estado actual");
+        }
+        BigDecimal monto = Validaciones.importePositivo(importe, "El importe de la reversión es obligatorio");
+        if (saldoLiquidacion != null) {
+            BigDecimal pagado = importeLiquidacion.subtract(saldoLiquidacion);
+            if (monto.compareTo(pagado) > 0) {
+                throw new IllegalArgumentException("La reversión supera el pago de liquidación");
+            }
+            saldoLiquidacion = saldoLiquidacion.add(monto);
+            estado = EstadoObligacion.PARCIAL;
+            return;
+        }
+
+        BigDecimal pagado = importeOriginal.subtract(saldoPendiente);
+        if (monto.compareTo(pagado) > 0) {
+            throw new IllegalArgumentException("La reversión supera los pagos de la obligación");
+        }
+
+        BigDecimal restante = monto;
+        for (int i = cuotas.size() - 1; i >= 0 && restante.signum() > 0; i--) {
+            Cuota cuota = cuotas.get(i);
+            BigDecimal pagadoCuota = cuota.getImporteOriginal().subtract(cuota.getSaldoPendiente());
+            BigDecimal restaurar = restante.min(pagadoCuota);
+            if (restaurar.signum() > 0) {
+                cuota.revertirPago(restaurar);
+                restante = restante.subtract(restaurar);
+            }
+        }
+        saldoPendiente = saldoPendiente.add(monto);
+        estado = saldoPendiente.compareTo(importeOriginal) == 0
+                ? EstadoObligacion.PENDIENTE
+                : EstadoObligacion.PARCIAL;
+    }
+
     public void registrarPagoLiquidacion(BigDecimal importe) {
         if (estado == EstadoObligacion.REFINANCIADA || estado == EstadoObligacion.ANULADA) throw new IllegalStateException("La obligación no admite pagos en su estado actual");
         if (saldoLiquidacion == null) throw new IllegalStateException("La obligación no tiene una liquidación");
