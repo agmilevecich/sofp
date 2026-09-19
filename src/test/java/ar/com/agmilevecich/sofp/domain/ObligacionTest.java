@@ -77,6 +77,32 @@ class ObligacionTest {
     }
 
     @Test
+    void deberiaPermitirFinanciarSaldoEnMonedaDeLiquidacionDespuesDeLiquidar() {
+        Obligacion obligacion = new Obligacion(crearMovimientoMultidivisa(FormaPago.TARJETA_CREDITO));
+        TipoCambio liquidacion = new TipoCambio(
+                obligacion.getMonedaOriginal(),
+                obligacion.getMonedaLiquidacion(),
+                new BigDecimal("1600.00"),
+                LocalDateTime.of(2026, 9, 26, 10, 0),
+                "LIQUIDACION"
+        );
+        obligacion.liquidar(liquidacion);
+
+        Financiacion financiacion = obligacion.crearFinanciacion(
+                LocalDate.of(2026, 9, 26),
+                new BigDecimal("160000.00"),
+                obligacion.getMonedaLiquidacion(),
+                null,
+                true
+        );
+
+        assertEquals(new BigDecimal("160000.00"), financiacion.getSaldoCapital());
+        assertEquals(new BigDecimal("0.00"), obligacion.getSaldoLiquidacion());
+        obligacion.registrarPagoFinanciacion(financiacion, new BigDecimal("160000.00"));
+        assertEquals(EstadoObligacion.PAGADA, obligacion.getEstado());
+    }
+
+    @Test
     void deberiaRechazarMovimientoDeIngreso() {
 
         Movimiento movimiento = crearMovimiento(TipoMovimiento.INGRESO, FormaPago.TARJETA_CREDITO);
