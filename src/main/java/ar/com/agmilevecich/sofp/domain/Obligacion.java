@@ -200,8 +200,10 @@ public class Obligacion extends EntidadAuditable {
             for (Cuota cuota : cuotas) {
                 if (restante.signum() == 0) break;
                 BigDecimal pagoCuota = restante.min(cuota.getSaldoPendiente());
-                cuota.registrarPago(pagoCuota);
-                restante = restante.subtract(pagoCuota);
+                if (pagoCuota.signum() > 0) {
+                    cuota.registrarPago(pagoCuota);
+                    restante = restante.subtract(pagoCuota);
+                }
             }
             saldoPendiente = saldoPendiente.subtract(pago);
         }
