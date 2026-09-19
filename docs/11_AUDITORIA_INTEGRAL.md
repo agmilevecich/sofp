@@ -261,3 +261,26 @@ Pendientes conocidos: calendario bancario/feriados, fecha efectiva separada del 
 ### Regla de continuidad
 
 En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que una documentación histórica representa el estado actual si contradice código o tests.
+
+
+## ACTUALIZACIÓN — AUDITORÍA 100% TARJETA DE CRÉDITO — 19/09/2026
+
+La revisión integral actual confirma que el núcleo de tarjeta está implementado en consumo, obligación, ciclos, cuotas, valorización de cierre, liquidación multidivisa, pagos, financiación, refinanciación, crédito disponible y UI de consulta.
+
+Durante la auditoría se agregaron pruebas de TNA para cambios de tasa dentro del mismo período, límites de vigencia, cálculo sobre capital parcialmente pagado y rechazo de recalcular dos veces el mismo período. También se agregó una prueba de protección contra doble reversión de un pago de refinanciación.
+
+La ejecución remota que falló sobre el commit anterior fue diagnosticada: GitHub Actions no llegó a ejecutar tests; falló en compilación porque ese commit tenía una llamada a `PagoTarjeta` incompatible con el constructor vigente. Los commits posteriores de `feature/swing-shell` ya contienen la corrección de esa llamada. La nueva ejecución de CI correspondiente al estado actualizado quedó iniciada y debe ser tomada como fuente de validación, no la ejecución fallida anterior.
+
+### Hallazgos abiertos
+
+- Refinanciación sin motor de intereses/TNA periódico: falta definir modalidad de amortización.
+- Punitorios no condicionados explícitamente al cumplimiento del pago mínimo. La normativa vigente establece que no corresponde aplicar punitorios cuando se efectuó el pago mínimo en la fecha correspondiente. citeturn5search2
+- Caso financiación multidivisa seguida de liquidación en otra moneda: falta una regla explícita de conversión, cotización y trazabilidad.
+- Cancelación anticipada de financiación y pago directo de refinanciación todavía tienen APIs que pueden modificar deuda sin movimiento financiero si se invocan fuera del flujo canónico.
+- Cargos de financiación: revisar su impacto en crédito disponible y su valorización cuando la financiación es multidivisa.
+- UI específica: faltan operaciones de alta de financiación/refinanciación y detalle completo de cargos/TNA/punitorios/cuotas refinanciadas.
+- Calendario bancario de feriados, `Clock` y versionado formal de esquema siguen pendientes.
+
+### Conclusión
+
+No se declara cerrada Tarjeta de Crédito todavía. No se requiere modificar `main`. Los hallazgos de reglas financieras quedan documentados sin inventar una política contable; los hallazgos puramente técnicos continúan cerrándose sobre `feature/swing-shell`.
