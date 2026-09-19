@@ -6,6 +6,7 @@ import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
+import ar.com.agmilevecich.sofp.domain.PagoTarjeta;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
@@ -96,6 +97,13 @@ public class PagoTarjetaService {
                     importe, fechaHora, descripcion, FormaPago.TRANSFERENCIA
             );
 
+            BigDecimal importeFinanciacion = BigDecimal.ZERO.setScale(2);
+            BigDecimal importeObligacion = importe;
+            if (financiacionPendiente != null) {
+                importeFinanciacion = importe.min(financiacionPendiente.getSaldoTotalPendiente());
+                importeObligacion = importe.subtract(importeFinanciacion);
+            }
+
             if (financiacionPendiente != null) {
                 if (obligacion.getSaldoLiquidacion() != null) {
                     obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
@@ -113,9 +121,91 @@ public class PagoTarjetaService {
                 obligacion.registrarPago(importe);
             }
             movimientoRepository.guardar(movimientoPago);
+            PagoTarjeta pagoTarjeta = new PagoTarjeta(
+                    obligacion,
+                    financiacionPendiente,
+                    movimientoPago,
+                    cuentaPagadora,
+                    categoria,
+                    cuentaPagadora.getMoneda(),
+                    importe,
+                    importeFinanciacion,
+                    importeObligacion,
+                    fechaHora
+            );
+            entityManager.persist(pagoTarjeta);
             entityManager.flush();
             transaction.commit();
             return obligacion;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
+
+    public PagoTarjeta revertirUltimoPago(Long obligacionId,
+                                              Long usuarioId,
+                                              LocalDateTime fechaHoraReversion) {
+        Objects.requireNonNull(obligacionId, "El id de la obligación es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Objects.requireNonNull(fechaHoraReversion, "La fecha de reversión es obligatoria");
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            PagoTarjeta pago = entityManager.createQuery(
+                    """
+                    SELECT p
+                    FROM PagoTarjeta p
+                    WHERE p.obligacion.id = :obligacionId
+                      AND p.estado = ar.com.agmilevecich.sofp.domain.EstadoPagoTarjeta.ACTIVO
+                    ORDER BY p.fechaHora DESC, p.id DESC
+                    """,
+                    PagoTarjeta.class
+            )
+            .setParameter("obligacionId", obligacionId)
+            .setMaxResults(1)
+            .getResultStream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("No existe un pago activo para revertir"));
+
+            validarPropietario(usuarioId, pago.getObligacion());
+
+            if (pago.getObligacion().getEstado() == ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                    || pago.getObligacion().getEstado() == ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA) {
+                throw new IllegalStateException("La obligación no admite reversión en su estado actual");
+            }
+
+            if (pago.getFinanciacion() != null) {
+                boolean hayCargoPosterior = pago.getFinanciacion().getCargos().stream()
+                        .anyMatch(cargo -> cargo.getFechaGeneracion().isAfter(pago.getFechaHora().toLocalDate()));
+                if (hayCargoPosterior) {
+                    throw new IllegalStateException("No se puede revertir un pago con cargos posteriores");
+                }
+                if (pago.getImporteFinanciacion().signum() > 0) {
+                    pago.getFinanciacion().revertirPago(pago.getImporteFinanciacion());
+                }
+            }
+
+            if (pago.getImporteObligacion().signum() > 0) {
+                pago.getObligacion().revertirPago(pago.getImporteObligacion());
+            }
+
+            Movimiento movimientoReversion = new Movimiento(
+                    pago.getCuentaPagadora(),
+                    pago.getCategoria(),
+                    pago.getCuentaPagadora().getMoneda(),
+                    TipoMovimiento.INGRESO,
+                    pago.getImporte(),
+                    fechaHoraReversion,
+                    "Reversión de pago de tarjeta",
+                    FormaPago.TRANSFERENCIA
+            );
+            movimientoRepository.guardar(movimientoReversion);
+            pago.marcarRevertido(fechaHoraReversion);
+            entityManager.flush();
+            transaction.commit();
+            return pago;
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
