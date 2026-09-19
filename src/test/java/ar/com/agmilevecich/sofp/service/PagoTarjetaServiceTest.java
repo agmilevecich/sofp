@@ -253,6 +253,45 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void noDeberiaPermitirRevertirDosVecesElMismoPagoDeRefinanciacion() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        refinanciacionService.crear(
+                obligacion.getId(),
+                usuario.getId(),
+                java.time.LocalDate.of(2026, 9, 10),
+                3,
+                new BigDecimal("6000.00"),
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000")
+        );
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(),
+                cuentaPagadora,
+                categoriaPago,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Pago refinanciacion",
+                usuario.getId()
+        );
+
+        pagoTarjetaService.revertirUltimoPago(
+                obligacion.getId(),
+                usuario.getId(),
+                LocalDateTime.of(2026, 9, 11, 12, 0)
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> pagoTarjetaService.revertirUltimoPago(
+                        obligacion.getId(),
+                        usuario.getId(),
+                        LocalDateTime.of(2026, 9, 12, 12, 0)
+                )
+        );
+    }
+
+    @Test
     void deberiaAplicarPagoPosteriorAlVencimientoSobreLaFinanciacion() {
         Obligacion obligacion = registrarGasto("120000.00", LocalDateTime.of(2026, 8, 9, 10, 0));
         pagoTarjetaService.registrarPago(
