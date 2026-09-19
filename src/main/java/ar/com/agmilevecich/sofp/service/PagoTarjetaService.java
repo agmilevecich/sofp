@@ -76,7 +76,8 @@ public class PagoTarjetaService {
             if (financiacionPendiente != null) {
                 saldoPendiente = financiacionPendiente.getSaldoTotalPendiente();
                 if (obligacion.getSaldoLiquidacion() == null) {
-                    saldoPendiente = obligacion.getSaldoPendiente();
+                    saldoPendiente = obligacion.getSaldoPendiente()
+                            .add(financiacionPendiente.getSaldoCargosPendiente());
                 }
                 if (obligacion.getSaldoLiquidacion() != null
                         && importe.compareTo(financiacionPendiente.getSaldoTotalPendiente()) > 0) {
