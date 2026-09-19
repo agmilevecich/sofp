@@ -97,6 +97,7 @@ class PagoTarjetaServiceTest {
 
     @Test
     void deberiaRegistrarYRevertirElUltimoPagoConMovimientoCompensatorio() {
+        Obligacion obligacion = registrarGasto("120000.00", 1);
         pagoTarjetaService.registrarPago(
                 obligacion.getId(), cuentaPagadora, categoriaPago,
                 new BigDecimal("50000.00"),
