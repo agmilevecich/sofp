@@ -252,15 +252,16 @@ public class ObligacionService {
                 throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
             }
 
-            LocalDate fechaCierre = obligacion.getCuotas().stream()
-                    .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
-                    .filter(cuota -> fecha.isAfter(cuota.getFechaVencimiento()))
-                    .map(Cuota::getFechaCierreCiclo)
-                    .findFirst()
-                    .orElseGet(() -> obligacion.getCuotas().isEmpty()
-                            && fecha.isAfter(obligacion.getFechaLimitePago())
+            LocalDate fechaCierre = fecha.isAfter(obligacion.getFechaLimitePago())
+                    ? (obligacion.getCuotas().isEmpty()
                             ? obligacion.getCicloFacturacion().getFechaCierre()
-                            : null);
+                            : obligacion.getCuotas().stream()
+                            .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
+                            .filter(cuota -> fecha.isAfter(cuota.getFechaVencimiento()))
+                            .map(Cuota::getFechaCierreCiclo)
+                            .findFirst()
+                            .orElse(null))
+                    : null;
 
             if (fechaCierre == null) {
                 entityManager.flush();
