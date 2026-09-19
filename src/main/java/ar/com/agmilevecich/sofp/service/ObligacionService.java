@@ -130,8 +130,10 @@ public class ObligacionService {
             throw new IllegalArgumentException("La fecha indicada no corresponde al día de cierre de la tarjeta");
         }
 
+        LocalDate fechaInicioCiclo = cuenta.calcularCicloFacturacion(fechaCierre).getFechaInicio();
         List<Obligacion> obligaciones = obligacionRepository.listarPorCuentaYCierreCiclo(
                 cuentaId,
+                fechaInicioCiclo,
                 fechaCierre
         );
 
