@@ -29,6 +29,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ObligacionServiceCierreTest {
 
@@ -264,6 +265,76 @@ class ObligacionServiceCierreTest {
                 .compareTo(recargada.getCuotas().get(0).getImporteValorizacionCierre()));
         assertNull(recargada.getImporteValorizacionCierre());
         assertEquals(EstadoObligacion.PENDIENTE, recargada.getEstado());
+    }
+
+    @Test
+    void deberiaCrearFinanciacionAlVencerElPrimerCicloPorElSaldoImpago() {
+        Obligacion obligacion = registrarConsumo(ars, new BigDecimal("120.00"));
+        obligacionService.registrarPago(obligacion.getId(), new BigDecimal("40.00"), usuarioId);
+
+        LocalDate fechaFinanciacion = obligacion.getFechaLimitePago().plusDays(1);
+        Financiacion financiacion = obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion, usuarioId
+        ).orElseThrow();
+
+        assertEquals(new BigDecimal("80.00"), financiacion.getCapitalOriginal());
+        assertEquals(new BigDecimal("80.00"), financiacion.getSaldoCapital());
+        assertEquals(fechaFinanciacion, financiacion.getFechaInicio());
+        assertEquals(1, obligacion.getFinanciaciones().size());
+    }
+
+    @Test
+    void noDeberiaCrearFinanciacionSiElCicloEstaPagado() {
+        Obligacion obligacion = registrarConsumo(ars, new BigDecimal("120.00"));
+        obligacionService.registrarPago(obligacion.getId(), new BigDecimal("120.00"), usuarioId);
+
+        var financiacion = obligacionService.financiarSaldoImpago(
+                obligacion.getId(), obligacion.getFechaLimitePago().plusDays(1), usuarioId
+        );
+
+        assertTrue(financiacion.isEmpty());
+        assertEquals(0, obligacion.getFinanciaciones().size());
+    }
+
+    @Test
+    void deberiaFinanciarSoloLaCuotaVencidaYNoLasCuotasFuturas() {
+        Movimiento movimiento = gastoService.registrar(
+                tarjeta,
+                categoria,
+                ars,
+                new BigDecimal("120.00"),
+                LocalDateTime.of(2026, 9, 10, 12, 0),
+                "Compra en cuotas",
+                FormaPago.TARJETA_CREDITO,
+                usuarioId,
+                3
+        );
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        obligacionService.registrarPago(obligacion.getId(), new BigDecimal("20.00"), usuarioId);
+
+        LocalDate fechaFinanciacion = obligacion.getCuotas().get(0).getFechaVencimiento().plusDays(1);
+        Financiacion financiacion = obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion, usuarioId
+        ).orElseThrow();
+
+        assertEquals(new BigDecimal("20.00"), financiacion.getCapitalOriginal());
+        assertEquals(new BigDecimal("20.00"), financiacion.getSaldoCapital());
+    }
+
+    @Test
+    void noDeberiaCrearDosFinanciacionesParaElMismoCiclo() {
+        Obligacion obligacion = registrarConsumo(ars, new BigDecimal("100.00"));
+        LocalDate fechaFinanciacion = obligacion.getFechaLimitePago().plusDays(1);
+
+        Financiacion primera = obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion, usuarioId
+        ).orElseThrow();
+        Financiacion segunda = obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion, usuarioId
+        ).orElseThrow();
+
+        assertEquals(primera.getId(), segunda.getId());
+        assertEquals(1, obligacion.getFinanciaciones().size());
     }
 
     @Test
