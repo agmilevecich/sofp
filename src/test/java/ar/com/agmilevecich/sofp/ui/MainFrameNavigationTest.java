@@ -26,6 +26,7 @@ class MainFrameNavigationTest {
             navegarYVerificar(sidebar, mainFrame, "Movimientos");
             navegarYVerificar(sidebar, mainFrame, "Inversiones");
             navegarYVerificar(sidebar, mainFrame, "Obligaciones");
+            navegarYVerificar(sidebar, mainFrame, "Tarjetas");
             navegarYVerificar(sidebar, mainFrame, "Transferencias");
         });
     }
@@ -69,6 +70,7 @@ class MainFrameNavigationTest {
             if (component instanceof MovimientosPanel) return etiquetaDelPanel(component);
             if (component instanceof InversionesPanel) return etiquetaDelPanel(component);
             if (component instanceof ObligacionesPanel) return etiquetaDelPanel(component);
+            if (component instanceof TarjetasCreditoPanel) return etiquetaDelPanel(component);
             if (component instanceof TransferenciasPanel) return etiquetaDelPanel(component);
             if (component instanceof Container hijo) {
                 String encontrado = tarjetaVisible(hijo);
@@ -86,7 +88,8 @@ class MainFrameNavigationTest {
                 if ("Inicio".equals(texto) || "Cuentas".equals(texto)
                         || "Ingresos".equals(texto) || "Gastos".equals(texto)
                         || "Movimientos".equals(texto) || "Inversiones".equals(texto)
-                        || "Obligaciones".equals(texto) || "Transferencias".equals(texto)) return texto;
+                        || "Obligaciones".equals(texto) || "Tarjetas".equals(texto)
+                        || "Transferencias".equals(texto)) return texto;
             }
             if (hijo instanceof Container contenedor) {
                 String encontrado = etiquetaDelPanel(contenedor);
