@@ -12,6 +12,7 @@ import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Refinanciacion;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
