@@ -71,7 +71,7 @@ public class RefinanciacionService {
         }
     }
 
-    public Refinanciacion registrarPago(Long refinanciacionId,
+    Refinanciacion registrarPago(Long refinanciacionId,
                                         Long usuarioId,
                                         BigDecimal importe) {
         Objects.requireNonNull(refinanciacionId, "El id de la refinanciación es obligatorio");
