@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.Cuota;
+import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.TipoCambio;
@@ -221,6 +222,73 @@ public class ObligacionService {
             entityManager.flush();
             transaction.commit();
             return obligacion;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+
+    /** Convierte en financiación el saldo impago del primer ciclo vencido de una obligación. */
+    public Optional<Financiacion> financiarSaldoImpago(Long obligacionId, LocalDate fecha, Long usuarioId) {
+        Objects.requireNonNull(obligacionId, "El id de la obligación es obligatorio");
+        Objects.requireNonNull(fecha, "La fecha de financiación es obligatoria");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+
+            Obligacion obligacion = obligacionRepository.buscarPorId(obligacionId)
+                    .orElseThrow(() -> new IllegalArgumentException("La obligación no existe"));
+
+            Long propietarioId = obligacion.getMovimientoOrigen()
+                    .getCuenta()
+                    .getPerfilFinanciero()
+                    .getUsuario()
+                    .getId();
+            if (!usuarioId.equals(propietarioId)) {
+                throw new IllegalArgumentException("La obligación no pertenece al usuario autorizado");
+            }
+
+            LocalDate fechaCierre = obligacion.getCuotas().stream()
+                    .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
+                    .filter(cuota -> fecha.isAfter(cuota.getFechaVencimiento()))
+                    .map(Cuota::getFechaCierreCiclo)
+                    .findFirst()
+                    .orElseGet(() -> obligacion.getCuotas().isEmpty()
+                            && fecha.isAfter(obligacion.getFechaLimitePago())
+                            ? obligacion.getCicloFacturacion().getFechaCierre()
+                            : null);
+
+            if (fechaCierre == null) {
+                entityManager.flush();
+                transaction.commit();
+                return Optional.empty();
+            }
+
+            BigDecimal capital = obligacion.getSaldoPendienteDelCiclo(fechaCierre);
+            if (capital.signum() <= 0) {
+                entityManager.flush();
+                transaction.commit();
+                return Optional.empty();
+            }
+
+            LocalDate fechaInicio = obligacion.getFechaInicioFinanciacion(fechaCierre);
+            Optional<Financiacion> existente = obligacion.getFinanciaciones().stream()
+                    .filter(financiacion -> fechaInicio.equals(financiacion.getFechaInicio()))
+                    .findFirst();
+            if (existente.isPresent()) {
+                entityManager.flush();
+                transaction.commit();
+                return existente;
+            }
+
+            Financiacion financiacion = obligacion.crearFinanciacion(fechaInicio, capital);
+            entityManager.flush();
+            transaction.commit();
+            return Optional.of(financiacion);
         } catch (RuntimeException e) {
             if (transaction.isActive()) {
                 transaction.rollback();
