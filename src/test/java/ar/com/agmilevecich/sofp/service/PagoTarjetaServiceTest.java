@@ -7,6 +7,7 @@ import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.PagoTarjeta;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
@@ -92,6 +93,28 @@ class PagoTarjetaServiceTest {
             entityManager.close();
         }
         JpaTestManager.close();
+    }
+
+    @Test
+    void deberiaRegistrarYRevertirElUltimoPagoConMovimientoCompensatorio() {
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago tarjeta", usuario.getId()
+        );
+
+        assertEquals(new BigDecimal("70000.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("150000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+
+        PagoTarjeta pago = pagoTarjetaService.revertirUltimoPago(
+                obligacion.getId(), usuario.getId(),
+                LocalDateTime.of(2026, 9, 11, 10, 0)
+        );
+
+        assertEquals("REVERSADO", pago.getEstado().name());
+        assertEquals(new BigDecimal("120000.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
 
     @Test
