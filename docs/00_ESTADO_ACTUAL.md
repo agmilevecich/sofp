@@ -135,3 +135,23 @@ No se registra todavía una ejecución local de estos nuevos tests. Deben ejecut
 ### Próximo bloque
 
 El flujo todavía no está completo como medio de pago: PagoTarjetaService aún no deriva los pagos posteriores al vencimiento hacia Financiacion. Tampoco están implementados intereses, TNA, punitorios, CFT ni refinanciación.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 19/09/2026 11:00 -03:00
+
+### Pagos sobre financiación conectados
+
+Se completó la siguiente parte del flujo:
+
+**financiación vencida → pago posterior → reducción del saldo de financiación y de la deuda subyacente.**
+
+PagoTarjetaService ahora detecta una financiación pendiente cuya fecha de inicio ya alcanzó la fecha del pago. En moneda original:
+
+- el pago se aplica primero a la financiación;
+- si sobra importe, continúa sobre la siguiente deuda/cuota;
+- la cuota que originó la financiación queda actualizada junto con el saldo de la obligación;
+- si la obligación ya tiene liquidación en otra moneda, el pago queda limitado al saldo de la financiación en su moneda original para evitar mezclar monedas.
+
+Se agregaron tests para pago sobre financiación y distribución del excedente sobre la cuota siguiente.
+
+La validación local de estos cambios todavía no fue ejecutada.
