@@ -116,6 +116,29 @@ class FinanciacionServiceTest {
     }
 
     @Test
+    void deberiaCalcularPunitorioSeparadoDelInteresFinanciero() {
+        Financiacion financiacion = entityManager.createQuery(
+                "SELECT f FROM Financiacion f", Financiacion.class
+        ).getSingleResult();
+
+        service.registrarTna(
+                tarjeta.getId(), usuarioId,
+                TipoTasaInteres.TNA_PUNITORIA,
+                LocalDate.of(2026, 9, 1), null,
+                new BigDecimal("18.2500"), "TEST PUNITORIO"
+        );
+
+        CargoFinanciero cargo = service.calcularPunitorio(
+                financiacion.getId(), LocalDate.of(2026, 9, 12), usuarioId
+        );
+
+        assertEquals(new BigDecimal("100.00"), cargo.getImporteOriginal());
+        assertEquals("INTERES_PUNITORIO", cargo.getTipo().name());
+        assertEquals(2, cargo.getDiasCalculo());
+        assertEquals(new BigDecimal("100000.00"), cargo.getCapitalBase());
+    }
+
+    @Test
     void noDeberiaCalcularInteresSinTnaVigente() {
         Financiacion financiacion = entityManager.createQuery(
                 "SELECT f FROM Financiacion f", Financiacion.class
