@@ -9,6 +9,7 @@ import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
+import ar.com.agmilevecich.sofp.domain.Refinanciacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
@@ -150,6 +151,40 @@ class ObligacionRepositoryFinanciacionCreditoTest {
             fixture.persistir(normal);
 
             assertCredito(fixture, "150000.00");
+        }
+    }
+
+    @Test
+    void refinanciacionPendienteContinuaConsumientoCreditoYLosPagosLoLiberan() {
+        try (Fixture fixture = new Fixture()) {
+            Obligacion obligacion = fixture.crearObligacion(new BigDecimal("100000.00"), fixture.ars);
+            Refinanciacion refinanciacion = new Refinanciacion(
+                    obligacion,
+                    fixture.ars,
+                    LocalDate.of(2026, 9, 26),
+                    new BigDecimal("100000.00"),
+                    new BigDecimal("10000.00"),
+                    BigDecimal.ZERO,
+                    new BigDecimal("24.0000"),
+                    3
+            );
+            refinanciacion.generarCuotas();
+            obligacion.marcarRefinanciada();
+
+            fixture.em.getTransaction().begin();
+            fixture.em.persist(refinanciacion);
+            fixture.em.getTransaction().commit();
+            fixture.em.clear();
+
+            assertCredito(fixture, "110000.00");
+
+            fixture.em.getTransaction().begin();
+            Refinanciacion persistida = fixture.em.find(Refinanciacion.class, refinanciacion.getId());
+            persistida.registrarPago(new BigDecimal("40000.00"));
+            fixture.em.getTransaction().commit();
+            fixture.em.clear();
+
+            assertCredito(fixture, "70000.00");
         }
     }
 
