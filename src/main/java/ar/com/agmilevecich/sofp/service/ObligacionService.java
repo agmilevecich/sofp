@@ -266,16 +266,57 @@ public class ObligacionService {
                     : null;
 
             if (fechaCierre == null) {
-                entityManager.flush();
                 transaction.commit();
                 return Optional.empty();
             }
 
-            BigDecimal capital = obligacion.getSaldoPendienteDelCiclo(fechaCierre);
-            if (capital.signum() <= 0) {
-                entityManager.flush();
-                transaction.commit();
-                return Optional.empty();
+            boolean liquidada = obligacion.getSaldoLiquidacion() != null;
+            if (liquidada && !obligacion.getCuotas().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "No se puede financiar una cuota multidivisa después de la liquidación sin una valorización individual de la cuota"
+                );
+            }
+
+            BigDecimal capital;
+            ar.com.agmilevecich.sofp.domain.Moneda monedaFinanciacion;
+            TipoCambio tipoCambioValorizacion = null;
+            boolean origenLiquidacion = false;
+
+            if (liquidada) {
+                capital = obligacion.getSaldoLiquidacion();
+                if (capital == null || capital.signum() <= 0) {
+                    transaction.commit();
+                    return Optional.empty();
+                }
+                monedaFinanciacion = obligacion.getMonedaLiquidacion();
+                origenLiquidacion = true;
+            } else {
+                capital = obligacion.getSaldoPendienteDelCiclo(fechaCierre);
+                if (capital.signum() <= 0) {
+                    transaction.commit();
+                    return Optional.empty();
+                }
+
+                monedaFinanciacion = obligacion.getMonedaOriginal();
+                if (!monedaFinanciacion.equals(obligacion.getMonedaLiquidacion())) {
+                    tipoCambioValorizacion = obligacion.getCuotas().stream()
+                            .filter(cuota -> fechaCierre.equals(cuota.getFechaCierreCiclo()))
+                            .map(Cuota::getTipoCambioCierre)
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .orElse(obligacion.getTipoCambioCierre());
+
+                    if (tipoCambioValorizacion == null) {
+                        tipoCambioValorizacion = tipoCambioRepository.buscarPorMonedasYFecha(
+                                        obligacion.getMonedaOriginal(),
+                                        obligacion.getMonedaLiquidacion(),
+                                        fechaCierre
+                                )
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                        "No existe cotización histórica para valorizar la financiación " + obligacion.getId()
+                                ));
+                    }
+                }
             }
 
             LocalDate fechaInicio = obligacion.getFechaInicioFinanciacion(fechaCierre);
@@ -283,12 +324,17 @@ public class ObligacionService {
                     .filter(financiacion -> fechaInicio.equals(financiacion.getFechaInicio()))
                     .findFirst();
             if (existente.isPresent()) {
-                entityManager.flush();
                 transaction.commit();
                 return existente;
             }
 
-            Financiacion financiacion = obligacion.crearFinanciacion(fechaInicio, capital);
+            Financiacion financiacion = obligacion.crearFinanciacion(
+                    fechaInicio,
+                    capital,
+                    monedaFinanciacion,
+                    tipoCambioValorizacion,
+                    origenLiquidacion
+            );
             entityManager.flush();
             transaction.commit();
             return Optional.of(financiacion);
