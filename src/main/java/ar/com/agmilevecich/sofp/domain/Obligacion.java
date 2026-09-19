@@ -77,9 +77,20 @@ public class Obligacion extends EntidadAuditable {
                                           Moneda moneda,
                                           TipoCambio tipoCambioValorizacion,
                                           boolean origenLiquidacion) {
+        if (origenLiquidacion) {
+            if (saldoLiquidacion == null) {
+                throw new IllegalStateException("La financiación sobre liquidación requiere una liquidación");
+            }
+            if (capital.compareTo(saldoLiquidacion) > 0) {
+                throw new IllegalArgumentException("El capital financiado no puede superar el saldo de liquidación");
+            }
+        }
         Financiacion financiacion = new Financiacion(
                 this, fechaInicio, capital, moneda, tipoCambioValorizacion, origenLiquidacion
         );
+        if (origenLiquidacion) {
+            saldoLiquidacion = saldoLiquidacion.subtract(capital);
+        }
         agregarFinanciacion(financiacion);
         return financiacion;
     }
@@ -206,13 +217,9 @@ public class Obligacion extends EntidadAuditable {
         }
 
         if (financiacion.esSobreLiquidacion()) {
-            if (saldoLiquidacion == null) {
-                throw new IllegalStateException("La financiación sobre liquidación requiere una liquidación");
+            if (financiacion.getMoneda() != getMonedaLiquidacion()) {
+                throw new IllegalArgumentException("La financiación sobre liquidación debe utilizar la moneda de liquidación");
             }
-            if (pago.compareTo(saldoLiquidacion) > 0) {
-                throw new IllegalArgumentException("El pago no puede superar el saldo de liquidación");
-            }
-            saldoLiquidacion = saldoLiquidacion.subtract(pago);
         } else {
             if (!cuotas.isEmpty()) {
                 Cuota cuota = cuotas.stream()
