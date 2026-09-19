@@ -32,6 +32,7 @@ public class MainFrame extends JFrame {
     private static final String GASTOS = "gastos";
     private static final String MOVIMIENTOS = "movimientos";
     private static final String OBLIGACIONES = "obligaciones";
+    private static final String TARJETAS = "tarjetas";
     private static final String INVERSIONES = "inversiones";
     private static final String REPORTES = "reportes";
     private static final String TRANSFERENCIAS = "transferencias";
@@ -41,6 +42,7 @@ public class MainFrame extends JFrame {
     private final CuentasPanel cuentasPanel;
     private final GastosPanel gastosPanel;
     private final IngresosPanel ingresosPanel;
+    private final TarjetasCreditoPanel tarjetasPanel;
     private final MovimientoService movimientoService;
     private final CategoriaService categoriaService;
     private final IngresoService ingresoService;
@@ -170,6 +172,7 @@ public class MainFrame extends JFrame {
             this.cuentasPanel = new CuentasPanel();
             this.gastosPanel = new GastosPanel();
             this.ingresosPanel = new IngresosPanel();
+            this.tarjetasPanel = new TarjetasCreditoPanel();
             this.movimientoService = null;
             this.categoriaService = null;
             this.ingresoService = null;
@@ -205,6 +208,15 @@ public class MainFrame extends JFrame {
             } else {
                 this.ingresosPanel = new IngresosPanel();
             }
+            if (obligacionService != null && pagoTarjetaService != null && categoriaService != null
+                    && perfilFinancieroId != null && usuarioId != null) {
+                this.tarjetasPanel = new TarjetasCreditoPanel(
+                        cuentaService, obligacionService, pagoTarjetaService,
+                        categoriaService, perfilFinancieroId, usuarioId
+                );
+            } else {
+                this.tarjetasPanel = new TarjetasCreditoPanel();
+            }
         }
 
         cardLayout = new CardLayout();
@@ -217,6 +229,7 @@ public class MainFrame extends JFrame {
         areaCentral.add(ingresosPanel, INGRESOS);
         areaCentral.add(gastosPanel, GASTOS);
         areaCentral.add(new MovimientosPanel(), MOVIMIENTOS);
+        areaCentral.add(tarjetasPanel, TARJETAS);
         areaCentral.add(obligacionService != null && usuarioId != null
                 ? new ObligacionesPanel(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
                 perfilFinancieroId, usuarioId, tipoCambioService)
