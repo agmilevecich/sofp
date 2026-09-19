@@ -4,6 +4,7 @@ import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
@@ -155,6 +156,33 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("100.00"), obligacion.getSaldoPendiente());
         assertEquals("PAGADA", obligacion.getEstado().name());
         assertEquals(new BigDecimal("50000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
+    @Test
+    void deberiaAplicarPagoPosteriorAlVencimientoSobreLaFinanciacion() {
+        Obligacion obligacion = registrarGasto("120000.00");
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("40000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago parcial", usuario.getId()
+        );
+
+        LocalDateTime fechaFinanciacion = obligacion.getFechaLimitePago().plusDays(1).atTime(10, 0);
+        obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion.toLocalDate(), usuario.getId()
+        ).orElseThrow();
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("30000.00"),
+                fechaFinanciacion,
+                "Pago financiacion", usuario.getId()
+        );
+
+        assertEquals(new BigDecimal("50000.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("50000.00"), obligacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(new BigDecimal("50000.00"), obligacion.getFinanciaciones().get(0).getSaldoCapital());
     }
 
     @Test
