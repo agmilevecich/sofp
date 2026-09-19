@@ -197,7 +197,7 @@ class PagoTarjetaServiceTest {
                 new BigDecimal("24.0000")
         );
 
-        PagoTarjeta pago = pagoTarjetaService.registrarPago(
+        pagoTarjetaService.registrarPago(
                 obligacion.getId(),
                 cuentaPagadora,
                 categoriaPago,
@@ -207,6 +207,10 @@ class PagoTarjetaServiceTest {
                 usuario.getId()
         );
 
+        PagoTarjeta pago = entityManager.createQuery(
+                "SELECT p FROM PagoTarjeta p WHERE p.obligacion.id = :obligacionId ORDER BY p.id DESC",
+                PagoTarjeta.class
+        ).setParameter("obligacionId", obligacion.getId()).setMaxResults(1).getSingleResult();
         assertEquals(refinanciacion.getId(), pago.getRefinanciacion().getId());
         assertEquals(new BigDecimal("76000.00"), refinanciacion.getSaldoPlan());
         assertEquals(new BigDecimal("424000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
