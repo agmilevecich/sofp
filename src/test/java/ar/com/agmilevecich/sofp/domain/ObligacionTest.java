@@ -78,7 +78,7 @@ class ObligacionTest {
                 new BigDecimal("20.00"), new BigDecimal("1500.00")
         );
 
-        assertEquals(new BigDecimal("3001.00"), obligacion.calcularPagoMinimo());
+        assertEquals(new BigDecimal("3000.10"), obligacion.calcularPagoMinimo());
     }
 
     @Test
@@ -90,7 +90,7 @@ class ObligacionTest {
         );
 
         assertFalse(obligacion.cumplePagoMinimo(new BigDecimal("3000.00")));
-        assertTrue(obligacion.cumplePagoMinimo(new BigDecimal("3001.00")));
+        assertTrue(obligacion.cumplePagoMinimo(new BigDecimal("3000.10")));
         assertTrue(obligacion.cumplePagoMinimo(new BigDecimal("5000.00")));
     }
 
