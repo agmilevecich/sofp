@@ -32,8 +32,6 @@ public class PagoTarjetaService {
     public PagoTarjetaService(EntityManager entityManager,
                               MovimientoRepository movimientoRepository,
                               ObligacionRepository obligacionRepository) {
-        this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
-        this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El MovimientoRepository es obligatorio");
         this(entityManager, movimientoRepository, obligacionRepository, Clock.systemDefaultZone());
     }
 
