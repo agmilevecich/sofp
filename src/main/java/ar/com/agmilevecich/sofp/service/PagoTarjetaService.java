@@ -74,6 +74,9 @@ public class PagoTarjetaService {
             if (!cuentaPagadora.isActiva()) {
                 throw new IllegalArgumentException("No se puede pagar desde una cuenta desactivada");
             }
+            if (cuentaPagadora.getTipoCuenta() == ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO) {
+                throw new IllegalArgumentException("La cuenta pagadora no puede ser una tarjeta de crédito");
+            }
             if (!Objects.equals(cuentaPagadora.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId())) {
                 throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
             }
