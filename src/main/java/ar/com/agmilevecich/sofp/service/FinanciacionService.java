@@ -214,6 +214,10 @@ public class FinanciacionService {
             validarPropietario(usuarioId, financiacion);
 
             LocalDate fechaDesde = financiacion.getFechaUltimoCalculoPunitorio();
+            LocalDate primerDiaMora = financiacion.getObligacion().getFechaLimitePago().plusDays(1);
+            if (fechaDesde.isBefore(primerDiaMora)) {
+                fechaDesde = primerDiaMora;
+            }
             if (!fechaHasta.isAfter(fechaDesde) || !financiacion.estaPendiente()) {
                 throw new IllegalArgumentException("No existe un período de punitorio pendiente");
             }
