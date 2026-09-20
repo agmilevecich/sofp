@@ -108,3 +108,15 @@ Pendientes conocidos: calendario bancario/feriados, fecha efectiva separada del 
 ### Regla de continuidad
 
 En la próxima sesión reconstruir nuevamente desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. No asumir que una documentación histórica representa el estado actual si contradice código o tests.
+
+
+## Estado canónico de continuidad — 20/09/2026
+
+Para retomar SOFP, la referencia vigente es la documentación de continuidad actualizada junto con el estado de GitHub de la rama `feature/swing-shell`.
+
+- HEAD validado: `4edd0fd62db75bfab25b3124169d9e43f42ebf88`.
+- Suite general: **841/841**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- No se realizó merge a `main`.
+- Las notas fechadas anteriores son historial y no sustituyen al código, tests y commits actuales.
+
+Documentos principales para continuidad: `CONTINUIDAD_ACTUAL.md`, `00_ESTADO_ACTUAL.md`, `08_PENDIENTES.md`, `09_TARJETAS_CREDITO.md`, `11_AUDITORIA_INTEGRAL.md`, `06_BUILDS.md` y `07_TESTS.md`.
