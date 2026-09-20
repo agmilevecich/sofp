@@ -213,6 +213,10 @@ public class FinanciacionService {
             }
             validarPropietario(usuarioId, financiacion);
 
+            if (!financiacion.isPunitorioHabilitado()) {
+                throw new IllegalStateException("El punitorio no corresponde porque se cumplió el pago mínimo");
+            }
+
             LocalDate fechaDesde = financiacion.getFechaUltimoCalculoPunitorio();
             LocalDate primerDiaMora = financiacion.getObligacion().getFechaLimitePago().plusDays(1);
             if (fechaDesde.isBefore(primerDiaMora)) {
