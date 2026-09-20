@@ -16,6 +16,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -26,13 +27,24 @@ public class PagoTarjetaService {
     private final EntityManager entityManager;
     private final MovimientoRepository movimientoRepository;
     private final ObligacionRepository obligacionRepository;
+    private final Clock clock;
 
     public PagoTarjetaService(EntityManager entityManager,
                               MovimientoRepository movimientoRepository,
                               ObligacionRepository obligacionRepository) {
         this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
         this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El MovimientoRepository es obligatorio");
+        this(entityManager, movimientoRepository, obligacionRepository, Clock.systemDefaultZone());
+    }
+
+    public PagoTarjetaService(EntityManager entityManager,
+                              MovimientoRepository movimientoRepository,
+                              ObligacionRepository obligacionRepository,
+                              Clock clock) {
+        this.entityManager = Objects.requireNonNull(entityManager, "El EntityManager es obligatorio");
+        this.movimientoRepository = Objects.requireNonNull(movimientoRepository, "El MovimientoRepository es obligatorio");
         this.obligacionRepository = Objects.requireNonNull(obligacionRepository, "El ObligacionRepository es obligatorio");
+        this.clock = Objects.requireNonNull(clock, "El Clock es obligatorio");
     }
 
     public Obligacion registrarPago(Long obligacionId,
@@ -308,7 +320,7 @@ public class PagoTarjetaService {
         if (fechaHora.isBefore(fechaOrigen)) {
             throw new IllegalArgumentException("La fecha de pago no puede ser anterior al consumo que origina la obligación");
         }
-        if (fechaHora.isAfter(LocalDateTime.now())) {
+        if (fechaHora.isAfter(LocalDateTime.now(clock))) {
             throw new IllegalArgumentException("La fecha de pago no puede ser futura");
         }
     }
