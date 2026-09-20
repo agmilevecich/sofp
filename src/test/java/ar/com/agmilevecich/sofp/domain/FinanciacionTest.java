@@ -47,7 +47,7 @@ class FinanciacionTest {
         assertEquals(new BigDecimal("100.00"), financiacion.getSaldoCargosPendiente());
         assertEquals(new BigDecimal("100000.00"), financiacion.getSaldoCapital());
 
-        financiacion.registrarPago(new BigDecimal("100200.00"));
+        financiacion.registrarPago(new BigDecimal("100100.00"));
         assertEquals(new BigDecimal("0.00"), financiacion.getSaldoCargosPendiente());
         assertEquals(new BigDecimal("0.00"), financiacion.getSaldoCapital());
         assertTrue(financiacion.estaCancelada());
