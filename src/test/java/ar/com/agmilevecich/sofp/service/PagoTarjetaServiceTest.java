@@ -16,6 +16,7 @@ import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
+import ar.com.agmilevecich.sofp.domain.TipoTasaInteres;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
@@ -421,6 +422,54 @@ class PagoTarjetaServiceTest {
         assertEquals(cicloOriginal.getFechaInicio(), cicloActual.getFechaInicio());
         assertEquals(cicloOriginal.getFechaCierre(), cicloActual.getFechaCierre());
         assertEquals(cicloOriginal.getFechaVencimiento(), cicloActual.getFechaVencimiento());
+    }
+
+    @Test
+    void noDeberiaGenerarPunitorioSiSeCumplioElPagoMinimoAntesDelVencimiento() {
+        tarjeta.configurarDatosCredito(
+                new BigDecimal("500000.00"),
+                10,
+                25,
+                0,
+                new BigDecimal("10.00"),
+                BigDecimal.ZERO
+        );
+        Obligacion obligacion = registrarGasto("120000.00");
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(),
+                cuentaPagadora,
+                categoriaPago,
+                new BigDecimal("12000.00"),
+                LocalDateTime.of(2026, 9, 20, 10, 0),
+                "Pago minimo",
+                usuario.getId()
+        );
+
+        LocalDate fechaFinanciacion = obligacion.getFechaLimitePago().plusDays(1);
+        Financiacion financiacion = obligacionService.financiarSaldoImpago(
+                obligacion.getId(), fechaFinanciacion, usuario.getId()
+        ).orElseThrow();
+
+        FinanciacionService financiacionService = new FinanciacionService(entityManager);
+        financiacionService.registrarTna(
+                tarjeta.getId(),
+                usuario.getId(),
+                TipoTasaInteres.TNA_PUNITORIA,
+                LocalDateTime.of(2026, 9, 1, 0, 0).toLocalDate(),
+                null,
+                new BigDecimal("18.2500"),
+                "TEST PUNITORIO"
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> financiacionService.calcularPunitorio(
+                        financiacion.getId(),
+                        fechaFinanciacion.plusDays(3),
+                        usuario.getId()
+                )
+        );
     }
 
     @Test
