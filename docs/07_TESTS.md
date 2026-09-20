@@ -241,3 +241,16 @@ Esta sección supersede cualquier estado anterior cuando exista contradicción. 
 La suite completa local actual fue **841/841**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 16:40 min, finalizada 20/09/2026 10:19:49 -03:00. El usuario informó además `git diff` y `git diff --check` limpios, working tree limpio y rama sincronizada con `bitbucket/feature/swing-shell`.
 
 El estado funcional incluye ciclos/cuotas, cierre, valorización histórica, liquidación multidivisa, crédito disponible, pagos/reversiones, financiación, TNA/intereses, cargos, refinanciación y UI; se añadió cobertura para financiación multidivisa sin cierre y límites de financiación.
+
+
+## Auditoría funcional adicional — 20/09/2026
+
+Durante la auditoría se detectaron y corrigieron dos reglas de integridad concretas:
+
+1. **Punitorios:** antes podían comenzar a calcularse desde la fecha de inicio de la financiación, incluso antes del vencimiento de la obligación. Ahora el primer día computable es el día posterior a la fecha límite de pago; un cálculo en la fecha límite se rechaza por no existir mora.
+2. **Cuenta pagadora:** una tarjeta de crédito no puede utilizarse como cuenta pagadora de otra obligación de tarjeta. La regla quedó en servicio y el selector Swing también excluye tarjetas de crédito.
+3. **Refinanciación:** la fecha de inicio no puede ser anterior a la fecha de origen de la obligación.
+
+Se agregaron tests específicos para las tres reglas. La validación CI de GitHub correspondiente al último cambio estaba **en curso** al momento de esta actualización; por lo tanto no se declara todavía una nueva suite verde posterior a estos cambios.
+
+El alcance de la auditoría mantiene como decisiones de negocio pendientes la modalidad de interés/amortización de refinanciación, la regla exacta de punitorios respecto del pago mínimo y la conversión de una financiación multidivisa seguida de liquidación en otra moneda. No se inventaron esas reglas.
