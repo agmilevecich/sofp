@@ -292,28 +292,14 @@ public class ObligacionRepository {
                 .setParameter("moneda", moneda)
                 .getSingleResult();
 
-        BigDecimal financiaciones = entityManager.createQuery(
+        BigDecimal financiacionesSobreLiquidacion = entityManager.createQuery(
                         """
                         SELECT COALESCE(SUM(COALESCE(f.saldoValorizacion, f.saldoCapital)), 0)
                         FROM Financiacion f
                         WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
                           AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
                           AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
-                          AND f.saldoCapital > 0
-                        """,
-                        BigDecimal.class
-                )
-                .setParameter("cuentaId", cuentaId)
-                .getSingleResult();
-
-        BigDecimal financiacionesNoLiquidadas = entityManager.createQuery(
-                        """
-                        SELECT COALESCE(SUM(COALESCE(f.importeValorizacion, f.capitalOriginal)), 0)
-                        FROM Financiacion f
-                        WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
-                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
-                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
-                          AND f.obligacion.saldoLiquidacion IS NULL
+                          AND f.obligacion.saldoLiquidacion IS NOT NULL
                           AND f.saldoCapital > 0
                         """,
                         BigDecimal.class
@@ -354,8 +340,7 @@ public class ObligacionRepository {
         BigDecimal obligaciones = obligacionesLiquidadas
                 .add(obligacionesSinCuotas)
                 .add(cuotas)
-                .subtract(financiacionesNoLiquidadas)
-                .add(financiaciones)
+                .add(financiacionesSobreLiquidacion)
                 .add(cargosFinanciacion)
                 .add(refinanciaciones);
 
