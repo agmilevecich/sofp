@@ -308,7 +308,7 @@ public class ObligacionRepository {
 
         BigDecimal financiacionesNoLiquidadas = entityManager.createQuery(
                         """
-                        SELECT COALESCE(SUM(f.saldoValorizacion), 0)
+                        SELECT COALESCE(SUM(COALESCE(f.importeValorizacion, f.capitalOriginal)), 0)
                         FROM Financiacion f
                         WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
                           AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
