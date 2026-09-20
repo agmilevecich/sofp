@@ -43,6 +43,9 @@ public class RefinanciacionService {
             if (cuenta.getTipoCuenta() != TipoCuenta.TARJETA_CREDITO) {
                 throw new IllegalArgumentException("La obligación no pertenece a una tarjeta de crédito");
             }
+            if (fechaInicio.isBefore(obligacion.getFechaOrigen().toLocalDate())) {
+                throw new IllegalArgumentException("La fecha de inicio de la refinanciación no puede ser anterior al origen de la obligación");
+            }
             if (obligacion.getEstado() == EstadoObligacion.PAGADA
                     || obligacion.getEstado() == EstadoObligacion.REFINANCIADA) {
                 throw new IllegalStateException("La obligación no tiene saldo refinanciable");
