@@ -267,13 +267,7 @@ public class Financiacion extends EntidadAuditable {
             throw new IllegalArgumentException("La reversión supera los pagos de la financiación");
         }
 
-        BigDecimal restante = monto.min(capitalPagado);
-        if (restante.signum() > 0) {
-            saldoCapital = saldoCapital.add(restante);
-        }
-        saldoValorizacion = valorizar(saldoCapital);
-
-        restante = monto.subtract(restante);
+        BigDecimal restante = monto;
         for (int i = cargos.size() - 1; i >= 0 && restante.signum() > 0; i--) {
             CargoFinanciero cargo = cargos.get(i);
             BigDecimal pagadoCargo = cargo.getImporteOriginal().subtract(cargo.getSaldoPendiente());
@@ -283,6 +277,13 @@ public class Financiacion extends EntidadAuditable {
                 restante = restante.subtract(restaurar);
             }
         }
+
+        if (restante.signum() > 0) {
+            BigDecimal restaurarCapital = restante.min(capitalPagado);
+            saldoCapital = saldoCapital.add(restaurarCapital);
+            restante = restante.subtract(restaurarCapital);
+        }
+        saldoValorizacion = valorizar(saldoCapital);
     }
 
     public BigDecimal getSaldoTotalPendiente() {
