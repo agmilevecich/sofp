@@ -240,3 +240,16 @@ La auditoría de Tarjeta de Crédito avanzó sobre ciclos, cuotas, cierre, valor
 
 ### Punto exacto para retomar
 La suite general actual ya está verde. Los próximos pendientes deben tratarse como reglas financieras que requieren definición explícita o como evolución técnica: modalidad de amortización/interés de refinanciación, conversión trazable de financiación multidivisa con liquidación posterior en otra moneda, integración exacta del pago mínimo con punitorios, UI avanzada, calendario bancario de feriados, `Clock` y versionado formal de esquema.
+
+
+## Auditoría funcional adicional — 20/09/2026
+
+Durante la auditoría se detectaron y corrigieron dos reglas de integridad concretas:
+
+1. **Punitorios:** antes podían comenzar a calcularse desde la fecha de inicio de la financiación, incluso antes del vencimiento de la obligación. Ahora el primer día computable es el día posterior a la fecha límite de pago; un cálculo en la fecha límite se rechaza por no existir mora.
+2. **Cuenta pagadora:** una tarjeta de crédito no puede utilizarse como cuenta pagadora de otra obligación de tarjeta. La regla quedó en servicio y el selector Swing también excluye tarjetas de crédito.
+3. **Refinanciación:** la fecha de inicio no puede ser anterior a la fecha de origen de la obligación.
+
+Se agregaron tests específicos para las tres reglas. La validación CI de GitHub correspondiente al último cambio estaba **en curso** al momento de esta actualización; por lo tanto no se declara todavía una nueva suite verde posterior a estos cambios.
+
+El alcance de la auditoría mantiene como decisiones de negocio pendientes la modalidad de interés/amortización de refinanciación, la regla exacta de punitorios respecto del pago mínimo y la conversión de una financiación multidivisa seguida de liquidación en otra moneda. No se inventaron esas reglas.
