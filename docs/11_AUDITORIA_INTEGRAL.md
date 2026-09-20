@@ -310,3 +310,26 @@ El último resultado local verde informado anteriormente no corresponde al HEAD 
 
 ### Criterio de cierre
 Tarjeta de Crédito no se declara cerrada hasta disponer de suite completa verde sobre el HEAD final y resolver o documentar explícitamente los tres puntos financieros que requieren decisión de negocio: modalidad de refinanciación, conversión de financiación multidivisa y regla exacta de punitorios/pago mínimo.
+
+
+## ACTUALIZACIÓN CANÓNICA — 20/09/2026
+
+### Estado validado
+- Rama: `feature/swing-shell`.
+- HEAD: `4edd0fd62db75bfab25b3124169d9e43f42ebf88` — `fix: valorizar financiacion multidivisa sin cierre de obligacion`.
+- `main`: `4b8100d7242d3cd030d0a903098a93cc5b8e547f`; no se realizó merge. Comparación: 1096 commits por delante y 2 por detrás.
+- `mvn test`: **841/841**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 16:40 min, finalizado 20/09/2026 10:19:49 -03:00.
+- `git diff` y `git diff --check`: limpios; working tree limpio; rama sincronizada con `bitbucket/feature/swing-shell`.
+
+### Avances registrados
+El núcleo de Tarjeta de Crédito mantiene cobertura de consumo, ciclos, cuotas, cierre, valorización histórica, liquidación multidivisa, crédito, pagos y reversiones. La auditoría agregó financiación, TNA/intereses, cargos, refinanciación y controles de integridad, incluyendo financiación multidivisa sin cierre de obligación y límites de financiación.
+
+### Pendientes que requieren decisión explícita
+1. Modalidad de amortización/interés periódico de refinanciación.
+2. Conversión, cotización y trazabilidad de financiación multidivisa cuando la liquidación posterior usa otra moneda.
+3. Integración exacta del pago mínimo con punitorios.
+4. UI avanzada de financiación/refinanciación.
+5. Calendario bancario de feriados.
+6. `Clock` y versionado formal de esquema.
+
+La suite verde actual valida el estado técnico; no sustituye la definición de estas reglas financieras.
