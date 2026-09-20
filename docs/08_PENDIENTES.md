@@ -336,3 +336,39 @@ No asumir que la suite local falla por el mismo motivo que CI hasta disponer del
 
 ### Regla permanente
 Reconstruir el estado desde GitHub antes de cada modificación. Prioridad: código actual → tests → commits → `main` → documentación. No modificar `main` automáticamente.
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 20/09/2026
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad es el código, los tests y los commits actuales de GitHub.
+
+### Estado Git
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD validado: `4edd0fd62db75bfab25b3124169d9e43f42ebf88` — `fix: valorizar financiacion multidivisa sin cierre de obligacion`.
+- Rama estable: `main`.
+- `main`: `4b8100d7242d3cd030d0a903098a93cc5b8e547f`.
+- Comparación contra `main`: la rama de trabajo está 1096 commits por delante y 2 por detrás; no se realizó merge a `main`.
+
+### Validación real del estado actual
+- Suite completa local: `mvn test` → **841 tests**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Duración: 16:40 min.
+- Finalizada: **20/09/2026 10:19:49 -03:00**.
+- Validación Git informada: `git diff` y `git diff --check` limpios; working tree limpio; rama sincronizada con `bitbucket/feature/swing-shell`.
+
+### Estado funcional
+La auditoría de Tarjeta de Crédito avanzó sobre ciclos, cuotas, cierre, valorización histórica, liquidación multidivisa, crédito disponible, pagos, reversiones, financiación, TNA/intereses, cargos, refinanciación y UI. Se incorporaron además controles sobre financiación multidivisa sin cierre de obligación y límites de financiación en el dominio.
+
+### Regla de continuidad
+No tomar resultados anteriores de CI o suites históricas como validación del HEAD actual. Antes de cualquier cambio: reconstruir rama → commits → comparación con `main` → código relacionado → tests → documentación. No modificar `main` automáticamente.
+
+### Pendientes reales después de la validación
+1. Definir modalidad de amortización/interés periódico de refinanciación.
+2. Definir conversión, cotización y trazabilidad para financiación multidivisa seguida de liquidación en otra moneda.
+3. Integrar explícitamente el cumplimiento del pago mínimo con la generación de punitorios.
+4. Completar UI avanzada de financiación/refinanciación.
+5. Incorporar calendario bancario de feriados si se requiere ese comportamiento.
+6. Introducir `Clock` para determinismo temporal.
+7. Evaluar migraciones/versionado formal de esquema.
+8. Estabilización de arranque/parada H2 antes del futuro fast-forward a `main`.
+
+Estos puntos no implican fallos en la suite actual; son decisiones o evoluciones todavía no cerradas.
