@@ -104,6 +104,21 @@ class RefinanciacionServiceTest {
     }
 
     @Test
+    void deberiaRechazarFechaDeInicioAnteriorAlOrigenDeLaObligacion() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.crear(
+                        obligacion.getId(), usuarioId,
+                        LocalDate.of(2026, 9, 8),
+                        3,
+                        new BigDecimal("6000.00"),
+                        new BigDecimal("1000.00"),
+                        new BigDecimal("24.0000")
+                )
+        );
+    }
+
+    @Test
     void deberiaAplicarPagoParcialAlPlanRefinanciado() {
         Refinanciacion refinanciacion = service.crear(
                 obligacion.getId(), usuarioId,
