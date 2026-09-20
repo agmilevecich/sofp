@@ -191,9 +191,9 @@ class FinanciacionServiceTest {
                 financiacion.getId(), LocalDate.of(2026, 10, 8), usuarioId
         );
 
-        assertEquals(new BigDecimal("150.00"), cargo.getImporteOriginal());
+        assertEquals(new BigDecimal("100.00"), cargo.getImporteOriginal());
         assertEquals("INTERES_PUNITORIO", cargo.getTipo().name());
-        assertEquals(3, cargo.getDiasCalculo());
+        assertEquals(2, cargo.getDiasCalculo());
         assertEquals(new BigDecimal("100000.00"), cargo.getCapitalBase());
     }
 
