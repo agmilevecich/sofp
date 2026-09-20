@@ -505,3 +505,16 @@ Durante la auditoría se detectaron y corrigieron dos reglas de integridad concr
 Se agregaron tests específicos para las tres reglas. La validación CI de GitHub correspondiente al último cambio estaba **en curso** al momento de esta actualización; por lo tanto no se declara todavía una nueva suite verde posterior a estos cambios.
 
 El alcance de la auditoría mantiene como decisiones de negocio pendientes la modalidad de interés/amortización de refinanciación, la regla exacta de punitorios respecto del pago mínimo y la conversión de una financiación multidivisa seguida de liquidación en otra moneda. No se inventaron esas reglas.
+
+
+## Actualización — 20/09/2026: pago mínimo y punitorios
+
+Se corrigió una inconsistencia detectada en la auditoría: la financiación del saldo impago podía quedar habilitada para generar punitorios aunque el titular hubiera abonado el pago mínimo antes del vencimiento.
+
+La financiación ahora conserva explícitamente si el punitorio está habilitado. Al crear la financiación desde el saldo impago se calcula el total de pagos activos de la obligación realizados hasta la fecha límite y se compara con el pago mínimo calculado. Si el mínimo fue cumplido, el punitorio queda deshabilitado; el interés financiero del saldo financiado continúa siendo independiente.
+
+FinanciacionService.calcularPunitorio(...) rechaza la generación de punitorios para una financiación cuyo indicador está deshabilitado.
+
+Se agregó una prueba de integración que paga el 10% mínimo antes del vencimiento, financia el saldo restante y verifica que no se pueda generar punitorio.
+
+Validación pendiente: estos cambios fueron publicados directamente sobre feature/swing-shell; todavía debe ejecutarse la suite Maven sobre este HEAD antes de declarar el estado verde.
