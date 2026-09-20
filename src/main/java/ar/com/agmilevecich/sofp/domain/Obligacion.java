@@ -77,6 +77,15 @@ public class Obligacion extends EntidadAuditable {
                                           Moneda moneda,
                                           TipoCambio tipoCambioValorizacion,
                                           boolean origenLiquidacion) {
+        return crearFinanciacion(fechaInicio, capital, moneda, tipoCambioValorizacion, origenLiquidacion, true);
+    }
+
+    public Financiacion crearFinanciacion(LocalDate fechaInicio,
+                                          BigDecimal capital,
+                                          Moneda moneda,
+                                          TipoCambio tipoCambioValorizacion,
+                                          boolean origenLiquidacion,
+                                          boolean punitorioHabilitado) {
         Objects.requireNonNull(capital, "El capital financiado es obligatorio");
         if (capital.signum() <= 0) {
             throw new IllegalArgumentException("El capital financiado debe ser positivo");
@@ -95,7 +104,7 @@ public class Obligacion extends EntidadAuditable {
             }
         }
         Financiacion financiacion = new Financiacion(
-                this, fechaInicio, capital, moneda, tipoCambioValorizacion, origenLiquidacion
+                this, fechaInicio, capital, moneda, tipoCambioValorizacion, origenLiquidacion, punitorioHabilitado
         );
         if (origenLiquidacion) {
             saldoLiquidacion = saldoLiquidacion.subtract(capital);
