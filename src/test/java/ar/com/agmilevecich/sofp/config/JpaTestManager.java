@@ -18,9 +18,19 @@ public final class JpaTestManager {
 
     public static synchronized EntityManager createEntityManager() {
 
+        EntityManager entityManagerActual = ENTITY_MANAGER.get();
         EntityManagerFactory entityManagerFactory = ENTITY_MANAGER_FACTORY.get();
 
-        if (entityManagerFactory == null || !entityManagerFactory.isOpen()) {
+        if (entityManagerActual == null || !entityManagerActual.isOpen()) {
+
+            if (entityManagerActual != null) {
+                entityManagerActual.close();
+            }
+            ENTITY_MANAGER.remove();
+
+            if (entityManagerFactory != null && entityManagerFactory.isOpen()) {
+                entityManagerFactory.close();
+            }
 
             entityManagerFactory =
                     Persistence.createEntityManagerFactory(
