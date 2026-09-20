@@ -266,3 +266,12 @@ No tomar resultados anteriores de CI o suites históricas como validación del H
 - La validación del dominio impide sobre-financiar una obligación.
 - Los flujos financieros canónicos de pago y reversión permanecen coordinados por `PagoTarjetaService`.
 - Las reglas no determinadas por el modelo se mantienen como decisiones pendientes y no se inventan por inferencia.
+
+
+## ACTUALIZACIÓN CANÓNICA — 20/09/2026
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción. Rama `feature/swing-shell`; HEAD validado `4edd0fd62db75bfab25b3124169d9e43f42ebf88` (`fix: valorizar financiacion multidivisa sin cierre de obligacion`). `main` permanece en `4b8100d7242d3cd030d0a903098a93cc5b8e547f`, sin merge; comparación: 1096 commits por delante y 2 por detrás.
+
+La suite completa local actual fue **841/841**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 16:40 min, finalizada 20/09/2026 10:19:49 -03:00. El usuario informó además `git diff` y `git diff --check` limpios, working tree limpio y rama sincronizada con `bitbucket/feature/swing-shell`.
+
+El estado funcional incluye ciclos/cuotas, cierre, valorización histórica, liquidación multidivisa, crédito disponible, pagos/reversiones, financiación, TNA/intereses, cargos, refinanciación y UI; se añadió cobertura para financiación multidivisa sin cierre y límites de financiación.
