@@ -271,3 +271,20 @@ No tomar resultados anteriores de CI o suites históricas como validación del H
 
 ### Punto exacto para retomar
 La situación anterior de CI fallida y suite 797/797 histórica queda supersedida para la validación local: el usuario ejecutó la suite actual y obtuvo 841/841 verde. No asumir que una ejecución de CI antigua representa el estado actual.
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 20/09/2026
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción. Fuente de verdad: código, tests y commits actuales de GitHub.
+
+- Rama: `feature/swing-shell`.
+- HEAD validado: `4edd0fd62db75bfab25b3124169d9e43f42ebf88` — `fix: valorizar financiacion multidivisa sin cierre de obligacion`.
+- `main`: `4b8100d7242d3cd030d0a903098a93cc5b8e547f`.
+- Comparación contra `main`: 1096 commits por delante y 2 por detrás; no se realizó merge.
+- Suite completa local: **841 tests**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, 16:40 min, finalizada **20/09/2026 10:19:49 -03:00**.
+- Validación Git informada: `git diff` y `git diff --check` limpios; working tree limpio; rama sincronizada con `bitbucket/feature/swing-shell`.
+
+La auditoría de Tarjeta de Crédito avanzó sobre ciclos, cuotas, cierre, valorización histórica, liquidación multidivisa, crédito disponible, pagos, reversiones, financiación, TNA/intereses, cargos, refinanciación y UI. Se agregó además cobertura para financiación multidivisa sin cierre de obligación y límites de financiación en el dominio.
+
+### Punto exacto para retomar
+La suite general actual ya está verde. Los próximos pendientes deben tratarse como reglas financieras que requieren definición explícita o como evolución técnica: modalidad de amortización/interés de refinanciación, conversión trazable de financiación multidivisa con liquidación posterior en otra moneda, integración exacta del pago mínimo con punitorios, UI avanzada, calendario bancario de feriados, `Clock` y versionado formal de esquema.
