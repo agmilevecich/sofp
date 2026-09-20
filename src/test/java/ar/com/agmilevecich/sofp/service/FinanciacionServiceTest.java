@@ -180,13 +180,20 @@ class FinanciacionServiceTest {
                 new BigDecimal("18.2500"), "TEST PUNITORIO"
         );
 
-        CargoFinanciero cargo = service.calcularPunitorio(
-                financiacion.getId(), LocalDate.of(2026, 9, 12), usuarioId
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.calcularPunitorio(
+                        financiacion.getId(), LocalDate.of(2026, 10, 5), usuarioId
+                )
         );
 
-        assertEquals(new BigDecimal("100.00"), cargo.getImporteOriginal());
+        CargoFinanciero cargo = service.calcularPunitorio(
+                financiacion.getId(), LocalDate.of(2026, 10, 8), usuarioId
+        );
+
+        assertEquals(new BigDecimal("150.00"), cargo.getImporteOriginal());
         assertEquals("INTERES_PUNITORIO", cargo.getTipo().name());
-        assertEquals(2, cargo.getDiasCalculo());
+        assertEquals(3, cargo.getDiasCalculo());
         assertEquals(new BigDecimal("100000.00"), cargo.getCapitalBase());
     }
 
