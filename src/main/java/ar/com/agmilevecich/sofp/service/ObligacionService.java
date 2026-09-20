@@ -328,12 +328,29 @@ public class ObligacionService {
                 return existente;
             }
 
+            boolean punitorioHabilitado = !obligacion.cumplePagoMinimo(
+                    entityManager.createQuery(
+                            """
+                            SELECT COALESCE(SUM(p.importeObligacion), 0)
+                            FROM PagoTarjeta p
+                            WHERE p.obligacion.id = :obligacionId
+                              AND p.estado = ar.com.agmilevecich.sofp.domain.EstadoPagoTarjeta.ACTIVO
+                              AND p.fechaHora <= :fechaLimite
+                            """,
+                            BigDecimal.class
+                    )
+                    .setParameter("obligacionId", obligacion.getId())
+                    .setParameter("fechaLimite", obligacion.getFechaLimitePago().atTime(23, 59, 59))
+                    .getSingleResult()
+            );
+
             Financiacion financiacion = obligacion.crearFinanciacion(
                     fechaInicio,
                     capital,
                     monedaFinanciacion,
                     tipoCambioValorizacion,
-                    origenLiquidacion
+                    origenLiquidacion,
+                    punitorioHabilitado
             );
             entityManager.flush();
             transaction.commit();
