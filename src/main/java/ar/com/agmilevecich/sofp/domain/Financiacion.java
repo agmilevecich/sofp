@@ -44,6 +44,9 @@ public class Financiacion extends EntidadAuditable {
     @Column(name = "origen_liquidacion")
     private Boolean origenLiquidacion;
 
+    @Column(name = "punitorio_habilitado", nullable = false)
+    private boolean punitorioHabilitado;
+
     @Column(name = "fecha_ultimo_calculo_interes")
     private LocalDate fechaUltimoCalculoInteres;
 
@@ -57,7 +60,7 @@ public class Financiacion extends EntidadAuditable {
     protected Financiacion() {}
 
     public Financiacion(Obligacion obligacion, LocalDate fechaInicio, BigDecimal capitalOriginal) {
-        this(obligacion, fechaInicio, capitalOriginal, obligacion.getMonedaOriginal(), null, false);
+        this(obligacion, fechaInicio, capitalOriginal, obligacion.getMonedaOriginal(), null, false, true);
     }
 
     public Financiacion(Obligacion obligacion,
@@ -66,11 +69,22 @@ public class Financiacion extends EntidadAuditable {
                         Moneda moneda,
                         TipoCambio tipoCambioValorizacion,
                         boolean origenLiquidacion) {
+        this(obligacion, fechaInicio, capitalOriginal, moneda, tipoCambioValorizacion, origenLiquidacion, true);
+    }
+
+    public Financiacion(Obligacion obligacion,
+                        LocalDate fechaInicio,
+                        BigDecimal capitalOriginal,
+                        Moneda moneda,
+                        TipoCambio tipoCambioValorizacion,
+                        boolean origenLiquidacion,
+                        boolean punitorioHabilitado) {
         this.obligacion = Objects.requireNonNull(obligacion, "La obligación es obligatoria");
         this.fechaInicio = Objects.requireNonNull(fechaInicio, "La fecha de inicio es obligatoria");
         this.capitalOriginal = Validaciones.importePositivo(capitalOriginal, "El capital original es obligatorio");
         this.moneda = Objects.requireNonNull(moneda, "La moneda de la financiación es obligatoria");
         this.origenLiquidacion = origenLiquidacion;
+        this.punitorioHabilitado = punitorioHabilitado;
         Moneda monedaReferencia = origenLiquidacion ? obligacion.getMonedaLiquidacion() : obligacion.getMonedaOriginal();
         if (!moneda.equals(monedaReferencia) && tipoCambioValorizacion == null) {
             throw new IllegalArgumentException("La financiación multidivisa requiere una cotización de valorización");
@@ -126,6 +140,10 @@ public class Financiacion extends EntidadAuditable {
 
     public BigDecimal getSaldoValorizacion() {
         return saldoValorizacion != null ? saldoValorizacion : saldoCapital;
+    }
+
+    public boolean isPunitorioHabilitado() {
+        return punitorioHabilitado;
     }
 
     public boolean esSobreLiquidacion() {
