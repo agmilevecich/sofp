@@ -121,6 +121,24 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaRechazarUnaTarjetaDeCreditoComoCuentaPagadora() {
+        Obligacion obligacion = registrarGasto("120000.00", 1);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> pagoTarjetaService.registrarPago(
+                        obligacion.getId(),
+                        tarjeta,
+                        categoriaPago,
+                        new BigDecimal("50000.00"),
+                        LocalDateTime.of(2026, 9, 10, 10, 0),
+                        "Pago con tarjeta",
+                        usuario.getId()
+                )
+        );
+    }
+
+    @Test
     void deberiaRegistrarPagoParcialYDescontarloDeLaCuentaPagadora() {
         Obligacion obligacion = registrarGasto("120000.00");
         pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("50000.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId());
