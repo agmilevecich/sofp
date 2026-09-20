@@ -180,6 +180,8 @@ public class TarjetasCreditoPanel extends JPanel {
 
         cuentaPagadoraCombo.removeAllItems();
         cuentaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId)
+                .stream()
+                .filter(cuenta -> cuenta.getTipoCuenta() != ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO)
                 .forEach(cuentaPagadoraCombo::addItem);
 
         categoriaCombo.removeAllItems();
