@@ -199,6 +199,13 @@ public class PagoTarjetaService {
 
             validarPropietario(usuarioId, pago.getObligacion());
 
+            if (fechaHoraReversion.isBefore(pago.getFechaHora())) {
+                throw new IllegalArgumentException("La fecha de reversión no puede ser anterior al pago");
+            }
+            if (fechaHoraReversion.isAfter(LocalDateTime.now(clock))) {
+                throw new IllegalArgumentException("La fecha de reversión no puede ser futura");
+            }
+
             if (pago.getObligacion().getEstado() == ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
                     && pago.getRefinanciacion() == null) {
                 throw new IllegalStateException("La obligación no admite reversión del pago de origen después de refinanciarse");
