@@ -231,14 +231,36 @@ public class ObligacionRepository {
                         SELECT COALESCE(SUM(
                             CASE
                                 WHEN o.movimientoOrigen.moneda = :moneda
-                                    THEN o.saldoPendiente
+                                    THEN o.saldoPendiente - COALESCE((
+                                        SELECT SUM(f.saldoCapital)
+                                        FROM Financiacion f
+                                        WHERE f.obligacion = o
+                                          AND f.origenLiquidacion = false
+                                          AND f.saldoCapital > 0
+                                    ), 0)
                                 WHEN o.importeValorizacionCierre IS NOT NULL
                                     THEN CASE
-                                        WHEN o.saldoPendiente = o.importeOriginal
+                                        WHEN o.saldoPendiente - COALESCE((
+                                            SELECT SUM(f.saldoCapital)
+                                            FROM Financiacion f
+                                            WHERE f.obligacion = o
+                                              AND f.origenLiquidacion = false
+                                              AND f.saldoCapital > 0
+                                        ), 0) = o.importeOriginal
                                             THEN o.importeValorizacionCierre
                                         ELSE FUNCTION('ROUND',
                                             o.importeValorizacionCierre
-                                                * (o.saldoPendiente / o.importeOriginal),
+                                                * (
+                                                    (
+                                                        o.saldoPendiente - COALESCE((
+                                                            SELECT SUM(f.saldoCapital)
+                                                            FROM Financiacion f
+                                                            WHERE f.obligacion = o
+                                                              AND f.origenLiquidacion = false
+                                                              AND f.saldoCapital > 0
+                                                        ), 0)
+                                                    ) / o.importeOriginal
+                                                ),
                                             2
                                         )
                                     END
