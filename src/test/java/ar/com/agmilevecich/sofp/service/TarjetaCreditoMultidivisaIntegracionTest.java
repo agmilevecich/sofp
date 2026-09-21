@@ -146,6 +146,39 @@ class TarjetaCreditoMultidivisaIntegracionTest {
     }
 
     @Test
+    void noDeberiaConvertirImplicitamenteUnaFinanciacionMultidivisaSinValorizacion() {
+        Movimiento consumo = gastoService.registrar(
+                tarjeta,
+                categoria,
+                usd,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 9, 10, 0),
+                "Compra USD financiada",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(consumo.getId()).orElseThrow();
+
+        entityManager.getTransaction().begin();
+        obligacion.crearFinanciacion(
+                LocalDate.of(2026, 9, 10),
+                new BigDecimal("100.00"),
+                usd,
+                null,
+                false,
+                true
+        );
+        entityManager.flush();
+        entityManager.getTransaction().commit();
+
+        assertEquals(
+                0,
+                cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId())
+                        .compareTo(new BigDecimal("500000.00"))
+        );
+    }
+
+    @Test
     void deberiaCompletarCicloMultidivisaYLiberarCreditoAlPagarLaLiquidacion() {
         registrarCotizacion("1500.00", LocalDateTime.of(2026, 9, 10, 18, 0));
         registrarCotizacion("1600.00", LocalDateTime.of(2026, 9, 17, 15, 0));
