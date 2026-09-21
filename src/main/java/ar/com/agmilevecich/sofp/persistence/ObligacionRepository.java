@@ -307,24 +307,9 @@ public class ObligacionRepository {
                 .setParameter("cuentaId", cuentaId)
                 .getSingleResult();
 
-        BigDecimal financiacionesMultidivisaSinValorizacionDeObligacion = entityManager.createQuery(
-                        """
-                        SELECT COALESCE(SUM(COALESCE(f.saldoValorizacion, f.saldoCapital)), 0)
-                        FROM Financiacion f
-                        WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
-                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
-                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
-                          AND f.obligacion.saldoLiquidacion IS NULL
-                          AND f.obligacion.importeValorizacionCierre IS NULL
-                          AND f.obligacion.movimientoOrigen.moneda <> :moneda
-                          AND f.saldoCapital > 0
-                        """,
-                        BigDecimal.class
-                )
-                .setParameter("cuentaId", cuentaId)
-                .setParameter("moneda", moneda)
-                .getSingleResult();
-
+        // Una financiación multidivisa sin valorización histórica no puede convertirse
+        // implícitamente a la moneda de la tarjeta. Hasta contar con una valorización
+        // trazable, no se incorpora al crédito utilizado.
         BigDecimal refinanciaciones = entityManager.createQuery(
                         """
                         SELECT COALESCE(SUM(r.saldoPlan), 0)
@@ -359,7 +344,6 @@ public class ObligacionRepository {
                 .add(obligacionesSinCuotas)
                 .add(cuotas)
                 .add(financiacionesSobreLiquidacion)
-                .add(financiacionesMultidivisaSinValorizacionDeObligacion)
                 .add(cargosFinanciacion)
                 .add(refinanciaciones);
 
