@@ -123,6 +123,46 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void noDeberiaPermitirReversionAnteriorAlPago() {
+        Obligacion obligacion = registrarGasto("120000.00", 1);
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago tarjeta", usuario.getId()
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> pagoTarjetaService.revertirUltimoPago(
+                        obligacion.getId(),
+                        usuario.getId(),
+                        LocalDateTime.of(2026, 9, 9, 10, 0)
+                )
+        );
+    }
+
+    @Test
+    void noDeberiaPermitirReversionFutura() {
+        Obligacion obligacion = registrarGasto("120000.00", 1);
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago tarjeta", usuario.getId()
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> pagoTarjetaService.revertirUltimoPago(
+                        obligacion.getId(),
+                        usuario.getId(),
+                        LocalDateTime.of(2026, 9, 22, 10, 0)
+                )
+        );
+    }
+
+    @Test
     void deberiaRechazarUnaTarjetaDeCreditoComoCuentaPagadora() {
         Obligacion obligacion = registrarGasto("120000.00", 1);
 
