@@ -318,8 +318,10 @@ public class ObligacionRepository {
                         """
                         SELECT COALESCE(SUM(
                             CASE
-                                WHEN f.moneda = :moneda OR f.tipoCambioValorizacion IS NOT NULL
-                                    THEN COALESCE(f.saldoValorizacion, f.saldoCapital)
+                                WHEN f.moneda = :moneda
+                                    THEN f.saldoCapital
+                                WHEN f.tipoCambioValorizacion IS NOT NULL
+                                    THEN f.saldoValorizacion
                                 ELSE 0
                             END
                         ), 0)
@@ -338,7 +340,15 @@ public class ObligacionRepository {
 
         BigDecimal financiacionesSobreLiquidacion = entityManager.createQuery(
                         """
-                        SELECT COALESCE(SUM(COALESCE(f.saldoValorizacion, f.saldoCapital)), 0)
+                        SELECT COALESCE(SUM(
+                            CASE
+                                WHEN f.moneda = f.obligacion.monedaLiquidacion
+                                    THEN f.saldoCapital
+                                WHEN f.tipoCambioValorizacion IS NOT NULL
+                                    THEN f.saldoValorizacion
+                                ELSE 0
+                            END
+                        ), 0)
                         FROM Financiacion f
                         WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
                           AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
