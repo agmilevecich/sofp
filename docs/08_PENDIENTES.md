@@ -430,3 +430,48 @@ No reabrir la auditoría técnica por los resultados históricos de 797/797, 841
 
 ### Regla permanente
 Antes de cualquier modificación: revisar rama, últimos commits, comparación con `main`, implementación relacionada, repositorios, tests y reglas de negocio. Mantener cambios mínimos, commits pequeños y descriptivos. Después de cambios importantes: tests específicos, tests relacionados, suite completa cuando corresponda, `git diff`, `git diff --check` y `git status`. No modificar ni mergear `main` automáticamente.
+
+
+## AUDITORÍA FUNCIONAL DE REFINANCIACIÓN — 22/09/2026
+
+### Alcance y estado
+Se auditó el módulo de refinanciación sobre el código actual de `feature/swing-shell`, incluyendo `Refinanciacion`, `CuotaRefinanciacion`, `RefinanciacionService`, `PagoTarjetaService`, `Obligacion`, `PagoTarjeta`, financiación/cargos, crédito y los tests relacionados.
+
+### Comportamiento actualmente definido
+- La refinanciación toma como capital el valor devuelto por `Obligacion.getDeudaParaPagoMinimo()` en el momento de creación.
+- `interesInicial` y `cargosIniciales` forman parte del `totalPlan` desde la creación.
+- Las cuotas se generan sobre `totalPlan), con importe a dos decimales y diferencia de redondeo acumulada en la última cuota.
+- Los vencimientos se generan sumando meses a `fechaInicio`.
+- Los pagos se imputan de la cuota más antigua a la más nueva.
+- Las reversiones se imputan desde la cuota más reciente afectada, coherente con la reversión del último pago registrado por `PagoTarjetaService`.
+- El pago de refinanciación queda trazado en `PagoTarjeta` y en un `Movimiento` de egreso; su reversión genera el movimiento compensatorio y marca el pago como reversado.
+- La obligación de origen pasa a estado `REFINANCIADA` y queda excluida de los cálculos de crédito que ya contemplan el saldo del plan de refinanciación.
+
+### Hallazgo técnico corregido
+Se detectó que la entidad permitía llamar a `registrarPago` antes de generar las cuotas. En ese estado el saldo del plan se reducía aunque ninguna cuota recibiera el pago, dejando una inconsistencia interna entre `saldoPlan` y las cuotas. Se corrigió el dominio para exigir cuotas generadas antes de registrar o revertir pagos y se agregaron dos pruebas específicas.
+
+El cambio no introduce ninguna regla financiera nueva: protege una precondición estructural ya necesaria para el flujo existente.
+
+### Intereses, tasa y amortización
+La entidad almacena `tasaAnual`, pero no existe actualmente en refinanciación un motor que convierta esa tasa en intereses periódicos ni un campo que permita identificar un sistema de amortización. Por lo tanto, el código actual no permite afirmar que exista sistema francés, alemán, americano u otro.
+
+No se modificó esta parte. Elegir la semántica de `tasaAnual`, la periodicidad, la fórmula de interés o el sistema de amortización requeriría una decisión de negocio explícita.
+
+### Pagos anticipados, parciales y cuotas vencidas
+El código existente permite pagos parciales y pagos que abarcan más de una cuota, siempre dentro del saldo total del plan. No existe una política financiera explícita distinta para pago anticipado de cuotas futuras. Tampoco existe en refinanciación una regla propia de punitorios/intereses por vencimiento.
+
+No se agregó una política de imputación o mora nueva para evitar inventar reglas financieras.
+
+### Redondeo
+Los importes persistidos de refinanciación y cuotas utilizan `BigDecimal` con escala monetaria de dos decimales. La generación de cuotas evita redondear cada cuota independientemente: divide con `RoundingMode.DOWN` y lleva la diferencia a la última cuota. No se detectó uso de `double` o `float` en el núcleo de refinanciación auditado.
+
+### Decisiones de negocio pendientes
+1. Sistema de amortización.
+2. Semántica de `tasaAnual` (TNA, TEA u otra).
+3. Periodicidad y fórmula de intereses.
+4. Tratamiento financiero de pagos anticipados y pagos parciales cuando se defina amortización/interés periódico.
+5. Regla específica para cuotas vencidas, si corresponde.
+6. Política de cargos adicionales futuros.
+
+### Estado de implementación
+La infraestructura actual queda preparada para incorporar esas reglas sin cambiar el flujo transaccional de `PagoTarjetaService`: la refinanciación posee plan, cuotas, saldo, estado y trazabilidad de pagos/reversiones. La implementación financiera avanzada debe agregarse únicamente después de definir las reglas pendientes.
