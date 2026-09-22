@@ -119,6 +119,29 @@ class RefinanciacionServiceTest {
     }
 
     @Test
+    void deberiaPersistirPlanYCuotasDeRefinanciacion() {
+        Refinanciacion refinanciacion = service.crear(
+                obligacion.getId(), usuarioId,
+                LocalDate.of(2026, 9, 26),
+                3,
+                new BigDecimal("6000.00"),
+                new BigDecimal("1000.00"),
+                new BigDecimal("24.0000")
+        );
+
+        Long id = refinanciacion.getId();
+        entityManager.clear();
+
+        Refinanciacion persistida = entityManager.find(Refinanciacion.class, id);
+
+        assertEquals(new BigDecimal("127000.00"), persistida.getTotalPlan());
+        assertEquals(new BigDecimal("127000.00"), persistida.getSaldoPlan());
+        assertEquals(3, persistida.getCuotas().size());
+        assertEquals(new BigDecimal("42333.33"), persistida.getCuotas().get(0).getImporteOriginal());
+        assertEquals(new BigDecimal("42333.34"), persistida.getCuotas().get(2).getImporteOriginal());
+    }
+
+    @Test
     void noDeberiaRefinanciarUnaObligacionPagada() {
         entityManager.getTransaction().begin();
         obligacion.registrarPago(new BigDecimal("120000.00"));
