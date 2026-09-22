@@ -123,7 +123,7 @@ class RefinanciacionTest {
                 new BigDecimal("120000.00"),
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
-                new BigDecimal("24.0000"),
+                BigDecimal.ZERO,
                 3
         );
         refinanciacion.generarCuotas();
@@ -159,7 +159,7 @@ class RefinanciacionTest {
                 new BigDecimal("120000.00"),
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
-                new BigDecimal("24.0000"),
+                BigDecimal.ZERO,
                 3
         );
         refinanciacion.generarCuotas();
@@ -178,7 +178,7 @@ class RefinanciacionTest {
                 new BigDecimal("120000.00"),
                 BigDecimal.ZERO,
                 BigDecimal.ZERO,
-                new BigDecimal("24.0000"),
+                BigDecimal.ZERO,
                 1
         );
         refinanciacion.generarCuotas();
