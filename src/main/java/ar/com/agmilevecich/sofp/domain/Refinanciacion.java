@@ -15,6 +15,9 @@ import java.util.Objects;
 @Table(name = "refinanciaciones")
 public class Refinanciacion extends EntidadAuditable {
 
+    private static final int ESCALA_CALCULO = 12;
+    private static final BigDecimal PERIODOS_ANUALES = new BigDecimal("12");
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "obligacion_origen_id", nullable = false)
     private Obligacion obligacionOrigen;
@@ -98,16 +101,72 @@ public class Refinanciacion extends EntidadAuditable {
         if (!cuotas.isEmpty()) {
             throw new IllegalStateException("La refinanciación ya tiene cuotas");
         }
-        BigDecimal base = totalPlan.divide(BigDecimal.valueOf(cantidadCuotas), 2, RoundingMode.DOWN);
-        BigDecimal acumulado = BigDecimal.ZERO;
-        for (int i = 1; i <= cantidadCuotas; i++) {
-            BigDecimal importe = i == cantidadCuotas
-                    ? totalPlan.subtract(acumulado)
-                    : base;
-            LocalDate vencimiento = fechaInicio.plusMonths(i);
-            cuotas.add(new CuotaRefinanciacion(this, i, importe, vencimiento));
-            acumulado = acumulado.add(importe);
+        if (tasaAnual == null) {
+            throw new IllegalStateException("La TNA es obligatoria para generar cuotas");
         }
+
+        BigDecimal tasaMensual = tasaAnual
+                .divide(PERIODOS_ANUALES, ESCALA_CALCULO, RoundingMode.HALF_UP)
+                .divide(new BigDecimal("100"), ESCALA_CALCULO, RoundingMode.HALF_UP);
+
+        BigDecimal importeTeorico = calcularImporteCuota(totalPlan, tasaMensual, cantidadCuotas);
+        BigDecimal importeCuota = importeTeorico.setScale(2, RoundingMode.DOWN);
+
+        BigDecimal saldoCapital = totalPlan;
+        for (int i = 1; i <= cantidadCuotas; i++) {
+            BigDecimal interes = saldoCapital
+                    .multiply(tasaMensual)
+                    .setScale(2, RoundingMode.HALF_UP);
+
+            BigDecimal capitalAmortizado;
+            BigDecimal importe;
+
+            if (i == cantidadCuotas) {
+                capitalAmortizado = saldoCapital;
+                importe = capitalAmortizado.add(interes).setScale(2, RoundingMode.HALF_UP);
+            } else {
+                importe = importeCuota;
+                capitalAmortizado = importe.subtract(interes).setScale(2, RoundingMode.HALF_UP);
+            }
+
+            LocalDate vencimiento = fechaInicio.plusMonths(i);
+            cuotas.add(new CuotaRefinanciacion(
+                    this,
+                    i,
+                    importe,
+                    interes,
+                    capitalAmortizado,
+                    vencimiento
+            ));
+
+            saldoCapital = saldoCapital.subtract(capitalAmortizado).setScale(2, RoundingMode.HALF_UP);
+        }
+    }
+
+    private BigDecimal calcularImporteCuota(BigDecimal capital,
+                                             BigDecimal tasaMensual,
+                                             int cantidadCuotas) {
+        if (tasaMensual.signum() == 0) {
+            return capital.divide(
+                    BigDecimal.valueOf(cantidadCuotas),
+                    12,
+                    RoundingMode.HALF_UP
+            );
+        }
+
+        BigDecimal unoMasTasa = BigDecimal.ONE.add(tasaMensual);
+        BigDecimal factor = unoMasTasa.pow(cantidadCuotas);
+        return capital
+                .multiply(tasaMensual)
+                .divide(
+                        BigDecimal.ONE.subtract(BigDecimal.ONE.divide(
+                                factor,
+                                ESCALA_CALCULO,
+                                RoundingMode.HALF_UP
+                        )),
+                        ESCALA_CALCULO,
+                        RoundingMode.HALF_UP
+                );
     }
 
     public void registrarPago(BigDecimal importe) {
