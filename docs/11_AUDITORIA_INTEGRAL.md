@@ -346,3 +346,45 @@ Durante la auditoría se detectaron y corrigieron dos reglas de integridad concr
 Se agregaron tests específicos para las tres reglas. La validación CI de GitHub correspondiente al último cambio estaba **en curso** al momento de esta actualización; por lo tanto no se declara todavía una nueva suite verde posterior a estos cambios.
 
 El alcance de la auditoría mantiene como decisiones de negocio pendientes la modalidad de interés/amortización de refinanciación, la regla exacta de punitorios respecto del pago mínimo y la conversión de una financiación multidivisa seguida de liquidación en otra moneda. No se inventaron esas reglas.
+
+
+## ACTUALIZACIÓN CANÓNICA — CIERRE TÉCNICO DE AUDITORÍA DE TARJETAS — 22/09/2026
+
+Esta sección supersede las conclusiones anteriores cuando exista contradicción y toma como fuente de verdad el código, los tests y los commits de `feature/swing-shell`.
+
+### Estado Git
+
+- Rama de trabajo: `feature/swing-shell`.
+- Último commit verificado: `6980f2da230c8fd3f8beabbe459e86454d55d271` — `test: seleccionar pago financiado correcto`.
+- `main`: la comparación vigente muestra que la rama de trabajo continúa separada de `main`; no se realizó merge.
+- El commit final verificado no modifica producción: hace determinista la consulta del test seleccionando el último `PagoTarjeta` mediante `ORDER BY p.id DESC` y `setMaxResults(1)`.
+
+### Validación final informada por el usuario
+
+- `mvn -e test`: **848/848 tests**, 0 failures, 0 errors, 0 skipped.
+- `BUILD SUCCESS`.
+- Finalizado: **22/09/2026 14:32:59 -03:00**.
+- La ejecución anterior de 848 tests que falló por `NonUniqueResult` quedó explicada por el propio test: la obligación tenía dos pagos y la consulta usaba `getSingleResult()` sin seleccionar cuál correspondía. La corrección posterior no cambia la regla financiera; solamente hace explícita la selección del pago financiado recién registrado.
+
+### Cierre técnico
+
+Con la suite completa verde sobre el HEAD final, quedan cerrados los hallazgos técnicos tratados en esta auditoría: trazabilidad de pagos financiados, centralización de las mutaciones financieras en `PagoTarjetaService`, validaciones temporales de reversión, reglas de cuenta pagadora, fechas de refinanciación, punitorios desde la mora, límites de financiación y separación de capital/valorización en financiaciones multidivisa.
+
+Por lo tanto, **la auditoría técnica del núcleo de Tarjeta de Crédito queda cerrada y validada** sobre `feature/swing-shell`.
+
+### Decisiones de negocio que permanecen como evolución futura
+
+El cierre técnico no implica que todas las funcionalidades financieras posibles estén definidas. Permanecen como trabajo futuro, y no deben resolverse por inferencia:
+
+1. modalidad de amortización e intereses periódicos de refinanciación;
+2. regla explícita de conversión, cotización y trazabilidad cuando una financiación multidivisa se liquida posteriormente en otra moneda;
+3. integración detallada del pago mínimo con punitorios e intereses compensatorios;
+4. calendario bancario de feriados más allá de sábado/domingo;
+5. UI avanzada para alta y detalle de financiación/refinanciación;
+6. adopción de `Clock` y versionado formal del esquema.
+
+Estos puntos no se consideran fallos del núcleo auditado mientras no exista una regla de negocio definida que el código contradiga.
+
+### Próximo paso
+
+No realizar cambios adicionales de Tarjeta de Crédito por la sola auditoría. El siguiente trabajo debe ser una funcionalidad nueva o una de las decisiones de negocio pendientes, con regla explícita, tests y cambio mínimo. 
