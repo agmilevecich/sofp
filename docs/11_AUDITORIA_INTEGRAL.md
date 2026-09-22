@@ -433,3 +433,29 @@ Los importes persistidos de refinanciación y cuotas utilizan `BigDecimal` con e
 
 ### Estado de implementación
 La infraestructura actual queda preparada para incorporar esas reglas sin cambiar el flujo transaccional de `PagoTarjetaService`: la refinanciación posee plan, cuotas, saldo, estado y trazabilidad de pagos/reversiones. La implementación financiera avanzada debe agregarse únicamente después de definir las reglas pendientes.
+
+## Implementación de amortización de refinanciación — 22/09/2026
+
+Se implementó sobre la rama `feature/swing-shell` la primera etapa de las reglas financieras definidas para refinanciación:
+
+- sistema de amortización francés;
+- `tasaAnual` interpretada como TNA;
+- periodicidad mensual;
+- tasa periódica = TNA / 12;
+- interés de cada período calculado sobre el saldo de capital al inicio del período;
+- primer período desde `fechaInicio` hasta `fechaInicio + 1 mes`;
+- redondeo monetario a 2 decimales;
+- ajuste de la última cuota para cancelar exactamente el capital pendiente;
+- las cuotas conservan el desglose entre interés y capital amortizado.
+
+Para esta implementación, el saldo financiado del sistema francés es `totalPlan`, que actualmente se compone de capital original + interés inicial + cargos iniciales. Esto significa que esos importes forman parte del saldo sobre el cual se genera el plan francés.
+
+Ejemplo de referencia implementado en tests: total plan $127.000, TNA 24%, 3 cuotas mensuales:
+- cuota 1: $44.037,84 = $2.540,00 de interés + $41.497,84 de capital;
+- cuota 2: $44.037,84 = $1.710,04 de interés + $42.327,80 de capital;
+- cuota 3: $44.037,85 = $863,49 de interés + $43.174,36 de capital.
+
+La implementación agrega el desglose `interes` y `capitalAmortizado` a `CuotaRefinanciacion` y exige TNA al momento de generar las cuotas.
+
+Pendiente de auditoría posterior: definir y probar explícitamente el tratamiento de pagos anticipados sobre el plan francés, pagos vencidos y eventuales intereses/cargos por mora. Esta implementación no introduce reglas de mora ni cambia todavía la política de pagos/reversiones existente.
+
