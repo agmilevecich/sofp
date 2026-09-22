@@ -73,7 +73,7 @@ public class Refinanciacion extends EntidadAuditable {
         this.cargosIniciales = validarNoNegativo(cargosIniciales, "Los cargos iniciales");
         this.totalPlan = this.capitalOriginal.add(this.interesInicial).add(this.cargosIniciales).setScale(2);
         this.saldoPlan = this.totalPlan;
-        this.tasaAnual = tasaAnual;
+        this.tasaAnual = validarTasaAnual(tasaAnual);
         if (cantidadCuotas < 1) {
             throw new IllegalArgumentException("La cantidad de cuotas debe ser positiva");
         }
@@ -155,6 +155,16 @@ public class Refinanciacion extends EntidadAuditable {
         if (estado == EstadoRefinanciacion.CANCELADA) {
             estado = EstadoRefinanciacion.ACTIVA;
         }
+    }
+
+    private BigDecimal validarTasaAnual(BigDecimal tasa) {
+        if (tasa == null) {
+            return null;
+        }
+        if (tasa.signum() < 0) {
+            throw new IllegalArgumentException("La tasa anual no puede ser negativa");
+        }
+        return tasa.setScale(4);
     }
 
     private BigDecimal validarNoNegativo(BigDecimal importe, String mensaje) {
