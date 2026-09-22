@@ -98,8 +98,12 @@ class RefinanciacionServiceTest {
         assertEquals(EstadoObligacion.REFINANCIADA, obligacion.getEstado());
         assertEquals(new BigDecimal("127000.00"), refinanciacion.getTotalPlan());
         assertEquals(3, refinanciacion.getCuotas().size());
-        assertEquals(new BigDecimal("42333.33"), refinanciacion.getCuotas().get(0).getImporteOriginal());
-        assertEquals(new BigDecimal("42333.34"), refinanciacion.getCuotas().get(2).getImporteOriginal());
+        assertEquals(new BigDecimal("44037.84"), refinanciacion.getCuotas().get(0).getImporteOriginal());
+        assertEquals(new BigDecimal("44037.85"), refinanciacion.getCuotas().get(2).getImporteOriginal());
+        assertEquals(new BigDecimal("2540.00"), refinanciacion.getCuotas().get(0).getInteres());
+        assertEquals(new BigDecimal("41497.84"), refinanciacion.getCuotas().get(0).getCapitalAmortizado());
+        assertEquals(new BigDecimal("863.49"), refinanciacion.getCuotas().get(2).getInteres());
+        assertEquals(new BigDecimal("43174.36"), refinanciacion.getCuotas().get(2).getCapitalAmortizado());
         assertEquals(obligacion.getId(), refinanciacion.getObligacionOrigen().getId());
     }
 
@@ -137,8 +141,10 @@ class RefinanciacionServiceTest {
         assertEquals(new BigDecimal("127000.00"), persistida.getTotalPlan());
         assertEquals(new BigDecimal("127000.00"), persistida.getSaldoPlan());
         assertEquals(3, persistida.getCuotas().size());
-        assertEquals(new BigDecimal("42333.33"), persistida.getCuotas().get(0).getImporteOriginal());
-        assertEquals(new BigDecimal("42333.34"), persistida.getCuotas().get(2).getImporteOriginal());
+        assertEquals(new BigDecimal("44037.84"), persistida.getCuotas().get(0).getImporteOriginal());
+        assertEquals(new BigDecimal("44037.85"), persistida.getCuotas().get(2).getImporteOriginal());
+        assertEquals(new BigDecimal("2540.00"), persistida.getCuotas().get(0).getInteres());
+        assertEquals(new BigDecimal("43174.36"), persistida.getCuotas().get(2).getCapitalAmortizado());
     }
 
     @Test
