@@ -293,37 +293,6 @@ public class FinanciacionService {
         }
     }
 
-    Financiacion cancelarAnticipadamente(Long financiacionId,
-                                                   Long usuarioId) {
-        Objects.requireNonNull(financiacionId, "El id de la financiación es obligatorio");
-        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
-
-        EntityTransaction transaction = entityManager.getTransaction();
-        boolean propia = !transaction.isActive();
-        try {
-            if (propia) transaction.begin();
-            Financiacion financiacion = entityManager.find(Financiacion.class, financiacionId);
-            if (financiacion == null) {
-                throw new IllegalArgumentException("La financiación no existe");
-            }
-            validarPropietario(usuarioId, financiacion);
-            if (!financiacion.estaPendiente()) {
-                throw new IllegalStateException("La financiación ya está cancelada");
-            }
-
-            BigDecimal saldo = financiacion.getSaldoTotalPendiente();
-            financiacion.getObligacion().registrarPagoFinanciacion(financiacion, saldo);
-            entityManager.flush();
-            if (propia) transaction.commit();
-            return financiacion;
-        } catch (RuntimeException e) {
-            if (propia && transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
-    }
-
     private void validarPropietario(Long usuarioId, Financiacion financiacion) {
         Long propietarioId = financiacion.getObligacion()
                 .getMovimientoOrigen()
