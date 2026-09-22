@@ -157,7 +157,7 @@ class PagoTarjetaServiceTest {
                 () -> pagoTarjetaService.revertirUltimoPago(
                         obligacion.getId(),
                         usuario.getId(),
-                        LocalDateTime.of(2026, 9, 22, 10, 0)
+                        LocalDateTime.now().plusDays(1)
                 )
         );
     }
