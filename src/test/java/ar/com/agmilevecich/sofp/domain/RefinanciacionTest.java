@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RefinanciacionTest {
 
     @Test
-    void deberiaGenerarCuotasConRedondeoEnLaUltima() {
+    void deberiaGenerarCuotasConSistemaFrancesYRedondeoFinal() {
         Refinanciacion refinanciacion = crearRefinanciacion(
                 new BigDecimal("120000.00"),
                 new BigDecimal("6000.00"),
@@ -23,11 +23,48 @@ class RefinanciacionTest {
         refinanciacion.generarCuotas();
 
         assertEquals(new BigDecimal("127000.00"), refinanciacion.getTotalPlan());
-        assertEquals(new BigDecimal("42333.33"), refinanciacion.getCuotas().get(0).getImporteOriginal());
-        assertEquals(new BigDecimal("42333.33"), refinanciacion.getCuotas().get(1).getImporteOriginal());
-        assertEquals(new BigDecimal("42333.34"), refinanciacion.getCuotas().get(2).getImporteOriginal());
-        assertEquals(LocalDate.of(2026, 10, 26), refinanciacion.getCuotas().get(0).getFechaVencimiento());
-        assertEquals(LocalDate.of(2026, 12, 26), refinanciacion.getCuotas().get(2).getFechaVencimiento());
+
+        CuotaRefinanciacion primera = refinanciacion.getCuotas().get(0);
+        CuotaRefinanciacion segunda = refinanciacion.getCuotas().get(1);
+        CuotaRefinanciacion tercera = refinanciacion.getCuotas().get(2);
+
+        assertEquals(new BigDecimal("44037.84"), primera.getImporteOriginal());
+        assertEquals(new BigDecimal("2540.00"), primera.getInteres());
+        assertEquals(new BigDecimal("41497.84"), primera.getCapitalAmortizado());
+
+        assertEquals(new BigDecimal("44037.84"), segunda.getImporteOriginal());
+        assertEquals(new BigDecimal("1710.04"), segunda.getInteres());
+        assertEquals(new BigDecimal("42327.80"), segunda.getCapitalAmortizado());
+
+        assertEquals(new BigDecimal("44037.85"), tercera.getImporteOriginal());
+        assertEquals(new BigDecimal("863.49"), tercera.getInteres());
+        assertEquals(new BigDecimal("43174.36"), tercera.getCapitalAmortizado());
+
+        assertEquals(new BigDecimal("127000.00"),
+                primera.getCapitalAmortizado()
+                        .add(segunda.getCapitalAmortizado())
+                        .add(tercera.getCapitalAmortizado()));
+
+        assertEquals(LocalDate.of(2026, 10, 26), primera.getFechaVencimiento());
+        assertEquals(LocalDate.of(2026, 12, 26), tercera.getFechaVencimiento());
+    }
+
+    @Test
+    void deberiaGenerarCuotasSinInteresCuandoLaTnaEsCero() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                3
+        );
+
+        refinanciacion.generarCuotas();
+
+        assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(0).getImporteOriginal());
+        assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(0).getInteres());
+        assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(0).getCapitalAmortizado());
+        assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(2).getImporteOriginal());
     }
 
     @Test
@@ -184,6 +221,19 @@ class RefinanciacionTest {
                         3
                 )
         );
+    }
+
+    @Test
+    void noDeberiaGenerarCuotasSinTna() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                null,
+                3
+        );
+
+        assertThrows(IllegalStateException.class, refinanciacion::generarCuotas);
     }
 
     private Refinanciacion crearRefinanciacion(
