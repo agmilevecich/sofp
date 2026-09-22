@@ -376,6 +376,16 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("50000.00"), obligacion.getSaldoPendiente());
         assertEquals(new BigDecimal("50000.00"), obligacion.getCuotas().get(0).getSaldoPendiente());
         assertEquals(new BigDecimal("50000.00"), obligacion.getFinanciaciones().get(0).getSaldoCapital());
+
+        PagoTarjeta pago = entityManager.createQuery(
+                "SELECT p FROM PagoTarjeta p WHERE p.obligacion.id = :obligacionId",
+                PagoTarjeta.class
+        ).setParameter("obligacionId", obligacion.getId())
+         .getSingleResult();
+
+        assertEquals(new BigDecimal("30000.00"), pago.getImporte());
+        assertEquals(new BigDecimal("30000.00"), pago.getImporteFinanciacion());
+        assertEquals(new BigDecimal("0.00"), pago.getImporteObligacion());
     }
 
     @Test
