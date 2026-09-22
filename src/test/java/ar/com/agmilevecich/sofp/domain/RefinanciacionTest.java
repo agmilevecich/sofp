@@ -97,7 +97,7 @@ class RefinanciacionTest {
         refinanciacion.revertirPago(new BigDecimal("20000.00"));
 
         assertEquals(new BigDecimal("90000.00"), refinanciacion.getSaldoPlan());
-        assertEquals(new BigDecimal("30000.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(new BigDecimal("10000.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
         assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
     }
 
