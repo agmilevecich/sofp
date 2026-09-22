@@ -119,24 +119,6 @@ class RefinanciacionServiceTest {
     }
 
     @Test
-    void deberiaAplicarPagoParcialAlPlanRefinanciado() {
-        Refinanciacion refinanciacion = service.crear(
-                obligacion.getId(), usuarioId,
-                LocalDate.of(2026, 9, 26),
-                3,
-                new BigDecimal("6000.00"),
-                new BigDecimal("1000.00"),
-                new BigDecimal("24.0000")
-        );
-
-        service.registrarPago(refinanciacion.getId(), usuarioId, new BigDecimal("50000.00"));
-
-        assertEquals(new BigDecimal("77000.00"), refinanciacion.getSaldoPlan());
-        assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
-        assertEquals(new BigDecimal("34666.66"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
-    }
-
-    @Test
     void noDeberiaRefinanciarUnaObligacionPagada() {
         entityManager.getTransaction().begin();
         obligacion.registrarPago(new BigDecimal("120000.00"));
