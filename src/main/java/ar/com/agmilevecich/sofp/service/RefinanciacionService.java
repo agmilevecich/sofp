@@ -74,28 +74,5 @@ public class RefinanciacionService {
         }
     }
 
-    Refinanciacion registrarPago(Long refinanciacionId,
-                                        Long usuarioId,
-                                        BigDecimal importe) {
-        Objects.requireNonNull(refinanciacionId, "El id de la refinanciación es obligatorio");
-        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
-            transaction.begin();
-            Refinanciacion refinanciacion = entityManager.find(Refinanciacion.class, refinanciacionId);
-            if (refinanciacion == null) throw new IllegalArgumentException("La refinanciación no existe");
-            Long propietarioId = refinanciacion.getObligacionOrigen()
-                    .getMovimientoOrigen().getCuenta().getPerfilFinanciero().getUsuario().getId();
-            if (!Objects.equals(propietarioId, usuarioId)) {
-                throw new IllegalArgumentException("La refinanciación no pertenece al usuario autorizado");
-            }
-            refinanciacion.registrarPago(importe);
-            entityManager.flush();
-            transaction.commit();
-            return refinanciacion;
-        } catch (RuntimeException e) {
-            if (transaction.isActive()) transaction.rollback();
-            throw e;
-        }
-    }
+
 }
