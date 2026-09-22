@@ -47,6 +47,40 @@ class RefinanciacionTest {
     }
 
     @Test
+    void noDeberiaRegistrarPagoSinCuotasGeneradas() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> refinanciacion.registrarPago(new BigDecimal("10000.00"))
+        );
+        assertEquals(new BigDecimal("120000.00"), refinanciacion.getSaldoPlan());
+    }
+
+    @Test
+    void noDeberiaRevertirPagoSinCuotasGeneradas() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> refinanciacion.revertirPago(new BigDecimal("1.00"))
+        );
+        assertEquals(new BigDecimal("120000.00"), refinanciacion.getSaldoPlan());
+    }
+
+    @Test
     void deberiaAplicarPagosDesdeLaCuotaMasAntigua() {
         Refinanciacion refinanciacion = crearRefinanciacion(
                 new BigDecimal("120000.00"),
