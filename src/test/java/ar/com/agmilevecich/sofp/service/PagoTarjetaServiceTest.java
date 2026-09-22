@@ -378,9 +378,10 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("50000.00"), obligacion.getFinanciaciones().get(0).getSaldoCapital());
 
         PagoTarjeta pago = entityManager.createQuery(
-                "SELECT p FROM PagoTarjeta p WHERE p.obligacion.id = :obligacionId",
+                "SELECT p FROM PagoTarjeta p WHERE p.obligacion.id = :obligacionId ORDER BY p.id DESC",
                 PagoTarjeta.class
         ).setParameter("obligacionId", obligacion.getId())
+         .setMaxResults(1)
          .getSingleResult();
 
         assertEquals(new BigDecimal("30000.00"), pago.getImporte());
