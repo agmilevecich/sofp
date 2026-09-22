@@ -111,6 +111,7 @@ public class Refinanciacion extends EntidadAuditable {
     }
 
     public void registrarPago(BigDecimal importe) {
+        validarCuotasGeneradas();
         if (estado == EstadoRefinanciacion.CANCELADA) {
             throw new IllegalStateException("La refinanciación ya está cancelada");
         }
@@ -134,6 +135,7 @@ public class Refinanciacion extends EntidadAuditable {
     }
 
     public void revertirPago(BigDecimal importe) {
+        validarCuotasGeneradas();
         BigDecimal monto = Validaciones.importePositivo(importe, "El importe de la reversión es obligatorio");
         BigDecimal pagado = totalPlan.subtract(saldoPlan);
         if (monto.compareTo(pagado) > 0) {
@@ -154,6 +156,12 @@ public class Refinanciacion extends EntidadAuditable {
         saldoPlan = saldoPlan.add(monto);
         if (estado == EstadoRefinanciacion.CANCELADA) {
             estado = EstadoRefinanciacion.ACTIVA;
+        }
+    }
+
+    private void validarCuotasGeneradas() {
+        if (cuotas.isEmpty()) {
+            throw new IllegalStateException("La refinanciación no tiene cuotas generadas");
         }
     }
 
