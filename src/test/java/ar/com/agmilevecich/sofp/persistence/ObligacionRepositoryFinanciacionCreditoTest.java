@@ -231,7 +231,12 @@ class ObligacionRepositoryFinanciacionCreditoTest {
 
             fixture.em.getTransaction().begin();
             Refinanciacion persistida = fixture.em.find(Refinanciacion.class, refinanciacion.getId());
+            assertEquals(new BigDecimal("114429.04"), persistida.getSaldoPlan());
+            assertEquals(new BigDecimal("38143.01"), persistida.getCuotas().get(0).getImporteOriginal());
+            assertEquals(new BigDecimal("38143.01"), persistida.getCuotas().get(1).getImporteOriginal());
+            assertEquals(new BigDecimal("38143.02"), persistida.getCuotas().get(2).getImporteOriginal());
             persistida.registrarPago(new BigDecimal("40000.00"));
+            assertEquals(new BigDecimal("74429.04"), persistida.getSaldoPlan());
             fixture.em.getTransaction().commit();
             fixture.em.clear();
 
