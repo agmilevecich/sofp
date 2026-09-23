@@ -23,6 +23,7 @@ class RefinanciacionTest {
         refinanciacion.generarCuotas();
 
         assertEquals(new BigDecimal("127000.00"), refinanciacion.getTotalPlan());
+        assertEquals(new BigDecimal("132113.53"), refinanciacion.getSaldoPlan());
 
         CuotaRefinanciacion primera = refinanciacion.getCuotas().get(0);
         CuotaRefinanciacion segunda = refinanciacion.getCuotas().get(1);
@@ -154,6 +155,27 @@ class RefinanciacionTest {
     }
 
     @Test
+    @Test
+    void deberiaAplicarPagoParcialYReflejarElSaldoContractualPendiente() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        refinanciacion.registrarPago(new BigDecimal("50000.00"));
+
+        assertEquals(new BigDecimal("82113.53"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(new BigDecimal("38075.68"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("44037.85"), refinanciacion.getCuotas().get(2).getSaldoPendiente());
+        assertEquals(EstadoRefinanciacion.ACTIVA, refinanciacion.getEstado());
+    }
+
+    @Test
     void deberiaRevertirElPagoDesdeLaCuotaMasRecienteAfectada() {
         Refinanciacion refinanciacion = crearRefinanciacion(
                 new BigDecimal("120000.00"),
@@ -167,7 +189,7 @@ class RefinanciacionTest {
 
         refinanciacion.revertirPago(new BigDecimal("20000.00"));
 
-        assertEquals(new BigDecimal("90000.00"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("102113.53"), refinanciacion.getSaldoPlan());
         assertEquals(new BigDecimal("10000.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
         assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
     }
