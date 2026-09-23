@@ -203,7 +203,7 @@ public class Refinanciacion extends EntidadAuditable {
     public void revertirPago(BigDecimal importe) {
         validarCuotasGeneradas();
         BigDecimal monto = Validaciones.importePositivo(importe, "El importe de la reversión es obligatorio");
-        BigDecimal pagado = totalPlan.subtract(saldoPlan);
+        BigDecimal importePlanContractual = cuotas.stream()\n                .map(CuotaRefinanciacion::getImporteOriginal)\n                .reduce(BigDecimal.ZERO, BigDecimal::add)\n                .setScale(2, RoundingMode.HALF_UP);\n        BigDecimal pagado = importePlanContractual.subtract(saldoPlan);
         if (monto.compareTo(pagado) > 0) {
             throw new IllegalArgumentException("La reversión supera los pagos de la refinanciación");
         }
