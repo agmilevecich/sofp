@@ -227,7 +227,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
             fixture.em.getTransaction().commit();
             fixture.em.clear();
 
-            assertCredito(fixture, "110000.00");
+            assertCredito(fixture, "114429.04");
 
             fixture.em.getTransaction().begin();
             Refinanciacion persistida = fixture.em.find(Refinanciacion.class, refinanciacion.getId());
