@@ -141,6 +141,13 @@ public class Refinanciacion extends EntidadAuditable {
 
             saldoCapital = saldoCapital.subtract(capitalAmortizado).setScale(2, RoundingMode.HALF_UP);
         }
+
+        // Una vez generadas las cuotas, el saldo del plan representa el importe
+        // contractual pendiente de las cuotas, incluyendo el interés programado.
+        saldoPlan = cuotas.stream()
+                .map(CuotaRefinanciacion::getImporteOriginal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calcularImporteCuota(BigDecimal capital,
