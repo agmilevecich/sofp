@@ -148,13 +148,14 @@ class RefinanciacionTest {
         );
         refinanciacion.generarCuotas();
 
-        refinanciacion.registrarPago(new BigDecimal("120000.00"));
+        refinanciacion.registrarPago(new BigDecimal("132113.53"));
 
         assertEquals(new BigDecimal("0.00"), refinanciacion.getSaldoPlan());
         assertEquals(EstadoRefinanciacion.CANCELADA, refinanciacion.getEstado());
+        assertTrue(refinanciacion.getCuotas().stream()
+                .allMatch(cuota -> cuota.getSaldoPendiente().signum() == 0));
     }
 
-    @Test
     @Test
     void deberiaAplicarPagoParcialYReflejarElSaldoContractualPendiente() {
         Refinanciacion refinanciacion = crearRefinanciacion(
@@ -189,7 +190,7 @@ class RefinanciacionTest {
 
         refinanciacion.revertirPago(new BigDecimal("20000.00"));
 
-        assertEquals(new BigDecimal("102113.53"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("90000.00"), refinanciacion.getSaldoPlan());
         assertEquals(new BigDecimal("10000.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
         assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
     }
@@ -226,9 +227,9 @@ class RefinanciacionTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> refinanciacion.registrarPago(new BigDecimal("120000.01"))
+                () -> refinanciacion.registrarPago(new BigDecimal("132113.54"))
         );
-        assertEquals(new BigDecimal("120000.00"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("132113.53"), refinanciacion.getSaldoPlan());
     }
 
     @Test
