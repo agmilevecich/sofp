@@ -240,6 +240,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
             fixture.em.getTransaction().commit();
             fixture.em.clear();
 
+            assertComponentesCreditoRefinanciacion(fixture);
             assertCredito(fixture, "74429.04");
         }
     }
@@ -278,6 +279,110 @@ class ObligacionRepositoryFinanciacionCreditoTest {
 
             assertCredito(fixture, "0.00");
         }
+    }
+
+
+    private void assertComponentesCreditoRefinanciacion(Fixture fixture) {
+        BigDecimal saldoLiquidacion = fixture.em.createQuery("""
+                SELECT COALESCE(SUM(o.saldoLiquidacion), 0)
+                FROM Obligacion o
+                WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
+                  AND o.saldoLiquidacion IS NOT NULL
+                  AND o.saldoLiquidacion > 0
+                """, BigDecimal.class)
+                .setParameter("cuentaId", fixture.tarjeta.getId())
+                .getSingleResult();
+
+        BigDecimal obligacionesSinCuotas = fixture.em.createQuery("""
+                SELECT COALESCE(SUM(o.saldoPendiente), 0)
+                FROM Obligacion o
+                WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
+                  AND o.saldoLiquidacion IS NULL
+                  AND o.saldoPendiente > 0
+                  AND o.cuotas IS EMPTY
+                """, BigDecimal.class)
+                .setParameter("cuentaId", fixture.tarjeta.getId())
+                .getSingleResult();
+
+        BigDecimal cuotas = fixture.em.createQuery("""
+                SELECT COALESCE(SUM(c.saldoPendiente), 0)
+                FROM Obligacion o
+                JOIN o.cuotas c
+                WHERE o.movimientoOrigen.cuenta.id = :cuentaId
+                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                  AND o.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
+                  AND o.saldoLiquidacion IS NULL
+                  AND c.saldoPendiente > 0
+                """, BigDecimal.class)
+                .setParameter("cuentaId", fixture.tarjeta.getId())
+                .getSingleResult();
+
+        BigDecimal financiaciones = fixture.em.createQuery("""
+                SELECT COALESCE(SUM(f.saldoCapital), 0)
+                FROM Financiacion f
+                WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
+                  AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                  AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
+                  AND f.saldoCapital > 0
+                """, BigDecimal.class)
+                .setParameter("cuentaId", fixture.tarjeta.getId())
+                .getSingleResult();
+
+        BigDecimal refinanciaciones = fixture.em.createQuery("""
+                SELECT COALESCE(SUM(r.saldoPlan), 0)
+                FROM Refinanciacion r
+                WHERE r.obligacionOrigen.movimientoOrigen.cuenta.id = :cuentaId
+                  AND r.moneda = :moneda
+                  AND r.saldoPlan > 0
+                """, BigDecimal.class)
+                .setParameter("cuentaId", fixture.tarjeta.getId())
+                .setParameter("moneda", fixture.ars)
+                .getSingleResult();
+
+        BigDecimal cargos = fixture.em.createQuery("""
+                SELECT COALESCE(SUM(c.saldoPendiente), 0)
+                FROM CargoFinanciero c
+                WHERE c.financiacion.obligacion.movimientoOrigen.cuenta.id = :cuentaId
+                  AND c.financiacion.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                  AND c.financiacion.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
+                  AND c.financiacion.moneda = :moneda
+                  AND c.saldoPendiente > 0
+                """, BigDecimal.class)
+                .setParameter("cuentaId", fixture.tarjeta.getId())
+                .setParameter("moneda", fixture.ars)
+                .getSingleResult();
+
+        BigDecimal consumosSinObligacion = fixture.em.createQuery("""
+                SELECT COALESCE(SUM(m.importe), 0)
+                FROM Movimiento m
+                WHERE m.cuenta.id = :cuentaId
+                  AND m.moneda = :moneda
+                  AND m.tipoMovimiento = ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO
+                  AND m.formaPago = ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO
+                  AND NOT EXISTS (
+                      SELECT o.id
+                      FROM Obligacion o
+                      WHERE o.movimientoOrigen.id = m.id
+                  )
+                """, BigDecimal.class)
+                .setParameter("cuentaId", fixture.tarjeta.getId())
+                .setParameter("moneda", fixture.ars)
+                .getSingleResult();
+
+        System.out.printf(
+                "DIAGNOSTICO CREDITO: liquidacion=%s, obligaciones=%s, cuotas=%s, financiaciones=%s, refinanciaciones=%s, cargos=%s, consumos=%s%n",
+                saldoLiquidacion,
+                obligacionesSinCuotas,
+                cuotas,
+                financiaciones,
+                refinanciaciones,
+                cargos,
+                consumosSinObligacion
+        );
     }
 
     private void assertCredito(Fixture fixture, String esperado) {
