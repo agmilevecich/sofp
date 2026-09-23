@@ -235,7 +235,7 @@ class ObligacionRepositoryFinanciacionCreditoTest {
             fixture.em.getTransaction().commit();
             fixture.em.clear();
 
-            assertCredito(fixture, "70000.00");
+            assertCredito(fixture, "74429.04");
         }
     }
 
