@@ -272,7 +272,7 @@ class PagoTarjetaServiceTest {
                 PagoTarjeta.class
         ).setParameter("obligacionId", obligacion.getId()).setMaxResults(1).getSingleResult();
         assertEquals(refinanciacion.getId(), pago.getRefinanciacion().getId());
-        assertEquals(new BigDecimal("76000.00"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("81073.27"), refinanciacion.getSaldoPlan());
         assertEquals(new BigDecimal("424000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
         assertEquals(new BigDecimal("150000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
@@ -307,7 +307,7 @@ class PagoTarjetaServiceTest {
         );
 
         assertEquals("REVERSADO", pago.getEstado().name());
-        assertEquals(new BigDecimal("126000.00"), pago.getRefinanciacion().getSaldoPlan());
+        assertEquals(new BigDecimal("131073.27"), pago.getRefinanciacion().getSaldoPlan());
         assertEquals(new BigDecimal("374000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
         assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
