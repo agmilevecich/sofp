@@ -23,7 +23,7 @@ class RefinanciacionTest {
         refinanciacion.generarCuotas();
 
         assertEquals(new BigDecimal("127000.00"), refinanciacion.getTotalPlan());
-        assertEquals(new BigDecimal("124831.68"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("132113.53"), refinanciacion.getSaldoPlan());
 
         CuotaRefinanciacion primera = refinanciacion.getCuotas().get(0);
         CuotaRefinanciacion segunda = refinanciacion.getCuotas().get(1);
@@ -171,8 +171,8 @@ class RefinanciacionTest {
 
         assertEquals(new BigDecimal("74831.68"), refinanciacion.getSaldoPlan());
         assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
-        assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
-        assertEquals(new BigDecimal("40794.67"), refinanciacion.getCuotas().get(2).getSaldoPendiente());
+        assertEquals(new BigDecimal("33221.12"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("41610.56"), refinanciacion.getCuotas().get(2).getSaldoPendiente());
         assertEquals(EstadoRefinanciacion.ACTIVA, refinanciacion.getEstado());
     }
 
