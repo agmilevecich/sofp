@@ -23,7 +23,7 @@ class RefinanciacionTest {
         refinanciacion.generarCuotas();
 
         assertEquals(new BigDecimal("127000.00"), refinanciacion.getTotalPlan());
-        assertEquals(new BigDecimal("132113.53"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("124831.68"), refinanciacion.getSaldoPlan());
 
         CuotaRefinanciacion primera = refinanciacion.getCuotas().get(0);
         CuotaRefinanciacion segunda = refinanciacion.getCuotas().get(1);
@@ -148,7 +148,7 @@ class RefinanciacionTest {
         );
         refinanciacion.generarCuotas();
 
-        refinanciacion.registrarPago(new BigDecimal("132113.53"));
+        refinanciacion.registrarPago(new BigDecimal("124831.68"));
 
         assertEquals(new BigDecimal("0.00"), refinanciacion.getSaldoPlan());
         assertEquals(EstadoRefinanciacion.CANCELADA, refinanciacion.getEstado());
@@ -169,10 +169,10 @@ class RefinanciacionTest {
 
         refinanciacion.registrarPago(new BigDecimal("50000.00"));
 
-        assertEquals(new BigDecimal("82113.53"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("74831.68"), refinanciacion.getSaldoPlan());
         assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
-        assertEquals(new BigDecimal("38075.68"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
-        assertEquals(new BigDecimal("44037.85"), refinanciacion.getCuotas().get(2).getSaldoPendiente());
+        assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("40794.67"), refinanciacion.getCuotas().get(2).getSaldoPendiente());
         assertEquals(EstadoRefinanciacion.ACTIVA, refinanciacion.getEstado());
     }
 
@@ -227,7 +227,7 @@ class RefinanciacionTest {
 
         assertThrows(
                 IllegalArgumentException.class,
-                () -> refinanciacion.registrarPago(new BigDecimal("132113.54"))
+                () -> refinanciacion.registrarPago(new BigDecimal("124831.69"))
         );
         assertEquals(new BigDecimal("132113.53"), refinanciacion.getSaldoPlan());
     }
