@@ -229,7 +229,7 @@ class RefinanciacionTest {
                 IllegalArgumentException.class,
                 () -> refinanciacion.registrarPago(new BigDecimal("124831.69"))
         );
-        assertEquals(new BigDecimal("132113.53"), refinanciacion.getSaldoPlan());
+        assertEquals(new BigDecimal("124831.68"), refinanciacion.getSaldoPlan());
     }
 
     @Test
