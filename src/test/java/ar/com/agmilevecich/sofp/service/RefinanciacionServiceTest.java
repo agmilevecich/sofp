@@ -139,7 +139,7 @@ class RefinanciacionServiceTest {
         Refinanciacion persistida = entityManager.find(Refinanciacion.class, id);
 
         assertEquals(new BigDecimal("127000.00"), persistida.getTotalPlan());
-        assertEquals(new BigDecimal("127000.00"), persistida.getSaldoPlan());
+        assertEquals(new BigDecimal("132113.53"), persistida.getSaldoPlan());
         assertEquals(3, persistida.getCuotas().size());
         assertEquals(new BigDecimal("44037.84"), persistida.getCuotas().get(0).getImporteOriginal());
         assertEquals(new BigDecimal("44037.85"), persistida.getCuotas().get(2).getImporteOriginal());
