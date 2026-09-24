@@ -153,6 +153,8 @@ public class OperacionFinancieraService {
             throw new IllegalArgumentException("El precio unitario debe ser positivo");
         }
 
+        validarPosicionDisponible(cuentaDestino, activo, cantidad);
+
         BigDecimal importe = cantidad.multiply(precioUnitario);
 
         OperacionFinanciera operacion = new OperacionFinanciera(
@@ -212,7 +214,6 @@ public class OperacionFinancieraService {
         }
 
         validarMismoPerfil(cuentaDestino, categoriaDestino);
-        validarPosicionDisponible(cuentaDestino, activo, cantidad);
 
         if (cantidad.signum() <= 0) {
             throw new IllegalArgumentException("La cantidad debe ser positiva");
