@@ -81,6 +81,26 @@ public class MovimientoRepository {
                 .getResultList();
     }
 
+    public List<Movimiento> listarPorCuentaHastaFecha(Long cuentaId, java.time.LocalDateTime fechaHora) {
+
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+
+        return entityManager.createQuery(
+                        """
+                        SELECT m
+                        FROM Movimiento m
+                        WHERE m.cuenta.id = :cuentaId
+                          AND m.fechaHora <= :fechaHora
+                        ORDER BY m.fechaHora, m.id
+                        """,
+                        Movimiento.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("fechaHora", fechaHora)
+                .getResultList();
+    }
+
     public List<Movimiento> listarPorCategoria(Long categoriaId) {
 
         Objects.requireNonNull(
