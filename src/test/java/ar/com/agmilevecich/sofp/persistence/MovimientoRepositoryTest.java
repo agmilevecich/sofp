@@ -223,6 +223,52 @@ class MovimientoRepositoryTest {
     }
 
     @Test
+    void deberiaListarMovimientosDeUnaCuentaHastaUnaFecha() {
+
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            DatosMovimiento datos = crearDatosMovimiento(
+                    "movimiento.cuenta.fecha@test.com",
+                    "ARS"
+            );
+
+            Movimiento movimientoAnterior = new Movimiento(
+                    datos.cuenta(), datos.categoria(), TipoMovimiento.INGRESO,
+                    new BigDecimal("10000.00"),
+                    LocalDateTime.of(2026, 8, 10, 10, 0),
+                    "Ingreso anterior"
+            );
+
+            Movimiento movimientoPosterior = new Movimiento(
+                    datos.cuenta(), datos.categoria(), TipoMovimiento.INGRESO,
+                    new BigDecimal("50000.00"),
+                    LocalDateTime.of(2026, 8, 20, 10, 0),
+                    "Ingreso posterior"
+            );
+
+            MovimientoRepository repository = new MovimientoRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            repository.guardar(movimientoAnterior);
+            repository.guardar(movimientoPosterior);
+            em.getTransaction().commit();
+
+            List<Movimiento> movimientos = repository.listarPorCuentaHastaFecha(
+                    datos.cuenta().getId(),
+                    LocalDateTime.of(2026, 8, 15, 23, 59)
+            );
+
+            assertEquals(1, movimientos.size());
+            assertEquals("Ingreso anterior", movimientos.get(0).getDescripcion());
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
     void deberiaListarMovimientosDeUnaCategoria() {
 
         JpaTestManager.close();
