@@ -605,4 +605,36 @@ class OperacionFinancieraCompraServiceTest {
 
     }
 
+
+    @Test
+    void deberiaRechazarCompraCuandoLaMonedaDeLaCuentaNoCoincideConLaDelActivo() {
+
+        Moneda dolar = new Moneda(
+                "USD",
+                "Dólar estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(dolar);
+        entityManager.getTransaction().commit();
+
+        cuentaOrigen.cambiarMoneda(dolar);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.now(),
+                        "Compra"
+                )
+        );
+    }
+
 }
