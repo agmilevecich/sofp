@@ -332,6 +332,78 @@ class OperacionFinancieraTest {
     }
 
     @Test
+    void noDeberiaPermitirModificarImporteDeMovimientoAsociado() {
+        OperacionFinanciera operacion = crearOperacionFinanciera();
+
+        Movimiento movimiento = crearMovimiento(
+                operacion.getCuentaOrigen(),
+                "Transferencia enviada"
+        );
+
+        operacion.agregarMovimiento(movimiento);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimiento.cambiarImporte(new BigDecimal("90000.00"))
+        );
+
+        assertEquals(new BigDecimal("100000.00"), movimiento.getImporte());
+    }
+
+    @Test
+    void noDeberiaPermitirModificarTipoDeMovimientoAsociado() {
+        OperacionFinanciera operacion = crearOperacionFinanciera();
+
+        Movimiento movimiento = crearMovimiento(
+                operacion.getCuentaOrigen(),
+                "Transferencia enviada"
+        );
+
+        operacion.agregarMovimiento(movimiento);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimiento.modificarTipoMovimiento(TipoMovimiento.INGRESO)
+        );
+
+        assertEquals(TipoMovimiento.EGRESO, movimiento.getTipoMovimiento());
+    }
+
+    @Test
+    void noDeberiaPermitirModificarCantidadDeMovimientoActivoAsociado() {
+        OperacionFinanciera operacion = crearOperacionFinanciera(
+                TipoOperacionFinanciera.COMPRA
+        );
+
+        MovimientoActivo movimientoActivo = crearMovimientoActivo();
+        operacion.agregarMovimientoActivo(movimientoActivo);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimientoActivo.cambiarCantidad(new BigDecimal("50"))
+        );
+
+        assertEquals(new BigDecimal("100"), movimientoActivo.getCantidad());
+    }
+
+    @Test
+    void noDeberiaPermitirModificarPrecioDeMovimientoActivoAsociado() {
+        OperacionFinanciera operacion = crearOperacionFinanciera(
+                TipoOperacionFinanciera.COMPRA
+        );
+
+        MovimientoActivo movimientoActivo = crearMovimientoActivo();
+        operacion.agregarMovimientoActivo(movimientoActivo);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimientoActivo.cambiarPrecioUnitario(new BigDecimal("900.00"))
+        );
+
+        assertEquals(new BigDecimal("1000.00"), movimientoActivo.getPrecioUnitario());
+    }
+
+    @Test
     void deberiaRechazarMovimientoYaAsociadoAOtraOperacion() {
 
         OperacionFinanciera primeraOperacion =
