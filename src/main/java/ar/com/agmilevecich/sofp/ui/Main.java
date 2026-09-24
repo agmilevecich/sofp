@@ -144,6 +144,7 @@ public class Main {
         OperacionFinancieraService operacionFinancieraService = new OperacionFinancieraService(
                 entityManager,
                 movimientoRepository,
+                movimientoActivoRepository,
                 operacionFinancieraRepository
         );
         TipoCambioService tipoCambioService = new TipoCambioService(
