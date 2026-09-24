@@ -148,6 +148,39 @@ class RefinanciacionServiceTest {
     }
 
     @Test
+    void deberiaPersistirSaldosDePlanYCuotasDespuesDeUnPago() {
+        Refinanciacion refinanciacion = service.crear(
+                obligacion.getId(), usuarioId,
+                LocalDate.of(2026, 9, 26),
+                3,
+                new BigDecimal("6000.00"),
+                new BigDecimal("1000.00"),
+                new BigDecimal("24.0000")
+        );
+
+        Long id = refinanciacion.getId();
+
+        entityManager.getTransaction().begin();
+        refinanciacion.registrarPago(new BigDecimal("50000.00"));
+        entityManager.getTransaction().commit();
+
+        entityManager.clear();
+
+        Refinanciacion persistida = entityManager.find(Refinanciacion.class, id);
+
+        assertEquals(new BigDecimal("82113.53"), persistida.getSaldoPlan());
+        assertEquals(new BigDecimal("0.00"), persistida.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(new BigDecimal("32113.53"), persistida.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("44037.85"), persistida.getCuotas().get(2).getSaldoPendiente());
+
+        BigDecimal sumaSaldos = persistida.getCuotas().stream()
+                .map(ar.com.agmilevecich.sofp.domain.CuotaRefinanciacion::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        assertEquals(persistida.getSaldoPlan(), sumaSaldos);
+    }
+
+    @Test
     void noDeberiaRefinanciarUnaObligacionPagada() {
         entityManager.getTransaction().begin();
         obligacion.registrarPago(new BigDecimal("120000.00"));
