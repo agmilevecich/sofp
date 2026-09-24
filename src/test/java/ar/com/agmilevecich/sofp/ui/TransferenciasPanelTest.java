@@ -15,6 +15,7 @@ import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
@@ -52,7 +53,8 @@ class TransferenciasPanelTest {
         cuentaService = new CuentaService(new CuentaRepository(entityManager), movimientoRepository, entityManager);
         operacionFinancieraRepository = new OperacionFinancieraRepository(entityManager);
         operacionFinancieraService = new OperacionFinancieraService(
-                entityManager, movimientoRepository, operacionFinancieraRepository);
+                entityManager, movimientoRepository, new MovimientoActivoRepository(entityManager),
+                operacionFinancieraRepository);
     }
 
     @AfterEach
