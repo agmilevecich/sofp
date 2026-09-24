@@ -495,3 +495,60 @@ La suite completa está verde. El siguiente trabajo sigue siendo cerrar el invar
 
 ### Regla de continuidad
 La próxima sesión debe reconstruir desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → cambio mínimo. No asumir que documentación histórica representa el estado actual si contradice código o tests.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 24/09/2026 12:46 -03:00
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y GitHub.
+
+### Estado Git reconstruido
+
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD: `dcb85822199639819a02d81a5d55753f292e4617` — `fix: bloquear toda mutacion independiente de operaciones financieras`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación actual desde GitHub: la feature está **35 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge a `main`.
+
+### Cierre del bloque de operaciones financieras coordinadas
+
+Se completó la protección contra mutación independiente de movimientos pertenecientes a una `OperacionFinanciera`.
+
+La protección quedó aplicada en dos niveles:
+
+- `Movimiento` rechaza modificaciones estructurales de importe y tipo cuando está asociado a una operación financiera.
+- `MovimientoActivo` rechaza modificaciones de tipo, cantidad y precio unitario cuando está asociado a una operación financiera.
+- `MovimientoService` rechaza modificación o eliminación independiente de un movimiento asociado a una operación financiera, incluyendo descripción, observaciones, categoría, tipo, importe y fecha.
+
+La intención es impedir que una sola pata de una operación coordinada quede modificada o eliminada aisladamente y rompa la consistencia de la operación completa.
+
+### Validación informada por el usuario
+
+Después de los últimos cambios se ejecutaron:
+
+- `MovimientoServiceTest`: **55/55**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Bloque conjunto `OperacionFinancieraTest`, `OperacionFinancieraServiceTest` y `MovimientoServiceTest`: **101/101**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Última ejecución finalizada: **24/09/2026 12:46:37 -03:00**.
+
+Estos resultados son ejecuciones locales informadas por el usuario y no deben confundirse con una ejecución de GitHub Actions.
+
+### Refinanciación
+
+La refinanciación queda con cobertura funcional relevante, incluyendo generación de cuotas, sistema francés, pagos, reversiones, persistencia y protección de precondiciones. El bloque específico de persistencia/financiación/refinanciación informado previamente quedó verde y la suite completa conocida llegó a **861/861** el 23/09/2026.
+
+La documentación histórica contiene distintas descripciones de la semántica de `saldoPlan`. Para continuidad, prevalece la implementación y los tests actuales. Cualquier cambio adicional sobre la semántica financiera debe partir de una nueva inspección del código actual y de los invariantes cubiertos por tests.
+
+### Próximo bloque de auditoría
+
+El siguiente hallazgo prioritario es **validar la posición disponible de un activo antes de permitir una venta**. Antes de modificar producción deben revisarse desde GitHub `OperacionFinancieraService`, `MovimientoActivo`, `PosicionActivo`, repositorios relacionados y sus tests para identificar la fórmula de posición que ya utiliza SOFP.
+
+Después quedan como pendientes de alta prioridad:
+
+1. compatibilidad de moneda entre cuenta y activo/precio en compras;
+2. disponibilidad histórica de una cuenta considerando únicamente movimientos hasta la fecha de la operación;
+3. suite completa después de cerrar estos invariantes;
+4. patrimonio neto y reportes consolidados;
+5. UI avanzada y endurecimiento técnico.
+
+### Regla de continuidad
+
+Cada nueva sesión debe reconstruir desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. La documentación es auxiliar y nunca reemplaza al código ni a los tests.
