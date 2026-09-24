@@ -620,3 +620,74 @@ La refinanciación ya tiene cobertura funcional relevante y la suite está verde
 
 ### Regla de continuidad
 Para la próxima sesión: reconstruir GitHub antes de cualquier cambio y registrar rama, HEAD, comparación con `main`, código relacionado, tests, último resultado y próximo cambio mínimo. No modificar `main` ni crear cambios de producción sin confirmar primero la regla de negocio.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 24/09/2026 12:46 -03:00
+
+Esta sección supersede los estados anteriores cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y GitHub.
+
+### Estado real actual
+
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD actual: `dcb85822199639819a02d81a5d55753f292e4617` — `fix: bloquear toda mutacion independiente de operaciones financieras`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación GitHub: **35 commits por delante de `main`, 0 por detrás**.
+- No se realizó merge a `main`.
+
+### Estado de tests conocido
+
+La última suite completa informada anteriormente fue `mvn test`: **861/861**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada el 23/09/2026 a las 20:29:58 -03:00.
+
+Después de esa suite se cerró el bloque de operaciones financieras coordinadas. Las validaciones locales más recientes son:
+
+- `MovimientoServiceTest`: **55/55**, 0 failures, 0 errors, 0 skipped.
+- `OperacionFinancieraTest` + `OperacionFinancieraServiceTest` + `MovimientoServiceTest`: **101/101**, 0 failures, 0 errors, 0 skipped.
+- Última ejecución: **24/09/2026 12:46:37 -03:00**.
+
+No debe interpretarse el resultado 101/101 como una nueva suite completa: corresponde únicamente al bloque conjunto indicado.
+
+### Operaciones financieras coordinadas — CERRADO
+
+El hallazgo anterior que figuraba como pendiente —mutación o eliminación independiente de una pata de `OperacionFinanciera`— queda **resuelto y validado**.
+
+La protección cubre:
+
+- modificaciones estructurales de `Movimiento` asociado;
+- modificaciones estructurales de `MovimientoActivo` asociado;
+- modificación o eliminación de movimientos asociados desde `MovimientoService`.
+
+La regla de continuidad es que una operación financiera coordinada no debe poder quedar parcialmente alterada mediante APIs individuales.
+
+### Refinanciación — estado actual
+
+El núcleo de refinanciación ya contiene generación de cuotas, sistema francés con TNA mensual, desglose de interés/capital, pagos, reversiones, persistencia y validaciones estructurales. Los tests relacionados y la suite completa conocida quedaron verdes en el estado informado del 23/09/2026.
+
+La documentación histórica contiene formulaciones anteriores sobre `saldoPlan`. Para nuevas decisiones debe prevalecer siempre el código y los tests actuales; no se debe modificar la semántica financiera por inferencia documental.
+
+### Próximo hallazgo prioritario — inversiones
+
+El siguiente punto de auditoría es **validar que una venta de activos no pueda superar la posición disponible**.
+
+Antes de modificar código se debe revisar desde GitHub:
+
+- `OperacionFinancieraService`;
+- `MovimientoActivo`;
+- `PosicionActivo`;
+- repositorios de posiciones/movimientos de activos;
+- `OperacionFinancieraServiceTest` y tests de posiciones.
+
+La implementación debe reutilizar la fórmula de posición ya existente en SOFP y agregar únicamente la validación mínima necesaria.
+
+### Pendientes posteriores
+
+1. Venta superior a posición disponible.
+2. Compatibilidad de moneda cuenta/activo/precio en compras.
+3. Disponibilidad histórica de fondos por fecha.
+4. Nueva suite completa después de cerrar los invariantes financieros prioritarios.
+5. Patrimonio neto y reportes consolidados.
+6. UI avanzada de tarjetas, financiación, refinanciación e inversiones.
+7. Endurecimiento técnico: `Clock`, calendario bancario, migraciones y rendimiento Swing.
+
+### Criterio de continuidad
+
+En cada nueva sesión reconstruir: GitHub → rama → últimos commits → comparación con `main` → código → tests → documentación → último resultado informado → próximo cambio mínimo. Si documentación y código contradicen, prevalecen código y tests.
