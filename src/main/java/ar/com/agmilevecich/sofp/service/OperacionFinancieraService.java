@@ -6,6 +6,7 @@ import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
+import ar.com.agmilevecich.sofp.domain.PosicionActivo;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
@@ -153,8 +154,6 @@ public class OperacionFinancieraService {
             throw new IllegalArgumentException("El precio unitario debe ser positivo");
         }
 
-        validarPosicionDisponible(cuentaDestino, activo, cantidad);
-
         BigDecimal importe = cantidad.multiply(precioUnitario);
 
         OperacionFinanciera operacion = new OperacionFinanciera(
@@ -222,6 +221,8 @@ public class OperacionFinancieraService {
         if (precioUnitario.signum() <= 0) {
             throw new IllegalArgumentException("El precio unitario debe ser positivo");
         }
+
+        validarPosicionDisponible(cuentaDestino, activo, cantidad);
 
         BigDecimal importe = cantidad.multiply(precioUnitario);
 
