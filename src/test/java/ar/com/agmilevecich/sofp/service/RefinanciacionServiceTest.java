@@ -170,7 +170,7 @@ class RefinanciacionServiceTest {
 
         assertEquals(new BigDecimal("82113.53"), persistida.getSaldoPlan());
         assertEquals(new BigDecimal("0.00"), persistida.getCuotas().get(0).getSaldoPendiente());
-        assertEquals(new BigDecimal("32113.53"), persistida.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("38075.68"), persistida.getCuotas().get(1).getSaldoPendiente());
         assertEquals(new BigDecimal("44037.85"), persistida.getCuotas().get(2).getSaldoPendiente());
 
         BigDecimal sumaSaldos = persistida.getCuotas().stream()
