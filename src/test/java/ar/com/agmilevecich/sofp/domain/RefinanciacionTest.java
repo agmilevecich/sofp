@@ -177,6 +177,67 @@ class RefinanciacionTest {
     }
 
     @Test
+    void deberiaMantenerConsistenciaEntreSaldoPlanYSaldosDeCuotasDespuesDeUnPago() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        refinanciacion.registrarPago(new BigDecimal("50000.00"));
+
+        BigDecimal sumaSaldos = refinanciacion.getCuotas().stream()
+                .map(CuotaRefinanciacion::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        assertEquals(refinanciacion.getSaldoPlan(), sumaSaldos);
+    }
+
+    @Test
+    void deberiaRevertirElPagoCompletoYRestaurarTodasLasCuotas() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        refinanciacion.registrarPago(new BigDecimal("50000.00"));
+        refinanciacion.revertirPago(new BigDecimal("50000.00"));
+
+        assertEquals(new BigDecimal("120000.00"), refinanciacion.getSaldoPlan());
+        assertEquals(EstadoRefinanciacion.ACTIVA, refinanciacion.getEstado());
+        assertTrue(refinanciacion.getCuotas().stream()
+                .allMatch(cuota -> cuota.getSaldoPendiente().equals(cuota.getImporteOriginal())));
+    }
+
+    @Test
+    void deberiaAplicarPagoExactoDeUnaCuotaSinAfectarLasPosteriores() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        BigDecimal importePrimera = refinanciacion.getCuotas().get(0).getImporteOriginal();
+        refinanciacion.registrarPago(importePrimera);
+
+        assertEquals(new BigDecimal("0.00"), refinanciacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(1).getSaldoPendiente());
+        assertEquals(new BigDecimal("40000.00"), refinanciacion.getCuotas().get(2).getSaldoPendiente());
+        assertEquals(new BigDecimal("80000.00"), refinanciacion.getSaldoPlan());
+        assertEquals(EstadoRefinanciacion.ACTIVA, refinanciacion.getEstado());
+    }
+
+    @Test
     void deberiaRevertirElPagoDesdeLaCuotaMasRecienteAfectada() {
         Refinanciacion refinanciacion = crearRefinanciacion(
                 new BigDecimal("120000.00"),
