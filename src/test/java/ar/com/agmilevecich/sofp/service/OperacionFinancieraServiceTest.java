@@ -1,11 +1,15 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Activo;
+import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
+import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
@@ -13,6 +17,7 @@ import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import jakarta.persistence.EntityManager;
@@ -55,6 +60,11 @@ public class OperacionFinancieraServiceTest {
                         entityManager
                 );
 
+        MovimientoActivoRepository movimientoActivoRepository =
+                new MovimientoActivoRepository(
+                        entityManager
+                );
+
         OperacionFinancieraRepository operacionFinancieraRepository =
                 new OperacionFinancieraRepository(
                         entityManager
@@ -64,6 +74,7 @@ public class OperacionFinancieraServiceTest {
                 new OperacionFinancieraService(
                         entityManager,
                         movimientoRepository,
+                        movimientoActivoRepository,
                         operacionFinancieraRepository
                 );
 
@@ -820,6 +831,134 @@ public class OperacionFinancieraServiceTest {
                         .getResultList()
                         .size()
         );
+    }
+
+    @Test
+    void deberiaPermitirVenderHastaLaPosicionDisponible() {
+
+        Activo activo = crearActivo();
+        persistirActivo(activo);
+
+        operacionFinancieraService.comprarActivo(
+                usuario.getId(),
+                cuentaOrigen,
+                categoriaOrigen,
+                activo,
+                new BigDecimal("100"),
+                new BigDecimal("125"),
+                LocalDateTime.of(2026, 9, 24, 10, 0),
+                "Compra"
+        );
+
+        OperacionFinanciera venta =
+                operacionFinancieraService.venderActivo(
+                        usuario.getId(),
+                        cuentaDestino,
+                        categoriaDestino,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("130"),
+                        LocalDateTime.of(2026, 9, 24, 11, 0),
+                        "Venta"
+                );
+
+        assertNotNull(venta);
+        assertEquals(
+                2,
+                entityManager.createQuery(
+                                "SELECT m FROM MovimientoActivo m",
+                                MovimientoActivo.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
+
+    @Test
+    void deberiaRechazarVentaSuperiorALaPosicionDisponible() {
+
+        Activo activo = crearActivo();
+        persistirActivo(activo);
+
+        operacionFinancieraService.comprarActivo(
+                usuario.getId(),
+                cuentaOrigen,
+                categoriaOrigen,
+                activo,
+                new BigDecimal("100"),
+                new BigDecimal("125"),
+                LocalDateTime.of(2026, 9, 24, 10, 0),
+                "Compra"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.venderActivo(
+                        usuario.getId(),
+                        cuentaDestino,
+                        categoriaDestino,
+                        activo,
+                        new BigDecimal("101"),
+                        new BigDecimal("130"),
+                        LocalDateTime.of(2026, 9, 24, 11, 0),
+                        "Venta"
+                )
+        );
+
+        assertEquals(
+                1,
+                entityManager.createQuery(
+                                "SELECT m FROM MovimientoActivo m",
+                                MovimientoActivo.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
+
+    @Test
+    void deberiaRechazarVentaSinPosicionDisponible() {
+
+        Activo activo = crearActivo();
+        persistirActivo(activo);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.venderActivo(
+                        usuario.getId(),
+                        cuentaDestino,
+                        categoriaDestino,
+                        activo,
+                        new BigDecimal("1"),
+                        new BigDecimal("130"),
+                        LocalDateTime.of(2026, 9, 24, 11, 0),
+                        "Venta"
+                )
+        );
+
+        assertEquals(
+                0,
+                entityManager.createQuery(
+                                "SELECT m FROM MovimientoActivo m",
+                                MovimientoActivo.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
+
+    private Activo crearActivo() {
+        return new Bono(
+                "Bono GD30",
+                "GD30",
+                moneda
+        );
+    }
+
+    private void persistirActivo(Activo activo) {
+        entityManager.getTransaction().begin();
+        entityManager.persist(activo);
+        entityManager.getTransaction().commit();
     }
 
     @Test
