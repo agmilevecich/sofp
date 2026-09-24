@@ -428,6 +428,7 @@ class PosicionActivoServiceTest {
                 new OperacionFinancieraService(
                         em,
                         movimientoRepository,
+                        new MovimientoActivoRepository(em),
                         operacionRepository
                 );
 
