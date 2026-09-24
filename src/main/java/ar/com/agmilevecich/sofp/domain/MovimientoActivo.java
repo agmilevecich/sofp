@@ -106,6 +106,12 @@ public class MovimientoActivo extends EntidadAuditable {
     public void cambiarTipoMovimiento(
             TipoMovimientoActivo tipoMovimiento) {
 
+        if (operacionFinanciera != null) {
+            throw new IllegalStateException(
+                    "No se puede modificar el tipo de un movimiento de activo asociado a una operación financiera"
+            );
+        }
+
         this.tipoMovimiento = Objects.requireNonNull(
                 tipoMovimiento,
                 "El tipo de movimiento es obligatorio"
@@ -114,6 +120,12 @@ public class MovimientoActivo extends EntidadAuditable {
 
     public void cambiarCantidad(BigDecimal cantidad) {
 
+        if (operacionFinanciera != null) {
+            throw new IllegalStateException(
+                    "No se puede modificar la cantidad de un movimiento de activo asociado a una operación financiera"
+            );
+        }
+
         this.cantidad = Validaciones.importePositivo(
                 cantidad,
                 "La cantidad es obligatoria"
@@ -121,6 +133,12 @@ public class MovimientoActivo extends EntidadAuditable {
     }
 
     public void cambiarPrecioUnitario(BigDecimal precioUnitario) {
+
+        if (operacionFinanciera != null) {
+            throw new IllegalStateException(
+                    "No se puede modificar el precio unitario de un movimiento de activo asociado a una operación financiera"
+            );
+        }
 
         this.precioUnitario = Validaciones.importePositivo(
                 precioUnitario,
