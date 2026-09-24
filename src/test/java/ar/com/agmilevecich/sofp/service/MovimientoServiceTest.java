@@ -6,11 +6,13 @@ import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
+import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import jakarta.persistence.EntityManager;
@@ -982,6 +984,142 @@ class MovimientoServiceTest {
                         categoria2
                 )
         );
+    }
+
+    @Test
+    void noDeberiaModificarDescripcionDeMovimientoAsociadoAOperacionFinanciera() {
+        Movimiento movimiento = movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("5000.00"),
+                LocalDateTime.now(),
+                "Descripción original"
+        );
+
+        asociarAOperacionFinanciera(movimiento);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimientoService.modificarDescripcion(
+                        movimiento.getId(),
+                        usuario.getId(),
+                        "Descripción nueva"
+                )
+        );
+
+        assertEquals("Descripción original", movimiento.getDescripcion());
+    }
+
+    @Test
+    void noDeberiaModificarObservacionesDeMovimientoAsociadoAOperacionFinanciera() {
+        Movimiento movimiento = movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("5000.00"),
+                LocalDateTime.now(),
+                "Movimiento"
+        );
+
+        asociarAOperacionFinanciera(movimiento);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimientoService.modificarObservaciones(
+                        movimiento.getId(),
+                        usuario.getId(),
+                        "Observación nueva"
+                )
+        );
+
+        assertEquals(null, movimiento.getObservaciones());
+    }
+
+    @Test
+    void noDeberiaModificarCategoriaDeMovimientoAsociadoAOperacionFinanciera() {
+        Movimiento movimiento = movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("5000.00"),
+                LocalDateTime.now(),
+                "Movimiento"
+        );
+
+        Categoria categoriaOriginal = movimiento.getCategoria();
+        asociarAOperacionFinanciera(movimiento);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimientoService.cambiarCategoria(
+                        movimiento.getId(),
+                        usuario.getId(),
+                        categoria
+                )
+        );
+
+        assertEquals(categoriaOriginal, movimiento.getCategoria());
+    }
+
+    @Test
+    void noDeberiaModificarFechaDeMovimientoAsociadoAOperacionFinanciera() {
+        LocalDateTime fechaOriginal = LocalDateTime.of(2026, 9, 24, 10, 0);
+        Movimiento movimiento = movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("5000.00"),
+                fechaOriginal,
+                "Movimiento"
+        );
+
+        asociarAOperacionFinanciera(movimiento);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimientoService.modificarFechaHora(
+                        movimiento.getId(),
+                        usuario.getId(),
+                        fechaOriginal.plusDays(1)
+                )
+        );
+
+        assertEquals(fechaOriginal, movimiento.getFechaHora());
+    }
+
+    @Test
+    void noDeberiaEliminarMovimientoAsociadoAOperacionFinanciera() {
+        Movimiento movimiento = movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("5000.00"),
+                LocalDateTime.now(),
+                "Movimiento"
+        );
+
+        asociarAOperacionFinanciera(movimiento);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> movimientoService.eliminar(
+                        movimiento.getId(),
+                        usuario.getId()
+                )
+        );
+
+        assertNotNull(movimientoService.buscarPorId(movimiento.getId()).orElse(null));
+    }
+
+    private void asociarAOperacionFinanciera(Movimiento movimiento) {
+        OperacionFinanciera operacion = new OperacionFinanciera(
+                cuenta,
+                null,
+                movimiento.getImporte(),
+                TipoOperacionFinanciera.COMPRA
+        );
+        operacion.agregarMovimiento(movimiento);
     }
 
     @Test
