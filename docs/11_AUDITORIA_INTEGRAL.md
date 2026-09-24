@@ -459,3 +459,39 @@ La implementación agrega el desglose `interes` y `capitalAmortizado` a `CuotaRe
 
 Pendiente de auditoría posterior: definir y probar explícitamente el tratamiento de pagos anticipados sobre el plan francés, pagos vencidos y eventuales intereses/cargos por mora. Esta implementación no introduce reglas de mora ni cambia todavía la política de pagos/reversiones existente.
 
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — CIERRE 23/09/2026
+
+Esta sección supersede las validaciones anteriores cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y GitHub.
+
+### Estado Git
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD: `0550d6248b12ecf2a8019d1328a8def430062c2b` — `test: corregir credito esperado de pago de refinanciacion`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- La comparación reconstruida previamente desde GitHub indica que la feature está 23 commits por delante de `main` y 0 por detrás.
+- No se realizó merge a `main`.
+
+### Último bloque cerrado
+La semántica actual de `Refinanciacion.saldoPlan` incluye el interés programado de las cuotas generadas. Por ello se corrigieron únicamente expectativas de tests que todavía utilizaban el total inicial del plan como si fuera el saldo posterior a generar cuotas.
+
+Cambios de tests realizados:
+- `ObligacionRepositoryFinanciacionCreditoTest`: expectativa inicial del crédito de refinanciación ajustada a `114429.04`.
+- `PagoTarjetaServiceTest`: expectativas ajustadas de `424000.00` a `418926.73` y de `374000.00` a `368926.73`.
+- No se modificó código de producción en este bloque.
+
+### Validación
+- Test específico de `ObligacionRepositoryFinanciacionCreditoTest`: **1/1**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Bloque relacionado de persistencia/financiación/refinanciación: **24/24**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `PagoTarjetaServiceTest`: **23/23**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa `mvn test`: **861/861**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa finalizada: **23/09/2026 20:29:58 -03:00**.
+
+### Artefactos de depuración eliminados
+El archivo local `salida-refinanciacion.txt` y la rama `debug/refinanciacion-errores` fueron utilizados exclusivamente para diagnosticar los fallos de refinanciación y posteriormente eliminados. No forman parte del trabajo pendiente ni deben recuperarse.
+
+### Punto exacto para retomar
+La suite completa está verde. El siguiente trabajo sigue siendo cerrar el invariante de refinanciación entre `saldoPlan` y el estado/saldo de sus cuotas, especialmente para pagos parciales, pago total, reversión y cancelación anticipada. Antes de modificar producción debe revisarse nuevamente el código actual y los tests relacionados desde GitHub.
+
+### Regla de continuidad
+La próxima sesión debe reconstruir desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → cambio mínimo. No asumir que documentación histórica representa el estado actual si contradice código o tests.
