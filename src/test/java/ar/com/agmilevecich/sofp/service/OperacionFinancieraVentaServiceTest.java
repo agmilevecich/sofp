@@ -169,6 +169,17 @@ class OperacionFinancieraVentaServiceTest {
         BigDecimal importeEsperado =
                 new BigDecimal("12500");
 
+        operacionFinancieraService.comprarActivo(
+                usuario.getId(),
+                cuentaDestino,
+                categoriaDestino,
+                activo,
+                new BigDecimal("100"),
+                new BigDecimal("100"),
+                fechaHora,
+                "Compra Bono GD30"
+        );
+
         OperacionFinanciera operacion =
                 operacionFinancieraService.venderActivo(
                         usuario.getId(),
@@ -265,6 +276,17 @@ class OperacionFinancieraVentaServiceTest {
 
         BigDecimal importeEsperado =
                 new BigDecimal("12500");
+
+        operacionFinancieraService.comprarActivo(
+                usuario.getId(),
+                cuentaDestino,
+                categoriaDestino,
+                activo,
+                new BigDecimal("100"),
+                new BigDecimal("100"),
+                LocalDateTime.of(2026, 8, 27, 13, 0),
+                "Compra Bono GD30"
+        );
 
         OperacionFinanciera operacion =
                 operacionFinancieraService.venderActivo(
