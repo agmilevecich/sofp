@@ -9,6 +9,7 @@ import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
+import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import jakarta.persistence.EntityManager;
@@ -22,11 +23,13 @@ public class OperacionFinancieraService {
 
     private final EntityManager entityManager;
     private final MovimientoRepository movimientoRepository;
+    private final MovimientoActivoRepository movimientoActivoRepository;
     private final OperacionFinancieraRepository operacionFinancieraRepository;
 
     public OperacionFinancieraService(
             EntityManager entityManager,
             MovimientoRepository movimientoRepository,
+            MovimientoActivoRepository movimientoActivoRepository,
             OperacionFinancieraRepository operacionFinancieraRepository) {
 
         this.entityManager = Objects.requireNonNull(
@@ -37,6 +40,11 @@ public class OperacionFinancieraService {
         this.movimientoRepository = Objects.requireNonNull(
                 movimientoRepository,
                 "El repositorio de movimientos es obligatorio"
+        );
+
+        this.movimientoActivoRepository = Objects.requireNonNull(
+                movimientoActivoRepository,
+                "El repositorio de movimientos de activos es obligatorio"
         );
 
         this.operacionFinancieraRepository =
@@ -204,6 +212,7 @@ public class OperacionFinancieraService {
         }
 
         validarMismoPerfil(cuentaDestino, categoriaDestino);
+        validarPosicionDisponible(cuentaDestino, activo, cantidad);
 
         if (cantidad.signum() <= 0) {
             throw new IllegalArgumentException("La cantidad debe ser positiva");
@@ -253,6 +262,27 @@ public class OperacionFinancieraService {
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
+        }
+    }
+
+    private void validarPosicionDisponible(
+            Cuenta cuenta,
+            Activo activo,
+            BigDecimal cantidad) {
+
+        PosicionActivo posicion = new PosicionActivo(activo);
+
+        for (MovimientoActivo movimiento :
+                movimientoActivoRepository.listarPorActivoYPerfilFinanciero(
+                        activo.getId(),
+                        cuenta.getPerfilFinanciero().getId())) {
+            posicion.aplicarMovimiento(movimiento);
+        }
+
+        if (cantidad.compareTo(posicion.getCantidad()) > 0) {
+            throw new IllegalArgumentException(
+                    "La cantidad a vender supera la posición disponible del activo"
+            );
         }
     }
 
