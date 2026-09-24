@@ -636,4 +636,47 @@ class OperacionFinancieraVentaServiceTest {
                 )
         );
     }
+
+    @Test
+    void deberiaRechazarVentaCuandoLaMonedaDeLaCuentaNoCoincideConLaDelActivo() {
+
+        operacionFinancieraService.comprarActivo(
+                usuario.getId(),
+                cuentaDestino,
+                categoriaDestino,
+                activo,
+                new BigDecimal("100"),
+                new BigDecimal("100"),
+                LocalDateTime.of(2026, 8, 27, 13, 0),
+                "Compra Bono GD30"
+        );
+
+        Moneda dolar = new Moneda(
+                "USD",
+                "Dólar estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(dolar);
+        entityManager.getTransaction().commit();
+
+        cuentaDestino.cambiarMoneda(dolar);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.venderActivo(
+                        usuario.getId(),
+                        cuentaDestino,
+                        categoriaDestino,
+                        activo,
+                        new BigDecimal("100"),
+                        new BigDecimal("125"),
+                        LocalDateTime.of(2026, 8, 27, 14, 0),
+                        "Venta"
+                )
+        );
+    }
+
 }
