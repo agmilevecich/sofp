@@ -144,6 +144,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoIndependiente(movimiento);
         validarMovimientoSinObligacion(movimiento);
         validarSaldoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
         validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), tipoMovimiento, movimiento.getImporte(), movimiento.getFormaPago(), movimiento);
@@ -154,6 +155,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(importe, "El importe es obligatorio");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoIndependiente(movimiento);
         validarMovimientoSinObligacion(movimiento);
         validarSaldoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
         validarCreditoDisponible(movimiento.getCuenta(), movimiento.getMoneda(), movimiento.getTipoMovimiento(), importe, movimiento.getFormaPago(), movimiento);
