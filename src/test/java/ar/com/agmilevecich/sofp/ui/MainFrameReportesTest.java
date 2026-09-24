@@ -143,6 +143,7 @@ class MainFrameReportesTest {
         OperacionFinancieraService service = new OperacionFinancieraService(
                 entityManager,
                 new MovimientoRepository(entityManager),
+                new MovimientoActivoRepository(entityManager),
                 new OperacionFinancieraRepository(entityManager)
         );
         service.comprarActivo(
