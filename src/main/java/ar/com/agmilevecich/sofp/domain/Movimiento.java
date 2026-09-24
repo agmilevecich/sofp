@@ -155,10 +155,20 @@ public class Movimiento extends EntidadAuditable {
     }
 
     public void modificarTipoMovimiento(TipoMovimiento tipoMovimiento) {
+        if (operacionFinanciera != null) {
+            throw new IllegalStateException(
+                    "No se puede modificar el tipo de un movimiento asociado a una operación financiera"
+            );
+        }
         this.tipoMovimiento = Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
     }
 
     public void cambiarImporte(BigDecimal importe) {
+        if (operacionFinanciera != null) {
+            throw new IllegalStateException(
+                    "No se puede modificar el importe de un movimiento asociado a una operación financiera"
+            );
+        }
         this.importe = Validaciones.importePositivo(importe, "El importe es obligatorio");
     }
 
