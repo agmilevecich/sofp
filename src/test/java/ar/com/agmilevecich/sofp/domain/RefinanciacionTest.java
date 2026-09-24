@@ -320,6 +320,50 @@ class RefinanciacionTest {
         assertThrows(IllegalStateException.class, refinanciacion::generarCuotas);
     }
 
+    @Test
+    void noDeberiaRegistrarUnNuevoPagoSobreUnPlanCancelado() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        refinanciacion.registrarPago(new BigDecimal("124831.68"));
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> refinanciacion.registrarPago(new BigDecimal("1.00"))
+        );
+        assertEquals(new BigDecimal("0.00"), refinanciacion.getSaldoPlan());
+        assertEquals(EstadoRefinanciacion.CANCELADA, refinanciacion.getEstado());
+    }
+
+    @Test
+    void deberiaMantenerConsistenciaDespuesDeUnaReversionParcial() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        refinanciacion.registrarPago(new BigDecimal("50000.00"));
+        refinanciacion.revertirPago(new BigDecimal("20000.00"));
+
+        BigDecimal sumaSaldos = refinanciacion.getCuotas().stream()
+                .map(CuotaRefinanciacion::getSaldoPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        assertEquals(refinanciacion.getSaldoPlan(), sumaSaldos);
+        assertEquals(new BigDecimal("94831.68"), refinanciacion.getSaldoPlan());
+        assertEquals(EstadoRefinanciacion.ACTIVA, refinanciacion.getEstado());
+    }
+
     private Refinanciacion crearRefinanciacion(
             BigDecimal capital,
             BigDecimal interes,
