@@ -119,12 +119,14 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(descripcion, "La descripción es obligatoria");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoIndependiente(movimiento);
         return modificar(movimiento, () -> movimiento.cambiarDescripcion(descripcion));
     }
 
     public Movimiento modificarObservaciones(Long movimientoId, Long usuarioId, String observaciones) {
         validarIds(movimientoId, usuarioId);
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoIndependiente(movimiento);
         return modificar(movimiento, () -> movimiento.cambiarObservaciones(observaciones));
     }
 
@@ -132,6 +134,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(categoria, "La categoría es obligatoria");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoIndependiente(movimiento);
         validarPropietario(usuarioId, categoria);
         validarPerfilFinanciero(movimiento.getCuenta(), categoria);
         return modificar(movimiento, () -> movimiento.cambiarCategoria(categoria));
@@ -161,6 +164,7 @@ public class MovimientoService {
         validarIds(movimientoId, usuarioId);
         Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoIndependiente(movimiento);
         validarMovimientoSinObligacion(movimiento);
         return modificar(movimiento, () -> movimiento.cambiarFechaHora(fechaHora));
     }
@@ -168,6 +172,7 @@ public class MovimientoService {
     public void eliminar(Long movimientoId, Long usuarioId) {
         validarIds(movimientoId, usuarioId);
         Movimiento movimiento = obtenerMovimientoAutorizado(movimientoId, usuarioId);
+        validarMovimientoIndependiente(movimiento);
         validarMovimientoSinObligacion(movimiento);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -178,6 +183,12 @@ public class MovimientoService {
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
+        }
+    }
+
+    private void validarMovimientoIndependiente(Movimiento movimiento) {
+        if (movimiento.getOperacionFinanciera() != null) {
+            throw new IllegalStateException("No se puede modificar ni eliminar un movimiento asociado a una operación financiera");
         }
     }
 
