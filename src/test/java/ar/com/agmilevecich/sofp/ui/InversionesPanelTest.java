@@ -183,6 +183,7 @@ class InversionesPanelTest {
         OperacionFinancieraService operacionService = new OperacionFinancieraService(
                 entityManager,
                 new MovimientoRepository(entityManager),
+                new MovimientoActivoRepository(entityManager),
                 new OperacionFinancieraRepository(entityManager)
         );
 
