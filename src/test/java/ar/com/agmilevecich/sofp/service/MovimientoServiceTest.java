@@ -217,7 +217,8 @@ class MovimientoServiceTest {
                         10,
                         0
                 ),
-                "Ingreso posterior"
+                "Ingreso posterior",
+                usuario.getId()
         );
 
         assertThrows(
@@ -234,7 +235,8 @@ class MovimientoServiceTest {
                                 10,
                                 0
                         ),
-                        "Egreso histórico"
+                        "Egreso histórico",
+                        usuario.getId()
                 )
         );
     }
