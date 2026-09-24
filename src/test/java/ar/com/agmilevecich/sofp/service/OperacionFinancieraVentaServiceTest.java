@@ -19,6 +19,7 @@ import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -62,6 +63,7 @@ class OperacionFinancieraVentaServiceTest {
                 new OperacionFinancieraService(
                         entityManager,
                         movimientoRepository,
+                        new MovimientoActivoRepository(entityManager),
                         operacionFinancieraRepository
                 );
 
