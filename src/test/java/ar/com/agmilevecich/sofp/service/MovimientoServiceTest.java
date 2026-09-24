@@ -203,6 +203,43 @@ class MovimientoServiceTest {
     }
 
     @Test
+    void deberiaRechazarEgresoHistoricoFinanciadoPorIngresoPosterior() {
+
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(
+                        2026,
+                        8,
+                        20,
+                        10,
+                        0
+                ),
+                "Ingreso posterior"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> movimientoService.registrar(
+                        cuenta,
+                        categoria,
+                        TipoMovimiento.EGRESO,
+                        new BigDecimal("80000.00"),
+                        LocalDateTime.of(
+                                2026,
+                                8,
+                                10,
+                                10,
+                                0
+                        ),
+                        "Egreso histórico"
+                )
+        );
+    }
+
+    @Test
     void deberiaListarMovimientosPorCuenta() {
 
         movimientoService.registrar(
