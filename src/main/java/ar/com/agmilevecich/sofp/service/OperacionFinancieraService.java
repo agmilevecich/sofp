@@ -144,6 +144,7 @@ public class OperacionFinancieraService {
         }
 
         validarMismoPerfil(cuentaOrigen, categoriaOrigen);
+        validarMismaMoneda(cuentaOrigen, activo);
         Objects.requireNonNull(cantidad, "La cantidad es obligatoria");
         Objects.requireNonNull(precioUnitario, "El precio unitario es obligatorio");
 
@@ -213,6 +214,7 @@ public class OperacionFinancieraService {
         }
 
         validarMismoPerfil(cuentaDestino, categoriaDestino);
+        validarMismaMoneda(cuentaDestino, activo);
 
         if (cantidad.signum() <= 0) {
             throw new IllegalArgumentException("La cantidad debe ser positiva");
@@ -327,6 +329,17 @@ public class OperacionFinancieraService {
         if (!Objects.equals(cuentaPerfilId, categoriaPerfilId)) {
             throw new IllegalArgumentException(
                     "La cuenta y la categoría deben pertenecer al mismo perfil financiero"
+            );
+        }
+    }
+
+
+    private void validarMismaMoneda(Cuenta cuenta, Activo activo) {
+        if (!Objects.equals(
+                cuenta.getMoneda().getId(),
+                activo.getMoneda().getId())) {
+            throw new IllegalArgumentException(
+                    "La cuenta y el activo deben utilizar la misma moneda"
             );
         }
     }
