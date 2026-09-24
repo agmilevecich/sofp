@@ -587,3 +587,36 @@ El proyecto todavía no debe considerarse terminado porque existen invariantes f
 La prioridad inmediata queda fijada en el **invariante de refinanciación entre saldo del plan y cuotas**, seguida por las protecciones de operaciones financieras, inversiones y temporalidad histórica.
 
 Este documento queda como **base general de continuidad** para las próximas etapas del proyecto.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — CIERRE 23/09/2026
+
+Esta sección supersede los resultados anteriores cuando exista contradicción.
+
+### Estado actual
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD: `0550d6248b12ecf2a8019d1328a8def430062c2b` — `test: corregir credito esperado de pago de refinanciacion`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Feature: 23 commits por delante de `main`, 0 por detrás.
+- No se realizó merge a `main`.
+
+### Cierre de la incidencia de refinanciación
+El último fallo de la suite estaba en expectativas antiguas de tests de crédito asociado a refinanciación. El comportamiento actual de producción considera en `saldoPlan` el interés programado al generar las cuotas, por lo que se actualizaron las expectativas de los tests sin modificar producción.
+
+Resultados finales informados por el usuario:
+- `ObligacionRepositoryFinanciacionCreditoTest`: 1/1 verde.
+- Bloque relacionado: 24/24 verde.
+- `PagoTarjetaServiceTest`: 23/23 verde.
+- `mvn test`: **861/861**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalización: **23/09/2026 20:29:58 -03:00**.
+
+La validación local posterior de Git mostró la rama sincronizada con los remotos y sin diferencias en `git diff` ni observaciones de `git diff --check`. El único archivo que había quedado sin seguimiento, `salida-refinanciacion.txt`, fue eliminado posteriormente por haber cumplido su función de diagnóstico.
+
+### Depuración descartada
+La rama `debug/refinanciacion-errores` y `salida-refinanciacion.txt` fueron artefactos temporales utilizados para localizar la causa de los fallos. Ambos fueron eliminados y no constituyen estado pendiente.
+
+### Próximo punto de trabajo
+La refinanciación ya tiene cobertura funcional relevante y la suite está verde, pero permanece como siguiente bloque la definición y protección del invariante entre `saldoPlan`, cuotas y estado de la refinanciación en pagos parciales, pago total, reversión y cancelación anticipada. El próximo cambio debe partir de una nueva inspección del código y tests actuales, sin asumir que la documentación histórica refleja el HEAD.
+
+### Regla de continuidad
+Para la próxima sesión: reconstruir GitHub antes de cualquier cambio y registrar rama, HEAD, comparación con `main`, código relacionado, tests, último resultado y próximo cambio mínimo. No modificar `main` ni crear cambios de producción sin confirmar primero la regla de negocio.
