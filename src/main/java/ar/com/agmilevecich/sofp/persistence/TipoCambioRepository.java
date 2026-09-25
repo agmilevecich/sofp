@@ -59,6 +59,29 @@ public class TipoCambioRepository {
                 .findFirst();
     }
 
+    public Optional<TipoCambio> buscarUltimaPorMonedas(
+            Moneda monedaOrigen,
+            Moneda monedaDestino) {
+        Objects.requireNonNull(monedaOrigen, "La moneda de origen es obligatoria");
+        Objects.requireNonNull(monedaDestino, "La moneda de destino es obligatoria");
+
+        return entityManager.createQuery(
+                        """
+                        SELECT tc
+                        FROM TipoCambio tc
+                        WHERE tc.monedaOrigen = :monedaOrigen
+                          AND tc.monedaDestino = :monedaDestino
+                        ORDER BY tc.fechaHora DESC, tc.id DESC
+                        """,
+                        TipoCambio.class
+                )
+                .setParameter("monedaOrigen", monedaOrigen)
+                .setParameter("monedaDestino", monedaDestino)
+                .setMaxResults(1)
+                .getResultStream()
+                .findFirst();
+    }
+
     /**
      * Busca la cotización aplicable a una cancelación de consumos en moneda
      * extranjera según la regla temporal del BCRA: en día hábil se toma una
