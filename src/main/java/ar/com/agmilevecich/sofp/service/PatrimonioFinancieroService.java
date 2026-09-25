@@ -8,6 +8,7 @@ import ar.com.agmilevecich.sofp.domain.ResumenPatrimonial;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.ValorizacionPosicionActivo;
+import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 
@@ -24,12 +25,14 @@ public class PatrimonioFinancieroService {
     private final CarteraActivoService carteraActivoService;
     private final ObligacionRepository obligacionRepository;
     private final TipoCambioRepository tipoCambioRepository;
+    private final MonedaRepository monedaRepository;
 
     public PatrimonioFinancieroService(
             CuentaService cuentaService,
             CarteraActivoService carteraActivoService,
             ObligacionRepository obligacionRepository,
-            TipoCambioRepository tipoCambioRepository) {
+            TipoCambioRepository tipoCambioRepository,
+            MonedaRepository monedaRepository) {
 
         this.cuentaService = Objects.requireNonNull(cuentaService, "El CuentaService es obligatorio");
         this.carteraActivoService = Objects.requireNonNull(
@@ -51,7 +54,9 @@ public class PatrimonioFinancieroService {
 
         validarPropietario(perfilFinanciero, usuarioId);
 
-        Moneda monedaPresentacion = obtenerMonedaPresentacion(perfilFinanciero);
+        Moneda monedaPresentacion = monedaRepository.buscarPorCodigo(CODIGO_MONEDA_PRESENTACION)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No existe la moneda de presentación " + CODIGO_MONEDA_PRESENTACION));
 
         BigDecimal activosMonetarios = calcularActivosMonetarios(
                 perfilFinanciero,
@@ -172,21 +177,6 @@ public class PatrimonioFinancieroService {
                 ));
 
         return cambio.convertir(importe);
-    }
-
-    private Moneda obtenerMonedaPresentacion(PerfilFinanciero perfilFinanciero) {
-        return perfilFinanciero.getCuentas().stream()
-                .map(Cuenta::getMoneda)
-                .filter(moneda -> CODIGO_MONEDA_PRESENTACION.equals(moneda.getCodigo()))
-                .findFirst()
-                .orElseGet(() -> perfilFinanciero.getCuentas().stream()
-                        .map(Cuenta::getMoneda)
-                        .filter(Objects::nonNull)
-                        .filter(moneda -> CODIGO_MONEDA_PRESENTACION.equals(moneda.getCodigo()))
-                        .findFirst()
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "El perfil financiero no tiene una cuenta en ARS para determinar la moneda de presentación"
-                        )));
     }
 
     private void validarPropietario(PerfilFinanciero perfilFinanciero, Long usuarioId) {
