@@ -691,3 +691,69 @@ La implementación debe reutilizar la fórmula de posición ya existente en SOFP
 ### Criterio de continuidad
 
 En cada nueva sesión reconstruir: GitHub → rama → últimos commits → comparación con `main` → código → tests → documentación → último resultado informado → próximo cambio mínimo. Si documentación y código contradicen, prevalecen código y tests.
+
+
+## ACTUALIZACIÓN CANÓNICA — CIERRE DE CONTINUIDAD — 24/09/2026 21:11 -03:00
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad es el código y los tests actuales de `feature/swing-shell`; la documentación histórica queda como registro.
+
+### Estado Git reconstruido desde GitHub
+
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD verificado: `b57cb2709262352f492ad81c75cde7f6a879df27` — `test: cubrir saldo historico por la ruta publica`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación GitHub: `feature/swing-shell` está **61 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge a `main`.
+
+### Estado funcional actualizado
+
+Los siguientes bloques que figuraban como pendientes en versiones anteriores ya fueron implementados y validados:
+
+- protección de movimientos asociados a `OperacionFinanciera` contra modificación/eliminación independiente;
+- validación de posición disponible antes de vender activos;
+- validación de moneda entre cuenta y activo en operaciones de inversión, sin conversión implícita;
+- cálculo de disponibilidad histórica de una cuenta limitado a los movimientos existentes hasta la fecha/hora de la operación;
+- regresión específica que impide que un ingreso futuro financie un egreso histórico;
+- cobertura ampliada de refinanciación, financiación y operaciones financieras relacionadas.
+
+### Validación más reciente
+
+La suite completa ejecutada localmente e informada por el usuario queda registrada como:
+
+- **883 tests**;
+- **0 failures**;
+- **0 errors**;
+- **0 skipped**;
+- **BUILD SUCCESS**;
+- duración: **31:37 min**;
+- finalización: **24/09/2026 21:11:38 -03:00**.
+
+Este resultado sustituye como referencia de continuidad a los resultados históricos de 860/860, 861/861, 841/841, 848/848 y anteriores. Es una ejecución local informada por el usuario y no debe presentarse como resultado de GitHub Actions.
+
+### Validaciones específicas inmediatamente anteriores
+
+- refinanciación: **34/34** verdes;
+- `MovimientoRepositoryTest` + `MovimientoServiceTest`: **62/62** verdes;
+- operaciones financieras relacionadas: **78/78** verdes.
+
+### Pendientes vigentes
+
+La prioridad ya no está en los cuatro invariantes técnicos corregidos durante esta etapa. Las próximas líneas de evolución son:
+
+1. patrimonio neto y reportes financieros consolidados;
+2. ampliar la UI Swing para cubrir operaciones avanzadas ya disponibles en dominio/servicios;
+3. revisar si las posiciones de activos necesitan consultas históricas por fecha y, en ese caso, definir la regla antes de implementarla;
+4. completar reglas explícitas para escenarios multidivisa que todavía no estén definidos;
+5. mejoras técnicas de `Clock`, calendario bancario de feriados, migraciones/versionado de esquema y rendimiento Swing/JPA.
+
+No se debe convertir un pendiente de definición de negocio en una implementación por inferencia.
+
+### Criterio de continuidad vigente
+
+Cada nueva sesión debe reconstruir desde GitHub:
+
+`rama → últimos commits → comparación con main → código relacionado → tests → documentación → último resultado informado → cambio mínimo`
+
+Después de cada cambio importante corresponde validar tests específicos, tests relacionados y suite completa cuando corresponda, además de `git diff`, `git diff --check`, `git status` y documentación.
+
+La rama activa continúa siendo `feature/swing-shell`. No se debe modificar ni mergear `main` automáticamente.
