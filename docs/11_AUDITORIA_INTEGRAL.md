@@ -552,3 +552,91 @@ Después quedan como pendientes de alta prioridad:
 ### Regla de continuidad
 
 Cada nueva sesión debe reconstruir desde GitHub: rama → últimos commits → comparación con `main` → código relacionado → tests → documentación → último resultado informado → próximo cambio mínimo. La documentación es auxiliar y nunca reemplaza al código ni a los tests.
+
+
+## ACTUALIZACIÓN CANÓNICA — CIERRE DE CONTINUIDAD — 24/09/2026 21:11 -03:00
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad es el código y los tests actuales de `feature/swing-shell`; la documentación histórica queda como registro.
+
+### Estado Git reconstruido desde GitHub
+
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD verificado: `b57cb2709262352f492ad81c75cde7f6a879df27` — `test: cubrir saldo historico por la ruta publica`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación GitHub: `feature/swing-shell` está **61 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge a `main`.
+
+### Bloques técnicos cerrados desde la actualización anterior
+
+Durante esta etapa se cerraron y validaron los siguientes invariantes:
+
+1. **Operaciones financieras coordinadas.**
+   Los movimientos asociados a una `OperacionFinanciera` ya no pueden modificarse ni eliminarse de forma independiente desde `MovimientoService`. También se protegieron las modificaciones estructurales de `Movimiento` y `MovimientoActivo` asociadas a operaciones coordinadas.
+
+2. **Venta de activos.**
+   La venta valida la posición disponible antes de registrar la operación. Los escenarios de venta requieren una posición previa coherente y están cubiertos por tests.
+
+3. **Compatibilidad de moneda en operaciones de inversión.**
+   Las operaciones de compra y venta validan la compatibilidad entre la moneda de la cuenta y la del activo. No se introduce conversión implícita entre monedas.
+
+4. **Saldo histórico de cuentas.**
+   La validación de disponibilidad para una operación fechada utiliza únicamente los movimientos de la cuenta hasta la fecha/hora de esa operación. Se agregó `MovimientoRepository.listarPorCuentaHastaFecha(...)` y la validación correspondiente en `MovimientoService`.
+   
+   Caso regresivo cubierto: un ingreso posterior no puede financiar retrospectivamente un egreso histórico.
+
+5. **Refinanciación.**
+   Continúa cubierta la generación de cuotas, amortización definida, pagos, reversiones, persistencia y efectos sobre crédito. Los últimos ajustes de esta etapa fueron sobre expectativas y escenarios de saldo/crédito; no se declara una nueva regla financiera sin una decisión explícita.
+
+### Validación actual
+
+La ejecución completa más reciente informada por el usuario es:
+
+- `mvn test`
+- **883 tests**
+- **0 failures**
+- **0 errors**
+- **0 skipped**
+- **BUILD SUCCESS**
+- duración: **31:37 min**
+- finalización: **24/09/2026 21:11:38 -03:00**
+
+Esta ejecución fue local e informada por el usuario. No debe confundirse con una ejecución de GitHub Actions.
+
+Validaciones relacionadas inmediatamente anteriores:
+
+- refinanciación: **34/34** verdes;
+- `MovimientoRepositoryTest` + `MovimientoServiceTest`: **62/62** verdes;
+- operaciones financieras relacionadas: **78/78** verdes.
+
+El resultado 883/883 es actualmente el último resultado de suite completa conocido y sustituye los resultados históricos 860/860, 861/861, 841/841, 848/848 y anteriores.
+
+### Estado de documentación
+
+La documentación histórica conserva las auditorías y decisiones anteriores para trazabilidad. Esta sección es la referencia de continuidad vigente y debe prevalecer sobre cifras, HEADs o pendientes contradichos por el código/tests actuales.
+
+No se debe interpretar que todos los pendientes históricos siguen abiertos: los invariantes de operaciones coordinadas, posición de activos, moneda de inversión y saldo histórico ya fueron implementados y validados.
+
+### Pendientes reales para la próxima etapa
+
+Quedan como líneas de evolución, sujetas a revisión del código actual antes de cada cambio:
+
+1. patrimonio neto y reportes financieros consolidados;
+2. ampliar la UI Swing para exponer funcionalidades avanzadas que ya existen en dominio/servicios;
+3. continuar la auditoría de temporalidad de posiciones de activos, si la regla de negocio exige una posición histórica a una fecha determinada;
+4. revisar escenarios multidivisa que todavía requieran una regla financiera explícita;
+5. endurecimiento técnico: `Clock`, calendario bancario de feriados y migraciones/versionado formal de esquema;
+6. mejoras de rendimiento de operaciones JPA ejecutadas desde Swing.
+
+Los puntos financieros que no estén definidos explícitamente no deben resolverse por inferencia.
+
+### Próximo criterio de trabajo
+
+Antes de cualquier nuevo cambio:
+
+`GitHub → rama → últimos commits → comparación con main → código relacionado → tests → documentación → último resultado → cambio mínimo`
+
+Después de cambios importantes:
+
+`tests específicos → tests relacionados → suite completa → git diff → git diff --check → git status → documentación`
+
+La rama de trabajo continúa siendo `feature/swing-shell`; no se debe modificar ni mergear `main` automáticamente.
