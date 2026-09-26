@@ -1,7 +1,14 @@
 package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Activo;
+import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
+import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
+import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
+import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
+import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
@@ -184,6 +191,81 @@ class PatrimonioFinancieroServiceTest {
         assertEquals(new BigDecimal("30000.00"), resumen.getPasivosTarjetas());
         assertEquals(new BigDecimal("100000.00"), resumen.getActivosTotales());
         assertEquals(new BigDecimal("70000.00"), resumen.getPatrimonioNeto());
+    }
+
+    @Test
+    void deberiaConvertirElTotalDeInversionesAntesDeRedondear() {
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Broker Patrimonio",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Bono activo1 = new Bono("Bono USD 1", "USD1", usd);
+        Bono activo2 = new Bono("Bono USD 2", "USD2", usd);
+        TipoCambio cambio = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("100.0049"),
+                LocalDateTime.of(2026, 9, 25, 12, 0),
+                "Test"
+        );
+
+        Cuenta cuentaBroker = new Cuenta(
+                "Cuenta broker",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucion,
+                usd
+        );
+
+        MovimientoActivo compra1 = new MovimientoActivo(
+                activo1,
+                TipoMovimientoActivo.COMPRA,
+                BigDecimal.ONE,
+                BigDecimal.ONE
+        );
+        MovimientoActivo compra2 = new MovimientoActivo(
+                activo2,
+                TipoMovimientoActivo.COMPRA,
+                BigDecimal.ONE,
+                BigDecimal.ONE
+        );
+
+        OperacionFinanciera operacion1 = new OperacionFinanciera(
+                cuentaBroker,
+                null,
+                BigDecimal.ONE,
+                TipoOperacionFinanciera.COMPRA
+        );
+        OperacionFinanciera operacion2 = new OperacionFinanciera(
+                cuentaBroker,
+                null,
+                BigDecimal.ONE,
+                TipoOperacionFinanciera.COMPRA
+        );
+        operacion1.agregarMovimientoActivo(compra1);
+        operacion2.agregarMovimientoActivo(compra2);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.persist(institucion);
+        entityManager.persist(activo1);
+        entityManager.persist(activo2);
+        entityManager.persist(cuentaBroker);
+        entityManager.persist(cambio);
+        entityManager.persist(operacion1);
+        entityManager.persist(compra1);
+        entityManager.persist(operacion2);
+        entityManager.persist(compra2);
+        entityManager.getTransaction().commit();
+
+        ResumenPatrimonial resumen = patrimonioService.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of(activo1, BigDecimal.ONE, activo2, BigDecimal.ONE)
+        );
+
+        assertEquals(new BigDecimal("200.01"), resumen.getActivosInversiones());
     }
 
     @Test
