@@ -271,3 +271,77 @@ Durante la auditoría se detectaron y corrigieron dos reglas de integridad concr
 Se agregaron tests específicos para las tres reglas. La validación CI de GitHub correspondiente al último cambio estaba **en curso** al momento de esta actualización; por lo tanto no se declara todavía una nueva suite verde posterior a estos cambios.
 
 El alcance de la auditoría mantiene como decisiones de negocio pendientes la modalidad de interés/amortización de refinanciación, la regla exacta de punitorios respecto del pago mínimo y la conversión de una financiación multidivisa seguida de liquidación en otra moneda. No se inventaron esas reglas.
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 26/09/2026
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y GitHub. Las secciones históricas anteriores se conservan como trazabilidad y no deben utilizarse para describir el estado actual si difieren de esta sección.
+
+### Estado Git actual
+
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Último commit de código validado: `a95976d5f829cdc2b11529127fb9fb18e5978c94` — `fix: consolidar inversiones antes de convertir moneda`.
+- Comparación GitHub al cierre de esta etapa: `feature/swing-shell` está **74 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge a `main`.
+- El working tree local fue informado por el usuario como limpio: `git status` limpio, `git diff --check` sin observaciones y `git diff` vacío.
+
+### Último bloque cerrado: patrimonio financiero y error de redondeo
+
+Se corrigió `PatrimonioFinancieroService.calcularActivosInversiones()` para consolidar primero los importes de inversión por moneda de origen, convertir una sola vez cada total por moneda y recién entonces sumar los importes convertidos.
+
+La regla validada es:
+
+**consolidar por moneda → convertir → redondear según la moneda de presentación → sumar.**
+
+Esto evita acumulaciones de centavos producidas por redondear cada posición de inversión por separado. El cambio se limita a activos de inversión; no modifica la conversión individual de cuentas monetarias ni de pasivos de tarjeta.
+
+`TipoCambio.convertir()` no fue modificado: conserva su contrato de redondear al número de decimales de la moneda destino.
+
+### Tests y validación final informada por el usuario
+
+- `PatrimonioFinancieroServiceTest`: **4/4**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `CarteraActivoServiceTest` + `TipoCambioTest`: **20/20**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa `mvn test`: **887/887**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa finalizada: **26/09/2026 13:48:40 -03:00**.
+- Duración de la suite completa: **21:12 min**.
+- La validación Git posterior informada por el usuario confirmó working tree limpio.
+
+Este resultado **887/887 sustituye como última suite completa conocida** a los resultados históricos anteriores de 883/883, 861/861, 841/841, 848/848 y anteriores.
+
+### Decisión contable cerrada
+
+Para la valorización patrimonial de inversiones, cuando varias posiciones están expresadas en la misma moneda de origen, no se redondea cada posición convertida individualmente. Se consolida el importe de origen y se convierte/redondea una única vez por moneda.
+
+Caso regresivo que motivó la corrección:
+
+- dos posiciones de 1,00 USD;
+- cotización: 100,0049 ARS/USD;
+- conversión individual: 100,00 + 100,00 = 200,00;
+- consolidación previa: 2,00 × 100,0049 = 200,0098 → **200,01 ARS**.
+
+La regla queda cubierta por test y por la suite completa.
+
+### Estado funcional al cierre
+
+El bloque de patrimonio financiero queda validado en su implementación actual. La rama contiene además los bloques previamente auditados de operaciones financieras coordinadas, posiciones de activos, compatibilidad de moneda, saldos históricos de cuentas y refinanciación. La documentación histórica conserva el detalle de esas auditorías.
+
+No se considera que una cifra histórica de tests valide el HEAD actual si existe una suite posterior; para continuidad se toma **887/887 sobre el estado actual informado**.
+
+### Próximo paso
+
+El siguiente bloque funcional natural es **patrimonio neto y reportes financieros consolidados**, pero antes de modificar código debe reconstruirse nuevamente el estado desde GitHub y revisarse la implementación actual de `ResumenPatrimonial`, `PatrimonioFinancieroService`, reportes, repositorios y tests relacionados.
+
+No inventar reglas contables. Si el próximo bloque requiere definir qué componentes integran patrimonio neto, resultado acumulado, resultado del período o reportes consolidados, primero debe identificarse la regla explícita existente y, si no existe, documentar la decisión antes de implementarla.
+
+### Regla permanente de continuidad
+
+Antes de cualquier cambio:
+
+`GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
+
+Después de cambios importantes:
+
+`tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`
+
+No modificar ni mergear `main` automáticamente. La documentación es auxiliar: código actual y tests prevalecen sobre cualquier nota histórica.
