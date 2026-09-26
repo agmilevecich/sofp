@@ -104,14 +104,14 @@ class ReportesPanelTest {
 
         JList<?> lista = buscarLista(panel);
         assertNotNull(lista);
-        assertEquals(9, lista.getModel().getSize());
+        assertEquals(10, lista.getModel().getSize());
         assertEquals("Moneda de presentación: ARS", lista.getModel().getElementAt(0));
         assertEquals("  Activos monetarios: 0 ARS", lista.getModel().getElementAt(2));
         assertEquals("  Inversiones: 0 ARS", lista.getModel().getElementAt(3));
         assertEquals("  Activos totales: 0 ARS", lista.getModel().getElementAt(4));
         assertEquals("  Tarjetas y obligaciones asociadas: 0 ARS", lista.getModel().getElementAt(6));
         assertEquals("  Pasivos totales: 0 ARS", lista.getModel().getElementAt(7));
-        assertEquals("  Patrimonio neto: 0 ARS", lista.getModel().getElementAt(9 - 1));
+        assertEquals("  Patrimonio neto: 0 ARS", lista.getModel().getElementAt(9));
     }
 
     @Test
