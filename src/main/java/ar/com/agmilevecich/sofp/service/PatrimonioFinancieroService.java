@@ -13,6 +13,7 @@ import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -121,13 +122,23 @@ public class PatrimonioFinancieroService {
                         usuarioId
                 );
 
-        BigDecimal total = BigDecimal.ZERO;
+        Map<Moneda, BigDecimal> importesPorMoneda = new HashMap<>();
 
         for (ValorizacionPosicionActivo valorizacion : valorizaciones) {
             Moneda monedaActivo = valorizacion.getPosicion().getActivo().getMoneda();
-            total = total.add(convertir(
-                    valorizacion.getValorActual(),
+            importesPorMoneda.merge(
                     monedaActivo,
+                    valorizacion.getValorActual(),
+                    BigDecimal::add
+            );
+        }
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (Map.Entry<Moneda, BigDecimal> entry : importesPorMoneda.entrySet()) {
+            total = total.add(convertir(
+                    entry.getValue(),
+                    entry.getKey(),
                     monedaPresentacion
             ));
         }
