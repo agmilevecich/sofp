@@ -176,6 +176,28 @@ public class Refinanciacion extends EntidadAuditable {
                 );
     }
 
+    /**
+     * Calcula el importe necesario para cancelar anticipadamente la refinanciación
+     * en una fecha determinada, excluyendo intereses contractuales futuros.
+     * El capital pendiente de todas las cuotas permanece exigible; de los intereses
+     * solo se consideran los correspondientes a cuotas con vencimiento hasta la fecha.
+     */
+    public BigDecimal calcularSaldoCancelacionAnticipada(LocalDate fecha) {
+        validarCuotasGeneradas();
+        Objects.requireNonNull(fecha, "La fecha de cancelación es obligatoria");
+
+        BigDecimal capitalPendiente = cuotas.stream()
+                .map(CuotaRefinanciacion::getCapitalPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal interesDevengadoPendiente = cuotas.stream()
+                .filter(cuota -> !cuota.getFechaVencimiento().isAfter(fecha))
+                .map(CuotaRefinanciacion::getInteresPendiente)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return capitalPendiente.add(interesDevengadoPendiente).setScale(2, RoundingMode.HALF_UP);
+    }
+
     public void registrarPago(BigDecimal importe) {
         validarCuotasGeneradas();
         if (estado == EstadoRefinanciacion.CANCELADA) {
