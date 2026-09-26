@@ -24,6 +24,7 @@ import ar.com.agmilevecich.sofp.service.MovimientoService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
+import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
 import ar.com.agmilevecich.sofp.service.PerfilFinancieroService;
 import ar.com.agmilevecich.sofp.service.TipoCambioService;
 import ar.com.agmilevecich.sofp.service.UsuarioService;
@@ -152,6 +153,14 @@ public class Main {
                 tipoCambioRepository
         );
 
+        PatrimonioFinancieroService patrimonioFinancieroService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraActivoService,
+                obligacionRepository,
+                tipoCambioRepository,
+                monedaRepository
+        );
+
         MainFrame mainFrame = new MainFrame(
                 cuentaService,
                 movimientoService,
@@ -164,7 +173,8 @@ public class Main {
                 obligacionService,
                 operacionFinancieraService,
                 pagoTarjetaService,
-                tipoCambioService
+                tipoCambioService,
+                patrimonioFinancieroService
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
