@@ -277,3 +277,53 @@ No reabrir la auditoría técnica por los resultados históricos de 797/797, 841
 
 ### Regla permanente
 Antes de cualquier modificación: revisar rama, últimos commits, comparación con `main`, implementación relacionada, repositorios, tests y reglas de negocio. Mantener cambios mínimos, commits pequeños y descriptivos. Después de cambios importantes: tests específicos, tests relacionados, suite completa cuando corresponda, `git diff`, `git diff --check` y `git status`. No modificar ni mergear `main` automáticamente.
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 26/09/2026
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y GitHub.
+
+### Estado Git actual
+
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Último commit de código validado: `a95976d5f829cdc2b11529127fb9fb18e5978c94` — `fix: consolidar inversiones antes de convertir moneda`.
+- Comparación GitHub al cierre del bloque de código: **74 commits por delante de `main`, 0 por detrás**.
+- No se realizó merge a `main`.
+- El usuario informó working tree limpio: `git status` limpio, `git diff --check` sin observaciones y `git diff` vacío.
+
+### Bloque cerrado: patrimonio financiero y redondeo de inversiones
+
+`PatrimonioFinancieroService.calcularActivosInversiones()` ahora consolida primero los importes de inversión por moneda de origen, convierte una sola vez cada total y luego suma los importes convertidos.
+
+Regla validada: **consolidar por moneda → convertir → redondear según la moneda de presentación → sumar**.
+
+El cambio evita acumulaciones de centavos por redondeo individual de posiciones y no modifica `TipoCambio.convertir()`, ni la conversión individual de cuentas monetarias o pasivos de tarjeta.
+
+### Validación final
+
+- `PatrimonioFinancieroServiceTest`: **4/4** verde.
+- `CarteraActivoServiceTest` + `TipoCambioTest`: **20/20** verde.
+- `mvn test`: **887/887**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa finalizada **26/09/2026 13:48:40 -03:00**, duración **21:12 min**.
+- La validación Git posterior fue limpia.
+
+El resultado **887/887** sustituye como última suite completa conocida a todos los resultados históricos anteriores.
+
+### Regla contable cerrada
+
+Dos posiciones de 1,00 USD con cotización 100,0049 ARS/USD producen 200,01 ARS porque primero se consolidan en 2,00 USD, se convierte 2,00 × 100,0049 = 200,0098 y se redondea una sola vez. La prueba regresiva cubre este comportamiento.
+
+### Próximo bloque
+
+El siguiente bloque funcional natural es **patrimonio neto y reportes financieros consolidados**. Antes de modificar código debe reconstruirse nuevamente el estado desde GitHub y revisarse `ResumenPatrimonial`, `PatrimonioFinancieroService`, reportes, repositorios y tests relacionados.
+
+No inventar reglas contables: si patrimonio neto, resultado acumulado, resultado del período o reportes consolidados requieren una definición que no exista en el modelo actual, primero se documenta la regla y luego se implementa.
+
+### Regla permanente
+
+Antes de cualquier cambio: `GitHub → rama → últimos commits → comparación con main → código → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`.
+
+Después de cambios importantes: `tests específicos → tests relacionados → suite completa → git diff → git diff --check → git status → documentación`.
+
+No modificar ni mergear `main` automáticamente.
