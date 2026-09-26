@@ -150,8 +150,8 @@ class PatrimonioFinancieroServiceTest {
                 "Visa Patrimonio",
                 perfil,
                 entityManager.createQuery(
-                        "SELECT i.id FROM InstitucionFinanciera i",
-                        Long.class
+                        "SELECT i FROM InstitucionFinanciera i",
+                        InstitucionFinanciera.class
                 ).setMaxResults(1).getSingleResult(),
                 ars,
                 new BigDecimal("500000.00"),
