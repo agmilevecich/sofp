@@ -49,6 +49,8 @@ class PatrimonioFinancieroServiceTest {
     private Categoria categoria;
     private Moneda ars;
     private MovimientoService movimientoService;
+    private GastoService gastoService;
+    private ObligacionService obligacionService;
     private PatrimonioFinancieroService patrimonioService;
 
     @BeforeEach
@@ -59,6 +61,11 @@ class PatrimonioFinancieroServiceTest {
                 entityManager,
                 new MovimientoRepository(entityManager)
         );
+        obligacionService = new ObligacionService(
+                entityManager,
+                new ObligacionRepository(entityManager)
+        );
+        gastoService = new GastoService(movimientoService, obligacionService);
 
         patrimonioService = new PatrimonioFinancieroService(
                 new CuentaService(
@@ -372,10 +379,10 @@ class PatrimonioFinancieroServiceTest {
         entityManager.persist(categoriaTarjeta);
         entityManager.getTransaction().commit();
 
-        movimientoService.registrar(
+        var movimiento = gastoService.registrar(
                 tarjeta,
                 categoriaTarjeta,
-                TipoMovimiento.EGRESO,
+                ars,
                 new BigDecimal("120000.00"),
                 LocalDateTime.of(2026, 9, 25, 14, 0),
                 "Consumo refinanciado",
@@ -383,11 +390,11 @@ class PatrimonioFinancieroServiceTest {
                 usuario.getId()
         );
 
+        var obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId())
+                .orElseThrow();
+
         Refinanciacion refinanciacion = new RefinanciacionService(entityManager).crear(
-                entityManager.createQuery(
-                        "SELECT o FROM Obligacion o ORDER BY o.id DESC",
-                        ar.com.agmilevecich.sofp.domain.Obligacion.class
-                ).setMaxResults(1).getSingleResult().getId(),
+                obligacion.getId(),
                 usuario.getId(),
                 LocalDate.of(2026, 9, 26),
                 3,
