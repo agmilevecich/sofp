@@ -118,6 +118,68 @@ class RefinanciacionTest {
         assertEquals(new BigDecimal("120000.00"), refinanciacion.getSaldoPlan());
     }
 
+
+
+    @Test
+    void deberiaImputarPagoPrimeroAInteresYLuegoACapital() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        CuotaRefinanciacion cuota = refinanciacion.getCuotas().get(0);
+        cuota.registrarPago(new BigDecimal("3000.00"));
+
+        assertEquals(new BigDecimal("2540.00"), cuota.getInteresPagado());
+        assertEquals(new BigDecimal("460.00"), cuota.getCapitalPagado());
+        assertEquals(new BigDecimal("0.00"), cuota.getInteresPendiente());
+        assertEquals(new BigDecimal("41037.84"), cuota.getCapitalPendiente());
+        assertEquals(new BigDecimal("41037.84"), cuota.getSaldoPendiente());
+    }
+
+    @Test
+    void deberiaImputarPagoCompletoDeCuotaSeparandoInteresYCapital() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        CuotaRefinanciacion cuota = refinanciacion.getCuotas().get(0);
+        cuota.registrarPago(cuota.getImporteOriginal());
+
+        assertEquals(cuota.getInteres(), cuota.getInteresPagado());
+        assertEquals(cuota.getCapitalAmortizado(), cuota.getCapitalPagado());
+        assertEquals(new BigDecimal("0.00"), cuota.getSaldoPendiente());
+    }
+
+    @Test
+    void deberiaRevertirPrimeroCapitalYLuegoInteresDeLaUltimaImputacion() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        CuotaRefinanciacion cuota = refinanciacion.getCuotas().get(0);
+        cuota.registrarPago(new BigDecimal("3000.00"));
+        cuota.revertirPago(new BigDecimal("1000.00"));
+
+        assertEquals(new BigDecimal("1540.00"), cuota.getInteresPagado());
+        assertEquals(new BigDecimal("460.00"), cuota.getCapitalPagado());
+        assertEquals(new BigDecimal("42037.84"), cuota.getSaldoPendiente());
+    }
+
     @Test
     void deberiaAplicarPagosDesdeLaCuotaMasAntigua() {
         Refinanciacion refinanciacion = crearRefinanciacion(
