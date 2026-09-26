@@ -121,6 +121,109 @@ class RefinanciacionTest {
 
 
     @Test
+    void deberiaCalcularCancelacionAntesDeLaPrimeraCuotaSinInteresFuturo() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        assertEquals(
+                new BigDecimal("120000.00"),
+                refinanciacion.calcularSaldoCancelacionAnticipada(LocalDate.of(2026, 10, 25))
+        );
+    }
+
+    @Test
+    void deberiaIncluirInteresDeLaCuotaVencidaSinIncluirInteresesFuturos() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        assertEquals(
+                new BigDecimal("83189.44"),
+                refinanciacion.calcularSaldoCancelacionAnticipada(LocalDate.of(2026, 10, 26))
+        );
+    }
+
+    @Test
+    void deberiaRespetarPagosAlCalcularCancelacionAnticipada() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+        refinanciacion.registrarPago(new BigDecimal("3000.00"));
+
+        assertEquals(
+                new BigDecimal("80789.44"),
+                refinanciacion.calcularSaldoCancelacionAnticipada(LocalDate.of(2026, 10, 26))
+        );
+    }
+
+    @Test
+    void deberiaDevolverCeroAlCalcularCancelacionDeUnPlanCompletamentePagado() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+        refinanciacion.registrarPago(new BigDecimal("124831.68"));
+
+        assertEquals(
+                new BigDecimal("0.00"),
+                refinanciacion.calcularSaldoCancelacionAnticipada(LocalDate.of(2026, 12, 26))
+        );
+    }
+
+    @Test
+    void noDeberiaCalcularCancelacionSinCuotasGeneradas() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> refinanciacion.calcularSaldoCancelacionAnticipada(LocalDate.of(2026, 10, 25))
+        );
+    }
+
+    @Test
+    void noDeberiaCalcularCancelacionSinFecha() {
+        Refinanciacion refinanciacion = crearRefinanciacion(
+                new BigDecimal("120000.00"),
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                new BigDecimal("24.0000"),
+                3
+        );
+        refinanciacion.generarCuotas();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> refinanciacion.calcularSaldoCancelacionAnticipada(null)
+        );
+    }
+
+    @Test
     void deberiaImputarPagoPrimeroAInteresYLuegoACapital() {
         Refinanciacion refinanciacion = crearRefinanciacion(
                 new BigDecimal("120000.00"),
