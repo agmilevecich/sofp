@@ -14,10 +14,14 @@ import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
+import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
+import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +76,42 @@ class ReportesPanelTest {
                 "COMPRA - GD30 - 100 - 12500",
                 lista.getModel().getElementAt(0)
         );
+    }
+
+    @Test
+    void deberiaMostrarPatrimonioFinancieroConsolidado() {
+        Moneda moneda = crearMonedaPersistida();
+        Contexto contexto = crearContexto(moneda);
+
+        CuentaService cuentaService = new CuentaService(
+                new CuentaRepository(entityManager),
+                new MovimientoRepository(entityManager),
+                entityManager
+        );
+        PatrimonioFinancieroService patrimonioService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraActivoService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+
+        ReportesPanel panel = new ReportesPanel(
+                patrimonioService,
+                contexto.perfil,
+                contexto.usuario.getId()
+        );
+
+        JList<?> lista = buscarLista(panel);
+        assertNotNull(lista);
+        assertEquals(9, lista.getModel().getSize());
+        assertEquals("Moneda de presentación: ARS", lista.getModel().getElementAt(0));
+        assertEquals("  Activos monetarios: 0 ARS", lista.getModel().getElementAt(2));
+        assertEquals("  Inversiones: 0 ARS", lista.getModel().getElementAt(3));
+        assertEquals("  Activos totales: 0 ARS", lista.getModel().getElementAt(4));
+        assertEquals("  Tarjetas y obligaciones asociadas: 0 ARS", lista.getModel().getElementAt(6));
+        assertEquals("  Pasivos totales: 0 ARS", lista.getModel().getElementAt(7));
+        assertEquals("  Patrimonio neto: 0 ARS", lista.getModel().getElementAt(9 - 1));
     }
 
     @Test
