@@ -30,10 +30,10 @@ public class CuotaRefinanciacion extends EntidadAuditable {
     @Column(name = "saldo_pendiente", nullable = false, precision = 19, scale = 2)
     private BigDecimal saldoPendiente;
 
-    @Column(name = "interes_pagado", nullable = false, precision = 19, scale = 2)
+    @Column(name = "interes_pagado", nullable = false, precision = 19, scale = 2, columnDefinition = "DECIMAL(19,2) DEFAULT 0")
     private BigDecimal interesPagado;
 
-    @Column(name = "capital_pagado", nullable = false, precision = 19, scale = 2)
+    @Column(name = "capital_pagado", nullable = false, precision = 19, scale = 2, columnDefinition = "DECIMAL(19,2) DEFAULT 0")
     private BigDecimal capitalPagado;
 
     @Column(name = "fecha_vencimiento", nullable = false)
