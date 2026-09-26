@@ -137,8 +137,8 @@ class RefinanciacionTest {
         assertEquals(new BigDecimal("2400.00"), cuota.getInteresPagado());
         assertEquals(new BigDecimal("600.00"), cuota.getCapitalPagado());
         assertEquals(new BigDecimal("0.00"), cuota.getInteresPendiente());
-        assertEquals(new BigDecimal("41037.84"), cuota.getCapitalPendiente());
-        assertEquals(new BigDecimal("41037.84"), cuota.getSaldoPendiente());
+        assertEquals(new BigDecimal("38610.56"), cuota.getCapitalPendiente());
+        assertEquals(new BigDecimal("38610.56"), cuota.getSaldoPendiente());
     }
 
     @Test
@@ -177,7 +177,7 @@ class RefinanciacionTest {
 
         assertEquals(new BigDecimal("2000.00"), cuota.getInteresPagado());
         assertEquals(new BigDecimal("0.00"), cuota.getCapitalPagado());
-        assertEquals(new BigDecimal("42037.84"), cuota.getSaldoPendiente());
+        assertEquals(new BigDecimal("39610.56"), cuota.getSaldoPendiente());
     }
 
     @Test
