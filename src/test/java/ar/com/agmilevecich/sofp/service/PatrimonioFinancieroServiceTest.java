@@ -15,6 +15,7 @@ import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.ResumenPatrimonial;
+import ar.com.agmilevecich.sofp.domain.Refinanciacion;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -279,6 +281,168 @@ class PatrimonioFinancieroServiceTest {
         );
 
         assertEquals(new BigDecimal("200.01"), resumen.getActivosInversiones());
+    }
+
+    @Test
+    void deberiaCalcularPatrimonioSinDatos() {
+        ResumenPatrimonial resumen = patrimonioService.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of()
+        );
+
+        assertEquals(BigDecimal.ZERO, resumen.getActivosMonetarios());
+        assertEquals(BigDecimal.ZERO, resumen.getActivosInversiones());
+        assertEquals(BigDecimal.ZERO, resumen.getActivosTotales());
+        assertEquals(BigDecimal.ZERO, resumen.getPasivosTarjetas());
+        assertEquals(BigDecimal.ZERO, resumen.getPasivosTotales());
+        assertEquals(BigDecimal.ZERO, resumen.getPatrimonioNeto());
+    }
+
+    @Test
+    void deberiaValorarActivosMonetariosMultidivisaEnMonedaDePresentacion() {
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        InstitucionFinanciera institucionUsd = new InstitucionFinanciera(
+                "Banco USD",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Cuenta cuentaUsd = new Cuenta(
+                "Cuenta USD",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucionUsd,
+                usd
+        );
+        Categoria categoriaUsd = new Categoria("General USD", perfil);
+        TipoCambio cambio = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 25, 13, 0),
+                "Test multidivisa"
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.persist(institucionUsd);
+        entityManager.persist(cuentaUsd);
+        entityManager.persist(categoriaUsd);
+        entityManager.persist(cambio);
+        entityManager.getTransaction().commit();
+
+        movimientoService.registrar(
+                cuentaUsd,
+                categoriaUsd,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 25, 13, 30),
+                "Saldo USD",
+                usuario.getId()
+        );
+
+        ResumenPatrimonial resumen = patrimonioService.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of()
+        );
+
+        assertEquals(new BigDecimal("10000.00"), resumen.getActivosMonetarios());
+        assertEquals(new BigDecimal("10000.00"), resumen.getActivosTotales());
+        assertEquals(new BigDecimal("10000.00"), resumen.getPatrimonioNeto());
+    }
+
+    @Test
+    void deberiaIncluirRefinanciacionComoPasivoSinContarLaObligacionOrigen() {
+        Cuenta tarjeta = new Cuenta(
+                "Visa Refinanciada",
+                perfil,
+                entityManager.createQuery(
+                        "SELECT i FROM InstitucionFinanciera i",
+                        InstitucionFinanciera.class
+                ).setMaxResults(1).getSingleResult(),
+                ars,
+                new BigDecimal("500000.00"),
+                10,
+                25
+        );
+
+        Categoria categoriaTarjeta = new Categoria("Refinanciacion", perfil);
+        entityManager.getTransaction().begin();
+        entityManager.persist(tarjeta);
+        entityManager.persist(categoriaTarjeta);
+        entityManager.getTransaction().commit();
+
+        movimientoService.registrar(
+                tarjeta,
+                categoriaTarjeta,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("120000.00"),
+                LocalDateTime.of(2026, 9, 25, 14, 0),
+                "Consumo refinanciado",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        Refinanciacion refinanciacion = new RefinanciacionService(entityManager).crear(
+                entityManager.createQuery(
+                        "SELECT o FROM Obligacion o ORDER BY o.id DESC",
+                        ar.com.agmilevecich.sofp.domain.Obligacion.class
+                ).setMaxResults(1).getSingleResult().getId(),
+                usuario.getId(),
+                LocalDate.of(2026, 9, 26),
+                3,
+                new BigDecimal("6000.00"),
+                new BigDecimal("1000.00"),
+                new BigDecimal("24.0000")
+        );
+
+        ResumenPatrimonial resumen = patrimonioService.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of()
+        );
+
+        assertEquals(refinanciacion.getSaldoPlan(), resumen.getPasivosTarjetas());
+        assertEquals(refinanciacion.getSaldoPlan().negate(), resumen.getPatrimonioNeto());
+    }
+
+    @Test
+    void deberiaRechazarValorizacionMultidivisaSinCotizacion() {
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        InstitucionFinanciera institucionUsd = new InstitucionFinanciera(
+                "Banco sin cotizacion",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Cuenta cuentaUsd = new Cuenta(
+                "Cuenta USD sin cotizacion",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucionUsd,
+                usd
+        );
+        Categoria categoriaUsd = new Categoria("Sin cotizacion", perfil);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.persist(institucionUsd);
+        entityManager.persist(cuentaUsd);
+        entityManager.persist(categoriaUsd);
+        entityManager.getTransaction().commit();
+
+        movimientoService.registrar(
+                cuentaUsd,
+                categoriaUsd,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("1.00"),
+                LocalDateTime.of(2026, 9, 25, 15, 0),
+                "Saldo USD sin cotizacion",
+                usuario.getId()
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> patrimonioService.calcular(perfil, usuario.getId(), Map.of())
+        );
     }
 
     @Test
