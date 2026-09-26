@@ -30,6 +30,12 @@ public class CuotaRefinanciacion extends EntidadAuditable {
     @Column(name = "saldo_pendiente", nullable = false, precision = 19, scale = 2)
     private BigDecimal saldoPendiente;
 
+    @Column(name = "interes_pagado", nullable = false, precision = 19, scale = 2)
+    private BigDecimal interesPagado;
+
+    @Column(name = "capital_pagado", nullable = false, precision = 19, scale = 2)
+    private BigDecimal capitalPagado;
+
     @Column(name = "fecha_vencimiento", nullable = false)
     private LocalDate fechaVencimiento;
 
@@ -51,6 +57,8 @@ public class CuotaRefinanciacion extends EntidadAuditable {
             throw new IllegalArgumentException("El interés y el capital amortizado deben coincidir con el importe de la cuota");
         }
         this.saldoPendiente = this.importeOriginal;
+        this.interesPagado = BigDecimal.ZERO.setScale(2);
+        this.capitalPagado = BigDecimal.ZERO.setScale(2);
         this.fechaVencimiento = Objects.requireNonNull(fechaVencimiento, "La fecha de vencimiento es obligatoria");
     }
 
@@ -60,6 +68,10 @@ public class CuotaRefinanciacion extends EntidadAuditable {
     public BigDecimal getInteres() { return interes; }
     public BigDecimal getCapitalAmortizado() { return capitalAmortizado; }
     public BigDecimal getSaldoPendiente() { return saldoPendiente; }
+    public BigDecimal getInteresPagado() { return interesPagado; }
+    public BigDecimal getCapitalPagado() { return capitalPagado; }
+    public BigDecimal getInteresPendiente() { return interes.subtract(interesPagado).setScale(2); }
+    public BigDecimal getCapitalPendiente() { return capitalAmortizado.subtract(capitalPagado).setScale(2); }
     public LocalDate getFechaVencimiento() { return fechaVencimiento; }
 
     public void registrarPago(BigDecimal importe) {
@@ -67,7 +79,15 @@ public class CuotaRefinanciacion extends EntidadAuditable {
         if (pago.compareTo(saldoPendiente) > 0) {
             throw new IllegalArgumentException("El pago no puede superar el saldo de la cuota");
         }
-        saldoPendiente = saldoPendiente.subtract(pago);
+
+        BigDecimal interesPendiente = getInteresPendiente();
+        BigDecimal aplicarInteres = pago.min(interesPendiente);
+        BigDecimal restante = pago.subtract(aplicarInteres);
+        BigDecimal aplicarCapital = restante.min(getCapitalPendiente());
+
+        interesPagado = interesPagado.add(aplicarInteres).setScale(2);
+        capitalPagado = capitalPagado.add(aplicarCapital).setScale(2);
+        saldoPendiente = saldoPendiente.subtract(pago).setScale(2);
     }
 
     public void revertirPago(BigDecimal importe) {
@@ -76,7 +96,13 @@ public class CuotaRefinanciacion extends EntidadAuditable {
         if (monto.compareTo(pagado) > 0) {
             throw new IllegalArgumentException("La reversión supera los pagos de la cuota");
         }
-        saldoPendiente = saldoPendiente.add(monto);
+
+        BigDecimal restaurarCapital = monto.min(capitalPagado);
+        BigDecimal restaurarInteres = monto.subtract(restaurarCapital);
+
+        capitalPagado = capitalPagado.subtract(restaurarCapital).setScale(2);
+        interesPagado = interesPagado.subtract(restaurarInteres).setScale(2);
+        saldoPendiente = saldoPendiente.add(monto).setScale(2);
     }
 
     private BigDecimal validarNoNegativo(BigDecimal importe, String mensaje) {
