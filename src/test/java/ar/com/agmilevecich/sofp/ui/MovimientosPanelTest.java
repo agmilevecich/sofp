@@ -102,7 +102,7 @@ class MovimientosPanelTest {
                 categoria,
                 TipoMovimiento.INGRESO,
                 new BigDecimal("500000"),
-                LocalDateTime.now(),
+                LocalDateTime.of(2026, 9, 26, 10, 0),
                 "Sueldo",
                 usuario.getId()
         );
@@ -112,7 +112,7 @@ class MovimientosPanelTest {
                 categoria,
                 TipoMovimiento.EGRESO,
                 new BigDecimal("200000"),
-                LocalDateTime.now(),
+                LocalDateTime.of(2026, 9, 26, 11, 0),
                 "Alquiler",
                 usuario.getId()
         );
