@@ -2,7 +2,9 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.DetalleMovimientoCarteraActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.ResumenPatrimonial;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
+import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -45,6 +47,51 @@ public class ReportesPanel extends JPanel {
         add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
 
         cargarMovimientos(carteraActivoService.obtenerMovimientos(perfilFinanciero, usuarioId));
+    }
+
+    /**
+     * Constructor para mostrar el patrimonio financiero consolidado del perfil.
+     * La valorización y las reglas patrimoniales permanecen en PatrimonioFinancieroService.
+     */
+    public ReportesPanel(PatrimonioFinancieroService patrimonioFinancieroService,
+                         PerfilFinanciero perfilFinanciero,
+                         Long usuarioId) {
+        Objects.requireNonNull(
+                patrimonioFinancieroService,
+                "El PatrimonioFinancieroService es obligatorio"
+        );
+        Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        modeloReportes = new DefaultListModel<>();
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        add(new JLabel("Patrimonio financiero consolidado"), BorderLayout.NORTH);
+        add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
+
+        cargarPatrimonio(
+                patrimonioFinancieroService.calcular(
+                        perfilFinanciero,
+                        usuarioId,
+                        java.util.Map.of()
+                )
+        );
+    }
+
+    private void cargarPatrimonio(ResumenPatrimonial resumen) {
+        String moneda = resumen.getMonedaPresentacion().getCodigo();
+
+        modeloReportes.addElement("Moneda de presentación: " + moneda);
+        modeloReportes.addElement("ACTIVOS");
+        modeloReportes.addElement("  Activos monetarios: " + resumen.getActivosMonetarios() + " " + moneda);
+        modeloReportes.addElement("  Inversiones: " + resumen.getActivosInversiones() + " " + moneda);
+        modeloReportes.addElement("  Activos totales: " + resumen.getActivosTotales() + " " + moneda);
+        modeloReportes.addElement("PASIVOS");
+        modeloReportes.addElement("  Tarjetas y obligaciones asociadas: "
+                + resumen.getPasivosTarjetas() + " " + moneda);
+        modeloReportes.addElement("  Pasivos totales: " + resumen.getPasivosTotales() + " " + moneda);
+        modeloReportes.addElement("PATRIMONIO NETO");
+        modeloReportes.addElement("  Patrimonio neto: " + resumen.getPatrimonioNeto() + " " + moneda);
     }
 
     private void cargarMovimientos(List<DetalleMovimientoCarteraActivo> movimientos) {
