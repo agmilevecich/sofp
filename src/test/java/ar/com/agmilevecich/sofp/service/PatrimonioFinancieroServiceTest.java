@@ -246,18 +246,31 @@ class PatrimonioFinancieroServiceTest {
         operacion1.agregarMovimientoActivo(compra1);
         operacion2.agregarMovimientoActivo(compra2);
 
+        Categoria categoriaBroker = new Categoria("Inversiones USD", perfil);
+
         entityManager.getTransaction().begin();
         entityManager.persist(usd);
         entityManager.persist(institucion);
         entityManager.persist(activo1);
         entityManager.persist(activo2);
         entityManager.persist(cuentaBroker);
+        entityManager.persist(categoriaBroker);
         entityManager.persist(cambio);
         entityManager.persist(operacion1);
         entityManager.persist(compra1);
         entityManager.persist(operacion2);
         entityManager.persist(compra2);
         entityManager.getTransaction().commit();
+
+        movimientoService.registrar(
+                cuentaBroker,
+                categoriaBroker,
+                TipoMovimiento.INGRESO,
+                BigDecimal.ONE,
+                LocalDateTime.of(2026, 9, 25, 12, 30),
+                "Saldo para prueba de valorización",
+                usuario.getId()
+        );
 
         ResumenPatrimonial resumen = patrimonioService.calcular(
                 perfil,
