@@ -103,7 +103,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, null, null, null);
+                obligacionService, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -116,7 +116,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, null, null);
+                obligacionService, operacionFinancieraService, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
