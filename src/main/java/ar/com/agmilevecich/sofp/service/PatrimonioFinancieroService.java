@@ -41,6 +41,8 @@ public class PatrimonioFinancieroService {
                 obligacionRepository, "El ObligacionRepository es obligatorio");
         this.tipoCambioRepository = Objects.requireNonNull(
                 tipoCambioRepository, "El TipoCambioRepository es obligatorio");
+        this.monedaRepository = Objects.requireNonNull(
+                monedaRepository, "El MonedaRepository es obligatorio");
     }
 
     public ResumenPatrimonial calcular(
