@@ -364,3 +364,62 @@ Después de cambios importantes:
 `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`
 
 No modificar ni mergear `main` automáticamente. La documentación es auxiliar: código actual y tests prevalecen sobre cualquier nota histórica.
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 26/09/2026 18:19 -03:00
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y GitHub.
+
+### Cierre de etapa: patrimonio financiero, patrimonio neto y reportes consolidados
+
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- Comparación GitHub: `feature/swing-shell` está **98 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge a `main`.
+- El working tree local fue verificado por el usuario como limpio: `git status` sin cambios, `git diff` vacío y `git diff --check` sin observaciones.
+
+### Validación final
+
+La suite general ejecutada por el usuario después de sincronizar la rama quedó:
+
+- `mvn test`: **892/892**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- **BUILD SUCCESS**.
+- Duración: **22:40 min**.
+- Finalizada: **26/09/2026 18:19:48 -03:00**.
+
+Además, antes de la suite completa se validó el bloque de movimientos:
+
+- `MovimientoServiceTest` + `MovimientoRepositoryTest`: **62/62**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- `MovimientosPanelTest`: **3/3**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+
+El test de `MovimientosPanelTest` fue hecho determinista sustituyendo fechas basadas en `LocalDateTime.now()` por fechas fijas, sin modificar la regla temporal de `MovimientoService`.
+
+### Estado funcional
+
+Queda validado el bloque de patrimonio financiero y su integración con el shell de reportes, incluyendo:
+
+- cálculo de activos monetarios e inversiones;
+- conversión multidivisa a moneda de presentación;
+- consolidación de inversiones por moneda antes de convertir y redondear;
+- pasivos contemplados por `ResumenPatrimonial`;
+- cálculo de patrimonio neto según el modelo actual;
+- presentación consolidada en `ReportesPanel`;
+- integración de `PatrimonioFinancieroService` en `Main` y `MainFrame`.
+
+La suite completa de 892 tests valida el estado actual después de los últimos ajustes de refinanciación, patrimonio y determinismo temporal de movimientos.
+
+### Pendientes
+
+No se deben inventar reglas contables para completar funcionalidades que todavía no tienen semántica explícita. En particular, antes de ampliar resultados financieros consolidados debe definirse, si corresponde, la semántica de resultado del período, resultado acumulado y otros componentes patrimoniales que no estén determinados por el modelo actual.
+
+También permanecen como evolución técnica/funcional los pendientes ya documentados de refinanciación avanzada, calendario bancario de feriados, `Clock`, migraciones formales y UI avanzada donde corresponda.
+
+### Próximo paso
+
+La etapa queda **validada y cerrada técnicamente** con suite completa verde.
+
+El siguiente trabajo debe comenzar reconstruyendo nuevamente el estado desde GitHub y, antes de modificar código, inspeccionar la implementación actual relacionada con el próximo bloque funcional. No modificar ni mergear `main` automáticamente.
+
