@@ -61,27 +61,27 @@ public class MainFrame extends JFrame {
 
     public MainFrame(CuentaService cuentaService, Long perfilFinancieroId, Long usuarioId) {
         this(cuentaService, null, null, null, null, null,
-                null, perfilFinancieroId, usuarioId, null, null, null, null);
+                null, perfilFinancieroId, usuarioId, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
                      Long perfilFinancieroId, Long usuarioId) {
         this(cuentaService, movimientoService, null, null, null, null,
-                null, perfilFinancieroId, usuarioId, null, null, null, null);
+                null, perfilFinancieroId, usuarioId, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
                      CarteraActivoService carteraActivoService, PerfilFinanciero perfilFinanciero,
                      Long usuarioId) {
         this(cuentaService, movimientoService, null, null, null, carteraActivoService,
-                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId, null, null, null, null);
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
                      CategoriaService categoriaService, CarteraActivoService carteraActivoService,
                      PerfilFinanciero perfilFinanciero, Long usuarioId) {
         this(cuentaService, movimientoService, categoriaService, null, null, carteraActivoService,
-                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId, null, null, null, null);
+                perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -91,7 +91,7 @@ public class MainFrame extends JFrame {
                      PerfilFinanciero perfilFinanciero, Long usuarioId) {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
-                perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId, null, null, null, null);
+                perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
