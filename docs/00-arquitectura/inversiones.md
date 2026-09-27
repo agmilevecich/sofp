@@ -80,3 +80,62 @@ Todavía deben definirse explícitamente:
 - operaciones que no sean compra o venta.
 
 Estas decisiones deben resolverse antes de implementar una entidad de posición o movimientos específicos de activos.
+
+
+## Estado implementado — valorización explícita y patrimonio
+
+La evolución posterior de este modelo ya implementa movimientos de activo, posiciones derivadas y valorización sin persistir una posición materializada.
+
+### Posición y valorización
+
+- `MovimientoActivo` registra la variación de cantidad producida por la operación.
+- `PosicionActivo` se calcula acumulando los movimientos del perfil.
+- `CarteraActivoService` deriva las posiciones y las valoriza mediante un `Map<Activo, BigDecimal> preciosActuales` explícito.
+- `ValorizacionPosicionActivo` calcula cantidad × precio actual y la diferencia contra el costo de adquisición.
+- `ReporteCarteraActivo` consolida las valorizaciones de la cartera.
+
+### Fuente de precios
+
+Actualmente SOFP **no posee una fuente persistente de precios actuales de activos**. El repositorio de activos persiste la identidad y moneda del instrumento, pero no una cotización actual ni un historial de precios de mercado.
+
+Por decisión arquitectónica, no se introduce una cotización automática, un proveedor externo ni un precio por defecto para completar un reporte. El precio actual debe ser proporcionado explícitamente por la capa consumidora mediante `Map<Activo, BigDecimal>`.
+
+### Integración con patrimonio y ReportesPanel
+
+El flujo vigente es:
+
+```
+MovimientoActivo
+      ↓
+PosicionActivo
+      ↓
+precio explícito
+      ↓
+ValorizacionPosicionActivo
+      ↓
+PatrimonioFinancieroService
+      ↓
+consolidación por moneda de origen
+      ↓
+conversión y redondeo
+      ↓
+ResumenPatrimonial
+      ↓
+ReportesPanel
+```
+
+`ReportesPanel` no calcula cantidades, precios, conversiones ni patrimonio. Recibe el `PatrimonioFinancieroService` y puede actualizar el reporte mediante `actualizarPatrimonio(Map<Activo, BigDecimal>)`.
+
+Cuando el panel se crea sin precios explícitos, informa que la valorización requiere precios; no inventa valores. Cuando se proporcionan precios, el servicio realiza la valorización y el panel muestra activos monetarios, inversiones, activos totales, pasivos y patrimonio neto.
+
+`MainFrame.actualizarPreciosActivos(...)` constituye el punto de entrada de la capa de aplicación para proporcionar esos precios al reporte, manteniendo la lógica financiera fuera de Swing.
+
+### Precio faltante
+
+Si existe una posición activa y no existe una entrada para ese activo en `preciosActuales`, `CarteraActivoService` lanza `IllegalArgumentException`. No se utiliza cero, último precio, precio nominal, promedio ni ningún valor ficticio.
+
+### Moneda y no duplicación
+
+`PatrimonioFinancieroService` consolida las valorizaciones por moneda del activo antes de convertirlas a la moneda de presentación. Una inversión se contabiliza como activo de inversión; el movimiento monetario asociado a su compra/venta determina el saldo de la cuenta, por lo que el patrimonio consolida ambos saldos sin agregar nuevamente el costo de adquisición como activo independiente.
+
+Las pruebas cubren valorización explícita, múltiples posiciones, ausencia de precio, integración con patrimonio, conversión multidivisa y presentación en `ReportesPanel`.
