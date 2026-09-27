@@ -122,6 +122,9 @@ public class ReportesPanel extends JPanel {
         add(new JLabel("Patrimonio financiero consolidado"), BorderLayout.NORTH);
         add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
 
+        this.patrimonioFinancieroService = patrimonioFinancieroService;
+        this.perfilFinanciero = perfilFinanciero;
+        this.usuarioId = usuarioId;
         cargarPatrimonio(
                 patrimonioFinancieroService.calcular(
                         perfilFinanciero,
