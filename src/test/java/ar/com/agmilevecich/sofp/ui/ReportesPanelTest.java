@@ -101,7 +101,8 @@ class ReportesPanelTest {
         ReportesPanel panel = new ReportesPanel(
                 patrimonioService,
                 contexto.perfil,
-                contexto.usuario.getId()
+                contexto.usuario.getId(),
+                Map.of()
         );
 
         JList<?> lista = buscarLista(panel);
