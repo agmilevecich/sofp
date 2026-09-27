@@ -714,3 +714,21 @@ Después de cambios importantes:
 `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`
 
 No modificar ni mergear `main` automáticamente. La documentación es auxiliar: código actual y tests prevalecen sobre cualquier nota histórica.
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 27/09/2026
+
+Esta sección supersede cualquier estado anterior del documento cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y los commits actuales de GitHub.
+
+### Estado actual validado
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- HEAD funcional previo al cierre documental: `e5fc333cc07ae75a00caaec5a60f9cbfbcd0ff78` — `fix: estabilizar hora de gastos registrados desde la fecha`.
+- Suite completa `mvn test`: **901/901**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalizada: **27/09/2026 16:36:42 -03:00**; duración **20:42 min**.
+
+### Último ajuste
+Se estabilizó la hora de los gastos registrados desde `GastosPanel`: la fecha seleccionada por la UI se registra con `LocalTime.MAX` en lugar de `LocalTime.now()`. Esto elimina la dependencia de la hora real de ejecución en los tests y en el comportamiento de una fecha seleccionada sin hora. No se modificó la regla de saldo disponible de `MovimientoService`.
+
+### Continuidad
+El resultado **901/901** es la última validación completa conocida y reemplaza como referencia operativa los resultados históricos anteriores. Los próximos cambios deben partir del código y tests actuales, reconstruyendo el estado desde GitHub antes de modificar cualquier funcionalidad. No modificar ni mergear `main` automáticamente.
