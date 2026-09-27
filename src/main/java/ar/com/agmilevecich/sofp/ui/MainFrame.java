@@ -1,5 +1,6 @@
 package ar.com.agmilevecich.sofp.ui;
 
+import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
@@ -22,6 +23,8 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
+import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Objects;
 
 /** Ventana principal y shell de navegación de SOFP. */
@@ -54,6 +57,7 @@ public class MainFrame extends JFrame {
     private final TipoCambioService tipoCambioService;
     private final PatrimonioFinancieroService patrimonioFinancieroService;
     private MovimientosPanel movimientosPanel;
+    private ReportesPanel reportesPanel;
 
     public MainFrame() {
         this(null, null, null, null, null, null, null, null, null, null, null, null, null);
@@ -262,11 +266,14 @@ public class MainFrame extends JFrame {
             areaCentral.add(new InversionesPanel(), INVERSIONES);
         }
         if (patrimonioFinancieroService != null && perfilFinanciero != null && usuarioId != null) {
-            areaCentral.add(new ReportesPanel(patrimonioFinancieroService, perfilFinanciero, usuarioId), REPORTES);
+            reportesPanel = new ReportesPanel(patrimonioFinancieroService, perfilFinanciero, usuarioId);
+            areaCentral.add(reportesPanel, REPORTES);
         } else if (carteraActivoService != null && perfilFinanciero != null && usuarioId != null) {
-            areaCentral.add(new ReportesPanel(carteraActivoService, perfilFinanciero, usuarioId), REPORTES);
+            reportesPanel = new ReportesPanel(carteraActivoService, perfilFinanciero, usuarioId);
+            areaCentral.add(reportesPanel, REPORTES);
         } else {
-            areaCentral.add(new ReportesPanel(), REPORTES);
+            reportesPanel = new ReportesPanel();
+            areaCentral.add(reportesPanel, REPORTES);
         }
         if (operacionFinancieraService != null && cuentaService != null && categoriaService != null
                 && perfilFinanciero != null && usuarioId != null) {
@@ -281,6 +288,18 @@ public class MainFrame extends JFrame {
         add(new SidebarPanel(this::navegar), BorderLayout.WEST);
         add(new StatusBarPanel(), BorderLayout.SOUTH);
         add(areaCentral, BorderLayout.CENTER);
+    }
+
+    /**
+     * Actualiza el reporte patrimonial con precios explícitos provistos por la capa de aplicación.
+     */
+    public void actualizarPreciosActivos(Map<Activo, BigDecimal> preciosActuales) {
+        Objects.requireNonNull(preciosActuales, "Los precios actuales son obligatorios");
+        if (patrimonioFinancieroService == null || reportesPanel == null) {
+            throw new IllegalStateException("El MainFrame no tiene contexto patrimonial");
+        }
+        reportesPanel.actualizarPatrimonio(preciosActuales);
+        cardLayout.show(areaCentral, REPORTES);
     }
 
     private void navegar(ActionEvent event) {
