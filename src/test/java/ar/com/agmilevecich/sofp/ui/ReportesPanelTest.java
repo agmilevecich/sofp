@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import javax.swing.JList;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -112,6 +114,41 @@ class ReportesPanelTest {
         assertEquals("  Tarjetas y obligaciones asociadas: 0 ARS", lista.getModel().getElementAt(6));
         assertEquals("  Pasivos totales: 0 ARS", lista.getModel().getElementAt(7));
         assertEquals("  Patrimonio neto: 0 ARS", lista.getModel().getElementAt(9));
+    }
+
+    @Test
+    void deberiaMostrarInversionValorizadaConPrecioExplicitoSinContarlaDosVeces() {
+        Moneda moneda = crearMonedaPersistida();
+        Bono bono = crearBonoPersistido(moneda);
+        Contexto contexto = crearContexto(moneda);
+        registrarCompra(contexto, bono);
+
+        CuentaService cuentaService = new CuentaService(
+                new CuentaRepository(entityManager),
+                new MovimientoRepository(entityManager),
+                entityManager
+        );
+        PatrimonioFinancieroService patrimonioService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraActivoService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+
+        ReportesPanel panel = new ReportesPanel(
+                patrimonioService,
+                contexto.perfil,
+                contexto.usuario.getId(),
+                Map.of(bono, new BigDecimal("150"))
+        );
+
+        JList<?> lista = buscarLista(panel);
+        assertNotNull(lista);
+        assertEquals("  Activos monetarios: -12500 ARS", lista.getModel().getElementAt(2));
+        assertEquals("  Inversiones: 15000 ARS", lista.getModel().getElementAt(3));
+        assertEquals("  Activos totales: 2500 ARS", lista.getModel().getElementAt(4));
+        assertEquals("  Patrimonio neto: 2500 ARS", lista.getModel().getElementAt(9));
     }
 
     @Test
