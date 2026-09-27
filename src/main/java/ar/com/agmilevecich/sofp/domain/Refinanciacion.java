@@ -187,6 +187,7 @@ public class Refinanciacion extends EntidadAuditable {
         Objects.requireNonNull(fecha, "La fecha de cancelación es obligatoria");
 
         BigDecimal capitalPendiente = cuotas.stream()
+                .filter(cuota -> cuota.getFechaVencimiento().isAfter(fecha))
                 .map(CuotaRefinanciacion::getCapitalPendiente)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
