@@ -1,5 +1,6 @@
 package ar.com.agmilevecich.sofp.ui;
 
+import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.DetalleMovimientoCarteraActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.ResumenPatrimonial;
@@ -13,7 +14,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /** Panel de reportes basado en los reportes de movimientos de la cartera existente. */
@@ -56,12 +59,24 @@ public class ReportesPanel extends JPanel {
     public ReportesPanel(PatrimonioFinancieroService patrimonioFinancieroService,
                          PerfilFinanciero perfilFinanciero,
                          Long usuarioId) {
+        this(patrimonioFinancieroService, perfilFinanciero, usuarioId, Map.of());
+    }
+
+    /**
+     * Constructor para mostrar el patrimonio consolidado utilizando precios
+     * explícitos provistos por la capa de aplicación.
+     */
+    public ReportesPanel(PatrimonioFinancieroService patrimonioFinancieroService,
+                         PerfilFinanciero perfilFinanciero,
+                         Long usuarioId,
+                         Map<Activo, BigDecimal> preciosActuales) {
         Objects.requireNonNull(
                 patrimonioFinancieroService,
                 "El PatrimonioFinancieroService es obligatorio"
         );
         Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Objects.requireNonNull(preciosActuales, "Los precios actuales son obligatorios");
 
         modeloReportes = new DefaultListModel<>();
         setLayout(new BorderLayout(8, 8));
@@ -73,7 +88,7 @@ public class ReportesPanel extends JPanel {
                 patrimonioFinancieroService.calcular(
                         perfilFinanciero,
                         usuarioId,
-                        java.util.Map.of()
+                        preciosActuales
                 )
         );
     }
