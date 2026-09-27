@@ -23,6 +23,9 @@ import java.util.Objects;
 public class ReportesPanel extends JPanel {
 
     private final DefaultListModel<String> modeloReportes;
+    private PatrimonioFinancieroService patrimonioFinancieroService;
+    private PerfilFinanciero perfilFinanciero;
+    private Long usuarioId;
 
     /** Constructor del shell sin contexto de usuario. */
     public ReportesPanel() {
@@ -59,13 +62,48 @@ public class ReportesPanel extends JPanel {
     public ReportesPanel(PatrimonioFinancieroService patrimonioFinancieroService,
                          PerfilFinanciero perfilFinanciero,
                          Long usuarioId) {
-        this(patrimonioFinancieroService, perfilFinanciero, usuarioId, Map.of());
+        Objects.requireNonNull(
+                patrimonioFinancieroService,
+                "El PatrimonioFinancieroService es obligatorio"
+        );
+        Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        modeloReportes = new DefaultListModel<>();
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        add(new JLabel("Patrimonio financiero consolidado"), BorderLayout.NORTH);
+        add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
+
+        this.patrimonioFinancieroService = patrimonioFinancieroService;
+        this.perfilFinanciero = perfilFinanciero;
+        this.usuarioId = usuarioId;
+        mostrarRequierePrecios();
     }
 
     /**
      * Constructor para mostrar el patrimonio consolidado utilizando precios
      * explícitos provistos por la capa de aplicación.
      */
+    /** Actualiza el reporte utilizando precios explícitos provistos por la capa de aplicación. */
+    public void actualizarPatrimonio(Map<Activo, BigDecimal> preciosActuales) {
+        Objects.requireNonNull(preciosActuales, "Los precios actuales son obligatorios");
+        if (patrimonioFinancieroService == null || perfilFinanciero == null || usuarioId == null) {
+            throw new IllegalStateException("El panel no tiene contexto patrimonial");
+        }
+        modeloReportes.clear();
+        cargarPatrimonio(patrimonioFinancieroService.calcular(
+                perfilFinanciero,
+                usuarioId,
+                preciosActuales
+        ));
+    }
+
+    private void mostrarRequierePrecios() {
+        modeloReportes.addElement("Precios actuales no provistos");
+        modeloReportes.addElement("La valorización de inversiones requiere precios explícitos.");
+    }
+
     public ReportesPanel(PatrimonioFinancieroService patrimonioFinancieroService,
                          PerfilFinanciero perfilFinanciero,
                          Long usuarioId,
