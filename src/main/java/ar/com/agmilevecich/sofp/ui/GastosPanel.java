@@ -369,7 +369,7 @@ public class GastosPanel extends JPanel {
                 fechaField.getDate(),
                 "La fecha es obligatoria"
         );
-        LocalDateTime fechaHora = LocalDateTime.of(fecha, LocalTime.now());
+        LocalDateTime fechaHora = LocalDateTime.of(fecha, LocalTime.MAX);
         String descripcion = descripcionField.getText().trim();
         Integer cantidadCuotas = (Integer) Objects.requireNonNull(
                 cuotasComboBox.getSelectedItem(),
