@@ -467,3 +467,34 @@ La etapa queda **validada y cerrada técnicamente** con suite completa verde.
 
 El siguiente trabajo debe comenzar reconstruyendo nuevamente el estado desde GitHub y, antes de modificar código, inspeccionar la implementación actual relacionada con el próximo bloque funcional. No modificar ni mergear `main` automáticamente.
 
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 27/09/2026
+
+Esta sección supersede cualquier estado anterior del documento cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y los commits actuales de GitHub.
+
+### Estado Git
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- HEAD actual: `e5fc333cc07ae75a00caaec5a60f9cbfbcd0ff78` — `fix: estabilizar hora de gastos registrados desde la fecha`.
+- Comparación GitHub: `feature/swing-shell` está **108 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge ni modificación de `main`.
+
+### Último cambio validado
+`GastosPanel` convertía la fecha seleccionada por la UI en una hora basada en `LocalTime.now()`, haciendo que el saldo disponible dependiera de la hora real de ejecución. El cambio mínimo fue utilizar `LocalTime.MAX`. No se modificó la regla de fondos de `MovimientoService`.
+
+### Validación final informada por el usuario
+- `GastosPanelTest` + `MainFrameMovimientosTest`: **13/13**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa `mvn test`: **901/901**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Duración: **20:42 min**.
+- Finalizada: **27/09/2026 16:36:42 -03:00**.
+
+Esta suite de **901/901** sustituye como última validación completa conocida a los resultados anteriores de 892/892, 887/887, 848/848, 841/841 y anteriores.
+
+### Cierre de etapa
+El estado actual queda técnicamente validado con suite completa verde. Antes de iniciar una nueva funcionalidad se debe reconstruir nuevamente el estado desde GitHub y revisar código, tests, repositorios y reglas de negocio relacionadas.
+
+### Regla permanente
+`GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
+
+Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
