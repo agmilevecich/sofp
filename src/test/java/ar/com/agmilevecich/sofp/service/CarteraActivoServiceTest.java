@@ -286,7 +286,7 @@ class CarteraActivoServiceTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> service.obtenerValorizaciones(perfil, null)
+                    () -> service.obtenerValorizaciones(perfil, (Map<Activo, BigDecimal>) null)
             );
         } finally {
             em.close();
