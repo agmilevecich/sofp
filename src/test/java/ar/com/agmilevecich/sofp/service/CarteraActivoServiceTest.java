@@ -19,11 +19,13 @@ import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.domain.ValorizacionPosicionActivo;
+import ar.com.agmilevecich.sofp.persistence.CotizacionActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,6 +162,71 @@ class CarteraActivoServiceTest {
             assertEquals(2, valorizaciones.size());
             assertEquals(new BigDecimal("12000"), valorDe(valorizaciones, "GD30"));
             assertEquals(new BigDecimal("-1000"), gananciaDe(valorizaciones, "AL30"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaObtenerValorizacionesUsandoCotizacionesPersistidas() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            PerfilFinanciero perfil = crearPerfil("valorizacion.persistida");
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
+            Bono al30 = crearBono("AL30", moneda);
+            persistir(em, perfil, gd30, al30);
+            persistirMovimientos(em, perfil,
+                    movimiento(gd30, TipoMovimientoActivo.COMPRA, "100"),
+                    movimiento(al30, TipoMovimientoActivo.COMPRA, "50"));
+
+            CotizacionActivoService cotizacionService = new CotizacionActivoService(
+                    new CotizacionActivoRepository(em));
+            em.getTransaction().begin();
+            cotizacionService.registrarCotizacion(gd30, LocalDate.of(2026, 9, 28), new BigDecimal("120"));
+            cotizacionService.registrarCotizacion(al30, LocalDate.of(2026, 9, 28), new BigDecimal("80"));
+            em.getTransaction().commit();
+
+            CarteraActivoService service = new CarteraActivoService(
+                    new MovimientoActivoRepository(em), cotizacionService);
+
+            List<ValorizacionPosicionActivo> valorizaciones =
+                    service.obtenerValorizaciones(perfil, perfil.getUsuario().getId());
+
+            assertEquals(2, valorizaciones.size());
+            assertEquals(new BigDecimal("12000"), valorDe(valorizaciones, "GD30"));
+            assertEquals(new BigDecimal("4000"), valorDe(valorizaciones, "AL30"));
+        } finally {
+            em.close();
+        }
+    }
+
+    @Test
+    void deberiaRechazarValorizacionSiFaltaCotizacionPersistida() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            PerfilFinanciero perfil = crearPerfil("valorizacion.sin.cotizacion");
+            Moneda moneda = crearMoneda();
+            Bono gd30 = crearBono("GD30", moneda);
+            Bono al30 = crearBono("AL30", moneda);
+            persistir(em, perfil, gd30, al30);
+            persistirMovimientos(em, perfil,
+                    movimiento(gd30, TipoMovimientoActivo.COMPRA, "100"),
+                    movimiento(al30, TipoMovimientoActivo.COMPRA, "50"));
+
+            CotizacionActivoService cotizacionService = new CotizacionActivoService(
+                    new CotizacionActivoRepository(em));
+            em.getTransaction().begin();
+            cotizacionService.registrarCotizacion(gd30, LocalDate.of(2026, 9, 28), new BigDecimal("120"));
+            em.getTransaction().commit();
+
+            CarteraActivoService service = new CarteraActivoService(
+                    new MovimientoActivoRepository(em), cotizacionService);
+
+            assertThrows(IllegalArgumentException.class,
+                    () -> service.obtenerValorizaciones(perfil, perfil.getUsuario().getId()));
         } finally {
             em.close();
         }
