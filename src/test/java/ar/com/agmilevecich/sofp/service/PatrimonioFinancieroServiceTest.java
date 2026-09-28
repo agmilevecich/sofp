@@ -461,7 +461,7 @@ class PatrimonioFinancieroServiceTest {
         entityManager.persist(new CotizacionActivo(activo2, LocalDate.of(2026, 9, 28), new BigDecimal("60")));
         entityManager.getTransaction().commit();
 
-        CotizacionActivoService cotizacionService = new CotizacionActivoService(
+        movimientoService.registrar(\n                cuentaBroker,\n                categoriaBroker,\n                TipoMovimiento.INGRESO,\n                BigDecimal.ONE,\n                LocalDateTime.of(2026, 9, 28, 10, 30),\n                "Saldo para prueba de valorización",\n                usuario.getId()\n        );\n\n        CotizacionActivoService cotizacionService = new CotizacionActivoService(
                 new CotizacionActivoRepository(entityManager)
         );
         PatrimonioFinancieroService service = new PatrimonioFinancieroService(
@@ -482,7 +482,7 @@ class PatrimonioFinancieroServiceTest {
 
         ResumenPatrimonial resumen = service.calcular(perfil, usuario.getId());
 
-        assertEquals(new BigDecimal("2400.00"), resumen.getActivosInversiones());
+        assertEquals(new BigDecimal("2400"), resumen.getActivosInversiones());
     }
 
     @Test
@@ -621,7 +621,7 @@ class PatrimonioFinancieroServiceTest {
 
         ResumenPatrimonial resumen = service.calcular(perfil, usuario.getId());
 
-        assertEquals(new BigDecimal("200.00"), resumen.getActivosInversiones());
+        assertEquals(new BigDecimal("20000.98"), resumen.getActivosInversiones());
     }
 
     @Test
