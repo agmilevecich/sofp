@@ -95,13 +95,13 @@ class MainFrameInversionesTest {
 
         JList<?> listaInversiones = buscarListaConValor(
                 mainFrame.getContentPane(),
-                "GD30 - 100"
+                "GD30 - 100 - Precio actual: sin informar"
         );
 
         assertNotNull(listaInversiones);
         assertEquals(1, listaInversiones.getModel().getSize());
         assertEquals(
-                "GD30 - 100",
+                "GD30 - 100 - Precio actual: sin informar",
                 listaInversiones.getModel().getElementAt(0)
         );
 
