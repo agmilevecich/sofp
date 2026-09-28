@@ -38,6 +38,7 @@ class ResultadoFinancieroServiceTest {
     private Categoria categoria;
     private Cuenta cuenta;
     private Cuenta cuentaDestino;
+    private Cuenta tarjeta;
     private ResultadoFinancieroService resultadoService;
     private GastoService gastoService;
     private PagoTarjetaService pagoTarjetaService;
@@ -70,6 +71,7 @@ class ResultadoFinancieroServiceTest {
         categoria = contexto.categoria;
         cuenta = contexto.cuenta;
         cuentaDestino = contexto.cuentaDestino;
+        tarjeta = contexto.tarjeta;
     }
 
     @AfterEach
@@ -133,8 +135,8 @@ class ResultadoFinancieroServiceTest {
 
     @Test
     void deberiaIncluirCompraConTarjetaPeroExcluirPagoYReversion() {
-        Obligacion obligacion = gastoService.registrar(
-                cuentaDestino,
+        Movimiento compra = gastoService.registrar(
+                tarjeta,
                 categoria,
                 contexto.ars,
                 new BigDecimal("50000.00"),
@@ -143,11 +145,10 @@ class ResultadoFinancieroServiceTest {
                 FormaPago.TARJETA_CREDITO,
                 contexto.usuario.getId(),
                 1
-        ).getOperacionFinanciera() == null
-                ? new ObligacionService(entityManager, new ObligacionRepository(entityManager))
-                    .buscarPorMovimientoOrigen(ultimoMovimientoId())
-                    .orElseThrow()
-                : null;
+        );
+        Obligacion obligacion = new ObligacionService(entityManager, new ObligacionRepository(entityManager))
+                .buscarPorMovimientoOrigen(compra.getId())
+                .orElseThrow();
 
         pagoTarjetaService.registrarPago(
                 obligacion.getId(),
@@ -256,7 +257,7 @@ class ResultadoFinancieroServiceTest {
         ));
         entityManager.getTransaction().commit();
 
-        return new UsuarioContexto(usuario, perfil, cuenta, cuentaDestino, categoria, ars, otroUsuario.getId());
+        return new UsuarioContexto(usuario, perfil, cuenta, cuentaDestino, tarjeta, categoria, ars, otroUsuario.getId());
     }
 
     private record UsuarioContexto(
@@ -264,6 +265,7 @@ class ResultadoFinancieroServiceTest {
             PerfilFinanciero perfil,
             Cuenta cuenta,
             Cuenta cuentaDestino,
+            Cuenta tarjeta,
             Categoria categoria,
             Moneda ars,
             Long otroUsuarioId
