@@ -6,6 +6,7 @@ import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
+import ar.com.agmilevecich.sofp.service.CotizacionActivoService;
 import ar.com.agmilevecich.sofp.service.GastoService;
 import ar.com.agmilevecich.sofp.service.IngresoService;
 import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
@@ -169,7 +170,25 @@ public class MainFrame extends JFrame {
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
                 obligacionService, operacionFinancieraService, pagoTarjetaService,
-                tipoCambioService, patrimonioFinancieroService);
+                tipoCambioService, patrimonioFinancieroService, null);
+    }
+
+    public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
+                     CategoriaService categoriaService,
+                     InstitucionFinancieraService institucionFinancieraService,
+                     MonedaService monedaService, CarteraActivoService carteraActivoService,
+                     PerfilFinanciero perfilFinanciero, Long usuarioId,
+                     ObligacionService obligacionService,
+                     OperacionFinancieraService operacionFinancieraService,
+                     PagoTarjetaService pagoTarjetaService,
+                     TipoCambioService tipoCambioService,
+                     PatrimonioFinancieroService patrimonioFinancieroService,
+                     CotizacionActivoService cotizacionActivoService) {
+        this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
+                monedaService, carteraActivoService, perfilFinanciero,
+                perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
+                obligacionService, operacionFinancieraService, pagoTarjetaService,
+                tipoCambioService, patrimonioFinancieroService, cotizacionActivoService);
     }
 
     private MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -181,7 +200,8 @@ public class MainFrame extends JFrame {
                       OperacionFinancieraService operacionFinancieraService,
                       PagoTarjetaService pagoTarjetaService,
                       TipoCambioService tipoCambioService,
-                      PatrimonioFinancieroService patrimonioFinancieroService) {
+                      PatrimonioFinancieroService patrimonioFinancieroService,
+                      CotizacionActivoService cotizacionActivoService) {
         super("SOFP - Sistema Operativo Financiero Personal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 700);
@@ -271,7 +291,8 @@ public class MainFrame extends JFrame {
                         carteraActivoService,
                         perfilFinanciero,
                         usuarioId,
-                        this::actualizarPreciosActivos
+                        this::actualizarPreciosActivos,
+                        cotizacionActivoService
                 ), INVERSIONES);
             } else {
                 areaCentral.add(new InversionesPanel(
