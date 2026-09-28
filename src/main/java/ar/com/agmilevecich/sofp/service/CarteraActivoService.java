@@ -21,15 +21,36 @@ import java.util.Objects;
 public class CarteraActivoService {
 
     private final MovimientoActivoRepository movimientoActivoRepository;
+    private final CotizacionActivoService cotizacionActivoService;
 
     public CarteraActivoService(MovimientoActivoRepository movimientoActivoRepository) {
+        this(movimientoActivoRepository, null);
+    }
+
+    public CarteraActivoService(
+            MovimientoActivoRepository movimientoActivoRepository,
+            CotizacionActivoService cotizacionActivoService) {
         this.movimientoActivoRepository = Objects.requireNonNull(
                 movimientoActivoRepository, "El repositorio de movimientos de activo no puede ser nulo");
+        this.cotizacionActivoService = cotizacionActivoService;
     }
 
     public List<PosicionActivo> obtenerPosiciones(PerfilFinanciero perfilFinanciero, Long usuarioId) {
         validarPropietario(perfilFinanciero, usuarioId);
         return obtenerPosicionesInternas(perfilFinanciero);
+    }
+
+    public List<ValorizacionPosicionActivo> obtenerValorizaciones(
+            PerfilFinanciero perfilFinanciero,
+            Long usuarioId) {
+        validarPropietario(perfilFinanciero, usuarioId);
+        if (cotizacionActivoService == null) {
+            throw new IllegalStateException("El servicio de cotizaciones de activos no está configurado");
+        }
+        List<PosicionActivo> posiciones = obtenerPosicionesInternas(perfilFinanciero);
+        List<Activo> activos = posiciones.stream().map(PosicionActivo::getActivo).toList();
+        Map<Activo, BigDecimal> preciosActuales = cotizacionActivoService.obtenerPreciosActuales(activos);
+        return obtenerValorizacionesInternas(perfilFinanciero, preciosActuales);
     }
 
     public List<ValorizacionPosicionActivo> obtenerValorizaciones(
