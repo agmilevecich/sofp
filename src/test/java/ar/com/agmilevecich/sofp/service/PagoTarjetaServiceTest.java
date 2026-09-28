@@ -118,6 +118,8 @@ class PagoTarjetaServiceTest {
         );
 
         assertEquals("REVERSADO", pago.getEstado().name());
+        assertEquals(TipoMovimiento.INGRESO, pago.getMovimientoReversion().getTipoMovimiento());
+        assertEquals(new BigDecimal("50000.00"), pago.getMovimientoReversion().getImporte());
         assertEquals(new BigDecimal("120000.00"), obligacion.getSaldoPendiente());
         assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
