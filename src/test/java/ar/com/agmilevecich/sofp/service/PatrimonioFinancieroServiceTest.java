@@ -610,6 +610,16 @@ class PatrimonioFinancieroServiceTest {
         ));
         entityManager.getTransaction().commit();
 
+        movimientoService.registrar(
+                cuentaBroker,
+                categoriaBroker,
+                TipoMovimiento.INGRESO,
+                BigDecimal.ONE,
+                LocalDateTime.of(2026, 9, 28, 10, 30),
+                "Saldo para prueba de valorización",
+                usuario.getId()
+        );
+
         CotizacionActivoService cotizacionService = new CotizacionActivoService(
                 new CotizacionActivoRepository(entityManager)
         );
