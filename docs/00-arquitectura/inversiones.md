@@ -139,3 +139,17 @@ Si existe una posición activa y no existe una entrada para ese activo en `preci
 `PatrimonioFinancieroService` consolida las valorizaciones por moneda del activo antes de convertirlas a la moneda de presentación. Una inversión se contabiliza como activo de inversión; el movimiento monetario asociado a su compra/venta determina el saldo de la cuenta, por lo que el patrimonio consolida ambos saldos sin agregar nuevamente el costo de adquisición como activo independiente.
 
 Las pruebas cubren valorización explícita, múltiples posiciones, ausencia de precio, integración con patrimonio, conversión multidivisa y presentación en `ReportesPanel`.
+
+### Carga de precios desde la interfaz
+
+La interfaz de inversiones permite informar o modificar manualmente el precio actual de cada posición.
+
+- `InversionesPanel` muestra la cantidad y el precio actual informado para cada activo.
+- El precio se mantiene en memoria mientras dure el contexto de la interfaz.
+- El usuario puede ingresar el precio con coma o punto decimal.
+- El precio debe ser mayor que cero.
+- Al actualizarlo, `InversionesPanel` entrega una copia del mapa de precios a la capa de aplicación.
+- `MainFrame.actualizarPreciosActivos(...)` conecta ese dato con `ReportesPanel`.
+- No se persiste una cotización ni se consulta un proveedor externo.
+
+La funcionalidad está cubierta por pruebas de `InversionesPanelTest` y `MainFrameInversionesTest`. Luego de la integración, la suite completa alcanza **903 tests, 0 fallos y 0 errores** en la ejecución local del 28/09/2026.
