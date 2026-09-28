@@ -4,6 +4,7 @@ import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.CotizacionActivo;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
@@ -13,6 +14,7 @@ import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
+import ar.com.agmilevecich.sofp.persistence.CotizacionActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
@@ -30,6 +32,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.JList;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -149,6 +152,54 @@ class ReportesPanelTest {
         assertEquals("  Activos monetarios: -12500 ARS", lista.getModel().getElementAt(2));
         assertEquals("  Inversiones: 15000 ARS", lista.getModel().getElementAt(3));
         assertEquals("  Activos totales: 2500 ARS", lista.getModel().getElementAt(4));
+        assertEquals("  Patrimonio neto: 2500 ARS", lista.getModel().getElementAt(9));
+    }
+
+    @Test
+    void deberiaMostrarPatrimonioUsandoCotizacionPersistida() {
+        Moneda moneda = crearMonedaPersistida();
+        Bono bono = crearBonoPersistido(moneda);
+        Contexto contexto = crearContexto(moneda);
+        registrarCompra(contexto, bono);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(new CotizacionActivo(
+                bono,
+                LocalDate.of(2026, 9, 28),
+                new BigDecimal("150")
+        ));
+        entityManager.getTransaction().commit();
+
+        CotizacionActivoService cotizacionService = new CotizacionActivoService(
+                new CotizacionActivoRepository(entityManager)
+        );
+        CarteraActivoService carteraService = new CarteraActivoService(
+                new MovimientoActivoRepository(entityManager),
+                cotizacionService
+        );
+        CuentaService cuentaService = new CuentaService(
+                new CuentaRepository(entityManager),
+                new MovimientoRepository(entityManager),
+                entityManager
+        );
+        PatrimonioFinancieroService patrimonioService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraService,
+                cotizacionService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+
+        ReportesPanel panel = new ReportesPanel(
+                patrimonioService,
+                contexto.perfil,
+                contexto.usuario.getId()
+        );
+
+        JList<?> lista = buscarLista(panel);
+        assertNotNull(lista);
+        assertEquals("  Inversiones: 15000 ARS", lista.getModel().getElementAt(3));
         assertEquals("  Patrimonio neto: 2500 ARS", lista.getModel().getElementAt(9));
     }
 
