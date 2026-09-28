@@ -24,6 +24,7 @@ public class PatrimonioFinancieroService {
 
     private final CuentaService cuentaService;
     private final CarteraActivoService carteraActivoService;
+    private final CotizacionActivoService cotizacionActivoService;
     private final ObligacionRepository obligacionRepository;
     private final TipoCambioRepository tipoCambioRepository;
     private final MonedaRepository monedaRepository;
@@ -34,10 +35,28 @@ public class PatrimonioFinancieroService {
             ObligacionRepository obligacionRepository,
             TipoCambioRepository tipoCambioRepository,
             MonedaRepository monedaRepository) {
+        this(
+                cuentaService,
+                carteraActivoService,
+                null,
+                obligacionRepository,
+                tipoCambioRepository,
+                monedaRepository
+        );
+    }
+
+    public PatrimonioFinancieroService(
+            CuentaService cuentaService,
+            CarteraActivoService carteraActivoService,
+            CotizacionActivoService cotizacionActivoService,
+            ObligacionRepository obligacionRepository,
+            TipoCambioRepository tipoCambioRepository,
+            MonedaRepository monedaRepository) {
 
         this.cuentaService = Objects.requireNonNull(cuentaService, "El CuentaService es obligatorio");
         this.carteraActivoService = Objects.requireNonNull(
                 carteraActivoService, "El CarteraActivoService es obligatorio");
+        this.cotizacionActivoService = cotizacionActivoService;
         this.obligacionRepository = Objects.requireNonNull(
                 obligacionRepository, "El ObligacionRepository es obligatorio");
         this.tipoCambioRepository = Objects.requireNonNull(
@@ -51,11 +70,43 @@ public class PatrimonioFinancieroService {
             Long usuarioId,
             Map<Activo, BigDecimal> preciosActuales) {
 
-        Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
-        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        validarEntrada(perfilFinanciero, usuarioId);
         Objects.requireNonNull(preciosActuales, "Los precios actuales son obligatorios");
 
-        validarPropietario(perfilFinanciero, usuarioId);
+        return calcularInterno(
+                perfilFinanciero,
+                usuarioId,
+                carteraActivoService.obtenerValorizaciones(
+                        perfilFinanciero,
+                        preciosActuales,
+                        usuarioId
+                )
+        );
+    }
+
+    public ResumenPatrimonial calcular(
+            PerfilFinanciero perfilFinanciero,
+            Long usuarioId) {
+
+        validarEntrada(perfilFinanciero, usuarioId);
+
+        if (cotizacionActivoService == null) {
+            throw new IllegalStateException(
+                    "El servicio de cotizaciones de activos no está configurado"
+            );
+        }
+
+        return calcularInterno(
+                perfilFinanciero,
+                usuarioId,
+                carteraActivoService.obtenerValorizaciones(perfilFinanciero, usuarioId)
+        );
+    }
+
+    private ResumenPatrimonial calcularInterno(
+            PerfilFinanciero perfilFinanciero,
+            Long usuarioId,
+            List<ValorizacionPosicionActivo> valorizaciones) {
 
         Moneda monedaPresentacion = monedaRepository.buscarPorCodigo(CODIGO_MONEDA_PRESENTACION)
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -68,9 +119,7 @@ public class PatrimonioFinancieroService {
         );
 
         BigDecimal activosInversiones = calcularActivosInversiones(
-                perfilFinanciero,
-                usuarioId,
-                preciosActuales,
+                valorizaciones,
                 monedaPresentacion
         );
 
@@ -110,17 +159,8 @@ public class PatrimonioFinancieroService {
     }
 
     private BigDecimal calcularActivosInversiones(
-            PerfilFinanciero perfilFinanciero,
-            Long usuarioId,
-            Map<Activo, BigDecimal> preciosActuales,
+            List<ValorizacionPosicionActivo> valorizaciones,
             Moneda monedaPresentacion) {
-
-        List<ValorizacionPosicionActivo> valorizaciones =
-                carteraActivoService.obtenerValorizaciones(
-                        perfilFinanciero,
-                        preciosActuales,
-                        usuarioId
-                );
 
         Map<Moneda, BigDecimal> importesPorMoneda = new HashMap<>();
 
@@ -190,6 +230,12 @@ public class PatrimonioFinancieroService {
                 ));
 
         return cambio.convertir(importe);
+    }
+
+    private void validarEntrada(PerfilFinanciero perfilFinanciero, Long usuarioId) {
+        Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        validarPropietario(perfilFinanciero, usuarioId);
     }
 
     private void validarPropietario(PerfilFinanciero perfilFinanciero, Long usuarioId) {
