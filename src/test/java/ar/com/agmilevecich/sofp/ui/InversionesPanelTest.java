@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
@@ -23,10 +24,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JList;
+import javax.swing.JTextField;
 import java.awt.Component;
 import java.awt.Container;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -72,8 +76,44 @@ class InversionesPanelTest {
         assertNotNull(lista);
         assertEquals(1, lista.getModel().getSize());
         assertEquals(
-                "GD30 - 100",
+                "GD30 - 100 - Precio actual: sin informar",
                 lista.getModel().getElementAt(0)
+        );
+    }
+
+    @Test
+    void deberiaActualizarElPrecioExplicitoYNotificarALaCapaDeAplicacion() {
+        Moneda moneda = crearMonedaPersistida();
+        Bono bono = crearBonoPersistido(moneda);
+        Contexto contexto = crearContexto(moneda);
+
+        registrarCompra(contexto, bono, "100");
+
+        AtomicReference<Map<Activo, BigDecimal>> preciosRecibidos = new AtomicReference<>();
+
+        InversionesPanel panel = new InversionesPanel(
+                carteraActivoService,
+                contexto.perfil,
+                contexto.usuario.getId(),
+                preciosRecibidos::set
+        );
+
+        JTextField campoPrecio = buscarCampoPrecio(panel);
+        assertNotNull(campoPrecio);
+
+        campoPrecio.setText("150");
+        panel.actualizarPrecioSeleccionado();
+
+        JList<?> lista = buscarLista(panel);
+
+        assertEquals(
+                "GD30 - 100 - Precio actual: 150",
+                lista.getModel().getElementAt(0)
+        );
+        assertNotNull(preciosRecibidos.get());
+        assertEquals(
+                new BigDecimal("150"),
+                preciosRecibidos.get().get(bono)
         );
     }
 
@@ -209,6 +249,23 @@ class InversionesPanelTest {
                 JList<?> encontrada = buscarLista(hijo);
                 if (encontrada != null) {
                     return encontrada;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private JTextField buscarCampoPrecio(Container container) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof JTextField campo) {
+                return campo;
+            }
+
+            if (component instanceof Container hijo) {
+                JTextField encontrado = buscarCampoPrecio(hijo);
+                if (encontrado != null) {
+                    return encontrado;
                 }
             }
         }
