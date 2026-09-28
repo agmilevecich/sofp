@@ -61,18 +61,18 @@ public class MainFrame extends JFrame {
     private ReportesPanel reportesPanel;
 
     public MainFrame() {
-        this(null, null, null, null, null, null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, Long perfilFinancieroId, Long usuarioId) {
         this(cuentaService, null, null, null, null, null, null,
-                perfilFinancieroId, usuarioId, null, null, null, null, null);
+                perfilFinancieroId, usuarioId, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
                      Long perfilFinancieroId, Long usuarioId) {
         this(cuentaService, movimientoService, null, null, null, null, null,
-                perfilFinancieroId, usuarioId, null, null, null, null, null);
+                perfilFinancieroId, usuarioId, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -80,7 +80,7 @@ public class MainFrame extends JFrame {
                      Long usuarioId) {
         this(cuentaService, movimientoService, null, null, null, carteraActivoService,
                 perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null,
-                usuarioId, null, null, null, null, null);
+                usuarioId, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -88,7 +88,7 @@ public class MainFrame extends JFrame {
                      PerfilFinanciero perfilFinanciero, Long usuarioId) {
         this(cuentaService, movimientoService, categoriaService, null, null, carteraActivoService,
                 perfilFinanciero, perfilFinanciero != null ? perfilFinanciero.getId() : null,
-                usuarioId, null, null, null, null, null);
+                usuarioId, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -99,7 +99,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                null, null, null, null, null);
+                null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -111,7 +111,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, null, null, null, null);
+                obligacionService, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -124,7 +124,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, null, null, null);
+                obligacionService, operacionFinancieraService, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -138,7 +138,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, pagoTarjetaService, null, null);
+                obligacionService, operacionFinancieraService, pagoTarjetaService, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -153,7 +153,8 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, pagoTarjetaService, tipoCambioService, null);
+                obligacionService, operacionFinancieraService, pagoTarjetaService,
+                tipoCambioService, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -215,7 +216,7 @@ public class MainFrame extends JFrame {
                     || monedaService != null || carteraActivoService != null || perfilFinanciero != null
                     || perfilFinancieroId != null || usuarioId != null || obligacionService != null
                     || operacionFinancieraService != null || pagoTarjetaService != null || tipoCambioService != null
-                    || patrimonioFinancieroService != null) {
+                    || patrimonioFinancieroService != null || cotizacionActivoService != null) {
                 throw new IllegalArgumentException("El CuentaService es obligatorio cuando se informa el contexto de usuario");
             }
             this.cuentasPanel = new CuentasPanel();
