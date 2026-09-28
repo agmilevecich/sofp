@@ -253,7 +253,7 @@ class ResultadoFinancieroServiceTest {
         entityManager.persist(categoriaTarjeta);
         entityManager.persist(new Movimiento(
                 cuenta, categoria, TipoMovimiento.INGRESO, new BigDecimal("200000.00"),
-                LocalDateTime.of(2026, 9, 1, 9, 0), "Saldo inicial"
+                LocalDateTime.of(2026, 8, 31, 9, 0), "Saldo inicial"
         ));
         entityManager.getTransaction().commit();
 
