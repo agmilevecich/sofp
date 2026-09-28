@@ -182,7 +182,8 @@ public class Main {
                 operacionFinancieraService,
                 pagoTarjetaService,
                 tipoCambioService,
-                patrimonioFinancieroService
+                patrimonioFinancieroService,
+                cotizacionActivoService
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
