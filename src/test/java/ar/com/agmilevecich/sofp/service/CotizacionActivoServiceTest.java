@@ -143,7 +143,7 @@ class CotizacionActivoServiceTest {
 
     private Bono persistirActivo(EntityManager em, String simbolo) {
         Moneda moneda = new Moneda(
-                "ARS-" + System.nanoTime(),
+                "ARS",
                 "Peso argentino",
                 2,
                 TipoMoneda.FIAT);
