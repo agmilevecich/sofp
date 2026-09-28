@@ -498,3 +498,34 @@ El estado actual queda técnicamente validado con suite completa verde. Antes de
 `GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
 
 Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
+
+
+## ACTUALIZACIÓN CANÓNICA — 28/09/2026
+
+La fuente de verdad continúa siendo el código, los tests y los commits actuales de GitHub.
+
+### Estado actual
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- Comparación GitHub: 150 commits por delante de `main`, 0 por detrás.
+- No se realizó merge ni modificación de `main`.
+
+### Último bloque completado
+Se completó la persistencia de cotizaciones de activos y su integración con valorización patrimonial y reportes. El último cambio fue `f40c470` — `fix: hacer transaccional el guardado de cotizaciones`.
+
+### Último resultado de tests conocido
+- Pruebas específicas de integración: **41/41** verdes.
+- Suite completa: **928/928** verdes.
+- Failures: 0.
+- Errors: 0.
+- Skipped: 0.
+- BUILD SUCCESS.
+- Finalización de la suite: **28/09/2026 13:17:49 -03:00**.
+
+### Situación
+La etapa está validada y cerrada técnicamente. La arquitectura vigente mantiene la separación entre precio histórico de movimiento, cotización explícita del activo y tipo de cambio.
+
+### Próximo paso
+No iniciar cambios por supuesto. Para el siguiente bloque, reconstruir nuevamente el estado desde GitHub y revisar implementación, repositorios, tests y reglas de negocio antes de proponer código.
+
+Regla permanente: GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo.
