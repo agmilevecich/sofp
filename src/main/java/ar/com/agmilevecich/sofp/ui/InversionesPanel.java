@@ -4,6 +4,7 @@ import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.PosicionActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
+import ar.com.agmilevecich.sofp.service.CotizacionActivoService;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -17,6 +18,7 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,10 +35,11 @@ public class InversionesPanel extends JPanel {
     private final JTextField campoPrecio;
     private final JList<String> listaPosiciones;
     private final Consumer<Map<Activo, BigDecimal>> actualizadorPrecios;
+    private final CotizacionActivoService cotizacionActivoService;
 
     /** Constructor del shell sin contexto de usuario. */
     public InversionesPanel() {
-        this(null, null, null, null);
+        this(null, null, null, null, null);
     }
 
     /**
@@ -46,7 +49,7 @@ public class InversionesPanel extends JPanel {
     public InversionesPanel(CarteraActivoService carteraActivoService,
                             PerfilFinanciero perfilFinanciero,
                             Long usuarioId) {
-        this(carteraActivoService, perfilFinanciero, usuarioId, null);
+        this(carteraActivoService, perfilFinanciero, usuarioId, null, null);
     }
 
     /**
@@ -57,11 +60,21 @@ public class InversionesPanel extends JPanel {
                             PerfilFinanciero perfilFinanciero,
                             Long usuarioId,
                             Consumer<Map<Activo, BigDecimal>> actualizadorPrecios) {
+        this(carteraActivoService, perfilFinanciero, usuarioId, actualizadorPrecios, null);
+    }
+
+    /** Constructor que persiste las cotizaciones registradas desde la pantalla. */
+    public InversionesPanel(CarteraActivoService carteraActivoService,
+                            PerfilFinanciero perfilFinanciero,
+                            Long usuarioId,
+                            Consumer<Map<Activo, BigDecimal>> actualizadorPrecios,
+                            CotizacionActivoService cotizacionActivoService) {
 
         this.modeloPosiciones = new DefaultListModel<>();
         this.posiciones = new ArrayList<>();
         this.preciosActuales = new LinkedHashMap<>();
         this.actualizadorPrecios = actualizadorPrecios;
+        this.cotizacionActivoService = cotizacionActivoService;
         this.campoPrecio = new JTextField(12);
 
         setLayout(new BorderLayout(8, 8));
@@ -162,6 +175,10 @@ public class InversionesPanel extends JPanel {
         }
 
         Activo activo = posiciones.get(indice).getActivo();
+        if (cotizacionActivoService != null) {
+            cotizacionActivoService.registrarCotizacion(activo, LocalDate.now(), precio);
+        }
+
         preciosActuales.put(activo, precio);
         refrescarLista();
         listaPosiciones.setSelectedIndex(indice);
