@@ -6,6 +6,7 @@ import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
+import ar.com.agmilevecich.sofp.persistence.CotizacionActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
 import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
@@ -18,6 +19,7 @@ import ar.com.agmilevecich.sofp.persistence.UsuarioRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
+import ar.com.agmilevecich.sofp.service.CotizacionActivoService;
 import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 import ar.com.agmilevecich.sofp.service.MonedaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
@@ -113,6 +115,7 @@ public class Main {
         OperacionFinancieraRepository operacionFinancieraRepository =
                 new OperacionFinancieraRepository(entityManager);
         TipoCambioRepository tipoCambioRepository = new TipoCambioRepository(entityManager);
+        CotizacionActivoRepository cotizacionActivoRepository = new CotizacionActivoRepository(entityManager);
 
         CuentaService cuentaService = new CuentaService(
                 cuentaRepository,
@@ -130,8 +133,12 @@ public class Main {
         InstitucionFinancieraService institucionFinancieraService =
                 new InstitucionFinancieraService(institucionFinancieraRepository);
         MonedaService monedaService = new MonedaService(monedaRepository);
+        CotizacionActivoService cotizacionActivoService = new CotizacionActivoService(
+                cotizacionActivoRepository
+        );
         CarteraActivoService carteraActivoService = new CarteraActivoService(
-                movimientoActivoRepository
+                movimientoActivoRepository,
+                cotizacionActivoService
         );
         ObligacionService obligacionService = new ObligacionService(
                 entityManager,
@@ -156,6 +163,7 @@ public class Main {
         PatrimonioFinancieroService patrimonioFinancieroService = new PatrimonioFinancieroService(
                 cuentaService,
                 carteraActivoService,
+                cotizacionActivoService,
                 obligacionRepository,
                 tipoCambioRepository,
                 monedaRepository
