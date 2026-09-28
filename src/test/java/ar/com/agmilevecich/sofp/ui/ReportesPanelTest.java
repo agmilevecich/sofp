@@ -22,6 +22,7 @@ import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
+import ar.com.agmilevecich.sofp.service.CotizacionActivoService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
