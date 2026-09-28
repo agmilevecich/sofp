@@ -90,7 +90,15 @@ public class PatrimonioFinancieroService {
 
         validarEntrada(perfilFinanciero, usuarioId);
 
-        if (cotizacionActivoService == null) {
+        if (cotizacionActivoService != null) {
+            return calcularInterno(
+                    perfilFinanciero,
+                    usuarioId,
+                    carteraActivoService.obtenerValorizaciones(perfilFinanciero, usuarioId)
+            );
+        }
+
+        if (!carteraActivoService.obtenerPosiciones(perfilFinanciero, usuarioId).isEmpty()) {
             throw new IllegalStateException(
                     "El servicio de cotizaciones de activos no está configurado"
             );
@@ -99,7 +107,7 @@ public class PatrimonioFinancieroService {
         return calcularInterno(
                 perfilFinanciero,
                 usuarioId,
-                carteraActivoService.obtenerValorizaciones(perfilFinanciero, usuarioId)
+                List.of()
         );
     }
 
