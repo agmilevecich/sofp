@@ -454,3 +454,33 @@ El estado actual queda técnicamente validado con suite completa verde. Antes de
 `GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
 
 Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 28/09/2026
+
+Esta sección supersede los resultados anteriores de este documento cuando exista contradicción.
+
+### Estado Git
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- Comparación GitHub: `feature/swing-shell` está 150 commits por delante de `main` y 0 por detrás.
+- No se realizó merge a `main`.
+
+### Último cambio validado
+La persistencia de cotizaciones de activos quedó integrada de extremo a extremo. El último ajuste, `f40c470` — `fix: hacer transaccional el guardado de cotizaciones` — resolvió el caso de uso real de `InversionesPanel`, que registra la cotización fuera de una transacción explícita.
+
+### Validación final informada por el usuario
+- Pruebas específicas: **41/41**, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.
+- Suite completa: **928/928**, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.
+- Duración de la suite completa: **22:26 min**.
+- Finalización: **28/09/2026 13:17:49 -03:00**.
+
+La suite de **928/928** sustituye como última validación completa conocida a la anterior de 903/903.
+
+### Estado funcional validado
+Quedan cubiertos: cotización histórica persistente por activo y fecha; actualización de la cotización del día; persistencia desde `InversionesPanel`; valorización de posiciones mediante cotizaciones persistidas; conversión multidivisa; consolidación patrimonial; y presentación del patrimonio en `ReportesPanel`.
+
+No se incorporan precios automáticos ni proveedores externos. `MovimientoActivo.precioUnitario` continúa representando el precio histórico de la operación y `CotizacionActivo` el precio explícito de valorización.
+
+### Próximo paso
+La etapa queda cerrada técnicamente. El próximo bloque debe comenzar reconstruyendo el estado desde GitHub antes de modificar código.
