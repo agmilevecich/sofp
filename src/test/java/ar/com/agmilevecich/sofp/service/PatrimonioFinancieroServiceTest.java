@@ -461,7 +461,17 @@ class PatrimonioFinancieroServiceTest {
         entityManager.persist(new CotizacionActivo(activo2, LocalDate.of(2026, 9, 28), new BigDecimal("60")));
         entityManager.getTransaction().commit();
 
-        movimientoService.registrar(\n                cuentaBroker,\n                categoriaBroker,\n                TipoMovimiento.INGRESO,\n                BigDecimal.ONE,\n                LocalDateTime.of(2026, 9, 28, 10, 30),\n                "Saldo para prueba de valorización",\n                usuario.getId()\n        );\n\n        CotizacionActivoService cotizacionService = new CotizacionActivoService(
+        movimientoService.registrar(
+                cuentaBroker,
+                categoriaBroker,
+                TipoMovimiento.INGRESO,
+                BigDecimal.ONE,
+                LocalDateTime.of(2026, 9, 28, 10, 30),
+                "Saldo para prueba de valorización",
+                usuario.getId()
+        );
+
+        CotizacionActivoService cotizacionService = new CotizacionActivoService(
                 new CotizacionActivoRepository(entityManager)
         );
         PatrimonioFinancieroService service = new PatrimonioFinancieroService(
