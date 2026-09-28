@@ -245,7 +245,7 @@ public class PagoTarjetaService {
                     FormaPago.TRANSFERENCIA
             );
             movimientoRepository.guardar(movimientoReversion);
-            pago.marcarRevertido(fechaHoraReversion);
+            pago.marcarRevertido(fechaHoraReversion, movimientoReversion);
             entityManager.flush();
             transaction.commit();
             return pago;
