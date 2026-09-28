@@ -78,7 +78,12 @@ public class ReportesPanel extends JPanel {
         this.patrimonioFinancieroService = patrimonioFinancieroService;
         this.perfilFinanciero = perfilFinanciero;
         this.usuarioId = usuarioId;
-        mostrarRequierePrecios();
+        cargarPatrimonio(
+                patrimonioFinancieroService.calcular(
+                        perfilFinanciero,
+                        usuarioId
+                )
+        );
     }
 
     /**
