@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.persistence;
 
 import ar.com.agmilevecich.sofp.domain.CotizacionActivo;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,12 +23,33 @@ public class CotizacionActivoRepository {
     public CotizacionActivo guardar(CotizacionActivo cotizacion) {
         Objects.requireNonNull(cotizacion, "La cotización es obligatoria");
 
-        if (cotizacion.getId() == null) {
-            entityManager.persist(cotizacion);
-            return cotizacion;
-        }
+        EntityTransaction transaction = entityManager.getTransaction();
+        boolean transaccionPropia = !transaction.isActive();
 
-        return entityManager.merge(cotizacion);
+        try {
+            if (transaccionPropia) {
+                transaction.begin();
+            }
+
+            CotizacionActivo resultado;
+            if (cotizacion.getId() == null) {
+                entityManager.persist(cotizacion);
+                resultado = cotizacion;
+            } else {
+                resultado = entityManager.merge(cotizacion);
+            }
+
+            if (transaccionPropia) {
+                transaction.commit();
+            }
+
+            return resultado;
+        } catch (RuntimeException e) {
+            if (transaccionPropia && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     public Optional<CotizacionActivo> buscarPorActivoYFecha(Long activoId, LocalDate fecha) {
