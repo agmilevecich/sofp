@@ -235,7 +235,7 @@ class ResultadoFinancieroServiceTest {
         var ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         var cuenta = new Cuenta("Caja", TipoCuenta.CAJA_AHORRO, perfil, institucion, ars);
         var cuentaDestino = new Cuenta("Caja destino", TipoCuenta.CAJA_AHORRO, perfil, institucion, ars);
-        var tarjeta = new Cuenta("Visa", TipoCuenta.TARJETA_CREDITO, perfil, institucion, ars, new BigDecimal("500000.00"), 10, 25);
+        var tarjeta = new Cuenta("Visa", perfil, institucion, ars, new BigDecimal("500000.00"), 10, 25);
         var categoria = new Categoria("General", perfil);
         var categoriaTarjeta = new Categoria("Tarjeta", perfil);
 
