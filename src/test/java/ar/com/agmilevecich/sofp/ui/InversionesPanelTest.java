@@ -13,10 +13,12 @@ import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
+import ar.com.agmilevecich.sofp.persistence.CotizacionActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
+import ar.com.agmilevecich.sofp.service.CotizacionActivoService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
@@ -114,6 +116,40 @@ class InversionesPanelTest {
         assertEquals(
                 new BigDecimal("150"),
                 preciosRecibidos.get().get(bono)
+        );
+    }
+
+    @Test
+    void deberiaPersistirElPrecioActualComoCotizacion() {
+        Moneda moneda = crearMonedaPersistida();
+        Bono bono = crearBonoPersistido(moneda);
+        Contexto contexto = crearContexto(moneda);
+
+        registrarCompra(contexto, bono, "100");
+
+        CotizacionActivoService cotizacionService = new CotizacionActivoService(
+                new CotizacionActivoRepository(entityManager)
+        );
+
+        InversionesPanel panel = new InversionesPanel(
+                carteraActivoService,
+                contexto.perfil,
+                contexto.usuario.getId(),
+                null,
+                cotizacionService
+        );
+
+        JTextField campoPrecio = buscarCampoPrecio(panel);
+        assertNotNull(campoPrecio);
+
+        campoPrecio.setText("150");
+        panel.actualizarPrecioSeleccionado();
+
+        assertEquals(
+                new BigDecimal("150"),
+                cotizacionService.obtenerUltimaCotizacion(bono)
+                        .orElseThrow()
+                        .getPrecio()
         );
     }
 
