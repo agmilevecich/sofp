@@ -61,6 +61,10 @@ public class PagoTarjeta extends EntidadAuditable {
     @Column(name = "fecha_reversion")
     private LocalDateTime fechaReversion;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movimiento_reversion_id", unique = true)
+    private Movimiento movimientoReversion;
+
     protected PagoTarjeta() {}
 
     public PagoTarjeta(Obligacion obligacion,
@@ -121,13 +125,19 @@ public class PagoTarjeta extends EntidadAuditable {
     public LocalDateTime getFechaHora() { return fechaHora; }
     public EstadoPagoTarjeta getEstado() { return estado; }
     public LocalDateTime getFechaReversion() { return fechaReversion; }
+    public Movimiento getMovimientoReversion() { return movimientoReversion; }
 
     public void marcarRevertido(LocalDateTime fechaReversion) {
+        marcarRevertido(fechaReversion, null);
+    }
+
+    public void marcarRevertido(LocalDateTime fechaReversion, Movimiento movimientoReversion) {
         if (estado == EstadoPagoTarjeta.REVERSADO) {
             throw new IllegalStateException("El pago ya está revertido");
         }
         this.estado = EstadoPagoTarjeta.REVERSADO;
         this.fechaReversion = Objects.requireNonNull(fechaReversion, "La fecha de reversión es obligatoria");
+        this.movimientoReversion = movimientoReversion;
     }
 
     private BigDecimal validarNoNegativo(BigDecimal importe, String mensaje) {
