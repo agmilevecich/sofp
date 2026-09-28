@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -138,12 +139,12 @@ class CotizacionActivoServiceTest {
     }
 
     private Bono persistirActivo(EntityManager em) {
-        return persistirActivo(em, "GD30-" + System.nanoTime());
+        return persistirActivo(em, "GD30-" + UUID.randomUUID().toString().substring(0, 5));
     }
 
     private Bono persistirActivo(EntityManager em, String simbolo) {
         Moneda moneda = new Moneda(
-                "ARS",
+                "M" + UUID.randomUUID().toString().substring(0, 8),
                 "Peso argentino",
                 2,
                 TipoMoneda.FIAT);
