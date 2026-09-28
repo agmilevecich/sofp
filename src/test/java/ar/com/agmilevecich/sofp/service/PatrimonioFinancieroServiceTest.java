@@ -4,6 +4,7 @@ import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.CotizacionActivo;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
@@ -22,6 +23,7 @@ import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
+import ar.com.agmilevecich.sofp.persistence.CotizacionActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
@@ -411,6 +413,215 @@ class PatrimonioFinancieroServiceTest {
 
         assertEquals(refinanciacion.getSaldoPlan(), resumen.getPasivosTarjetas());
         assertEquals(refinanciacion.getSaldoPlan().negate(), resumen.getPatrimonioNeto());
+    }
+
+    @Test
+    void deberiaCalcularPatrimonioUsandoCotizacionesPersistidas() {
+        Bono activo1 = new Bono("Bono persistente 1", "P1", ars);
+        Bono activo2 = new Bono("Bono persistente 2", "P2", ars);
+        InstitucionFinanciera broker = new InstitucionFinanciera(
+                "Broker cotizaciones",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Cuenta cuentaBroker = new Cuenta(
+                "Cuenta broker persistente",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                broker,
+                ars
+        );
+        Categoria categoriaBroker = new Categoria("Inversiones persistentes", perfil);
+
+        MovimientoActivo compra1 = new MovimientoActivo(
+                activo1, TipoMovimientoActivo.COMPRA, new BigDecimal("10"), new BigDecimal("100")
+        );
+        MovimientoActivo compra2 = new MovimientoActivo(
+                activo2, TipoMovimientoActivo.COMPRA, new BigDecimal("20"), new BigDecimal("50")
+        );
+        OperacionFinanciera operacion1 = new OperacionFinanciera(
+                cuentaBroker, null, new BigDecimal("1000"), TipoOperacionFinanciera.COMPRA
+        );
+        OperacionFinanciera operacion2 = new OperacionFinanciera(
+                cuentaBroker, null, new BigDecimal("1000"), TipoOperacionFinanciera.COMPRA
+        );
+        operacion1.agregarMovimientoActivo(compra1);
+        operacion2.agregarMovimientoActivo(compra2);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(broker);
+        entityManager.persist(activo1);
+        entityManager.persist(activo2);
+        entityManager.persist(cuentaBroker);
+        entityManager.persist(categoriaBroker);
+        entityManager.persist(operacion1);
+        entityManager.persist(compra1);
+        entityManager.persist(operacion2);
+        entityManager.persist(compra2);
+        entityManager.persist(new CotizacionActivo(activo1, LocalDate.of(2026, 9, 28), new BigDecimal("120")));
+        entityManager.persist(new CotizacionActivo(activo2, LocalDate.of(2026, 9, 28), new BigDecimal("60")));
+        entityManager.getTransaction().commit();
+
+        CotizacionActivoService cotizacionService = new CotizacionActivoService(
+                new CotizacionActivoRepository(entityManager)
+        );
+        PatrimonioFinancieroService service = new PatrimonioFinancieroService(
+                new CuentaService(
+                        new CuentaRepository(entityManager),
+                        new MovimientoRepository(entityManager),
+                        entityManager
+                ),
+                new CarteraActivoService(
+                        new MovimientoActivoRepository(entityManager),
+                        cotizacionService
+                ),
+                cotizacionService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+
+        ResumenPatrimonial resumen = service.calcular(perfil, usuario.getId());
+
+        assertEquals(new BigDecimal("2400.00"), resumen.getActivosInversiones());
+    }
+
+    @Test
+    void deberiaRechazarPatrimonioSiFaltaCotizacionPersistida() {
+        Bono activo1 = new Bono("Bono con cotizacion", "QC1", ars);
+        Bono activo2 = new Bono("Bono sin cotizacion", "QC2", ars);
+        InstitucionFinanciera broker = new InstitucionFinanciera(
+                "Broker falta cotizacion",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Cuenta cuentaBroker = new Cuenta(
+                "Cuenta broker sin cotizacion",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                broker,
+                ars
+        );
+        Categoria categoriaBroker = new Categoria("Sin cotizacion persistida", perfil);
+
+        MovimientoActivo compra1 = new MovimientoActivo(
+                activo1, TipoMovimientoActivo.COMPRA, new BigDecimal("10"), BigDecimal.ONE
+        );
+        MovimientoActivo compra2 = new MovimientoActivo(
+                activo2, TipoMovimientoActivo.COMPRA, new BigDecimal("20"), BigDecimal.ONE
+        );
+        OperacionFinanciera operacion1 = new OperacionFinanciera(
+                cuentaBroker, null, BigDecimal.TEN, TipoOperacionFinanciera.COMPRA
+        );
+        OperacionFinanciera operacion2 = new OperacionFinanciera(
+                cuentaBroker, null, BigDecimal.TEN, TipoOperacionFinanciera.COMPRA
+        );
+        operacion1.agregarMovimientoActivo(compra1);
+        operacion2.agregarMovimientoActivo(compra2);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(broker);
+        entityManager.persist(activo1);
+        entityManager.persist(activo2);
+        entityManager.persist(cuentaBroker);
+        entityManager.persist(categoriaBroker);
+        entityManager.persist(operacion1);
+        entityManager.persist(compra1);
+        entityManager.persist(operacion2);
+        entityManager.persist(compra2);
+        entityManager.persist(new CotizacionActivo(activo1, LocalDate.of(2026, 9, 28), new BigDecimal("120")));
+        entityManager.getTransaction().commit();
+
+        CotizacionActivoService cotizacionService = new CotizacionActivoService(
+                new CotizacionActivoRepository(entityManager)
+        );
+        PatrimonioFinancieroService service = new PatrimonioFinancieroService(
+                new CuentaService(
+                        new CuentaRepository(entityManager),
+                        new MovimientoRepository(entityManager),
+                        entityManager
+                ),
+                new CarteraActivoService(
+                        new MovimientoActivoRepository(entityManager),
+                        cotizacionService
+                ),
+                cotizacionService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.calcular(perfil, usuario.getId())
+        );
+    }
+
+    @Test
+    void deberiaConvertirCotizacionesPersistidasAntesDeRedondear() {
+        Moneda usd = new Moneda("USD", "Dólar estadounidense", 2, TipoMoneda.FIAT);
+        InstitucionFinanciera broker = new InstitucionFinanciera(
+                "Broker USD persistente",
+                TipoInstitucionFinanciera.BANCO
+        );
+        Bono activo = new Bono("Bono USD persistente", "QPUSD", usd);
+        Cuenta cuentaBroker = new Cuenta(
+                "Cuenta broker USD persistente",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                broker,
+                usd
+        );
+        Categoria categoriaBroker = new Categoria("Inversiones USD persistentes", perfil);
+        TipoCambio cambio = new TipoCambio(
+                usd,
+                ars,
+                new BigDecimal("100.0049"),
+                LocalDateTime.of(2026, 9, 28, 10, 0),
+                "Cotizacion persistente"
+        );
+        MovimientoActivo compra = new MovimientoActivo(
+                activo, TipoMovimientoActivo.COMPRA, new BigDecimal("2"), BigDecimal.ONE
+        );
+        OperacionFinanciera operacion = new OperacionFinanciera(
+                cuentaBroker, null, BigDecimal.ONE, TipoOperacionFinanciera.COMPRA
+        );
+        operacion.agregarMovimientoActivo(compra);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.persist(broker);
+        entityManager.persist(activo);
+        entityManager.persist(cuentaBroker);
+        entityManager.persist(categoriaBroker);
+        entityManager.persist(cambio);
+        entityManager.persist(operacion);
+        entityManager.persist(compra);
+        entityManager.persist(new CotizacionActivo(
+                activo, LocalDate.of(2026, 9, 28), new BigDecimal("100.00")
+        ));
+        entityManager.getTransaction().commit();
+
+        CotizacionActivoService cotizacionService = new CotizacionActivoService(
+                new CotizacionActivoRepository(entityManager)
+        );
+        PatrimonioFinancieroService service = new PatrimonioFinancieroService(
+                new CuentaService(
+                        new CuentaRepository(entityManager),
+                        new MovimientoRepository(entityManager),
+                        entityManager
+                ),
+                new CarteraActivoService(
+                        new MovimientoActivoRepository(entityManager),
+                        cotizacionService
+                ),
+                cotizacionService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+
+        ResumenPatrimonial resumen = service.calcular(perfil, usuario.getId());
+
+        assertEquals(new BigDecimal("200.00"), resumen.getActivosInversiones());
     }
 
     @Test
