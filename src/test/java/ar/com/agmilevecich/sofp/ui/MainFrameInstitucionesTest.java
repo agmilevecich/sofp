@@ -80,7 +80,7 @@ class MainFrameInstitucionesTest {
         institucionService.registrar(new InstitucionFinanciera(
                 "Banco Test",
                 TipoInstitucionFinanciera.BANCO
-        ));
+        ), usuario.getId());
         entityManager.getTransaction().commit();
 
         AtomicReference<MainFrame> frameRef = new AtomicReference<>();
