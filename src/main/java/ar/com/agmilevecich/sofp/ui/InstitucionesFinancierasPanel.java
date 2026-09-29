@@ -21,10 +21,10 @@ import java.awt.GridLayout;
 import java.util.List;
 import java.util.Objects;
 
-/** Panel para administrar las instituciones financieras disponibles en SOFP. */
 public class InstitucionesFinancierasPanel extends JPanel {
 
     private final InstitucionFinancieraService institucionFinancieraService;
+    private final Long usuarioId;
     private final DefaultListModel<String> modeloInstituciones;
     private final JList<String> listaInstituciones;
     private final JTextField nombreField;
@@ -32,11 +32,18 @@ public class InstitucionesFinancierasPanel extends JPanel {
 
     public InstitucionesFinancierasPanel(
             InstitucionFinancieraService institucionFinancieraService) {
+        this(institucionFinancieraService, null);
+    }
+
+    public InstitucionesFinancierasPanel(
+            InstitucionFinancieraService institucionFinancieraService,
+            Long usuarioId) {
 
         this.institucionFinancieraService = Objects.requireNonNull(
                 institucionFinancieraService,
                 "El InstitucionFinancieraService es obligatorio"
         );
+        this.usuarioId = usuarioId;
 
         modeloInstituciones = new DefaultListModel<>();
         listaInstituciones = new JList<>(modeloInstituciones);
@@ -91,20 +98,21 @@ public class InstitucionesFinancierasPanel extends JPanel {
 
     void registrarInstitucion() {
         String nombre = nombreField.getText().trim();
-        if (nombre.isEmpty()) {
-            return;
-        }
+        if (nombre.isEmpty()) return;
 
         TipoInstitucionFinanciera tipo =
                 (TipoInstitucionFinanciera) tipoComboBox.getSelectedItem();
 
-        if (tipo == null) {
-            return;
-        }
+        if (tipo == null) return;
 
-        institucionFinancieraService.registrar(
-                new InstitucionFinanciera(nombre, tipo)
-        );
+        InstitucionFinanciera institucion =
+                new InstitucionFinanciera(nombre, tipo);
+
+        if (usuarioId != null) {
+            institucionFinancieraService.registrar(institucion, usuarioId);
+        } else {
+            institucionFinancieraService.registrar(institucion);
+        }
 
         nombreField.setText("");
         tipoComboBox.setSelectedItem(null);
@@ -112,7 +120,11 @@ public class InstitucionesFinancierasPanel extends JPanel {
     }
 
     void actualizarInstituciones() {
-        cargarInstituciones(institucionFinancieraService.listarTodas());
+        List<InstitucionFinanciera> instituciones =
+                usuarioId != null
+                        ? institucionFinancieraService.listarPorUsuario(usuarioId)
+                        : institucionFinancieraService.listarTodas();
+        cargarInstituciones(instituciones);
     }
 
     private <T> void configurarComboBox(JComboBox<T> comboBox) {
@@ -141,15 +153,10 @@ public class InstitucionesFinancierasPanel extends JPanel {
 
     private void cargarInstituciones(List<InstitucionFinanciera> instituciones) {
         modeloInstituciones.clear();
-
         for (InstitucionFinanciera institucion : instituciones) {
             String estado = institucion.isActiva() ? "Activa" : "Inactiva";
             modeloInstituciones.addElement(
-                    institucion.getNombre()
-                            + " — "
-                            + institucion.getTipo()
-                            + " — "
-                            + estado
+                    institucion.getNombre() + " — " + institucion.getTipo() + " — " + estado
             );
         }
     }
