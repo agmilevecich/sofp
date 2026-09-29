@@ -1,6 +1,7 @@
 package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.config.DatosInicialesDesarrollo;
+import ar.com.agmilevecich.sofp.config.DatosInicialesSistema;
 import ar.com.agmilevecich.sofp.config.JpaManager;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Usuario;
@@ -60,6 +61,8 @@ public class Main {
         PerfilFinancieroService perfilFinancieroService = new PerfilFinancieroService(
                 new PerfilFinancieroRepository(entityManager)
         );
+
+        DatosInicialesSistema.crearSiNoExisten(entityManager);
 
         if (Boolean.getBoolean("sofp.dev")) {
             DatosInicialesDesarrollo.crearSiNoExisten(entityManager);
