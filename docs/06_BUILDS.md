@@ -457,3 +457,20 @@ La validación específica inmediatamente anterior fue de **41/41** sobre invers
 
 ### Cierre
 La etapa queda técnicamente validada. No se modifica ni mergea `main`. Antes del próximo bloque funcional se debe reconstruir nuevamente el estado desde GitHub y revisar código, repositorios, tests y reglas de negocio relacionadas.
+
+
+
+## ACTUALIZACIÓN DE BUILD — 29/09/2026
+
+### Estado actual
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b` — `fix: completar ultima delegacion de constructores en MainFrame`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`; comparación **176/0**.
+
+### Validación
+- Compilación: `mvn -q -DskipTests compile` → **BUILD SUCCESS**.
+- Suite completa: `mvn test` → **936/936**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización: **29/09/2026 10:42:40 -03:00**.
+- Duración: **22:44 min**.
+
+Este es el último build completo conocido y reemplaza como referencia operativa los resultados históricos anteriores.
