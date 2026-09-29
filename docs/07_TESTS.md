@@ -497,3 +497,13 @@ La etapa queda cerrada técnicamente. El próximo bloque debe comenzar reconstru
 
 ### Regla de interpretación
 936/936 es la última suite completa conocida y valida el HEAD actual informado. Los resultados históricos anteriores no deben utilizarse para describir el estado actual.
+
+
+## ACTUALIZACIÓN DE VALIDACIÓN — 29/09/2026
+
+- Refinanciación (`RefinanciacionTest` + `RefinanciacionServiceTest`): **32/32**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Suite completa `mvn test`: **936/936**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización: **29/09/2026 10:42:40 -03:00**.
+- Duración: **22:44 min**.
+
+936/936 es la última validación completa conocida del estado actual.
