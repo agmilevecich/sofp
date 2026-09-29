@@ -73,9 +73,9 @@ class RegistrarTarjetaCreditoPanelTest {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = crearPerfil(usuario);
         InstitucionFinanciera activa = new InstitucionFinanciera(
-                "Banco Activo", TipoInstitucionFinanciera.BANCO);
+                "Banco Activo", TipoInstitucionFinanciera.BANCO, usuario);
         InstitucionFinanciera inactiva = new InstitucionFinanciera(
-                "Banco Inactivo", TipoInstitucionFinanciera.BANCO);
+                "Banco Inactivo", TipoInstitucionFinanciera.BANCO, usuario);
         inactiva.desactivar();
         Moneda ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         persistir(usuario, perfil, activa, inactiva, ars);
@@ -96,7 +96,7 @@ class RegistrarTarjetaCreditoPanelTest {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = crearPerfil(usuario);
         InstitucionFinanciera institucion = new InstitucionFinanciera(
-                "Banco Test", TipoInstitucionFinanciera.BANCO);
+                "Banco Test", TipoInstitucionFinanciera.BANCO, usuario);
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         persistir(usuario, perfil, institucion, moneda);
 
@@ -135,7 +135,7 @@ class RegistrarTarjetaCreditoPanelTest {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = crearPerfil(usuario);
         InstitucionFinanciera institucion = new InstitucionFinanciera(
-                "Banco Test", TipoInstitucionFinanciera.BANCO);
+                "Banco Test", TipoInstitucionFinanciera.BANCO, usuario);
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         persistir(usuario, perfil, institucion, moneda);
 
