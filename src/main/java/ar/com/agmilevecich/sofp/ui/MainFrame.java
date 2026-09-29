@@ -33,6 +33,7 @@ import java.util.Objects;
 public class MainFrame extends JFrame {
     private static final String INICIO = "inicio";
     private static final String CUENTAS = "cuentas";
+    private static final String INSTITUCIONES = "instituciones";
     private static final String CATEGORIAS = "categorias";
     private static final String INGRESOS = "ingresos";
     private static final String GASTOS = "gastos";
@@ -46,6 +47,7 @@ public class MainFrame extends JFrame {
     private final CardLayout cardLayout;
     private final JPanel areaCentral;
     private final CuentasPanel cuentasPanel;
+    private final InstitucionesFinancierasPanel institucionesFinancierasPanel;
     private final GastosPanel gastosPanel;
     private final IngresosPanel ingresosPanel;
     private final TarjetasCreditoPanel tarjetasPanel;
@@ -112,7 +114,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, null, null, null, null, null, null, null, null);
+                obligacionService, null, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -125,7 +127,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, null, null, null, null, null, null, null);
+                obligacionService, operacionFinancieraService, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -139,7 +141,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, pagoTarjetaService, null, null, null, null, null, null);
+                obligacionService, operacionFinancieraService, pagoTarjetaService, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -247,6 +249,7 @@ public class MainFrame extends JFrame {
                 throw new IllegalArgumentException("El CuentaService es obligatorio cuando se informa el contexto de usuario");
             }
             this.cuentasPanel = new CuentasPanel();
+            this.institucionesFinancierasPanel = null;
             this.gastosPanel = new GastosPanel();
             this.ingresosPanel = new IngresosPanel();
             this.tarjetasPanel = new TarjetasCreditoPanel();
@@ -267,6 +270,9 @@ public class MainFrame extends JFrame {
             this.carteraActivoService = carteraActivoService;
             this.perfilFinanciero = perfilFinanciero;
             this.usuarioId = Objects.requireNonNull(usuarioId, "usuarioId");
+            this.institucionesFinancierasPanel = institucionFinancieraService != null
+                    ? new InstitucionesFinancierasPanel(institucionFinancieraService)
+                    : null;
 
             if (institucionFinancieraService == null && monedaService == null && perfilFinanciero == null) {
                 this.cuentasPanel = new CuentasPanel(cuentaService, perfilFinancieroId, usuarioId);
@@ -302,6 +308,8 @@ public class MainFrame extends JFrame {
         areaCentral.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         areaCentral.add(new InicioPanel(), INICIO);
         areaCentral.add(cuentasPanel, CUENTAS);
+        areaCentral.add(institucionesFinancierasPanel != null
+                ? institucionesFinancierasPanel : new JPanel(), INSTITUCIONES);
         areaCentral.add(categoriaService != null && perfilFinanciero != null && usuarioId != null
                 ? new CategoriasPanel(categoriaService, perfilFinanciero, usuarioId) : new CategoriasPanel(), CATEGORIAS);
         areaCentral.add(ingresosPanel, INGRESOS);
