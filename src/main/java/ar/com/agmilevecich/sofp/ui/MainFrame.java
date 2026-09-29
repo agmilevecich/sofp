@@ -270,7 +270,7 @@ public class MainFrame extends JFrame {
             this.perfilFinanciero = perfilFinanciero;
             this.usuarioId = Objects.requireNonNull(usuarioId, "usuarioId");
             this.institucionesFinancierasPanel = institucionFinancieraService != null
-                    ? new InstitucionesFinancierasPanel(institucionFinancieraService)
+                    ? new InstitucionesFinancierasPanel(institucionFinancieraService, usuarioId)
                     : null;
 
             if (institucionFinancieraService == null && monedaService == null && perfilFinanciero == null) {
