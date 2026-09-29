@@ -39,7 +39,7 @@ class DatosInicialesSistemaTest {
         Moneda usd = monedaRepository.buscarPorCodigo("USD").orElseThrow();
 
         assertEquals("Peso argentino", ars.getNombre());
-        assertEquals(2, ars.getDecimales());
+        assertEquals(2, ars.getCantidadDecimales());
         assertEquals("Dólar estadounidense", usd.getNombre());
         assertEquals(2, usd.getDecimales());
     }
