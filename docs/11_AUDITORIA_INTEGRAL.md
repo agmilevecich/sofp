@@ -732,3 +732,20 @@ Se estabilizó la hora de los gastos registrados desde `GastosPanel`: la fecha s
 
 ### Continuidad
 El resultado **901/901** es la última validación completa conocida y reemplaza como referencia operativa los resultados históricos anteriores. Los próximos cambios deben partir del código y tests actuales, reconstruyendo el estado desde GitHub antes de modificar cualquier funcionalidad. No modificar ni mergear `main` automáticamente.
+
+
+
+## ACTUALIZACIÓN DE AUDITORÍA — 29/09/2026
+
+### Estado reconstruido desde GitHub
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b` — `fix: completar ultima delegacion de constructores en MainFrame`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación: **176 ahead / 0 behind**.
+- No se modificó `main`.
+
+### Validación
+La corrección de `MainFrame` quedó compilada y validada mediante tests específicos de refinanciación y suite completa. La última suite completa informada por el usuario es **936/936**, sin failures, errors ni skipped.
+
+### Conclusión
+No hay un fallo funcional conocido en el HEAD actual. La continuidad debe partir del código actual y no de los estados históricos documentados. El próximo cambio debe ser mínimo, con cobertura específica y suite completa cuando corresponda.
