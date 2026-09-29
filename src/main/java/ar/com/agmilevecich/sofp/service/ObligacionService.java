@@ -128,7 +128,22 @@ public class ObligacionService {
 
     /* API interna de compatibilidad para coordinación y tests existentes. */
     List<Obligacion> cerrarCiclo(Long cuentaId, LocalDate fechaCierre) {
-        return cerrarCicloEnTransaccion(cuentaId, fechaCierre);
+        if (entityManager.getTransaction().isActive()) {
+            return cerrarCicloEnTransaccion(cuentaId, fechaCierre);
+        }
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            List<Obligacion> obligaciones = cerrarCicloEnTransaccion(cuentaId, fechaCierre);
+            transaction.commit();
+            return obligaciones;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     private List<Obligacion> cerrarCicloEnTransaccion(Long cuentaId, LocalDate fechaCierre) {
