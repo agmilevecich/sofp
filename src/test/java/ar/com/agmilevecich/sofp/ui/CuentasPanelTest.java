@@ -76,7 +76,8 @@ class CuentasPanelTest {
 
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Test",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda(
                 "ARS",
@@ -142,7 +143,8 @@ class CuentasPanelTest {
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Test",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda(
                 "ARS",
