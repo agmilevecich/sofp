@@ -8,6 +8,8 @@ import ar.com.agmilevecich.sofp.domain.CotizacionActivo;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Movimiento;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
@@ -26,6 +28,7 @@ import ar.com.agmilevecich.sofp.service.CotizacionActivoService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
+import ar.com.agmilevecich.sofp.service.ResultadoFinancieroService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -202,6 +205,45 @@ class ReportesPanelTest {
         assertNotNull(lista);
         assertEquals("  Inversiones: 15000 ARS", lista.getModel().getElementAt(3));
         assertEquals("  Patrimonio neto: 2500 ARS", lista.getModel().getElementAt(9));
+    }
+
+    @Test
+    void deberiaMostrarResultadoFinancieroDelPeriodo() {
+        Moneda moneda = crearMonedaPersistida();
+        Contexto contexto = crearContexto(moneda);
+        entityManager.getTransaction().begin();
+        entityManager.persist(new Movimiento(
+                contexto.cuenta, contexto.categoria, TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0), "Ingreso"
+        ));
+        entityManager.persist(new Movimiento(
+                contexto.cuenta, contexto.categoria, TipoMovimiento.EGRESO,
+                new BigDecimal("35000.00"),
+                LocalDateTime.of(2026, 9, 11, 10, 0), "Gasto"
+        ));
+        entityManager.getTransaction().commit();
+
+        ReportesPanel panel = new ReportesPanel(
+                new ResultadoFinancieroService(
+                        entityManager,
+                        new MovimientoRepository(entityManager)
+                ),
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30)
+        );
+
+        JList<?> lista = buscarLista(panel);
+        assertNotNull(lista);
+        assertEquals("Período: 2026-09-01 a 2026-09-30", lista.getModel().getElementAt(0));
+        assertEquals("INGRESOS", lista.getModel().getElementAt(1));
+        assertEquals("  100000.00 ARS", lista.getModel().getElementAt(2));
+        assertEquals("EGRESOS", lista.getModel().getElementAt(3));
+        assertEquals("  35000.00 ARS", lista.getModel().getElementAt(4));
+        assertEquals("RESULTADO", lista.getModel().getElementAt(5));
+        assertEquals("  65000.00 ARS", lista.getModel().getElementAt(6));
     }
 
     @Test
