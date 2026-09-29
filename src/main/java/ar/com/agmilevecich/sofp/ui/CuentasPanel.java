@@ -33,6 +33,8 @@ public class CuentasPanel extends JPanel {
     private final PerfilFinanciero perfilFinanciero;
     private final Long perfilFinancieroId;
     private final Long usuarioId;
+    private final RegistrarCuentaPanel registrarCuentaPanel;
+    private final RegistrarTarjetaCreditoPanel registrarTarjetaCreditoPanel;
 
     /** Constructor del shell sin contexto de usuario. */
     public CuentasPanel() {
@@ -45,6 +47,8 @@ public class CuentasPanel extends JPanel {
         perfilFinanciero = null;
         perfilFinancieroId = null;
         usuarioId = null;
+        registrarCuentaPanel = null;
+        registrarTarjetaCreditoPanel = null;
         setLayout(new BorderLayout());
         add(new JLabel("Cuentas", SwingConstants.CENTER), BorderLayout.CENTER);
     }
@@ -115,22 +119,24 @@ public class CuentasPanel extends JPanel {
 
         if (institucionFinancieraService != null) {
             JTabbedPane pestañasAlta = new JTabbedPane();
-            pestañasAlta.addTab("Cuenta", new RegistrarCuentaPanel(
+            registrarCuentaPanel = new RegistrarCuentaPanel(
                     cuentaService,
                     institucionFinancieraService,
                     monedaService,
                     perfilFinanciero,
                     usuarioId,
                     this::actualizarCuentas
-            ));
-            pestañasAlta.addTab("Tarjeta de crédito", new RegistrarTarjetaCreditoPanel(
+            );
+            registrarTarjetaCreditoPanel = new RegistrarTarjetaCreditoPanel(
                     cuentaService,
                     institucionFinancieraService,
                     monedaService,
                     perfilFinanciero,
                     usuarioId,
                     this::actualizarCuentas
-            ));
+            );
+            pestañasAlta.addTab("Cuenta", registrarCuentaPanel);
+            pestañasAlta.addTab("Tarjeta de crédito", registrarTarjetaCreditoPanel);
 
             JPanel panelFormulario = new JPanel(new BorderLayout());
             panelFormulario.setBorder(BorderFactory.createTitledBorder(
@@ -153,6 +159,17 @@ public class CuentasPanel extends JPanel {
             return null;
         }
         return cuentas.get(indice);
+    }
+
+    /** Actualiza las instituciones disponibles para registrar cuentas y tarjetas. */
+    void actualizarInstituciones() {
+        if (institucionFinancieraService == null) {
+            return;
+        }
+        List<ar.com.agmilevecich.sofp.domain.InstitucionFinanciera> instituciones =
+                institucionFinancieraService.listarPorUsuario(usuarioId);
+        registrarCuentaPanel.actualizarInstituciones(instituciones);
+        registrarTarjetaCreditoPanel.actualizarInstituciones(instituciones);
     }
 
     /** Actualiza el listado con las cuentas autorizadas del perfil actual. */
