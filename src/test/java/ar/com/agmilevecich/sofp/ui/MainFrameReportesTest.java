@@ -6,7 +6,9 @@ import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
@@ -106,10 +108,10 @@ class MainFrameReportesTest {
         Contexto contexto = crearContexto(moneda);
 
         entityManager.getTransaction().begin();
-        entityManager.persist(new ar.com.agmilevecich.sofp.domain.Movimiento(
+        entityManager.persist(new Movimiento(
                 contexto.cuenta,
                 contexto.categoria,
-                ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO,
+                TipoMovimiento.INGRESO,
                 new BigDecimal("100000.00"),
                 LocalDateTime.of(2026, 9, 10, 10, 0),
                 "Ingreso"
@@ -117,7 +119,7 @@ class MainFrameReportesTest {
         entityManager.persist(new ar.com.agmilevecich.sofp.domain.Movimiento(
                 contexto.cuenta,
                 contexto.categoria,
-                ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO,
+                TipoMovimiento.EGRESO,
                 new BigDecimal("35000.00"),
                 LocalDateTime.of(2026, 9, 11, 10, 0),
                 "Gasto"
