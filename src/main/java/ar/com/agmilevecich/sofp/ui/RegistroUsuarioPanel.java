@@ -96,13 +96,22 @@ public class RegistroUsuarioPanel extends JPanel {
 
     private void registrarConDialogo() {
         try {
-            registrar();
+            Usuario usuario = usuarioService.registrar(
+                    nombreField.getText(),
+                    apellidoField.getText(),
+                    emailField.getText(),
+                    new String(passwordField.getPassword()),
+                    perfilField.getText()
+            );
             JOptionPane.showMessageDialog(
                     this,
                     "Usuario registrado correctamente.",
                     "SOFP",
                     JOptionPane.INFORMATION_MESSAGE
             );
+            if (onRegistrado != null) {
+                onRegistrado.accept(usuario);
+            }
         } catch (IllegalArgumentException | IllegalStateException exception) {
             JOptionPane.showMessageDialog(
                     this,
