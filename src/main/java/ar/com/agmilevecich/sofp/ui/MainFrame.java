@@ -393,6 +393,9 @@ public class MainFrame extends JFrame {
             mostrarMovimientos();
             return;
         }
+        if (CUENTAS.equals(destino)) {
+            cuentasPanel.actualizarInstituciones();
+        }
         if (INGRESOS.equals(destino)) {
             ingresosPanel.actualizarCuentasYCategorias();
         }
