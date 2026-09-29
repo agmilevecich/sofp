@@ -28,6 +28,7 @@ import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
 import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
 import ar.com.agmilevecich.sofp.service.PerfilFinancieroService;
+import ar.com.agmilevecich.sofp.service.ResultadoFinancieroService;
 import ar.com.agmilevecich.sofp.service.TipoCambioService;
 import ar.com.agmilevecich.sofp.service.UsuarioService;
 import jakarta.persistence.EntityManager;
@@ -169,6 +170,14 @@ public class Main {
                 monedaRepository
         );
 
+        ResultadoFinancieroService resultadoFinancieroService = new ResultadoFinancieroService(
+                entityManager,
+                movimientoRepository
+        );
+
+        java.time.LocalDate fechaHasta = java.time.LocalDate.now();
+        java.time.LocalDate fechaDesde = fechaHasta.withDayOfMonth(1);
+
         MainFrame mainFrame = new MainFrame(
                 cuentaService,
                 movimientoService,
@@ -183,7 +192,10 @@ public class Main {
                 pagoTarjetaService,
                 tipoCambioService,
                 patrimonioFinancieroService,
-                cotizacionActivoService
+                cotizacionActivoService,
+                resultadoFinancieroService,
+                fechaDesde,
+                fechaHasta
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
