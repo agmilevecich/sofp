@@ -639,3 +639,20 @@ El estado actual queda técnicamente validado con suite completa verde. Antes de
 `GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
 
 Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
+
+
+
+## ACTUALIZACIÓN DE PENDIENTES — 29/09/2026
+
+### Estado validado
+La suite completa actual es **936/936** verde sobre `feature/swing-shell`; no existe un fallo funcional conocido pendiente de esta etapa.
+
+### Pendientes que permanecen como evolución
+- Definición explícita de reglas financieras avanzadas de refinanciación que todavía no tengan semántica en el modelo, especialmente interés/amortización periódica.
+- Reglas explícitas para casos financieros multidivisa que requieran conversión adicional.
+- Calendario bancario/feriados si se necesita distinguirlos de fines de semana.
+- Abstracción `Clock` para determinismo temporal donde corresponda.
+- Versionado/migraciones formales de esquema.
+- Evolución de UI avanzada de financiación/refinanciación y otros flujos donde el modelo ya lo soporte.
+
+Estos puntos no deben implementarse por inferencia: primero se verifica el código actual y se define la regla de negocio cuando sea material.
