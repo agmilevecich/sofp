@@ -4,8 +4,10 @@ import ar.com.agmilevecich.sofp.domain.Activo;
 import ar.com.agmilevecich.sofp.domain.DetalleMovimientoCarteraActivo;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.ResumenPatrimonial;
+import ar.com.agmilevecich.sofp.domain.ResumenResultadoFinanciero;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
+import ar.com.agmilevecich.sofp.service.ResultadoFinancieroService;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -15,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,6 +56,35 @@ public class ReportesPanel extends JPanel {
         add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
 
         cargarMovimientos(carteraActivoService.obtenerMovimientos(perfilFinanciero, usuarioId));
+    }
+
+    /**
+     * Constructor para mostrar el resultado financiero de un período del perfil.
+     * El cálculo y las reglas de clasificación permanecen en ResultadoFinancieroService.
+     */
+    public ReportesPanel(ResultadoFinancieroService resultadoFinancieroService,
+                         PerfilFinanciero perfilFinanciero,
+                         Long usuarioId,
+                         LocalDate fechaDesde,
+                         LocalDate fechaHasta) {
+        Objects.requireNonNull(resultadoFinancieroService, "El ResultadoFinancieroService es obligatorio");
+        Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Objects.requireNonNull(fechaDesde, "La fecha desde es obligatoria");
+        Objects.requireNonNull(fechaHasta, "La fecha hasta es obligatoria");
+
+        modeloReportes = new DefaultListModel<>();
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        add(new JLabel("Resultado financiero"), BorderLayout.NORTH);
+        add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
+
+        cargarResultado(resultadoFinancieroService.calcular(
+                perfilFinanciero,
+                usuarioId,
+                fechaDesde,
+                fechaHasta
+        ));
     }
 
     /**
@@ -153,6 +185,23 @@ public class ReportesPanel extends JPanel {
         modeloReportes.addElement("  Pasivos totales: " + resumen.getPasivosTotales() + " " + moneda);
         modeloReportes.addElement("PATRIMONIO NETO");
         modeloReportes.addElement("  Patrimonio neto: " + resumen.getPatrimonioNeto() + " " + moneda);
+    }
+
+    private void cargarResultado(ResumenResultadoFinanciero resumen) {
+        modeloReportes.addElement("Período: " + resumen.getFechaDesde() + " a " + resumen.getFechaHasta());
+        modeloReportes.addElement("INGRESOS");
+        resumen.getIngresos().forEach((moneda, importe) ->
+                modeloReportes.addElement("  " + importe + " " + moneda.getCodigo()));
+        modeloReportes.addElement("EGRESOS");
+        resumen.getEgresos().forEach((moneda, importe) ->
+                modeloReportes.addElement("  " + importe + " " + moneda.getCodigo()));
+        modeloReportes.addElement("RESULTADO");
+        java.util.LinkedHashSet<ar.com.agmilevecich.sofp.domain.Moneda> monedas =
+                new java.util.LinkedHashSet<>();
+        monedas.addAll(resumen.getIngresos().keySet());
+        monedas.addAll(resumen.getEgresos().keySet());
+        monedas.forEach(moneda ->
+                modeloReportes.addElement("  " + resumen.getResultado(moneda) + " " + moneda.getCodigo()));
     }
 
     private void cargarMovimientos(List<DetalleMovimientoCarteraActivo> movimientos) {
