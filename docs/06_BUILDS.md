@@ -487,3 +487,15 @@ Este es el último build completo conocido y reemplaza como referencia operativa
 - Duración: **22:44 min**.
 
 Este es el último build completo conocido.
+
+
+## ACTUALIZACIÓN DE BUILD — 29/09/2026 13:09 -03:00
+
+- Rama: `feature/swing-shell`.
+- HEAD: `f35075d15ddffe88e8953a257d459a38de7156f7`.
+- Comparación con `main`: **209 ahead / 0 behind**.
+- Suite completa: `mvn test` → **940/940**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización: **29/09/2026 13:09:12 -03:00**.
+- Duración: **26:49 min**.
+
+Esta es la última suite completa informada por el usuario y reemplaza como referencia operativa a 936/936 y resultados anteriores.
