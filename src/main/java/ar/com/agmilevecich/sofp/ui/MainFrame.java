@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Objects;
 
-/** Ventana principal y shell de navegación de SOFP. */
 public class MainFrame extends JFrame {
     private static final String INICIO = "inicio";
     private static final String CUENTAS = "cuentas";
@@ -114,7 +113,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, null, null, null, null, null, null, null);
+                obligacionService, null, null, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -127,7 +126,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, null, null, null, null, null, null);
+                obligacionService, operacionFinancieraService, null, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -141,7 +140,7 @@ public class MainFrame extends JFrame {
         this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
                 monedaService, carteraActivoService, perfilFinanciero,
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
-                obligacionService, operacionFinancieraService, pagoTarjetaService, null, null, null, null, null);
+                obligacionService, operacionFinancieraService, pagoTarjetaService, null, null, null, null, null, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -379,9 +378,6 @@ public class MainFrame extends JFrame {
         add(areaCentral, BorderLayout.CENTER);
     }
 
-    /**
-     * Actualiza el reporte patrimonial con precios explícitos provistos por la capa de aplicación.
-     */
     public void actualizarPreciosActivos(Map<Activo, BigDecimal> preciosActuales) {
         Objects.requireNonNull(preciosActuales, "Los precios actuales son obligatorios");
         if (patrimonioFinancieroService == null || reportesPanel == null) {
