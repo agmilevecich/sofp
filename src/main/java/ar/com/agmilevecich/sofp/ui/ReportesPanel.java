@@ -27,8 +27,11 @@ public class ReportesPanel extends JPanel {
 
     private final DefaultListModel<String> modeloReportes;
     private PatrimonioFinancieroService patrimonioFinancieroService;
+    private ResultadoFinancieroService resultadoFinancieroService;
     private PerfilFinanciero perfilFinanciero;
     private Long usuarioId;
+    private LocalDate fechaDesde;
+    private LocalDate fechaHasta;
 
     /** Constructor del shell sin contexto de usuario. */
     public ReportesPanel() {
@@ -88,6 +91,42 @@ public class ReportesPanel extends JPanel {
     }
 
     /**
+     * Constructor para mostrar patrimonio y resultado financiero del perfil en un único reporte.
+     * El período del resultado se recibe explícitamente desde la capa de aplicación.
+     */
+    public ReportesPanel(PatrimonioFinancieroService patrimonioFinancieroService,
+                         ResultadoFinancieroService resultadoFinancieroService,
+                         PerfilFinanciero perfilFinanciero,
+                         Long usuarioId,
+                         LocalDate fechaDesde,
+                         LocalDate fechaHasta) {
+        Objects.requireNonNull(patrimonioFinancieroService, "El PatrimonioFinancieroService es obligatorio");
+        Objects.requireNonNull(resultadoFinancieroService, "El ResultadoFinancieroService es obligatorio");
+        Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Objects.requireNonNull(fechaDesde, "La fecha desde es obligatoria");
+        Objects.requireNonNull(fechaHasta, "La fecha hasta es obligatoria");
+
+        modeloReportes = new DefaultListModel<>();
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        add(new JLabel("Reportes financieros consolidados"), BorderLayout.NORTH);
+        add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
+
+        this.patrimonioFinancieroService = patrimonioFinancieroService;
+        this.resultadoFinancieroService = resultadoFinancieroService;
+        this.perfilFinanciero = perfilFinanciero;
+        this.usuarioId = usuarioId;
+        this.fechaDesde = fechaDesde;
+        this.fechaHasta = fechaHasta;
+
+        cargarReporteConsolidado(
+                patrimonioFinancieroService.calcular(perfilFinanciero, usuarioId),
+                resultadoFinancieroService.calcular(perfilFinanciero, usuarioId, fechaDesde, fechaHasta)
+        );
+    }
+
+    /**
      * Constructor para mostrar el patrimonio financiero consolidado del perfil.
      * La valorización y las reglas patrimoniales permanecen en PatrimonioFinancieroService.
      */
@@ -129,11 +168,24 @@ public class ReportesPanel extends JPanel {
             throw new IllegalStateException("El panel no tiene contexto patrimonial");
         }
         modeloReportes.clear();
-        cargarPatrimonio(patrimonioFinancieroService.calcular(
+        ResumenPatrimonial resumenPatrimonial = patrimonioFinancieroService.calcular(
                 perfilFinanciero,
                 usuarioId,
                 preciosActuales
-        ));
+        );
+        if (resultadoFinancieroService != null && fechaDesde != null && fechaHasta != null) {
+            cargarReporteConsolidado(
+                    resumenPatrimonial,
+                    resultadoFinancieroService.calcular(
+                            perfilFinanciero,
+                            usuarioId,
+                            fechaDesde,
+                            fechaHasta
+                    )
+            );
+        } else {
+            cargarPatrimonio(resumenPatrimonial);
+        }
     }
 
     private void mostrarRequierePrecios() {
@@ -185,6 +237,13 @@ public class ReportesPanel extends JPanel {
         modeloReportes.addElement("  Pasivos totales: " + resumen.getPasivosTotales() + " " + moneda);
         modeloReportes.addElement("PATRIMONIO NETO");
         modeloReportes.addElement("  Patrimonio neto: " + resumen.getPatrimonioNeto() + " " + moneda);
+    }
+
+    private void cargarReporteConsolidado(ResumenPatrimonial patrimonio,
+                                               ResumenResultadoFinanciero resultado) {
+        cargarPatrimonio(patrimonio);
+        modeloReportes.addElement("RESULTADO FINANCIERO");
+        cargarResultado(resultado);
     }
 
     private void cargarResultado(ResumenResultadoFinanciero resumen) {
