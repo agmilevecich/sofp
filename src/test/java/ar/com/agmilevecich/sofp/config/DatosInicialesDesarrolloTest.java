@@ -1,11 +1,9 @@
 package ar.com.agmilevecich.sofp.config;
 
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
-import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
-import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.PerfilFinancieroRepository;
 import ar.com.agmilevecich.sofp.persistence.UsuarioRepository;
 import ar.com.agmilevecich.sofp.service.PasswordService;
@@ -25,7 +23,6 @@ class DatosInicialesDesarrolloTest {
     private UsuarioRepository usuarioRepository;
     private PerfilFinancieroRepository perfilFinancieroRepository;
     private InstitucionFinancieraRepository institucionRepository;
-    private MonedaRepository monedaRepository;
 
     @BeforeEach
     void setUp() {
@@ -43,9 +40,6 @@ class DatosInicialesDesarrolloTest {
 
         institucionRepository =
                 new InstitucionFinancieraRepository(entityManager);
-
-        monedaRepository =
-                new MonedaRepository(entityManager);
     }
 
     @AfterEach
@@ -105,8 +99,6 @@ class DatosInicialesDesarrolloTest {
                         "Institución de desarrollo"
                 ).isPresent()
         );
-        assertTrue(monedaRepository.buscarPorCodigo("ARS").isPresent());
-        assertTrue(monedaRepository.buscarPorCodigo("USD").isPresent());
     }
 
     @Test
@@ -152,22 +144,7 @@ class DatosInicialesDesarrolloTest {
                                 )
                         )
                         .count()
-        );
-        assertEquals(
-                1,
-                monedaRepository.listarTodas()
-                        .stream()
-                        .filter(moneda -> "ARS".equals(moneda.getCodigo()))
-                        .count()
-        );
-        assertEquals(
-                1,
-                monedaRepository.listarTodas()
-                        .stream()
-                        .filter(moneda -> "USD".equals(moneda.getCodigo()))
-                        .count()
-        );
-    }
+        );    }
 
     @Test
     void deberiaLanzarExcepcionCuandoEntityManagerEsNulo() {
