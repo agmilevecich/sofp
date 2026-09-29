@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.service;
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.UsuarioRepository;
+import ar.com.agmilevecich.sofp.service.PasswordService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
