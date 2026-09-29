@@ -33,9 +33,11 @@ import ar.com.agmilevecich.sofp.service.TipoCambioService;
 import ar.com.agmilevecich.sofp.service.UsuarioService;
 import jakarta.persistence.EntityManager;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -51,7 +53,8 @@ public class Main {
         EntityManager entityManager = JpaManager.createEntityManager();
 
         UsuarioService usuarioService = new UsuarioService(
-                new UsuarioRepository(entityManager)
+                new UsuarioRepository(entityManager),
+                entityManager
         );
 
         PerfilFinancieroService perfilFinancieroService = new PerfilFinancieroService(
@@ -70,7 +73,8 @@ public class Main {
                         entityManager,
                         usuario,
                         perfilFinancieroService
-                )
+                ),
+                servicio -> abrirRegistroUsuario(loginFrame, servicio)
         );
 
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,6 +82,31 @@ public class Main {
         loginFrame.pack();
         loginFrame.setLocationRelativeTo(null);
         loginFrame.setVisible(true);
+    }
+
+    private static void abrirRegistroUsuario(
+            JFrame loginFrame,
+            UsuarioService usuarioService) {
+
+        JDialog registroDialog = new JDialog(
+                loginFrame,
+                "SOFP - Registrar usuario",
+                true
+        );
+
+        RegistroUsuarioPanel panel = new RegistroUsuarioPanel(
+                usuarioService,
+                usuario -> {
+                    registroDialog.dispose();
+                    loginFrame.toFront();
+                }
+        );
+
+        registroDialog.setContentPane(panel);
+        registroDialog.pack();
+        registroDialog.setLocationRelativeTo(loginFrame);
+        registroDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        registroDialog.setVisible(true);
     }
 
     private static void abrirAplicacion(
