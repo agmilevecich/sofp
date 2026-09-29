@@ -33,8 +33,8 @@ public class CuentasPanel extends JPanel {
     private final PerfilFinanciero perfilFinanciero;
     private final Long perfilFinancieroId;
     private final Long usuarioId;
-    private final RegistrarCuentaPanel registrarCuentaPanel;
-    private final RegistrarTarjetaCreditoPanel registrarTarjetaCreditoPanel;
+    private RegistrarCuentaPanel registrarCuentaPanel;
+    private RegistrarTarjetaCreditoPanel registrarTarjetaCreditoPanel;
 
     /** Constructor del shell sin contexto de usuario. */
     public CuentasPanel() {
