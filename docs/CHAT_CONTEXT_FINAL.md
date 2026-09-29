@@ -360,3 +360,17 @@ El resultado **901/901** es la última validación completa conocida y reemplaza
 - No se modificó `main`.
 
 Para continuar: reconstruir estado desde GitHub antes de cualquier cambio y no usar resultados/documentación históricos como validación del HEAD actual.
+
+
+## CONTINUIDAD CANÓNICA — 29/09/2026
+
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación: 176 ahead / 0 behind.
+- Último cambio: corrección de delegación de constructores en `MainFrame`.
+- Suite completa: **936/936**, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.
+- Finalización: 29/09/2026 10:42:40 -03:00; 22:44 min.
+- No se modificó `main`.
+
+Para continuar: reconstruir estado desde GitHub antes de cualquier cambio y no usar resultados históricos como validación del HEAD actual.
