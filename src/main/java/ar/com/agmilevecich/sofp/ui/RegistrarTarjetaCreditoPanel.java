@@ -93,7 +93,7 @@ public class RegistrarTarjetaCreditoPanel extends JPanel {
         identificadorExternoField = new JTextField(16);
         registrarButton = new JButton("Registrar");
 
-        cargarInstituciones(institucionFinancieraService.listarPorUsuario(usuarioId));
+        actualizarInstituciones(institucionFinancieraService.listarPorUsuario(usuarioId));
         cargarMonedas(monedaService.listarTodas());
         construirFormulario();
         actualizarEstadoBoton();
