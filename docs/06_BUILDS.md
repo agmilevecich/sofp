@@ -474,3 +474,16 @@ La etapa queda técnicamente validada. No se modifica ni mergea `main`. Antes de
 - Duración: **22:44 min**.
 
 Este es el último build completo conocido y reemplaza como referencia operativa los resultados históricos anteriores.
+
+
+## ACTUALIZACIÓN DE BUILD — 29/09/2026
+
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b`.
+- Comparación con `main`: **176 ahead / 0 behind**.
+- `mvn -q -DskipTests compile`: **BUILD SUCCESS**.
+- `mvn test`: **936/936**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización: **29/09/2026 10:42:40 -03:00**.
+- Duración: **22:44 min**.
+
+Este es el último build completo conocido.
