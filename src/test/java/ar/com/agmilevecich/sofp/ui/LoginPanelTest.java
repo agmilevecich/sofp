@@ -95,6 +95,30 @@ class LoginPanelTest {
     }
 
     @Test
+    void deberiaHabilitarRegistroCuandoHayServicioYCallback() {
+        LoginPanel panel = new LoginPanel(
+                usuarioService,
+                ignored -> {
+                },
+                ignored -> {
+                }
+        );
+
+        assertTrue(panel.getRegistrarButton().isEnabled());
+    }
+
+    @Test
+    void deberiaDeshabilitarRegistroSinCallback() {
+        LoginPanel panel = new LoginPanel(
+                usuarioService,
+                ignored -> {
+                }
+        );
+
+        assertFalse(panel.getRegistrarButton().isEnabled());
+    }
+
+    @Test
     void deberiaRequerirServicioDeUsuarios() {
         LoginPanel panel = new LoginPanel();
 
