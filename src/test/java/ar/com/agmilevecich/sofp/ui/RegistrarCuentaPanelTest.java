@@ -92,7 +92,8 @@ class RegistrarCuentaPanelTest {
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Activo",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
 
@@ -129,11 +130,13 @@ class RegistrarCuentaPanelTest {
 
         InstitucionFinanciera activa = new InstitucionFinanciera(
                 "Banco Activo",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         InstitucionFinanciera inactiva = new InstitucionFinanciera(
                 "Banco Inactivo",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         inactiva.desactivar();
         Moneda ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
@@ -168,7 +171,8 @@ class RegistrarCuentaPanelTest {
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Test",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         persistir(usuario, perfil, institucion, moneda);
@@ -219,7 +223,8 @@ class RegistrarCuentaPanelTest {
         usuario.agregarPerfilFinanciero(perfil);
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Test",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         persistir(usuario, perfil, institucion, moneda);
