@@ -4,6 +4,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.util.Objects;
@@ -28,37 +31,23 @@ public class InstitucionFinanciera extends EntidadAuditable {
     @Column(nullable = false)
     private boolean activa;
 
-    /**
-     * Constructor requerido por JPA.
-     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
+
     protected InstitucionFinanciera() {
     }
 
-    /**
-     * Constructor principal del dominio.
-     */
-    public InstitucionFinanciera(
-            String nombre,
-            TipoInstitucionFinanciera tipo) {
-
-        this.nombre =
-                Objects.requireNonNull(
-                        nombre,
-                        "El nombre es obligatorio"
-                );
-
-        this.tipo =
-                Objects.requireNonNull(
-                        tipo,
-                        "El tipo es obligatorio"
-                );
-
+    public InstitucionFinanciera(String nombre, TipoInstitucionFinanciera tipo) {
+        this.nombre = Objects.requireNonNull(nombre, "El nombre es obligatorio");
+        this.tipo = Objects.requireNonNull(tipo, "El tipo es obligatorio");
         this.activa = true;
     }
 
-    // ===========================
-    // Getters
-    // ===========================
+    public InstitucionFinanciera(String nombre, TipoInstitucionFinanciera tipo, Usuario usuario) {
+        this(nombre, tipo);
+        this.usuario = Objects.requireNonNull(usuario, "El usuario es obligatorio");
+    }
 
     public String getNombre() {
         return nombre;
@@ -80,35 +69,24 @@ public class InstitucionFinanciera extends EntidadAuditable {
         return activa;
     }
 
-    // ===========================
-    // Comportamiento del dominio
-    // ===========================
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void asignarUsuario(Usuario usuario) {
+        this.usuario = Objects.requireNonNull(usuario, "El usuario es obligatorio");
+    }
 
     public void renombrar(String nuevoNombre) {
-
-        this.nombre =
-                Objects.requireNonNull(
-                        nuevoNombre,
-                        "El nombre es obligatorio"
-                );
+        this.nombre = Objects.requireNonNull(nuevoNombre, "El nombre es obligatorio");
     }
 
     public void actualizarSitioWeb(String sitioWeb) {
-
-        this.sitioWeb =
-                Objects.requireNonNull(
-                        sitioWeb,
-                        "El sitio web es obligatorio"
-                );
+        this.sitioWeb = Objects.requireNonNull(sitioWeb, "El sitio web es obligatorio");
     }
 
     public void actualizarDescripcion(String descripcion) {
-
-        this.descripcion =
-                Objects.requireNonNull(
-                        descripcion,
-                        "La descripción es obligatoria"
-                );
+        this.descripcion = Objects.requireNonNull(descripcion, "La descripción es obligatoria");
     }
 
     public void activar() {
@@ -121,14 +99,9 @@ public class InstitucionFinanciera extends EntidadAuditable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof InstitucionFinanciera otra)) {
-            return false;
-        }
-        return Objects.equals(nombre, otra.nombre)
-                && tipo == otra.tipo;
+        if (this == o) return true;
+        if (!(o instanceof InstitucionFinanciera otra)) return false;
+        return Objects.equals(nombre, otra.nombre) && tipo == otra.tipo;
     }
 
     @Override
