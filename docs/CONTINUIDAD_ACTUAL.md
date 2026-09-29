@@ -529,3 +529,45 @@ La etapa está validada y cerrada técnicamente. La arquitectura vigente mantien
 No iniciar cambios por supuesto. Para el siguiente bloque, reconstruir nuevamente el estado desde GitHub y revisar implementación, repositorios, tests y reglas de negocio antes de proponer código.
 
 Regla permanente: GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo.
+
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 29/09/2026
+
+Esta sección supersede cualquier estado anterior de este documento cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y los commits actuales de GitHub.
+
+### Estado Git confirmado
+- Rama de trabajo: `feature/swing-shell`.
+- Último commit: `4a23f726be4af3f12c701476b9d88f40954a0b8b` — `fix: completar ultima delegacion de constructores en MainFrame`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación GitHub: `feature/swing-shell` está **176 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge ni modificación de `main`.
+
+### Último cambio
+Se completó la última delegación de constructores de `MainFrame`, agregando el parámetro `null` faltante para respetar la firma vigente del constructor privado. El cambio fue mínimo y quedó en el commit indicado arriba.
+
+### Validación informada por el usuario
+- `mvn -q -DskipTests compile`: **BUILD SUCCESS**.
+- `RefinanciacionTest`: ejecución específica exitosa.
+- `RefinanciacionTest` + `RefinanciacionServiceTest`: **32/32**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa `mvn test`: **936/936**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalización de la suite: **29/09/2026 10:42:40 -03:00**.
+- Duración de la suite completa: **22:44 min**.
+
+El resultado **936/936** sustituye como última validación completa conocida a 928/928 y a todos los resultados anteriores.
+
+### Estado funcional
+La rama contiene los bloques ya validados de tarjetas de crédito, refinanciación, movimientos, patrimonio financiero, patrimonio neto, resultado financiero, cotizaciones de activos y reportes Swing. La corrección reciente de `MainFrame` deja compilable el shell y la suite completa confirma la compatibilidad del estado actual con los 936 tests.
+
+### Pendientes actuales
+No existe un fallo funcional conocido después de la suite verde. Los pendientes documentados que requieren evolución posterior incluyen reglas financieras avanzadas de refinanciación que no estén definidas explícitamente, calendario bancario/feriados, determinismo temporal mediante `Clock`, versionado formal de esquema y evolución de UI avanzada. No se deben inventar reglas de negocio para cerrar estos puntos.
+
+### Próximo paso
+La etapa actual queda **validada técnicamente**. Antes de iniciar el siguiente bloque funcional, reconstruir nuevamente desde GitHub el estado real y revisar implementación, repositorios, tests y reglas de negocio relacionadas. Si el siguiente trabajo es una decisión financiera, definir primero la semántica; si es técnico, realizar el cambio mínimo y cubrirlo con tests.
+
+### Regla permanente
+`GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`.
+
+Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
+
+La documentación es auxiliar: código actual y tests prevalecen sobre cualquier nota histórica. No modificar ni mergear `main` automáticamente.
