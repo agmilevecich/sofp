@@ -14,7 +14,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.util.List;
@@ -100,7 +99,7 @@ public class InstitucionesFinancierasPanel extends JPanel {
             return;
         }
 
-        institucionFinancieraService.guardar(
+        institucionFinancieraService.registrar(
                 new InstitucionFinanciera(nombre, tipo)
         );
 
