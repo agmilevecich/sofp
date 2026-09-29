@@ -487,3 +487,23 @@ El estado actual queda técnicamente validado con suite completa verde. Antes de
 `GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
 
 Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
+
+
+
+## ACTUALIZACIÓN CANÓNICA — 29/09/2026
+
+Fuente de verdad: código, tests y commits actuales de GitHub. Esta sección reemplaza como referencia operativa cualquier estado anterior de este documento.
+
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b` — `fix: completar ultima delegacion de constructores en MainFrame`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación: **176 ahead / 0 behind**.
+- `main` no fue modificada ni mergeada.
+- Compilación: `mvn -q -DskipTests compile` → **BUILD SUCCESS**.
+- Bloque refinanciación: **32/32** tests verdes.
+- Suite completa: `mvn test` → **936/936**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización: **29/09/2026 10:42:40 -03:00**; duración **22:44 min**.
+
+Último cambio: corrección de la delegación final de constructores de `MainFrame`, sin cambio de reglas de negocio.
+
+Punto de continuidad: etapa técnicamente validada; antes del próximo cambio reconstruir estado desde GitHub y revisar el próximo bloque real del código. No tomar documentación histórica como fuente de verdad si contradice código o tests.
