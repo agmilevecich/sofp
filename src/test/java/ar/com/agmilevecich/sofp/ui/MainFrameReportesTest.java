@@ -14,10 +14,15 @@ import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoRepository;
+import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
+import ar.com.agmilevecich.sofp.persistence.ObligacionRepository;
 import ar.com.agmilevecich.sofp.persistence.OperacionFinancieraRepository;
+import ar.com.agmilevecich.sofp.persistence.TipoCambioRepository;
 import ar.com.agmilevecich.sofp.service.CarteraActivoService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
+import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
+import ar.com.agmilevecich.sofp.service.ResultadoFinancieroService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,6 +96,85 @@ class MainFrameReportesTest {
         assertNotNull(lista);
         assertEquals(1, lista.getModel().getSize());
         assertEquals("COMPRA - GD30 - 100 - 12500", lista.getModel().getElementAt(0));
+
+        mainFrame.dispose();
+    }
+
+    @Test
+    void deberiaMostrarReporteConsolidadoAlNavegarDesdeMainFrame() throws Exception {
+        Moneda moneda = crearMonedaPersistida();
+        Contexto contexto = crearContexto(moneda);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(new ar.com.agmilevecich.sofp.domain.Movimiento(
+                contexto.cuenta,
+                contexto.categoria,
+                ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Ingreso"
+        ));
+        entityManager.persist(new ar.com.agmilevecich.sofp.domain.Movimiento(
+                contexto.cuenta,
+                contexto.categoria,
+                ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO,
+                new BigDecimal("35000.00"),
+                LocalDateTime.of(2026, 9, 11, 10, 0),
+                "Gasto"
+        ));
+        entityManager.getTransaction().commit();
+
+        PatrimonioFinancieroService patrimonioService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraActivoService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+        ResultadoFinancieroService resultadoService = new ResultadoFinancieroService(
+                entityManager,
+                new MovimientoRepository(entityManager)
+        );
+
+        AtomicReference<MainFrame> frameRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> frameRef.set(new MainFrame(
+                cuentaService,
+                null,
+                null,
+                null,
+                null,
+                carteraActivoService,
+                contexto.perfil,
+                contexto.usuario.getId(),
+                null,
+                null,
+                null,
+                null,
+                patrimonioService,
+                null,
+                resultadoService,
+                java.time.LocalDate.of(2026, 9, 1),
+                java.time.LocalDate.of(2026, 9, 30)
+        )));
+
+        MainFrame mainFrame = frameRef.get();
+        assertNotNull(mainFrame);
+
+        SwingUtilities.invokeAndWait(() -> {
+            JButton botonReportes = buscarBoton(mainFrame.getContentPane(), "Reportes");
+            assertNotNull(botonReportes);
+            botonReportes.doClick();
+        });
+
+        JList<?> lista = buscarListaConValor(
+                mainFrame.getContentPane(),
+                "  Patrimonio neto: 65000.00 ARS"
+        );
+        assertNotNull(lista);
+        assertEquals(
+                "  65000.00 ARS",
+                lista.getModel().getElementAt(17)
+        );
 
         mainFrame.dispose();
     }
