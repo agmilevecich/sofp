@@ -599,3 +599,32 @@ Se completó la última delegación de constructores de `MainFrame`, agregando e
 La etapa queda técnicamente validada. No existe un fallo funcional conocido. Antes de iniciar el próximo bloque, reconstruir nuevamente GitHub y revisar implementación, repositorios, tests y reglas de negocio. No inventar reglas financieras faltantes.
 
 Regla permanente: `GitHub → rama → commits → comparación con main → código → repositorios → tests → reglas → documentación → último resultado → cambio mínimo`. No modificar `main` automáticamente.
+
+
+## ACTUALIZACIÓN CANÓNICA — 29/09/2026 13:09 -03:00
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción. La fuente de verdad continúa siendo el código, los tests y GitHub.
+
+### Estado Git
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- HEAD: `f35075d15ddffe88e8953a257d459a38de7156f7` — `test: validar seleccione en instituciones`.
+- Comparación GitHub: **209 commits por delante de `main` y 0 por detrás**.
+- No se realizó merge ni modificación de `main`.
+
+### Último bloque implementado
+Se incorporó la gestión de instituciones financieras al shell Swing y se completó el comportamiento del combo de tipo de institución con selección inicial `Seleccione...`. La cobertura relacionada validó el alta desde la UI, navegación desde el shell y compatibilidad con cuentas.
+
+### Validación final informada por el usuario
+- Bloque relacionado: **7/7**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Suite completa `mvn test`: **940/940**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalización: **29/09/2026 13:09:12 -03:00**.
+- Duración: **26:49 min**.
+
+Los **940/940** sustituyen como última validación completa conocida a los 936/936 anteriores.
+
+### Login
+No se realizó ningún cambio en el flujo de Login. La aparente falla se debió a una segunda instancia de la aplicación que permanecía abierta; el código actual ya cierra el `loginFrame` al abrir correctamente `MainFrame`.
+
+### Próximo paso
+La etapa de instituciones financieras queda validada. Antes del siguiente cambio funcional se debe reconstruir nuevamente el estado desde GitHub, revisar código, tests, repositorios y reglas de negocio del próximo bloque y realizar únicamente el cambio mínimo necesario.
