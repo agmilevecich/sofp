@@ -1,13 +1,10 @@
 package ar.com.agmilevecich.sofp.config;
 
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
-import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
-import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
-import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.PerfilFinancieroRepository;
 import ar.com.agmilevecich.sofp.persistence.UsuarioRepository;
 import ar.com.agmilevecich.sofp.service.PasswordService;
@@ -21,8 +18,6 @@ public final class DatosInicialesDesarrollo {
     public static final String PASSWORD = "sofp1234";
 
     private static final String INSTITUCION_NOMBRE = "Institución de desarrollo";
-    private static final String MONEDA_ARS = "ARS";
-    private static final String MONEDA_USD = "USD";
 
     private DatosInicialesDesarrollo() {
     }
@@ -33,7 +28,6 @@ public final class DatosInicialesDesarrollo {
         UsuarioRepository usuarioRepository = new UsuarioRepository(entityManager);
         InstitucionFinancieraRepository institucionRepository =
                 new InstitucionFinancieraRepository(entityManager);
-        MonedaRepository monedaRepository = new MonedaRepository(entityManager);
 
         entityManager.getTransaction().begin();
         try {
@@ -60,28 +54,6 @@ public final class DatosInicialesDesarrollo {
                         new InstitucionFinanciera(
                                 INSTITUCION_NOMBRE,
                                 TipoInstitucionFinanciera.BANCO
-                        )
-                );
-            }
-
-            if (monedaRepository.buscarPorCodigo(MONEDA_ARS).isEmpty()) {
-                monedaRepository.guardar(
-                        new Moneda(
-                                MONEDA_ARS,
-                                "Peso argentino",
-                                2,
-                                TipoMoneda.FIAT
-                        )
-                );
-            }
-
-            if (monedaRepository.buscarPorCodigo(MONEDA_USD).isEmpty()) {
-                monedaRepository.guardar(
-                        new Moneda(
-                                MONEDA_USD,
-                                "Dólar estadounidense",
-                                2,
-                                TipoMoneda.FIAT
                         )
                 );
             }
