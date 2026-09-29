@@ -101,7 +101,7 @@ public class RegistrarCuentaPanel extends JPanel {
         identificadorExternoField = new JTextField(16);
         registrarButton = new JButton("Registrar");
 
-        cargarInstituciones(institucionFinancieraService.listarTodas());
+        cargarInstituciones(institucionFinancieraService.listarPorUsuario(usuarioId));
         cargarMonedas(monedaService.listarTodas());
         construirFormulario();
         actualizarEstadoBoton();
@@ -189,7 +189,8 @@ public class RegistrarCuentaPanel extends JPanel {
         }
     }
 
-    private void cargarInstituciones(List<InstitucionFinanciera> instituciones) {
+    void actualizarInstituciones(List<InstitucionFinanciera> instituciones) {
+        institucionComboBox.removeAllItems();
         for (InstitucionFinanciera institucion : instituciones) {
             if (institucion.isActiva()) {
                 institucionComboBox.addItem(institucion);
