@@ -191,6 +191,7 @@ public class RegistrarCuentaPanel extends JPanel {
 
     void actualizarInstituciones(List<InstitucionFinanciera> instituciones) {
         institucionComboBox.removeAllItems();
+        institucionComboBox.addItem(null);
         for (InstitucionFinanciera institucion : instituciones) {
             if (institucion.isActiva()) {
                 institucionComboBox.addItem(institucion);
