@@ -656,3 +656,18 @@ La suite completa actual es **936/936** verde sobre `feature/swing-shell`; no ex
 - Evolución de UI avanzada de financiación/refinanciación y otros flujos donde el modelo ya lo soporte.
 
 Estos puntos no deben implementarse por inferencia: primero se verifica el código actual y se define la regla de negocio cuando sea material.
+
+
+## ACTUALIZACIÓN DE PENDIENTES — 29/09/2026
+
+La suite actual es **936/936** verde y no existe un fallo funcional conocido pendiente de esta etapa.
+
+Pendientes de evolución, sujetos a verificación del código y a reglas explícitas cuando sean financieras:
+- interés/amortización periódica de refinanciación si corresponde definirlos;
+- reglas de conversión multidivisa que no estén determinadas por el modelo;
+- calendario bancario/feriados;
+- abstracción `Clock` para determinismo temporal;
+- migraciones/versionado formal de esquema;
+- evolución de UI avanzada de financiación/refinanciación.
+
+No implementar estos puntos por inferencia.
