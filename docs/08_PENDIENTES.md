@@ -671,3 +671,20 @@ Pendientes de evolución, sujetos a verificación del código y a reglas explíc
 - evolución de UI avanzada de financiación/refinanciación.
 
 No implementar estos puntos por inferencia.
+
+
+## ACTUALIZACIÓN DE PENDIENTES — 29/09/2026 13:09 -03:00
+
+La suite completa actual es **940/940** verde y no existe un fallo funcional conocido pendiente de la etapa de instituciones financieras.
+
+### Bloque cerrado
+- Gestión de instituciones financieras desde el shell Swing.
+- Alta transaccional de una institución.
+- Navegación del shell hacia instituciones.
+- Combo de tipo de institución iniciado en `Seleccione...`.
+- Cobertura específica e integración sin regresiones en la suite completa.
+
+### Evolución pendiente
+Continúan sujetos a revisión del código y reglas explícitas: refinanciación avanzada, casos multidivisa no determinados por el modelo, calendario bancario/feriados, `Clock`, migraciones/versionado formal de esquema y evolución de UI avanzada.
+
+No implementar estos puntos por inferencia.
