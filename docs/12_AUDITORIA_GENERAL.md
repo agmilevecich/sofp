@@ -866,3 +866,17 @@ La auditoría general queda actualizada con el estado real confirmado por GitHub
 - Finalización: **29/09/2026 10:42:40 -03:00**.
 
 La documentación histórica queda como trazabilidad. Para decisiones futuras prevalecen código, tests y commits actuales.
+
+
+## ACTUALIZACIÓN DE REFERENCIA GENERAL — 29/09/2026
+
+- `feature/swing-shell`: HEAD `4a23f726be4af3f12c701476b9d88f40954a0b8b`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación: **176 ahead / 0 behind**.
+- Último cambio: corrección de la última delegación de constructores de `MainFrame`.
+- Compilación: **BUILD SUCCESS**.
+- Refinanciación específica: **32/32**.
+- Suite completa: **936/936**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización: **29/09/2026 10:42:40 -03:00**; duración **22:44 min**.
+
+La documentación histórica queda como trazabilidad; para decisiones futuras prevalecen código, tests y commits actuales.
