@@ -247,6 +247,59 @@ class ReportesPanelTest {
     }
 
     @Test
+    void deberiaMostrarPatrimonioYResultadoEnReporteConsolidado() {
+        Moneda moneda = crearMonedaPersistida();
+        Contexto contexto = crearContexto(moneda);
+
+        CuentaService cuentaService = new CuentaService(
+                new CuentaRepository(entityManager),
+                new MovimientoRepository(entityManager),
+                entityManager
+        );
+        PatrimonioFinancieroService patrimonioService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraActivoService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(new Movimiento(
+                contexto.cuenta, contexto.categoria, TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0), "Ingreso"
+        ));
+        entityManager.persist(new Movimiento(
+                contexto.cuenta, contexto.categoria, TipoMovimiento.EGRESO,
+                new BigDecimal("35000.00"),
+                LocalDateTime.of(2026, 9, 11, 10, 0), "Gasto"
+        ));
+        entityManager.getTransaction().commit();
+
+        ReportesPanel panel = new ReportesPanel(
+                patrimonioService,
+                new ResultadoFinancieroService(
+                        entityManager,
+                        new MovimientoRepository(entityManager)
+                ),
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30)
+        );
+
+        JList<?> lista = buscarLista(panel);
+        assertNotNull(lista);
+        assertEquals(18, lista.getModel().getSize());
+        assertEquals("PATRIMONIO NETO", lista.getModel().getElementAt(8));
+        assertEquals("  Patrimonio neto: 65000.00 ARS", lista.getModel().getElementAt(9));
+        assertEquals("RESULTADO FINANCIERO", lista.getModel().getElementAt(10));
+        assertEquals("Período: 2026-09-01 a 2026-09-30", lista.getModel().getElementAt(11));
+        assertEquals("  65000.00 ARS", lista.getModel().getElementAt(17));
+    }
+
+    @Test
     void deberiaMostrarListaVaciaSinMovimientosDeInversiones() {
         Moneda moneda = crearMonedaPersistida();
         Contexto contexto = crearContexto(moneda);
