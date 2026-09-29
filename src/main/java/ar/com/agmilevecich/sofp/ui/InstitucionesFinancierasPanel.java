@@ -6,6 +6,7 @@ import ar.com.agmilevecich.sofp.service.InstitucionFinancieraService;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -15,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.util.List;
 import java.util.Objects;
@@ -39,9 +41,10 @@ public class InstitucionesFinancierasPanel extends JPanel {
         modeloInstituciones = new DefaultListModel<>();
         listaInstituciones = new JList<>(modeloInstituciones);
         nombreField = new JTextField();
-        tipoComboBox = new JComboBox<>(
-                new DefaultComboBoxModel<>(TipoInstitucionFinanciera.values())
-        );
+        tipoComboBox = new JComboBox<>();
+
+        configurarComboBox(tipoComboBox);
+        agregarTiposInstitucion();
 
         setLayout(new BorderLayout(12, 12));
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
@@ -104,11 +107,36 @@ public class InstitucionesFinancierasPanel extends JPanel {
         );
 
         nombreField.setText("");
+        tipoComboBox.setSelectedItem(null);
         actualizarInstituciones();
     }
 
     void actualizarInstituciones() {
         cargarInstituciones(institucionFinancieraService.listarTodas());
+    }
+
+    private <T> void configurarComboBox(JComboBox<T> comboBox) {
+        comboBox.addItem(null);
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    JList<?> list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+                super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus);
+                setText(value == null ? "Seleccione..." : value.toString());
+                return this;
+            }
+        });
+    }
+
+    private void agregarTiposInstitucion() {
+        for (TipoInstitucionFinanciera tipo : TipoInstitucionFinanciera.values()) {
+            tipoComboBox.addItem(tipo);
+        }
     }
 
     private void cargarInstituciones(List<InstitucionFinanciera> instituciones) {
