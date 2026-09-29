@@ -571,3 +571,31 @@ La etapa actual queda **validada técnicamente**. Antes de iniciar el siguiente 
 Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
 
 La documentación es auxiliar: código actual y tests prevalecen sobre cualquier nota histórica. No modificar ni mergear `main` automáticamente.
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 29/09/2026
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción. Fuente de verdad: código, tests y commits actuales de GitHub.
+
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b` — `fix: completar ultima delegacion de constructores en MainFrame`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación GitHub: **176 ahead / 0 behind**.
+- No se modificó ni mergeó `main`.
+
+### Último cambio
+Se completó la última delegación de constructores de `MainFrame`, agregando el `null` faltante para la firma vigente. Cambio mínimo, sin alterar reglas de negocio.
+
+### Validación confirmada por el usuario
+- `mvn -q -DskipTests compile`: **BUILD SUCCESS**.
+- Refinanciación: **32/32** tests, 0 failures, 0 errors, 0 skipped.
+- `mvn test`: **936/936**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización: **29/09/2026 10:42:40 -03:00**.
+- Duración: **22:44 min**.
+
+**936/936** es la última suite completa conocida y reemplaza como referencia operativa a los resultados históricos anteriores.
+
+### Estado y próximo paso
+La etapa queda técnicamente validada. No existe un fallo funcional conocido. Antes de iniciar el próximo bloque, reconstruir nuevamente GitHub y revisar implementación, repositorios, tests y reglas de negocio. No inventar reglas financieras faltantes.
+
+Regla permanente: `GitHub → rama → commits → comparación con main → código → repositorios → tests → reglas → documentación → último resultado → cambio mínimo`. No modificar `main` automáticamente.
