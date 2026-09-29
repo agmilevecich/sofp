@@ -749,3 +749,19 @@ La corrección de `MainFrame` quedó compilada y validada mediante tests especí
 
 ### Conclusión
 No hay un fallo funcional conocido en el HEAD actual. La continuidad debe partir del código actual y no de los estados históricos documentados. El próximo cambio debe ser mínimo, con cobertura específica y suite completa cuando corresponda.
+
+
+## ACTUALIZACIÓN DE AUDITORÍA — 29/09/2026
+
+### Estado reconstruido desde GitHub
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación: **176 ahead / 0 behind**.
+- No se modificó `main`.
+
+### Validación
+Compilación exitosa. La última suite completa informada por el usuario es **936/936**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada el **29/09/2026 10:42:40 -03:00**.
+
+### Conclusión
+No hay un fallo funcional conocido en el HEAD actual. La continuidad debe partir del código actual, no de estados históricos. El próximo cambio debe ser mínimo y contar con cobertura específica.
