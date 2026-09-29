@@ -208,7 +208,6 @@ class MultiUsuarioIsolationTest {
                 ));
         assertThrows(IllegalArgumentException.class,
                 () -> obligacionService.anular(obligacion.getId(), usuario2.getId()));
-    }
         assertThrows(IllegalArgumentException.class,
                 () -> obligacionService.cerrarCiclo(
                         tarjeta1.getId(), java.time.LocalDate.of(2026, 9, 20), usuario2.getId()
