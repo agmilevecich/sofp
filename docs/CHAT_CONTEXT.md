@@ -493,3 +493,20 @@ Usar esta sección como contexto operativo al iniciar una nueva conversación. A
 **Estado:** etapa técnicamente validada. No hay fallo funcional conocido. Próximo paso: reconstruir desde GitHub y determinar el siguiente bloque funcional real antes de modificar código.
 
 **Regla:** código actual → tests → commits → main → documentación → conversaciones anteriores. No modificar ni mergear main automáticamente.
+
+
+## CONTINUIDAD ACTUAL — 29/09/2026
+
+Usar esta sección como contexto operativo al iniciar una nueva conversación. Antes de proponer código, reconstruir nuevamente desde GitHub.
+
+**Rama:** `feature/swing-shell`.
+**HEAD:** `4a23f726be4af3f12c701476b9d88f40954a0b8b` — `fix: completar ultima delegacion de constructores en MainFrame`.
+**main:** `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+**Comparación:** 176 ahead / 0 behind.
+**Última suite completa:** `mvn test` → **936/936**, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS; 29/09/2026 10:42:40 -03:00; 22:44 min.
+
+**Último cambio:** corrección de la delegación final de constructores de `MainFrame`; compilación posterior exitosa.
+
+**Estado:** etapa técnicamente validada, sin fallo funcional conocido. Próximo paso: reconstruir GitHub y determinar el siguiente bloque funcional real antes de modificar código.
+
+**Regla:** código actual → tests → commits → main → documentación → conversaciones anteriores. No modificar ni mergear main automáticamente.
