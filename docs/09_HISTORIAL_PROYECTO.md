@@ -510,3 +510,14 @@ La compilación fue exitosa y el usuario validó la suite completa con **936/936
 GitHub confirma que `feature/swing-shell` está **176 commits por delante de `main` y 0 por detrás**. No se realizó merge a `main`.
 
 Este hito supersede como referencia de validación actual los hitos anteriores de 928/928 y previos.
+
+
+## HITO — 29/09/2026
+
+La rama `feature/swing-shell` alcanzó `4a23f726be4af3f12c701476b9d88f40954a0b8b`, corrección de la última delegación de constructores de `MainFrame`.
+
+El usuario confirmó compilación exitosa y suite completa **936/936**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada el **29/09/2026 10:42:40 -03:00**, duración **22:44 min**.
+
+GitHub confirma **176 commits ahead / 0 behind** respecto de `main`. No hubo merge a `main`.
+
+Este hito supersede como referencia de validación actual a 928/928 y anteriores.
