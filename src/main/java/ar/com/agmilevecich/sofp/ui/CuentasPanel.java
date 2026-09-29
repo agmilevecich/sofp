@@ -100,6 +100,8 @@ public class CuentasPanel extends JPanel {
         modeloCuentas = new DefaultListModel<>();
         listaCuentas = new JList<>(modeloCuentas);
         cuentas = new ArrayList<>();
+        registrarCuentaPanel = null;
+        registrarTarjetaCreditoPanel = null;
 
         setLayout(new BorderLayout(12, 12));
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
