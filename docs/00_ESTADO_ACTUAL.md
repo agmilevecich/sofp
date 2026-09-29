@@ -507,3 +507,18 @@ Fuente de verdad: código, tests y commits actuales de GitHub. Esta sección ree
 Último cambio: corrección de la delegación final de constructores de `MainFrame`, sin cambio de reglas de negocio.
 
 Punto de continuidad: etapa técnicamente validada; antes del próximo cambio reconstruir estado desde GitHub y revisar el próximo bloque real del código. No tomar documentación histórica como fuente de verdad si contradice código o tests.
+
+
+## ACTUALIZACIÓN CANÓNICA — 29/09/2026
+
+- Rama: `feature/swing-shell`.
+- HEAD: `4a23f726be4af3f12c701476b9d88f40954a0b8b` — corrección final de delegación de constructores en `MainFrame`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación: **176 ahead / 0 behind**.
+- Compilación: **BUILD SUCCESS**.
+- Refinanciación específica: **32/32**.
+- Suite completa: **936/936**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**.
+- Finalización suite: **29/09/2026 10:42:40 -03:00**, duración **22:44 min**.
+- `main` no fue modificada.
+
+Este es el estado operativo actual. La documentación histórica queda subordinada al código y tests actuales.
