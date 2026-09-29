@@ -2,6 +2,8 @@ package ar.com.agmilevecich.sofp.service;
 
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,15 +12,23 @@ import java.util.Optional;
 public class InstitucionFinancieraService {
 
     private final InstitucionFinancieraRepository institucionFinancieraRepository;
+    private final EntityManager entityManager;
 
     public InstitucionFinancieraService(
             InstitucionFinancieraRepository institucionFinancieraRepository) {
+        this(institucionFinancieraRepository, null);
+    }
+
+    public InstitucionFinancieraService(
+            InstitucionFinancieraRepository institucionFinancieraRepository,
+            EntityManager entityManager) {
 
         this.institucionFinancieraRepository =
                 Objects.requireNonNull(
                         institucionFinancieraRepository,
                         "El repositorio de instituciones financieras es obligatorio"
                 );
+        this.entityManager = entityManager;
     }
 
     public InstitucionFinanciera guardar(
@@ -30,6 +40,44 @@ public class InstitucionFinancieraService {
         );
 
         return institucionFinancieraRepository.guardar(institucion);
+    }
+
+    public InstitucionFinanciera registrar(
+            InstitucionFinanciera institucion) {
+
+        Objects.requireNonNull(
+                institucion,
+                "La institución financiera es obligatoria"
+        );
+        if (entityManager == null) {
+            throw new IllegalStateException(
+                    "El EntityManager es obligatorio para registrar una institución financiera"
+            );
+        }
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        boolean transactionIniciadaPorElServicio = !transaction.isActive();
+
+        try {
+            if (transactionIniciadaPorElServicio) {
+                transaction.begin();
+            }
+
+            InstitucionFinanciera registrada =
+                    institucionFinancieraRepository.guardar(institucion);
+            entityManager.flush();
+
+            if (transactionIniciadaPorElServicio) {
+                transaction.commit();
+            }
+
+            return registrada;
+        } catch (RuntimeException e) {
+            if (transactionIniciadaPorElServicio && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
     }
 
     public Optional<InstitucionFinanciera> buscarPorId(Long id) {
