@@ -18,6 +18,7 @@ import java.awt.Container;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class InstitucionesFinancierasPanelTest {
@@ -90,6 +91,28 @@ class InstitucionesFinancierasPanelTest {
 
         JButton boton = buscarBoton(panelRef.get(), "Registrar");
         assertNotNull(boton);
+    }
+
+    @Test
+    void deberiaIniciarElComboConSeleccione() throws Exception {
+        AtomicReference<InstitucionesFinancierasPanel> panelRef = new AtomicReference<>();
+
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new InstitucionesFinancierasPanel(service)
+        ));
+
+        InstitucionesFinancierasPanel panel = panelRef.get();
+
+        assertNull(panel.getTipoComboBox().getSelectedItem());
+        Component renderer = panel.getTipoComboBox().getRenderer()
+                .getListCellRendererComponent(
+                        new JList<>(),
+                        null,
+                        0,
+                        false,
+                        false
+                );
+        assertEquals("Seleccione...", ((javax.swing.JLabel) renderer).getText());
     }
 
     private JButton buscarBoton(Container container, String texto) {
