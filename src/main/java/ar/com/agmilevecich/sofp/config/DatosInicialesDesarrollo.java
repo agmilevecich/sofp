@@ -49,13 +49,20 @@ public final class DatosInicialesDesarrollo {
                 new PerfilFinancieroRepository(entityManager).guardar(perfil);
             }
 
-            if (institucionRepository.buscarPorNombre(INSTITUCION_NOMBRE).isEmpty()) {
+            InstitucionFinanciera institucionDesarrollo =
+                    institucionRepository.buscarPorNombre(INSTITUCION_NOMBRE).orElse(null);
+
+            if (institucionDesarrollo == null) {
                 institucionRepository.guardar(
                         new InstitucionFinanciera(
                                 INSTITUCION_NOMBRE,
-                                TipoInstitucionFinanciera.BANCO
+                                TipoInstitucionFinanciera.BANCO,
+                                usuario
                         )
                 );
+            } else if (institucionDesarrollo.getUsuario() == null) {
+                institucionDesarrollo.asignarUsuario(usuario);
+                institucionRepository.guardar(institucionDesarrollo);
             }
 
             entityManager.getTransaction().commit();
