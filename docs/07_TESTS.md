@@ -507,3 +507,21 @@ La etapa queda cerrada técnicamente. El próximo bloque debe comenzar reconstru
 - Duración: **22:44 min**.
 
 936/936 es la última validación completa conocida del estado actual.
+
+
+## ACTUALIZACIÓN DE VALIDACIÓN — 29/09/2026 13:09 -03:00
+
+### Último resultado completo
+- Comando: `mvn test`.
+- Tests: **940**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- Resultado: **BUILD SUCCESS**.
+- Finalización: **29/09/2026 13:09:12 -03:00**.
+- Duración: **26:49 min**.
+
+### Cobertura funcional reciente
+El resultado incluye la nueva cobertura de gestión de instituciones financieras y del estado inicial `Seleccione...` del combo de tipo de institución, además de las pruebas existentes del shell Swing.
+
+Los **940/940** son la última validación completa conocida y deben utilizarse como referencia operativa hasta una nueva ejecución.
