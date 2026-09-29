@@ -17,28 +17,49 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/** Panel de autenticación de usuarios de SOFP. */
 public class LoginPanel extends JPanel {
 
     private final UsuarioService usuarioService;
     private final Consumer<Usuario> onAutenticado;
+    private final Consumer<UsuarioService> onRegistrar;
     private final JTextField emailField;
     private final JPasswordField passwordField;
     private final JButton ingresarButton;
+    private final JButton registrarButton;
 
     public LoginPanel() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public LoginPanel(UsuarioService usuarioService, Consumer<Usuario> onAutenticado) {
+    public LoginPanel(
+            UsuarioService usuarioService,
+            Consumer<Usuario> onAutenticado) {
+        this(usuarioService, onAutenticado, null);
+    }
+
+    public LoginPanel(
+            UsuarioService usuarioService,
+            Consumer<Usuario> onAutenticado,
+            Consumer<UsuarioService> onRegistrar) {
+
         this.usuarioService = usuarioService;
         this.onAutenticado = onAutenticado;
+        this.onRegistrar = onRegistrar;
 
         emailField = new JTextField(24);
         passwordField = new JPasswordField(24);
         ingresarButton = new JButton("Ingresar");
+        registrarButton = new JButton("Registrarse");
+
         ingresarButton.setEnabled(usuarioService != null);
+        registrarButton.setEnabled(usuarioService != null && onRegistrar != null);
+
         ingresarButton.addActionListener(event -> autenticarConDialogo());
+        registrarButton.addActionListener(event -> {
+            if (onRegistrar != null) {
+                onRegistrar.accept(usuarioService);
+            }
+        });
 
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
@@ -53,12 +74,16 @@ public class LoginPanel extends JPanel {
         constraints.gridx = 1;
         constraints.gridy = 2;
         add(ingresarButton, constraints);
+
+        constraints.gridy = 3;
+        add(registrarButton, constraints);
     }
 
-    private void agregar(JLabel label,
-                         JTextField field,
-                         GridBagConstraints constraints,
-                         int row) {
+    private void agregar(
+            JLabel label,
+            JTextField field,
+            GridBagConstraints constraints,
+            int row) {
         constraints.gridx = 0;
         constraints.gridy = row;
         constraints.weightx = 0;
@@ -70,7 +95,10 @@ public class LoginPanel extends JPanel {
     }
 
     void autenticar() {
-        Objects.requireNonNull(usuarioService, "El servicio de usuarios es obligatorio");
+        Objects.requireNonNull(
+                usuarioService,
+                "El servicio de usuarios es obligatorio"
+        );
 
         String email = emailField.getText();
         String password = new String(passwordField.getPassword());
@@ -114,5 +142,9 @@ public class LoginPanel extends JPanel {
 
     public JButton getIngresarButton() {
         return ingresarButton;
+    }
+
+    public JButton getRegistrarButton() {
+        return registrarButton;
     }
 }
