@@ -318,3 +318,15 @@ Se estabilizó la hora de los gastos registrados desde `GastosPanel`: la fecha s
 
 ### Continuidad
 El resultado **901/901** es la última validación completa conocida y reemplaza como referencia operativa los resultados históricos anteriores. Los próximos cambios deben partir del código y tests actuales, reconstruyendo el estado desde GitHub antes de modificar cualquier funcionalidad. No modificar ni mergear `main` automáticamente.
+
+
+## CONTINUIDAD ACTUAL — 29/09/2026
+
+- Trabajo en `feature/swing-shell`.
+- HEAD `4a23f726be4af3f12c701476b9d88f40954a0b8b`.
+- `main` `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- 176 commits ahead, 0 behind.
+- Última suite completa: **936/936** verde, finalizada 29/09/2026 10:42:40 -03:00.
+- Último cambio: completar la delegación final de constructores de `MainFrame`.
+
+Regla: antes de proponer cambios, reconstruir GitHub → rama → commits → comparación con main → código → tests → documentación.
