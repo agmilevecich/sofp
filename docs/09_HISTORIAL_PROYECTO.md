@@ -498,3 +498,15 @@ El estado actual queda técnicamente validado con suite completa verde. Antes de
 `GitHub → rama → últimos commits → comparación con main → código relacionado → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
 
 Después de cambios importantes: `tests específicos → tests relacionados → suite completa cuando corresponda → git diff → git diff --check → git status → documentación`.
+
+
+
+## HITO — 29/09/2026: suite 936/936 y cierre técnico de la etapa
+
+La rama `feature/swing-shell` alcanzó el commit `4a23f726be4af3f12c701476b9d88f40954a0b8b`, que corrige la última delegación de constructores de `MainFrame`.
+
+La compilación fue exitosa y el usuario validó la suite completa con **936/936 tests**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada el **29/09/2026 10:42:40 -03:00**, con una duración de **22:44 min**.
+
+GitHub confirma que `feature/swing-shell` está **176 commits por delante de `main` y 0 por detrás**. No se realizó merge a `main`.
+
+Este hito supersede como referencia de validación actual los hitos anteriores de 928/928 y previos.
