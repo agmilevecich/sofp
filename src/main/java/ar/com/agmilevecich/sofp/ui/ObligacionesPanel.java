@@ -205,7 +205,7 @@ public class ObligacionesPanel extends JPanel {
 
         registrarCotizacionSiEsNecesaria(obligacion, cuenta, fechaCierre);
 
-        obligacionService.cerrarCiclo(cuenta.getId(), fechaCierre);
+        obligacionService.cerrarCiclo(cuenta.getId(), fechaCierre, usuarioId);
         refrescar();
     }
 
