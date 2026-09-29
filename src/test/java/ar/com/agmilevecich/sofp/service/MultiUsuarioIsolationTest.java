@@ -15,7 +15,6 @@ import ar.com.agmilevecich.sofp.domain.TipoMoneda;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
-import ar.com.agmilevecich.sofp.persistence.CarteraActivoRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.MonedaRepository;
 import ar.com.agmilevecich.sofp.persistence.MovimientoActivoRepository;
@@ -77,7 +76,7 @@ class MultiUsuarioIsolationTest {
         perfil1 = perfilService.listarPorUsuario(usuario1.getId()).get(0);
         perfil2 = perfilService.listarPorUsuario(usuario2.getId()).get(0);
 
-        ars = new Moneda("ARS-" + System.nanoTime(), "Peso argentino", 2, TipoMoneda.FIAT);
+        ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Multiusuario " + System.nanoTime(),
                 TipoInstitucionFinanciera.BANCO
@@ -127,7 +126,7 @@ class MultiUsuarioIsolationTest {
         patrimonioService = new PatrimonioFinancieroService(
                 cuentaService,
                 new CarteraActivoService(new MovimientoActivoRepository(entityManager)),
-                obligacionService == null ? null : new ObligacionRepository(entityManager),
+                new ObligacionRepository(entityManager),
                 new TipoCambioRepository(entityManager),
                 new MonedaRepository(entityManager)
         );
