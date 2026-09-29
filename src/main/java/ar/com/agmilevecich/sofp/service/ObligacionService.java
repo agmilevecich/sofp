@@ -91,9 +91,22 @@ public class ObligacionService {
      * En obligaciones financiadas, la valorización pertenece a la cuota de ese ciclo;
      * en obligaciones sin cuotas, se mantiene la valorización a nivel de obligación.
      */
-    public List<Obligacion> cerrarCiclo(Long cuentaId, LocalDate fechaCierre) {
+    /**
+     * Cierra el ciclo de una tarjeta verificando que pertenezca al usuario autorizado.
+     */
+    public List<Obligacion> cerrarCiclo(Long cuentaId, LocalDate fechaCierre, Long usuarioId) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        Cuenta cuenta = entityManager.find(Cuenta.class, cuentaId);
+        if (cuenta == null) {
+            throw new IllegalArgumentException("La cuenta no existe");
+        }
+        Long propietarioId = cuenta.getPerfilFinanciero().getUsuario().getId();
+        if (!Objects.equals(propietarioId, usuarioId)) {
+            throw new IllegalArgumentException("La cuenta no pertenece al usuario autorizado");
+        }
 
         if (entityManager.getTransaction().isActive()) {
             return cerrarCicloEnTransaccion(cuentaId, fechaCierre);
@@ -111,6 +124,11 @@ public class ObligacionService {
             }
             throw e;
         }
+    }
+
+    /* API interna de compatibilidad para coordinación y tests existentes. */
+    List<Obligacion> cerrarCiclo(Long cuentaId, LocalDate fechaCierre) {
+        return cerrarCicloEnTransaccion(cuentaId, fechaCierre);
     }
 
     private List<Obligacion> cerrarCicloEnTransaccion(Long cuentaId, LocalDate fechaCierre) {
