@@ -132,7 +132,10 @@ public class Main {
                 categoriaRepository
         );
         InstitucionFinancieraService institucionFinancieraService =
-                new InstitucionFinancieraService(institucionFinancieraRepository);
+                new InstitucionFinancieraService(
+                        institucionFinancieraRepository,
+                        entityManager
+                );
         MonedaService monedaService = new MonedaService(monedaRepository);
         CotizacionActivoService cotizacionActivoService = new CotizacionActivoService(
                 cotizacionActivoRepository
