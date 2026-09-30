@@ -94,7 +94,8 @@ class MainFrameMovimientosTest {
 
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Test",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda(
                 "ARS",
@@ -199,7 +200,8 @@ class MainFrameMovimientosTest {
 
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Test",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda(
                 "ARS",
@@ -283,7 +285,8 @@ class MainFrameMovimientosTest {
 
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco Test",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                usuario
         );
         Moneda moneda = new Moneda(
                 "ARS",
