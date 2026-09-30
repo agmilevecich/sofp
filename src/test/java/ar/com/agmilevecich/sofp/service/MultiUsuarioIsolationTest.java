@@ -56,6 +56,8 @@ class MultiUsuarioIsolationTest {
     private Categoria categoria1;
     private Categoria categoria2;
     private Moneda ars;
+    private InstitucionFinanciera institucion1;
+    private InstitucionFinanciera institucion2;
 
     @BeforeEach
     void setUp() {
@@ -77,14 +79,21 @@ class MultiUsuarioIsolationTest {
         perfil2 = perfilService.listarPorUsuario(usuario2.getId()).get(0);
 
         ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
-        InstitucionFinanciera institucion = new InstitucionFinanciera(
-                "Banco Multiusuario " + System.nanoTime(),
-                TipoInstitucionFinanciera.BANCO
+        institucion1 = new InstitucionFinanciera(
+                "Banco Multiusuario 1 " + System.nanoTime(),
+                TipoInstitucionFinanciera.BANCO,
+                usuario1
+        );
+        institucion2 = new InstitucionFinanciera(
+                "Banco Multiusuario 2 " + System.nanoTime(),
+                TipoInstitucionFinanciera.BANCO,
+                usuario2
         );
 
         entityManager.getTransaction().begin();
         entityManager.persist(ars);
-        entityManager.persist(institucion);
+        entityManager.persist(institucion1);
+        entityManager.persist(institucion2);
         entityManager.getTransaction().commit();
 
         cuentaService = new CuentaService(
@@ -106,11 +115,11 @@ class MultiUsuarioIsolationTest {
         );
 
         cuenta1 = cuentaService.registrar(
-                new Cuenta("Cuenta usuario 1", TipoCuenta.CAJA_AHORRO, perfil1, institucion, ars),
+                new Cuenta("Cuenta usuario 1", TipoCuenta.CAJA_AHORRO, perfil1, institucion1, ars),
                 usuario1.getId()
         );
         cuenta2 = cuentaService.registrar(
-                new Cuenta("Cuenta usuario 2", TipoCuenta.CAJA_AHORRO, perfil2, institucion, ars),
+                new Cuenta("Cuenta usuario 2", TipoCuenta.CAJA_AHORRO, perfil2, institucion2, ars),
                 usuario2.getId()
         );
 
@@ -178,6 +187,20 @@ class MultiUsuarioIsolationTest {
                 () -> movimientoService.listarPorCuenta(cuenta2.getId(), usuario1.getId()));
         assertThrows(IllegalArgumentException.class,
                 () -> movimientoService.buscarPorId(movimiento1.getId(), usuario2.getId()));
+    }
+
+    @Test
+    void deberiaRechazarInstitucionFinancieraDeOtroUsuario() {
+        Cuenta cuentaConInstitucionAjena = new Cuenta(
+                "Cuenta cruzada", TipoCuenta.CAJA_AHORRO, perfil1, institucion2, ars
+        );
+
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.registrar(cuentaConInstitucionAjena, usuario1.getId()));
+        assertThrows(IllegalArgumentException.class,
+                () -> cuentaService.modificarInstitucionFinanciera(
+                        cuenta1.getId(), usuario1.getId(), institucion2
+                ));
     }
 
     @Test
