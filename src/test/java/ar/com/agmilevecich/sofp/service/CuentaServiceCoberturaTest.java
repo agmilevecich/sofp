@@ -76,7 +76,7 @@ class CuentaServiceCoberturaTest {
     void deberiaPersistirInstitucionFinanciera() {
         Datos datos = persistirCuenta("institucion-persistente");
         InstitucionFinanciera nueva = new InstitucionFinanciera(
-                "Banco Nuevo", TipoInstitucionFinanciera.BANCO);
+                "Banco Nuevo", TipoInstitucionFinanciera.BANCO, datos.usuario());
         persistir(nueva);
 
         cuentaService.modificarInstitucionFinanciera(
@@ -427,7 +427,7 @@ class CuentaServiceCoberturaTest {
         persistir(perfil);
 
         InstitucionFinanciera institucion = new InstitucionFinanciera(
-                "Banco Test", TipoInstitucionFinanciera.BANCO);
+                "Banco Test", TipoInstitucionFinanciera.BANCO, usuario);
         persistir(institucion);
 
         Moneda moneda = nuevaMoneda("ARS");
