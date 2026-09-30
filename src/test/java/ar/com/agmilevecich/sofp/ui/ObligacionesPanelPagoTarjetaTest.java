@@ -149,7 +149,7 @@ class ObligacionesPanelPagoTarjetaTest {
                 FormaPago.TARJETA_CREDITO,
                 usuario.getId()
         );
-        Obligacion obligacion = obligacionService.registrar(movimientoTarjeta);
+        Obligacion obligacion = obligacionService.registrar(movimientoTarjeta, usuario.getId());
 
         ObligacionesPanel panel = new ObligacionesPanel(
                 obligacionService,
