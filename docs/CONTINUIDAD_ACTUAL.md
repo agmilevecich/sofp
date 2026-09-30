@@ -680,3 +680,18 @@ Ejecutar la batería específica, corregir cualquier regresión real y repetir l
 GitHub → rama → commits → comparación con main → código → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo.
 
 La documentación es auxiliar: código actual y tests prevalecen sobre notas históricas.
+
+## CONTINUIDAD OPERATIVA — 30/09/2026 — CIERRE AUDITORÍA MULTIUSUARIO
+
+- Rama de trabajo: `feature/swing-shell`.
+- HEAD actual: `769aafb9d021eac60b1a7e9d831ce98218bffdca` — `test: asociar instituciones a usuarios en fixtures`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación con `main`: **282 commits ahead / 0 behind**. `main` no fue modificada ni mergeada.
+- Auditoría multiusuario: cerrada documentalmente después de reforzar las fronteras de Cuenta, InstituciónFinanciera, Obligacion y Financiacion/Tasas y adaptar los fixtures afectados.
+- Tests específicos posteriores a las correcciones: **38/38**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizados el **30/09/2026 17:59:09 -03:00**; duración 02:59 min.
+- Suite completa posterior a las correcciones: `mvn test` → **958/958**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`; finalizada el **30/09/2026 18:22:52 -03:00**; duración 22:33 min.
+- Los tres errores que habían aparecido en la suite de 958 tests correspondían a fixtures que creaban instituciones financieras sin propietario; se corrigieron asociándolas al usuario correcto. No fue necesario debilitar la validación de producción.
+- Estado: **auditoría integral de recursos multiusuario validada por suite completa**.
+- Próximo paso: reconstruir nuevamente desde GitHub antes de elegir el siguiente bloque funcional. No modificar `main` automáticamente.
+
+Fuente de verdad: código actual → tests → commits → comparación con `main` → documentación → conversaciones históricas.
