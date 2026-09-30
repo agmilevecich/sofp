@@ -239,7 +239,7 @@ class GastosPanelTest {
         assertEquals(FormaPago.TARJETA_CREDITO, movimientos.get(0).getFormaPago());
 
         entityManager.clear();
-        var obligacion = obligacionService.buscarPorMovimientoOrigen(movimientos.get(0).getId()).orElseThrow();
+        var obligacion = obligacionService.buscarPorMovimientoOrigen(movimientos.get(0).getId(), usuario.getId()).orElseThrow();
         assertNotNull(obligacion);
         assertEquals(3, obligacion.getCuotas().size());
         assertEquals(new BigDecimal("1000.00"), obligacion.getSaldoPendiente());
