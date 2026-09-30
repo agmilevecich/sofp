@@ -48,6 +48,7 @@ public class CuentaService {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(cuenta, "La cuenta es obligatoria");
         validarPropietario(usuarioId, cuenta);
+        validarInstitucionPropietaria(usuarioId, cuenta.getInstitucionFinanciera());
         EntityTransaction transaction = entityManager.getTransaction();
         boolean transactionIniciadaPorElServicio = !transaction.isActive();
         try {
@@ -252,6 +253,7 @@ public class CuentaService {
     public Cuenta modificarInstitucionFinanciera(Long cuentaId, Long usuarioId, InstitucionFinanciera institucionFinanciera) {
         validarIds(cuentaId, usuarioId);
         Objects.requireNonNull(institucionFinanciera, "La institución financiera es obligatoria");
+        validarInstitucionPropietaria(usuarioId, institucionFinanciera);
         Cuenta cuenta = obtenerCuentaAutorizada(cuentaId, usuarioId);
         EntityTransaction transaction = entityManager.getTransaction();
         try {
@@ -337,6 +339,15 @@ public class CuentaService {
         Long propietarioId = cuenta.getPerfilFinanciero().getUsuario().getId();
         if (!Objects.equals(propietarioId, usuarioId)) {
             throw new IllegalArgumentException("El usuario no es propietario de la cuenta");
+        }
+    }
+
+    private void validarInstitucionPropietaria(Long usuarioId, InstitucionFinanciera institucionFinanciera) {
+        Long propietarioId = institucionFinanciera.getUsuario() == null
+                ? null
+                : institucionFinanciera.getUsuario().getId();
+        if (!Objects.equals(propietarioId, usuarioId)) {
+            throw new IllegalArgumentException("La institución financiera no pertenece al usuario autorizado");
         }
     }
 
