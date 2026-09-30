@@ -120,7 +120,7 @@ class ObligacionServiceTest {
 
         entityManager.clear();
 
-        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId())
+        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId(), usuario.getId())
                 .orElseThrow();
 
         assertEquals(new BigDecimal("10000.00"), recargada.getSaldoPendiente());
@@ -144,7 +144,7 @@ class ObligacionServiceTest {
 
         entityManager.clear();
 
-        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId())
+        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId(), usuario.getId())
                 .orElseThrow();
 
         assertEquals(BigDecimal.ZERO.setScale(2), recargada.getSaldoPendiente());
@@ -167,7 +167,7 @@ class ObligacionServiceTest {
 
         entityManager.clear();
 
-        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId())
+        Obligacion recargada = obligacionService.buscarPorId(obligacion.getId(), usuario.getId())
                 .orElseThrow();
 
         assertEquals(new BigDecimal("15000.00"), recargada.getSaldoPendiente());
@@ -304,7 +304,7 @@ class ObligacionServiceTest {
                 usuario.getId()
         );
 
-        return obligacionService.buscarPorMovimientoOrigen(movimiento.getId())
+        return obligacionService.buscarPorMovimientoOrigen(movimiento.getId(), usuario.getId())
                 .orElseThrow();
     }
 }
