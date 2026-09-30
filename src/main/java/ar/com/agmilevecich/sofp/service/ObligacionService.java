@@ -48,13 +48,26 @@ public class ObligacionService {
         );
     }
 
-    public Obligacion registrar(Movimiento movimientoOrigen) {
+    public Obligacion registrar(Movimiento movimientoOrigen, Long usuarioId) {
+        validarUsuarioYMovimiento(usuarioId, movimientoOrigen);
+        return registrar(movimientoOrigen);
+    }
+
+    /* API interna de compatibilidad para coordinación y tests existentes. */
+    Obligacion registrar(Movimiento movimientoOrigen) {
+        Objects.requireNonNull(movimientoOrigen, "El movimiento origen es obligatorio");
         Obligacion obligacion = new Obligacion(movimientoOrigen);
         return guardar(obligacion);
     }
 
     /** Registra una obligación y persiste sus cuotas dentro de la misma transacción. */
-    public Obligacion registrar(Movimiento movimientoOrigen, int cantidadCuotas) {
+    public Obligacion registrar(Movimiento movimientoOrigen, int cantidadCuotas, Long usuarioId) {
+        validarUsuarioYMovimiento(usuarioId, movimientoOrigen);
+        return registrar(movimientoOrigen, cantidadCuotas);
+    }
+
+    /** Registra una obligación y persiste sus cuotas dentro de la misma transacción. */
+    Obligacion registrar(Movimiento movimientoOrigen, int cantidadCuotas) {
         Objects.requireNonNull(movimientoOrigen, "El movimiento origen es obligatorio");
         if (cantidadCuotas < 1) {
             throw new IllegalArgumentException("La cantidad de cuotas debe ser positiva");
@@ -454,21 +467,51 @@ public class ObligacionService {
         }
     }
 
-    public Optional<Obligacion> buscarPorId(Long id) {
+    public Optional<Obligacion> buscarPorId(Long id, Long usuarioId) {
+        Objects.requireNonNull(id, "El id de la obligación es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        return obligacionRepository.buscarPorId(id)
+                .filter(obligacion -> esPropietario(usuarioId, obligacion));
+    }
+
+    public Optional<Obligacion> buscarPorMovimientoOrigen(Long movimientoId, Long usuarioId) {
+        Objects.requireNonNull(movimientoId, "El id del movimiento es obligatorio");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        return obligacionRepository.buscarPorMovimientoOrigen(movimientoId)
+                .filter(obligacion -> esPropietario(usuarioId, obligacion));
+    }
+
+    /* API interna de compatibilidad para coordinación y tests existentes. */
+    Optional<Obligacion> buscarPorId(Long id) {
         return obligacionRepository.buscarPorId(id);
     }
 
-    public Optional<Obligacion> buscarPorMovimientoOrigen(Long movimientoId) {
+    Optional<Obligacion> buscarPorMovimientoOrigen(Long movimientoId) {
         return obligacionRepository.buscarPorMovimientoOrigen(movimientoId);
     }
 
-    public List<Obligacion> listarTodas() {
+    List<Obligacion> listarTodas() {
         return obligacionRepository.listarTodas();
     }
 
     public List<Obligacion> listarPorUsuario(Long usuarioId) {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         return obligacionRepository.listarPorUsuario(usuarioId);
+    }
+
+    private boolean esPropietario(Long usuarioId, Obligacion obligacion) {
+        return Objects.equals(
+                usuarioId,
+                obligacion.getMovimientoOrigen().getCuenta().getPerfilFinanciero().getUsuario().getId()
+        );
+    }
+
+    private void validarUsuarioYMovimiento(Long usuarioId, Movimiento movimientoOrigen) {
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Objects.requireNonNull(movimientoOrigen, "El movimiento origen es obligatorio");
+        if (!esPropietario(usuarioId, new Obligacion(movimientoOrigen))) {
+            throw new IllegalArgumentException("El movimiento origen no pertenece al usuario autorizado");
+        }
     }
 
     private Obligacion guardar(Obligacion obligacion) {
