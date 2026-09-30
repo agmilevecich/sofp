@@ -379,7 +379,8 @@ class CuentaServiceTest {
         InstitucionFinanciera institucion =
                 new InstitucionFinanciera(
                         "Banco Test",
-                        TipoInstitucionFinanciera.BANCO
+                        TipoInstitucionFinanciera.BANCO,
+                        usuario
                 );
 
         Moneda moneda =
