@@ -374,3 +374,14 @@ Para continuar: reconstruir estado desde GitHub antes de cualquier cambio y no u
 - No se modificó `main`.
 
 Para continuar: reconstruir estado desde GitHub antes de cualquier cambio y no usar resultados históricos como validación del HEAD actual.
+
+
+## CONTINUIDAD OPERATIVA — 30/09/2026
+
+Estado reconstruido desde GitHub sobre feature/swing-shell. Última suite completa informada antes del endurecimiento: 957/957, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS, 29/09/2026 21:58:39 -03:00. Los commits posteriores de auditoría multiusuario todavía requieren validación local.
+
+Auditoría multiusuario: Usuario → PerfilFinanciero → Cuenta → Movimiento/Obligacion, Categoría, InstituciónFinanciera, OperacionesFinancieras, Cartera/Posiciones, Patrimonio y Resultado. Los flujos autenticados ya pasan usuarioId y validan pertenencia. Se detectó y corrigió una frontera importante: CuentaService ahora rechaza registrar o cambiar una cuenta a una institución financiera perteneciente a otro usuario. MultiUsuarioIsolationTest cubre esta regla. ObligacionService y FinanciacionService redujeron sus APIs públicas sin contexto de usuario: las variantes autorizadas requieren usuarioId y las anteriores quedan como APIs internas de compatibilidad.
+
+Pendiente inmediato: ejecutar MultiUsuarioIsolationTest, tests de CuentaService/ObligacionService/FinanciacionService y luego mvn test. No considerar cerrada la auditoría hasta recibir esos resultados. No modificar ni mergear main.
+
+Regla de continuidad: código actual → tests → commits → comparación con main → documentación → conversación histórica.
