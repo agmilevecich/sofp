@@ -159,7 +159,7 @@ class ObligacionesPanelTest {
                 usuario.getId()
         );
 
-        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId(), usuario.getId()).orElseThrow();
         ObligacionesPanel panel = crearPanel();
 
         Component renderer = panel.getObligacionesList().getCellRenderer().getListCellRendererComponent(
@@ -221,7 +221,7 @@ class ObligacionesPanelTest {
                 FormaPago.TARJETA_CREDITO,
                 usuario.getId()
         );
-        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId(), usuario.getId()).orElseThrow();
 
         entityManager.getTransaction().begin();
         entityManager.persist(new TipoCambio(
@@ -239,7 +239,7 @@ class ObligacionesPanelTest {
         assertTrue(panel.getCerrarCicloButton().isEnabled());
         panel.cerrarCicloSeleccionado();
 
-        Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId()).orElseThrow();
+        Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId(), usuario.getId()).orElseThrow();
         assertEquals(new BigDecimal("150000.00"), actualizada.getCuotas().get(0).getImporteValorizacionCierre());
         assertEquals(new BigDecimal("1500.00"), actualizada.getCuotas().get(0).getTipoCambioCierre().getCotizacion());
     }
@@ -256,7 +256,7 @@ class ObligacionesPanelTest {
                 FormaPago.TARJETA_CREDITO,
                 usuario.getId()
         );
-        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        Obligacion obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId(), usuario.getId()).orElseThrow();
 
         ObligacionesPanel panel = crearPanel();
         SwingUtilities.invokeAndWait(() -> panel.getObligacionesList().setSelectedIndex(0));
@@ -264,7 +264,7 @@ class ObligacionesPanelTest {
         assertThrows(IllegalArgumentException.class, panel::cerrarCicloSeleccionado);
 
         entityManager.clear();
-        Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId()).orElseThrow();
+        Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId(), usuario.getId()).orElseThrow();
         assertNull(actualizada.getImporteValorizacionCierre());
         assertNull(actualizada.getTipoCambioCierre());
     }
@@ -307,6 +307,6 @@ class ObligacionesPanelTest {
                 FormaPago.TARJETA_CREDITO,
                 usuario.getId()
         );
-        return obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow();
+        return obligacionService.buscarPorMovimientoOrigen(movimiento.getId(), usuario.getId()).orElseThrow();
     }
 }
