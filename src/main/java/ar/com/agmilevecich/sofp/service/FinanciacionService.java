@@ -82,8 +82,44 @@ public class FinanciacionService {
     }
 
     public Optional<TasaInteres> buscarTasaVigente(Long cuentaId,
+                                                   Long usuarioId,
                                                    TipoTasaInteres tipo,
                                                    LocalDate fecha) {
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        Cuenta cuenta = entityManager.find(Cuenta.class, cuentaId);
+        if (cuenta == null) {
+            throw new IllegalArgumentException("La cuenta no existe");
+        }
+        if (!Objects.equals(cuenta.getPerfilFinanciero().getUsuario().getId(), usuarioId)) {
+            throw new IllegalArgumentException("La cuenta no pertenece al usuario autorizado");
+        }
+        Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
+        Objects.requireNonNull(tipo, "El tipo de tasa es obligatorio");
+        Objects.requireNonNull(fecha, "La fecha es obligatoria");
+        return entityManager.createQuery(
+                """
+                SELECT t
+                FROM TasaInteres t
+                WHERE t.cuenta.id = :cuentaId
+                  AND t.tipo = :tipo
+                  AND t.fechaDesde <= :fecha
+                  AND (t.fechaHasta IS NULL OR t.fechaHasta >= :fecha)
+                ORDER BY t.fechaDesde DESC, t.id DESC
+                """,
+                TasaInteres.class
+        )
+        .setParameter("cuentaId", cuentaId)
+        .setParameter("tipo", tipo)
+        .setParameter("fecha", fecha)
+        .setMaxResults(1)
+        .getResultStream()
+        .findFirst();
+    }
+
+    /* API interna de compatibilidad para tests y coordinación del paquete. */
+    Optional<TasaInteres> buscarTasaVigente(Long cuentaId,
+                                             TipoTasaInteres tipo,
+                                             LocalDate fecha) {
         Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
         Objects.requireNonNull(tipo, "El tipo de tasa es obligatorio");
         Objects.requireNonNull(fecha, "La fecha es obligatoria");
