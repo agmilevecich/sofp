@@ -90,7 +90,8 @@ class RegistroLoginMainFrameIntegrationTest {
         );
         InstitucionFinanciera institucion = new InstitucionFinanciera(
                 "Banco E2E",
-                TipoInstitucionFinanciera.BANCO
+                TipoInstitucionFinanciera.BANCO,
+                autenticado.get()
         );
 
         entityManager.getTransaction().begin();
