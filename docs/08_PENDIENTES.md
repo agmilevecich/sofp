@@ -688,3 +688,55 @@ La suite completa actual es **940/940** verde y no existe un fallo funcional con
 Continúan sujetos a revisión del código y reglas explícitas: refinanciación avanzada, casos multidivisa no determinados por el modelo, calendario bancario/feriados, `Clock`, migraciones/versionado formal de esquema y evolución de UI avanzada.
 
 No implementar estos puntos por inferencia.
+
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 30/09/2026
+
+Esta sección supersede cualquier estado anterior cuando exista contradicción. Fuente de verdad: código, tests y commits actuales de GitHub.
+
+### Estado Git
+- Rama de trabajo: feature/swing-shell.
+- Rama estable: main.
+- Últimos cambios de código de esta auditoría: c12ed58 (validar pertenencia de institución en cuentas), e9a76d5 (test de instituciones cruzadas), fb020c3/45f817f (aislamiento de obligaciones) y f5740c6 (aislamiento de consulta de tasas).
+- main no fue modificada ni mergeada.
+
+### Última suite conocida
+Antes de estos ajustes de endurecimiento, el usuario confirmó mvn test con 957/957, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS, finalizada el 29/09/2026 a las 21:58:39 -03:00.
+Ese resultado sigue siendo la última suite completa ejecutada e informada, pero no se debe considerar validación del código posterior: los cambios de esta auditoría quedan pendientes de ejecución local.
+
+### Auditoría integral de recursos multiusuario
+Se revisaron las cadenas Usuario → PerfilFinanciero → Cuenta → Movimiento/Obligacion, además de Categoría, InstituciónFinanciera, OperacionesFinancieras, inversiones, patrimonio y resultado.
+
+Estado confirmado:
+- Perfil financiero: aislado por usuarioId.
+- Cuenta: aislada por propietario del perfil; además exige que la InstituciónFinanciera pertenezca al mismo usuario al registrar o cambiar una cuenta.
+- Movimiento: registra, consulta y modifica con validación del propietario de cuenta/categoría.
+- Categoría: aislada por perfil y usuario.
+- Institución financiera: pertenece a Usuario; el flujo autenticado filtra por usuario; los formularios de Cuenta/Tarjeta se refrescan sin reiniciar y conservan Seleccione....
+- Obligación: las operaciones de usuario ya validaban propietario; se endurecieron las altas y consultas para que las variantes públicas requieran contexto de usuario. Las variantes antiguas quedaron como API interna de compatibilidad del paquete.
+- Financiación/Tasas: alta y cálculo ya validaban propietario; la consulta pública de tasa vigente ahora requiere usuarioId; la variante anterior quedó como API interna de compatibilidad.
+- Operaciones financieras: validan las cuentas y categorías involucradas contra el usuario autorizado.
+- Inversiones/Cartera: el acceso se valida mediante PerfilFinanciero + usuario; Activo y CotizacionActivo son recursos globales en el modelo actual.
+- Patrimonio y Resultado: reciben PerfilFinanciero + usuario y validan pertenencia antes de calcular.
+- Moneda y TipoCambio: son recursos globales del sistema.
+
+### Hallazgos relevantes
+No se encontró otro flujo Swing autenticado que liste o modifique recursos privados mediante APIs sin usuarioId. Sí existían APIs históricas sin contexto en servicios de cuenta/obligación/financiación; se revisaron y se redujo su superficie pública sin eliminar la compatibilidad interna necesaria para tests y coordinación del paquete.
+
+MultiUsuarioIsolationTest fue reforzado para que cada usuario tenga su propia institución y para demostrar que una cuenta no puede registrarse ni cambiarse a una institución perteneciente a otro usuario.
+
+### Validación pendiente
+1. MultiUsuarioIsolationTest.
+2. Tests de CuentaService, ObligacionService y FinanciacionService.
+3. Suite completa mvn test.
+4. git diff, git diff --check y git status en el entorno local.
+
+No considerar cerrada esta etapa hasta que el usuario informe esos resultados.
+
+### Próximo paso
+Ejecutar la batería específica, corregir cualquier regresión real y repetir la suite completa. Si queda verde, cerrar documentalmente la auditoría multiusuario y pasar al siguiente bloque funcional sin modificar main.
+
+### Regla permanente
+GitHub → rama → commits → comparación con main → código → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo.
+
+La documentación es auxiliar: código actual y tests prevalecen sobre notas históricas.
