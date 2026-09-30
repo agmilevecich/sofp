@@ -509,7 +509,9 @@ public class ObligacionService {
     private void validarUsuarioYMovimiento(Long usuarioId, Movimiento movimientoOrigen) {
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
         Objects.requireNonNull(movimientoOrigen, "El movimiento origen es obligatorio");
-        if (!esPropietario(usuarioId, new Obligacion(movimientoOrigen))) {
+        if (!Objects.equals(
+                usuarioId,
+                movimientoOrigen.getCuenta().getPerfilFinanciero().getUsuario().getId())) {
             throw new IllegalArgumentException("El movimiento origen no pertenece al usuario autorizado");
         }
     }
