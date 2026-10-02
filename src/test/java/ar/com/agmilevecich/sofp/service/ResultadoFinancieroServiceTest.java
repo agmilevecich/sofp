@@ -266,12 +266,6 @@ class ResultadoFinancieroServiceTest {
         entityManager.getTransaction().commit();
     }
 
-    private Long ultimoMovimientoId() {
-        return entityManager.createQuery(
-                "SELECT m.id FROM Movimiento m ORDER BY m.id DESC", Long.class
-        ).setMaxResults(1).getSingleResult();
-    }
-
     private UsuarioContexto crearContexto() {
         var usuario = new ar.com.agmilevecich.sofp.domain.Usuario(
                 "Juan", "Pérez", "resultado." + System.nanoTime() + "@test.com", "hash"
@@ -320,6 +314,7 @@ class ResultadoFinancieroServiceTest {
             Cuenta tarjeta,
             Categoria categoria,
             Moneda ars,
+            InstitucionFinanciera institucion,
             Long otroUsuarioId
     ) {}
 }
