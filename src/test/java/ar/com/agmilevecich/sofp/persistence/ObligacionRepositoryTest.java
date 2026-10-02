@@ -363,6 +363,83 @@ class ObligacionRepositoryTest {
         }
     }
 
+
+    @Test
+    void deberiaReducirCreditoUtilizadoAlRegistrarPagoParcialEnMonedaOriginal() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Datos datos = crearDatos();
+            Obligacion obligacion = crearObligacion(
+                    datos.cuenta(), datos.categoria(),
+                    LocalDateTime.of(2026, 9, 10, 10, 0),
+                    "Consumo ARS"
+            );
+            obligacion.registrarPago(new BigDecimal("40.00"));
+
+            ObligacionRepository repository = new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            em.persist(obligacion.getMovimientoOrigen());
+            repository.guardar(obligacion);
+            em.getTransaction().commit();
+
+            BigDecimal resultado = repository.sumarCreditoUtilizadoPorCuenta(
+                    datos.cuenta().getId(), datos.cuenta().getMoneda()
+            );
+
+            assertEquals(0, new BigDecimal("60.00").compareTo(resultado));
+        } finally {
+            JpaTestManager.close();
+        }
+    }
+
+    @Test
+    void deberiaConservarCapitalYAgregarCargosPendientesDeUnaFinanciacion() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+
+        try {
+            Datos datos = crearDatos();
+            Obligacion obligacion = crearObligacion(
+                    datos.cuenta(), datos.categoria(),
+                    LocalDateTime.of(2026, 9, 10, 10, 0),
+                    "Consumo financiado"
+            );
+            Financiacion financiacion = new Financiacion(
+                    obligacion,
+                    LocalDate.of(2026, 9, 26),
+                    new BigDecimal("240.00")
+            );
+            financiacion.registrarInteres(
+                    new BigDecimal("12.00"),
+                    LocalDate.of(2026, 9, 27),
+                    new BigDecimal("240.00"),
+                    new BigDecimal("18.0000"),
+                    1
+            );
+            obligacion.agregarFinanciacion(financiacion);
+
+            ObligacionRepository repository = new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em, datos);
+            em.persist(obligacion.getMovimientoOrigen());
+            repository.guardar(obligacion);
+            em.getTransaction().commit();
+
+            BigDecimal resultado = repository.sumarCreditoUtilizadoPorCuenta(
+                    datos.cuenta().getId(), datos.cuenta().getMoneda()
+            );
+
+            assertEquals(0, new BigDecimal("252.00").compareTo(resultado));
+        } finally {
+            JpaTestManager.close();
+        }
+    }
+
     private Datos crearDatos() {
         Usuario usuario = new Usuario(
                 "Ariel", "Milevecich",
