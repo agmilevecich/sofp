@@ -354,6 +354,31 @@ class ResultadoFinancieroServiceTest {
     }
 
     @Test
+    void deberiaRechazarArgumentosObligatoriosNulos() {
+        LocalDate desde = LocalDate.of(2026, 9, 1);
+        LocalDate hasta = LocalDate.of(2026, 9, 30);
+
+        assertThrows(NullPointerException.class, () -> resultadoService.calcular(null, contexto.usuario.getId(), desde, hasta));
+        assertThrows(NullPointerException.class, () -> resultadoService.calcular(contexto.perfil, null, desde, hasta));
+        assertThrows(NullPointerException.class, () -> resultadoService.calcular(contexto.perfil, contexto.usuario.getId(), null, hasta));
+        assertThrows(NullPointerException.class, () -> resultadoService.calcular(contexto.perfil, contexto.usuario.getId(), desde, null));
+    }
+
+    @Test
+    void deberiaDevolverCerosCuandoElPeriodoNoTieneMovimientos() {
+        ResumenResultadoFinanciero resumen = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2027, 1, 1),
+                LocalDate.of(2027, 1, 31)
+        );
+
+        assertEquals(new BigDecimal("0.00"), resumen.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), resumen.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), resumen.getResultado(contexto.ars));
+    }
+
+    @Test
     void deberiaRechazarPerfilDeOtroUsuario() {
         assertThrows(
                 IllegalArgumentException.class,
