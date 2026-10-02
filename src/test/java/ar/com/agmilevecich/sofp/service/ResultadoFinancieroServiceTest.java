@@ -274,7 +274,9 @@ class ResultadoFinancieroServiceTest {
         var cuentaOtro = new Cuenta(
                 "Caja Otro",
                 TipoCuenta.CAJA_AHORRO,
-                entityManager.find(PerfilFinanciero.class, crearPerfilOtroId()),
+                entityManager.createQuery("SELECT p FROM PerfilFinanciero p WHERE p.usuario.id = :usuarioId", PerfilFinanciero.class)
+                        .setParameter("usuarioId", contexto.otroUsuarioId)
+                        .getSingleResult(),
                 institucionOtro,
                 contexto.ars
         );
