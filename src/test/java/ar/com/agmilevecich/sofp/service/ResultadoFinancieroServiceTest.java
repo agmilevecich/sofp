@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -401,6 +403,127 @@ class ResultadoFinancieroServiceTest {
                         LocalDate.of(2026, 9, 30),
                         LocalDate.of(2026, 9, 1)
                 )
+        );
+    }
+
+    @Test
+    void deberiaMantenerInmutablesLosMapasDelResumen() {
+        Map<Moneda, BigDecimal> ingresos = new LinkedHashMap<>();
+        Map<Moneda, BigDecimal> egresos = new LinkedHashMap<>();
+        ingresos.put(contexto.ars, new BigDecimal("100.00"));
+        egresos.put(contexto.ars, new BigDecimal("25.00"));
+
+        ResumenResultadoFinanciero resumen = new ResumenResultadoFinanciero(
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30),
+                ingresos,
+                egresos
+        );
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> resumen.getIngresos().put(contexto.ars, new BigDecimal("999.00"))
+        );
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> resumen.getEgresos().put(contexto.ars, new BigDecimal("999.00"))
+        );
+    }
+
+    @Test
+    void deberiaCopiarLosMapasRecibidosPorElResumen() {
+        Map<Moneda, BigDecimal> ingresos = new LinkedHashMap<>();
+        Map<Moneda, BigDecimal> egresos = new LinkedHashMap<>();
+        ingresos.put(contexto.ars, new BigDecimal("100.00"));
+        egresos.put(contexto.ars, new BigDecimal("25.00"));
+
+        ResumenResultadoFinanciero resumen = new ResumenResultadoFinanciero(
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30),
+                ingresos,
+                egresos
+        );
+
+        ingresos.put(contexto.ars, new BigDecimal("999.00"));
+        egresos.clear();
+
+        assertEquals(new BigDecimal("100.00"), resumen.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("25.00"), resumen.getEgresos(contexto.ars));
+    }
+
+    @Test
+    void deberiaRechazarDatosInvalidosEnElResumen() {
+        Map<Moneda, BigDecimal> ingresos = new LinkedHashMap<>();
+        Map<Moneda, BigDecimal> egresos = new LinkedHashMap<>();
+
+        assertThrows(
+                NullPointerException.class,
+                () -> new ResumenResultadoFinanciero(
+                        null,
+                        LocalDate.of(2026, 9, 30),
+                        ingresos,
+                        egresos
+                )
+        );
+        assertThrows(
+                NullPointerException.class,
+                () -> new ResumenResultadoFinanciero(
+                        LocalDate.of(2026, 9, 1),
+                        LocalDate.of(2026, 9, 30),
+                        null,
+                        egresos
+                )
+        );
+        assertThrows(
+                NullPointerException.class,
+                () -> new ResumenResultadoFinanciero(
+                        LocalDate.of(2026, 9, 1),
+                        LocalDate.of(2026, 9, 30),
+                        ingresos,
+                        null
+                )
+        );
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new ResumenResultadoFinanciero(
+                        LocalDate.of(2026, 9, 30),
+                        LocalDate.of(2026, 9, 1),
+                        ingresos,
+                        egresos
+                )
+        );
+
+        ingresos.put(null, new BigDecimal("10.00"));
+        assertThrows(
+                NullPointerException.class,
+                () -> new ResumenResultadoFinanciero(
+                        LocalDate.of(2026, 9, 1),
+                        LocalDate.of(2026, 9, 30),
+                        ingresos,
+                        egresos
+                )
+        );
+    }
+
+    @Test
+    void deberiaDevolverCeroConLaEscalaDeLaMonedaCuandoNoHayMovimiento() {
+        ResumenResultadoFinanciero resumen = new ResumenResultadoFinanciero(
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30),
+                Map.of(),
+                Map.of()
+        );
+
+        assertEquals(new BigDecimal("0.00"), resumen.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), resumen.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), resumen.getResultado(contexto.ars));
+        assertThrows(
+                NullPointerException.class,
+                () -> resumen.getIngresos(null)
+        );
+        assertThrows(
+                NullPointerException.class,
+                () -> resumen.getEgresos(null)
         );
     }
 
