@@ -101,6 +101,58 @@ class ResultadoFinancieroServiceTest {
     }
 
     @Test
+    void deberiaMantenerSeparadosLosResultadosDeDistintasMonedas() {
+        Moneda usd = new Moneda(
+                "USD", "Dólar estadounidense", 2, TipoMoneda.FIAT
+        );
+        Cuenta cuentaUsd = new Cuenta(
+                "Caja USD",
+                TipoCuenta.CAJA_AHORRO,
+                contexto.perfil,
+                contexto.institucion,
+                usd
+        );
+        Categoria categoriaUsd = new Categoria("General USD", contexto.perfil);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(usd);
+        entityManager.persist(cuentaUsd);
+        entityManager.persist(categoriaUsd);
+        entityManager.persist(new Movimiento(
+                cuentaUsd,
+                categoriaUsd,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100.00"),
+                LocalDateTime.of(2026, 9, 10, 11, 0),
+                "Ingreso USD"
+        ));
+        entityManager.persist(new Movimiento(
+                cuentaUsd,
+                categoriaUsd,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("25.00"),
+                LocalDateTime.of(2026, 9, 11, 11, 0),
+                "Gasto USD"
+        ));
+        entityManager.getTransaction().commit();
+
+        persistirMovimiento(cuenta, TipoMovimiento.INGRESO, "100000.00", "Ingreso ARS");
+
+        ResumenResultadoFinanciero resumen = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30)
+        );
+
+        assertEquals(new BigDecimal("100000.00"), resumen.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("100000.00"), resumen.getResultado(contexto.ars));
+        assertEquals(new BigDecimal("100.00"), resumen.getIngresos(usd));
+        assertEquals(new BigDecimal("25.00"), resumen.getEgresos(usd));
+        assertEquals(new BigDecimal("75.00"), resumen.getResultado(usd));
+    }
+
+    @Test
     void deberiaExcluirTransferenciasYComprasDeActivosDelResultado() {
         persistirMovimiento(cuenta, TipoMovimiento.INGRESO, "100000.00", "Ingreso");
 
