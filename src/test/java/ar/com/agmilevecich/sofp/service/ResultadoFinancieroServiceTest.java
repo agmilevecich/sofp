@@ -283,7 +283,7 @@ class ResultadoFinancieroServiceTest {
         usuario.agregarPerfilFinanciero(perfil);
         var otroPerfil = new PerfilFinanciero("Otro perfil", otroUsuario);
         otroUsuario.agregarPerfilFinanciero(otroPerfil);
-        var institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
+        var institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO, usuario);
         var ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
         var cuenta = new Cuenta("Caja", TipoCuenta.CAJA_AHORRO, perfil, institucion, ars);
         var cuentaDestino = new Cuenta("Caja destino", TipoCuenta.CAJA_AHORRO, perfil, institucion, ars);
@@ -309,7 +309,7 @@ class ResultadoFinancieroServiceTest {
         ));
         entityManager.getTransaction().commit();
 
-        return new UsuarioContexto(usuario, perfil, cuenta, cuentaDestino, tarjeta, categoria, ars, otroUsuario.getId());
+        return new UsuarioContexto(usuario, perfil, cuenta, cuentaDestino, tarjeta, categoria, ars, institucion, otroUsuario.getId());
     }
 
     private record UsuarioContexto(
