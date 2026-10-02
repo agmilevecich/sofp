@@ -356,6 +356,58 @@ class ResultadoFinancieroServiceTest {
     }
 
     @Test
+    void deberiaExcluirReversionDePagoCuandoCaeEnOtroPeriodo() {
+        Movimiento compra = gastoService.registrar(
+                tarjeta,
+                categoria,
+                contexto.ars,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 30, 10, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                contexto.usuario.getId(),
+                1
+        );
+        Obligacion obligacion = new ObligacionService(entityManager, new ObligacionRepository(entityManager))
+                .buscarPorMovimientoOrigen(compra.getId())
+                .orElseThrow();
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(),
+                cuenta,
+                categoria,
+                new BigDecimal("20000.00"),
+                LocalDateTime.of(2026, 9, 30, 11, 0),
+                "Pago tarjeta",
+                contexto.usuario.getId()
+        );
+        pagoTarjetaService.revertirUltimoPago(
+                obligacion.getId(),
+                contexto.usuario.getId(),
+                LocalDateTime.of(2026, 10, 1, 10, 0)
+        );
+
+        ResumenResultadoFinanciero septiembre = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30)
+        );
+        ResumenResultadoFinanciero octubre = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 31)
+        );
+
+        assertEquals(new BigDecimal("50000.00"), septiembre.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("-50000.00"), septiembre.getResultado(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), octubre.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), octubre.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), octubre.getResultado(contexto.ars));
+    }
+
+    @Test
     void deberiaRechazarArgumentosObligatoriosNulos() {
         LocalDate desde = LocalDate.of(2026, 9, 1);
         LocalDate hasta = LocalDate.of(2026, 9, 30);
