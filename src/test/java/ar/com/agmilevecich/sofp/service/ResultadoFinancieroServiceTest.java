@@ -232,6 +232,126 @@ class ResultadoFinancieroServiceTest {
     }
 
     @Test
+    void deberiaIncluirLosLimitesDelPeriodoYExcluirMovimientosExternos() {
+        entityManager.getTransaction().begin();
+        entityManager.persist(new Movimiento(
+                cuenta, categoria, TipoMovimiento.INGRESO, new BigDecimal("1000.00"),
+                LocalDateTime.of(2026, 9, 1, 0, 0), "Inicio"
+        ));
+        entityManager.persist(new Movimiento(
+                cuenta, categoria, TipoMovimiento.EGRESO, new BigDecimal("200.00"),
+                LocalDateTime.of(2026, 9, 30, 23, 59), "Fin"
+        ));
+        entityManager.persist(new Movimiento(
+                cuenta, categoria, TipoMovimiento.INGRESO, new BigDecimal("9000.00"),
+                LocalDateTime.of(2026, 8, 31, 23, 59), "Antes"
+        ));
+        entityManager.persist(new Movimiento(
+                cuenta, categoria, TipoMovimiento.INGRESO, new BigDecimal("8000.00"),
+                LocalDateTime.of(2026, 10, 1, 0, 0), "Después"
+        ));
+        entityManager.getTransaction().commit();
+
+        ResumenResultadoFinanciero resumen = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30)
+        );
+
+        assertEquals(new BigDecimal("1000.00"), resumen.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("200.00"), resumen.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("800.00"), resumen.getResultado(contexto.ars));
+    }
+
+    @Test
+    void deberiaExcluirMovimientosDeOtroUsuario() {
+        var institucionOtro = new InstitucionFinanciera(
+                "Banco Otro",
+                TipoInstitucionFinanciera.BANCO,
+                entityManager.find(ar.com.agmilevecich.sofp.domain.Usuario.class, contexto.otroUsuarioId)
+        );
+        var cuentaOtro = new Cuenta(
+                "Caja Otro",
+                TipoCuenta.CAJA_AHORRO,
+                entityManager.find(PerfilFinanciero.class, crearPerfilOtroId()),
+                institucionOtro,
+                contexto.ars
+        );
+        var categoriaOtro = new Categoria("General Otro", cuentaOtro.getPerfilFinanciero());
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(institucionOtro);
+        entityManager.persist(cuentaOtro);
+        entityManager.persist(categoriaOtro);
+        entityManager.persist(new Movimiento(
+                cuentaOtro, categoriaOtro, TipoMovimiento.INGRESO,
+                new BigDecimal("99999.00"),
+                LocalDateTime.of(2026, 9, 15, 10, 0),
+                "Ingreso de otro usuario"
+        ));
+        entityManager.getTransaction().commit();
+
+        ResumenResultadoFinanciero resumen = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30)
+        );
+
+        assertEquals(new BigDecimal("0.00"), resumen.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), resumen.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), resumen.getResultado(contexto.ars));
+    }
+
+    @Test
+    void deberiaExcluirPagoDeTarjetaRealizadoEnOtroPeriodo() {
+        Movimiento compra = gastoService.registrar(
+                tarjeta,
+                categoria,
+                contexto.ars,
+                new BigDecimal("50000.00"),
+                LocalDateTime.of(2026, 9, 30, 10, 0),
+                "Compra con tarjeta",
+                FormaPago.TARJETA_CREDITO,
+                contexto.usuario.getId(),
+                1
+        );
+        Obligacion obligacion = new ObligacionService(entityManager, new ObligacionRepository(entityManager))
+                .buscarPorMovimientoOrigen(compra.getId())
+                .orElseThrow();
+
+        pagoTarjetaService.registrarPago(
+                obligacion.getId(),
+                cuenta,
+                categoria,
+                new BigDecimal("20000.00"),
+                LocalDateTime.of(2026, 10, 1, 10, 0),
+                "Pago tarjeta en octubre",
+                contexto.usuario.getId()
+        );
+
+        ResumenResultadoFinanciero septiembre = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 30)
+        );
+        ResumenResultadoFinanciero octubre = resultadoService.calcular(
+                contexto.perfil,
+                contexto.usuario.getId(),
+                LocalDate.of(2026, 10, 1),
+                LocalDate.of(2026, 10, 31)
+        );
+
+        assertEquals(new BigDecimal("50000.00"), septiembre.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("-50000.00"), septiembre.getResultado(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), octubre.getIngresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), octubre.getEgresos(contexto.ars));
+        assertEquals(new BigDecimal("0.00"), octubre.getResultado(contexto.ars));
+    }
+
+    @Test
     void deberiaRechazarPerfilDeOtroUsuario() {
         assertThrows(
                 IllegalArgumentException.class,
