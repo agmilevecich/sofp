@@ -18,6 +18,7 @@ import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.ResumenPatrimonial;
 import ar.com.agmilevecich.sofp.domain.Refinanciacion;
+import ar.com.agmilevecich.sofp.service.RefinanciacionService;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
@@ -280,6 +281,72 @@ class PatrimonioFinancieroServiceTest {
         assertEquals(new BigDecimal("252.00"), resumen.getPasivosTarjetas());
         assertEquals(new BigDecimal("100000.00"), resumen.getActivosTotales());
         assertEquals(new BigDecimal("99748.00"), resumen.getPatrimonioNeto());
+    }
+
+    @Test
+    void deberiaConservarLaDeudaEnUnaRefinanciacionActivaSinDuplicarLaObligacionOrigen() {
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 9, 25, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
+        Cuenta tarjeta = new Cuenta(
+                "Visa Refinanciada",
+                perfil,
+                entityManager.createQuery(
+                        "SELECT i FROM InstitucionFinanciera i",
+                        InstitucionFinanciera.class
+                ).setMaxResults(1).getSingleResult(),
+                ars,
+                new BigDecimal("500000.00"),
+                10,
+                25
+        );
+        Categoria categoriaTarjeta = new Categoria("Refinanciacion", perfil);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(tarjeta);
+        entityManager.persist(categoriaTarjeta);
+        entityManager.getTransaction().commit();
+
+        var movimiento = gastoService.registrar(
+                tarjeta,
+                categoriaTarjeta,
+                ars,
+                new BigDecimal("240.00"),
+                LocalDateTime.of(2026, 9, 25, 11, 0),
+                "Consumo a refinanciar",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        RefinanciacionService refinanciacionService = new RefinanciacionService(entityManager);
+        Refinanciacion refinanciacion = refinanciacionService.crear(
+                obligacionService.buscarPorMovimientoOrigen(movimiento.getId()).orElseThrow().getId(),
+                usuario.getId(),
+                LocalDate.of(2026, 9, 26),
+                1,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
+        );
+
+        assertEquals(new BigDecimal("240.00"), refinanciacion.getSaldoPlan());
+
+        ResumenPatrimonial resumen = patrimonioService.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of()
+        );
+
+        assertEquals(new BigDecimal("240.00"), resumen.getPasivosTarjetas());
+        assertEquals(new BigDecimal("100000.00"), resumen.getActivosTotales());
+        assertEquals(new BigDecimal("99760.00"), resumen.getPatrimonioNeto());
     }
 
     @Test
