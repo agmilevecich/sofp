@@ -161,11 +161,16 @@ class ObligacionRepositoryTest {
         EntityManager em = JpaTestManager.createEntityManager();
         try {
             Datos d = crearDatos();
-            Obligacion o = crearObligacion(
-                    d.cuenta(), d.categoria(),
+            Movimiento movimiento = new Movimiento(
+                    d.cuenta(),
+                    d.categoria(),
+                    TipoMovimiento.EGRESO,
+                    new BigDecimal("240.00"),
                     LocalDateTime.of(2026, 9, 10, 10, 0),
-                    "Consumo parcialmente financiado"
+                    "Consumo parcialmente financiado",
+                    FormaPago.TARJETA_CREDITO
             );
+            Obligacion o = new Obligacion(movimiento);
             o.generarCuotas(1);
             Financiacion f = o.crearFinanciacion(
                     o.getCuotas().get(0).getFechaVencimiento().plusDays(1),
