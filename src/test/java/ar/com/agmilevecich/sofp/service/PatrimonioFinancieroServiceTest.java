@@ -266,6 +266,11 @@ class PatrimonioFinancieroServiceTest {
         entityManager.merge(obligacion);
         entityManager.getTransaction().commit();
 
+        assertEquals(1L, entityManager.createQuery(
+                "SELECT COUNT(f) FROM Financiacion f WHERE f.obligacion.id = :id AND f.origenLiquidacion = false AND f.saldoCapital > 0",
+                Long.class
+        ).setParameter("id", obligacion.getId()).getSingleResult());
+
         ResumenPatrimonial resumen = patrimonioService.calcular(
                 perfil,
                 usuario.getId(),
