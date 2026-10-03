@@ -93,6 +93,57 @@ class ObligacionRepositoryTest {
     }
 
     @Test
+    void deberiaValorarLaFinanciacionMultidivisaConSuCotizacionHistorica() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            Datos d = crearDatos();
+            Moneda usd = crearDolares();
+            Obligacion o = crearObligacionMultidivisa(
+                    d.cuenta(), d.categoria(), usd
+            );
+            TipoCambio cierre = new TipoCambio(
+                    usd, d.moneda(), new BigDecimal("1500.00"),
+                    LocalDateTime.of(2026, 9, 15, 23, 59), "CIERRE"
+            );
+            TipoCambio financiacionCambio = new TipoCambio(
+                    usd, d.moneda(), new BigDecimal("1600.00"),
+                    LocalDateTime.of(2026, 9, 26, 23, 59), "FINANCIACION"
+            );
+            o.valorarCierre(cierre);
+            o.crearFinanciacion(
+                    LocalDate.of(2026, 9, 26),
+                    new BigDecimal("40.00"),
+                    usd,
+                    financiacionCambio,
+                    false
+            );
+
+            ObligacionRepository r = new ObligacionRepository(em);
+            em.getTransaction().begin();
+            persistirDatosBase(em, d);
+            em.persist(usd);
+            em.persist(cierre);
+            em.persist(financiacionCambio);
+            em.persist(o.getMovimientoOrigen());
+            r.guardar(o);
+            em.getTransaction().commit();
+
+            assertEquals(
+                    0,
+                    new BigDecimal("154000.00").compareTo(
+                            r.sumarCreditoUtilizadoPorCuenta(
+                                    d.cuenta().getId(),
+                                    d.cuenta().getMoneda()
+                            )
+                    )
+            );
+        } finally {
+            JpaTestManager.close();
+        }
+    }
+
+    @Test
     void deberiaReducirCreditoUtilizadoProporcionalmenteAlPagoParcialEnMonedaOriginal() {
         JpaTestManager.close(); EntityManager em=JpaTestManager.createEntityManager();
         try { Datos d=crearDatos(); Moneda usd=crearDolares(); Obligacion o=crearObligacionMultidivisa(d.cuenta(),d.categoria(),usd); TipoCambio tc=new TipoCambio(usd,d.moneda(),new BigDecimal("1500.00"),LocalDateTime.of(2026,9,15,23,59),"TEST"); o.valorarCierre(tc); o.registrarPago(new BigDecimal("40.00")); ObligacionRepository r=new ObligacionRepository(em); em.getTransaction().begin(); persistirDatosBase(em,d); em.persist(usd); em.persist(tc); em.persist(o.getMovimientoOrigen()); r.guardar(o); em.getTransaction().commit(); assertEquals(0,new BigDecimal("90000.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda()))); } finally { JpaTestManager.close(); }
