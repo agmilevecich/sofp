@@ -114,7 +114,7 @@ class ObligacionRepositoryTest {
     void deberiaConservarCapitalYAgregarCargosPendientesDeUnaFinanciacion() {
         JpaTestManager.close(); EntityManager em=JpaTestManager.createEntityManager();
         try {
-            Datos d=crearDatos(); Obligacion o=crearObligacion(d.cuenta(),d.categoria(),LocalDateTime.of(2026,9,10,10,0),"Consumo financiado"); Financiacion f=new Financiacion(o,LocalDate.of(2026,9,26),new BigDecimal("240.00")); f.registrarInteres(new BigDecimal("12.00"),LocalDate.of(2026,9,27),new BigDecimal("240.00"),new BigDecimal("18.0000"),1); o.agregarFinanciacion(f); ObligacionRepository r=new ObligacionRepository(em);
+            Datos d=crearDatos(); Movimiento movimiento=new Movimiento(d.cuenta(),d.categoria(),TipoMovimiento.EGRESO,new BigDecimal("240.00"),LocalDateTime.of(2026,9,10,10,0),"Consumo financiado",FormaPago.TARJETA_CREDITO); Obligacion o=new Obligacion(movimiento); Financiacion f=o.crearFinanciacion(LocalDate.of(2026,9,26),new BigDecimal("240.00")); f.registrarInteres(new BigDecimal("12.00"),LocalDate.of(2026,9,27),new BigDecimal("240.00"),new BigDecimal("18.0000"),1); ObligacionRepository r=new ObligacionRepository(em);
             em.getTransaction().begin(); persistirDatosBase(em,d); em.persist(o.getMovimientoOrigen()); r.guardar(o); em.getTransaction().commit();
             assertEquals(1L, em.createQuery("SELECT COUNT(f) FROM Financiacion f WHERE f.obligacion.id = :obligacionId", Long.class).setParameter("obligacionId", o.getId()).getSingleResult());
             assertEquals(1L, em.createQuery("SELECT COUNT(c) FROM CargoFinanciero c WHERE c.financiacion.obligacion.id = :obligacionId", Long.class).setParameter("obligacionId", o.getId()).getSingleResult());
