@@ -323,7 +323,7 @@ class ObligacionRepositoryTest {
 
             assertEquals(
                     0,
-                    new BigDecimal("60000.00").compareTo(
+                    new BigDecimal("90000.00").compareTo(
                             r.sumarCreditoUtilizadoPorCuenta(
                                     d.cuenta().getId(),
                                     d.cuenta().getMoneda()
@@ -332,7 +332,7 @@ class ObligacionRepositoryTest {
             );
 
             em.getTransaction().begin();
-            o.registrarPagoLiquidacion(new BigDecimal("60000.00"));
+            o.registrarPagoLiquidacion(new BigDecimal("90000.00"));
             em.getTransaction().commit();
 
             assertEquals(
