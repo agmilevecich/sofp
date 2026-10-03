@@ -160,7 +160,7 @@ class ObligacionRepositoryTest {
             );
             f.registrarInteres(
                     new BigDecimal("12.00"),
-                    LocalDate.of(2026,9,27),
+                    f.getFechaInicio().plusDays(1),
                     new BigDecimal("240.00"),
                     new BigDecimal("18.0000"),
                     1
