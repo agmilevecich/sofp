@@ -129,13 +129,19 @@ class ObligacionRepositoryTest {
 
             assertEquals(0,new BigDecimal("252.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
 
+            em.getTransaction().begin();
             o.registrarPagoFinanciacion(f,new BigDecimal("5.00"));
+            em.getTransaction().commit();
             assertEquals(0,new BigDecimal("247.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
 
+            em.getTransaction().begin();
             o.registrarPagoFinanciacion(f,new BigDecimal("7.00"));
+            em.getTransaction().commit();
             assertEquals(0,new BigDecimal("240.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
 
+            em.getTransaction().begin();
             o.registrarPagoFinanciacion(f,new BigDecimal("240.00"));
+            em.getTransaction().commit();
             assertEquals(0,BigDecimal.ZERO.compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
         } finally { JpaTestManager.close(); }
     }
