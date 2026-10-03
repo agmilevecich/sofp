@@ -12,6 +12,7 @@ import ar.com.agmilevecich.sofp.domain.TipoOperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
+import ar.com.agmilevecich.sofp.domain.Financiacion;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
@@ -202,6 +203,78 @@ class PatrimonioFinancieroServiceTest {
         assertEquals(new BigDecimal("30000.00"), resumen.getPasivosTarjetas());
         assertEquals(new BigDecimal("100000.00"), resumen.getActivosTotales());
         assertEquals(new BigDecimal("70000.00"), resumen.getPatrimonioNeto());
+    }
+
+    @Test
+    void deberiaDescontarFinanciacionYCargosPendientesDelPatrimonioNeto() {
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 9, 25, 10, 0),
+                "Saldo inicial",
+                usuario.getId()
+        );
+
+        Cuenta tarjeta = new Cuenta(
+                "Visa Financiada",
+                perfil,
+                entityManager.createQuery(
+                        "SELECT i FROM InstitucionFinanciera i",
+                        InstitucionFinanciera.class
+                ).setMaxResults(1).getSingleResult(),
+                ars,
+                new BigDecimal("500000.00"),
+                10,
+                25
+        );
+        Categoria categoriaTarjeta = new Categoria("Financiacion", perfil);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(tarjeta);
+        entityManager.persist(categoriaTarjeta);
+        entityManager.getTransaction().commit();
+
+        var movimiento = gastoService.registrar(
+                tarjeta,
+                categoriaTarjeta,
+                ars,
+                new BigDecimal("240.00"),
+                LocalDateTime.of(2026, 9, 25, 11, 0),
+                "Consumo financiado",
+                FormaPago.TARJETA_CREDITO,
+                usuario.getId()
+        );
+
+        var obligacion = obligacionService.buscarPorMovimientoOrigen(movimiento.getId())
+                .orElseThrow();
+
+        Financiacion financiacion = obligacion.crearFinanciacion(
+                LocalDate.of(2026, 9, 26),
+                new BigDecimal("240.00")
+        );
+        financiacion.registrarInteres(
+                new BigDecimal("12.00"),
+                LocalDate.of(2026, 9, 27),
+                new BigDecimal("240.00"),
+                new BigDecimal("18.0000"),
+                1
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.merge(obligacion);
+        entityManager.getTransaction().commit();
+
+        ResumenPatrimonial resumen = patrimonioService.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of()
+        );
+
+        assertEquals(new BigDecimal("252.00"), resumen.getPasivosTarjetas());
+        assertEquals(new BigDecimal("100000.00"), resumen.getActivosTotales());
+        assertEquals(new BigDecimal("99748.00"), resumen.getPatrimonioNeto());
     }
 
     @Test
