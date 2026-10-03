@@ -147,6 +147,42 @@ class ObligacionRepositoryTest {
     }
 
     @Test
+    void deberiaEvitarDuplicarCapitalFinanciadoCuandoLaObligacionTieneCuotas() {
+        JpaTestManager.close(); EntityManager em=JpaTestManager.createEntityManager();
+        try {
+            Datos d=crearDatos();
+            Movimiento movimiento=new Movimiento(d.cuenta(),d.categoria(),TipoMovimiento.EGRESO,new BigDecimal("240.00"),LocalDateTime.of(2026,9,10,10,0),"Consumo financiado con cuota",FormaPago.TARJETA_CREDITO);
+            Obligacion o=new Obligacion(movimiento);
+            o.generarCuotas(1);
+            Financiacion f=o.crearFinanciacion(
+                    o.getCuotas().get(0).getFechaVencimiento().plusDays(1),
+                    new BigDecimal("240.00")
+            );
+            f.registrarInteres(
+                    new BigDecimal("12.00"),
+                    LocalDate.of(2026,9,27),
+                    new BigDecimal("240.00"),
+                    new BigDecimal("18.0000"),
+                    1
+            );
+            ObligacionRepository r=new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em,d);
+            em.persist(o.getMovimientoOrigen());
+            r.guardar(o);
+            em.getTransaction().commit();
+
+            BigDecimal resultado=r.sumarCreditoUtilizadoPorCuenta(
+                    d.cuenta().getId(),
+                    d.cuenta().getMoneda()
+            );
+
+            assertEquals(0,new BigDecimal("252.00").compareTo(resultado));
+        } finally { JpaTestManager.close(); }
+    }
+
+    @Test
     void deberiaConservarCapitalYAgregarCargosPendientesDeUnaFinanciacion() {
         JpaTestManager.close(); EntityManager em=JpaTestManager.createEntityManager();
         try {
