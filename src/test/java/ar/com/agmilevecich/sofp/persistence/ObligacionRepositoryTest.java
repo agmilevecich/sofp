@@ -218,16 +218,16 @@ class ObligacionRepositoryTest {
         EntityManager em = JpaTestManager.createEntityManager();
         try {
             Datos d = crearDatos();
-            Obligacion o = crearObligacion(
+            Moneda usd = crearDolares();
+            Obligacion o = crearObligacionMultidivisa(
                     d.cuenta(),
                     d.categoria(),
-                    LocalDateTime.of(2026, 9, 10, 10, 0),
-                    "Consumo liquidado"
+                    usd
             );
             TipoCambio tc = new TipoCambio(
+                    usd,
                     d.moneda(),
-                    d.moneda(),
-                    BigDecimal.ONE,
+                    new BigDecimal("1500.00"),
                     LocalDateTime.of(2026, 9, 15, 23, 59),
                     "LIQUIDACION"
             );
@@ -236,6 +236,7 @@ class ObligacionRepositoryTest {
             ObligacionRepository r = new ObligacionRepository(em);
             em.getTransaction().begin();
             persistirDatosBase(em, d);
+            em.persist(usd);
             em.persist(tc);
             em.persist(o.getMovimientoOrigen());
             r.guardar(o);
@@ -243,7 +244,7 @@ class ObligacionRepositoryTest {
 
             assertEquals(
                     0,
-                    new BigDecimal("100.00").compareTo(
+                    new BigDecimal("150000.00").compareTo(
                             r.sumarCreditoUtilizadoPorCuenta(
                                     d.cuenta().getId(),
                                     d.cuenta().getMoneda()
@@ -252,7 +253,7 @@ class ObligacionRepositoryTest {
             );
 
             em.getTransaction().begin();
-            o.registrarPagoLiquidacion(new BigDecimal("100.00"));
+            o.registrarPagoLiquidacion(new BigDecimal("150000.00"));
             em.getTransaction().commit();
 
             assertEquals(
