@@ -314,6 +314,33 @@ public class ObligacionRepository {
                 .setParameter("moneda", moneda)
                 .getSingleResult();
 
+        BigDecimal financiacionesSobreCuotas = entityManager.createQuery(
+                        """
+                        SELECT COALESCE(SUM(
+                            CASE
+                                WHEN f.moneda = :moneda
+                                    THEN f.saldoCapital
+                                WHEN f.tipoCambioValorizacion IS NOT NULL
+                                    THEN f.saldoValorizacion
+                                ELSE 0
+                            END
+                        ), 0)
+                        FROM Financiacion f
+                        WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId
+                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA
+                          AND f.obligacion.estado <> ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA
+                          AND f.obligacion.cuotas IS NOT EMPTY
+                          AND f.origenLiquidacion = false
+                          AND f.saldoCapital > 0
+                        """,
+                        BigDecimal.class
+                )
+                .setParameter("cuentaId", cuentaId)
+                .setParameter("moneda", moneda)
+                .getSingleResult();
+
+        cuotas = cuotas.subtract(financiacionesSobreCuotas).max(BigDecimal.ZERO);
+
         BigDecimal financiacionesNoLiquidacion = entityManager.createQuery(
                         """
                         SELECT COALESCE(SUM(
