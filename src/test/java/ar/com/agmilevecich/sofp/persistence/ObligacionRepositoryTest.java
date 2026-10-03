@@ -271,6 +271,85 @@ class ObligacionRepositoryTest {
     }
 
     @Test
+    void deberiaEvitarDuplicarLiquidacionYFinanciacionSobreLiquidacion() {
+        JpaTestManager.close();
+        EntityManager em = JpaTestManager.createEntityManager();
+        try {
+            Datos d = crearDatos();
+            Moneda usd = crearDolares();
+            Obligacion o = crearObligacionMultidivisa(
+                    d.cuenta(),
+                    d.categoria(),
+                    usd
+            );
+            TipoCambio tc = new TipoCambio(
+                    usd,
+                    d.moneda(),
+                    new BigDecimal("1500.00"),
+                    LocalDateTime.of(2026, 9, 15, 23, 59),
+                    "LIQUIDACION"
+            );
+            o.liquidar(tc);
+            Financiacion f = o.crearFinanciacion(
+                    LocalDate.of(2026, 9, 16),
+                    new BigDecimal("60.00"),
+                    d.moneda(),
+                    null,
+                    true
+            );
+
+            ObligacionRepository r = new ObligacionRepository(em);
+            em.getTransaction().begin();
+            persistirDatosBase(em, d);
+            em.persist(usd);
+            em.persist(tc);
+            em.persist(o.getMovimientoOrigen());
+            r.guardar(o);
+            em.getTransaction().commit();
+
+            assertEquals(
+                    0,
+                    new BigDecimal("150000.00").compareTo(
+                            r.sumarCreditoUtilizadoPorCuenta(
+                                    d.cuenta().getId(),
+                                    d.cuenta().getMoneda()
+                            )
+                    )
+            );
+
+            em.getTransaction().begin();
+            o.registrarPagoFinanciacion(f, new BigDecimal("60.00"));
+            em.getTransaction().commit();
+
+            assertEquals(
+                    0,
+                    new BigDecimal("60000.00").compareTo(
+                            r.sumarCreditoUtilizadoPorCuenta(
+                                    d.cuenta().getId(),
+                                    d.cuenta().getMoneda()
+                            )
+                    )
+            );
+
+            em.getTransaction().begin();
+            o.registrarPagoLiquidacion(new BigDecimal("60000.00"));
+            em.getTransaction().commit();
+
+            assertEquals(
+                    0,
+                    BigDecimal.ZERO.compareTo(
+                            r.sumarCreditoUtilizadoPorCuenta(
+                                    d.cuenta().getId(),
+                                    d.cuenta().getMoneda()
+                            )
+                    )
+            );
+        } finally {
+            JpaTestManager.close();
+        }
+    }
+
+    @Test
     void deberiaReducirCreditoUtilizadoAlRegistrarPagoParcialEnMonedaOriginal() {
         JpaTestManager.close(); EntityManager em=JpaTestManager.createEntityManager();
         try { Datos d=crearDatos(); Obligacion o=crearObligacion(d.cuenta(),d.categoria(),LocalDateTime.of(2026,9,10,10,0),"Consumo ARS"); o.registrarPago(new BigDecimal("40.00")); ObligacionRepository r=new ObligacionRepository(em); em.getTransaction().begin(); persistirDatosBase(em,d); em.persist(o.getMovimientoOrigen()); r.guardar(o); em.getTransaction().commit(); assertEquals(0,new BigDecimal("60.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda()))); } finally { JpaTestManager.close(); }
