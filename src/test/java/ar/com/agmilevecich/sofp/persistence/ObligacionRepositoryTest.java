@@ -111,6 +111,36 @@ class ObligacionRepositoryTest {
     }
 
     @Test
+    void deberiaReducirCreditoUtilizadoAlPagarCargoYCapitalDeUnaFinanciacion() {
+        JpaTestManager.close(); EntityManager em=JpaTestManager.createEntityManager();
+        try {
+            Datos d=crearDatos();
+            Movimiento movimiento=new Movimiento(d.cuenta(),d.categoria(),TipoMovimiento.EGRESO,new BigDecimal("240.00"),LocalDateTime.of(2026,9,10,10,0),"Consumo financiado",FormaPago.TARJETA_CREDITO);
+            Obligacion o=new Obligacion(movimiento);
+            Financiacion f=o.crearFinanciacion(LocalDate.of(2026,9,26),new BigDecimal("240.00"));
+            f.registrarInteres(new BigDecimal("12.00"),LocalDate.of(2026,9,27),new BigDecimal("240.00"),new BigDecimal("18.0000"),1);
+            ObligacionRepository r=new ObligacionRepository(em);
+
+            em.getTransaction().begin();
+            persistirDatosBase(em,d);
+            em.persist(o.getMovimientoOrigen());
+            r.guardar(o);
+            em.getTransaction().commit();
+
+            assertEquals(0,new BigDecimal("252.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
+
+            o.registrarPagoFinanciacion(f,new BigDecimal("5.00"));
+            assertEquals(0,new BigDecimal("247.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
+
+            o.registrarPagoFinanciacion(f,new BigDecimal("7.00"));
+            assertEquals(0,new BigDecimal("240.00").compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
+
+            o.registrarPagoFinanciacion(f,new BigDecimal("240.00"));
+            assertEquals(0,BigDecimal.ZERO.compareTo(r.sumarCreditoUtilizadoPorCuenta(d.cuenta().getId(),d.cuenta().getMoneda())));
+        } finally { JpaTestManager.close(); }
+    }
+
+    @Test
     void deberiaConservarCapitalYAgregarCargosPendientesDeUnaFinanciacion() {
         JpaTestManager.close(); EntityManager em=JpaTestManager.createEntityManager();
         try {
