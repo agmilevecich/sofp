@@ -353,15 +353,6 @@ class ObligacionRepositoryTest {
                     BigDecimal.class
             ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
 
-            BigDecimal sumaComponentes = saldoLiquidaciones
-                    .add(saldoFinanciacionesSobreLiquidacion)
-                    .add(saldoCargos)
-                    .add(consumosSinObligacion)
-                    .add(obligacionesSinCuotas)
-                    .add(cuotasPendientes)
-                    .add(financiacionesNoLiquidacion)
-                    .add(refinanciaciones);
-
             BigDecimal saldoLiquidaciones = em.createQuery(
                     "SELECT COALESCE(SUM(o.saldoLiquidacion), 0) FROM Obligacion o " +
                     "WHERE o.movimientoOrigen.cuenta.id = :cuentaId " +
@@ -394,6 +385,15 @@ class ObligacionRepositoryTest {
             ).setParameter("cuentaId", d.cuenta().getId())
              .setParameter("moneda", d.cuenta().getMoneda())
              .getSingleResult();
+
+            BigDecimal sumaComponentes = saldoLiquidaciones
+                    .add(saldoFinanciacionesSobreLiquidacion)
+                    .add(saldoCargos)
+                    .add(consumosSinObligacion)
+                    .add(obligacionesSinCuotas)
+                    .add(cuotasPendientes)
+                    .add(financiacionesNoLiquidacion)
+                    .add(refinanciaciones);
 
             assertAll(
                     () -> assertEquals(0, new BigDecimal("90000.00").compareTo(saldoLiquidaciones)),
