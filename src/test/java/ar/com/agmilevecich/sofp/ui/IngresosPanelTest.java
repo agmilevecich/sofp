@@ -104,6 +104,44 @@ class IngresosPanelTest {
     }
 
     @Test
+    void deberiaFiltrarCategoriasPorTipoYActualizarEnLaMismaSesion() {
+        Usuario usuario = crearUsuario();
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta("Cuenta principal", TipoCuenta.CAJA_AHORRO, perfil, institucion, moneda);
+        Categoria ingreso = new Categoria("Sueldo", perfil, TipoMovimiento.INGRESO);
+        Categoria egreso = new Categoria("Alimentos", perfil, TipoMovimiento.EGRESO);
+        Categoria sinClasificar = new Categoria("Antigua", perfil);
+
+        persistir(usuario, perfil, institucion, moneda, cuenta, ingreso, egreso, sinClasificar);
+
+        IngresosPanel panel = new IngresosPanel(
+                new IngresoService(movimientoService),
+                cuentaService,
+                categoriaService,
+                perfil.getId(),
+                usuario.getId()
+        );
+
+        assertEquals(2, panel.getCategoriaComboBox().getItemCount());
+        assertEquals(ingreso, panel.getCategoriaComboBox().getItemAt(0));
+        assertEquals(sinClasificar, panel.getCategoriaComboBox().getItemAt(1));
+
+        Categoria nuevoIngreso = new Categoria("Intereses", perfil, TipoMovimiento.INGRESO);
+        entityManager.getTransaction().begin();
+        entityManager.persist(nuevoIngreso);
+        entityManager.getTransaction().commit();
+
+        panel.actualizarCuentasYCategorias();
+
+        assertEquals(3, panel.getCategoriaComboBox().getItemCount());
+        assertEquals(nuevoIngreso, panel.getCategoriaComboBox().getItemAt(1));
+        assertEquals(sinClasificar, panel.getCategoriaComboBox().getItemAt(2));
+    }
+
+    @Test
     void deberiaRegistrarElIngresoComoIngreso() {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
