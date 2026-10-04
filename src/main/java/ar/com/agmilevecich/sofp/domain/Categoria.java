@@ -57,6 +57,8 @@ public class Categoria extends EntidadAuditable {
                 perfilFinanciero,
                 "El perfil financiero es obligatorio"
         );
+
+        this.tipoMovimiento = tipoMovimiento;
     }
 
     public String getNombre() {
