@@ -324,12 +324,51 @@ class ObligacionRepositoryTest {
             assertEquals(0, BigDecimal.ZERO.compareTo(f.getSaldoCapital()));
             assertEquals(0, new BigDecimal("90000.00").compareTo(o.getSaldoLiquidacion()));
 
-            assertEquals(
-                    0,
-                    new BigDecimal("90000.00").compareTo(
-                            r.sumarCreditoUtilizadoPorCuenta(
-                                    d.cuenta().getId(),
-                                    d.cuenta().getMoneda()
+            BigDecimal saldoLiquidaciones = em.createQuery(
+                    "SELECT COALESCE(SUM(o.saldoLiquidacion), 0) FROM Obligacion o " +
+                    "WHERE o.movimientoOrigen.cuenta.id = :cuentaId " +
+                    "AND o.saldoLiquidacion IS NOT NULL AND o.saldoLiquidacion > 0",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
+
+            BigDecimal saldoFinanciacionesSobreLiquidacion = em.createQuery(
+                    "SELECT COALESCE(SUM(f.saldoCapital), 0) FROM Financiacion f " +
+                    "WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId " +
+                    "AND f.origenLiquidacion = true AND f.saldoCapital > 0",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
+
+            BigDecimal saldoCargos = em.createQuery(
+                    "SELECT COALESCE(SUM(c.saldoPendiente), 0) FROM CargoFinanciero c " +
+                    "WHERE c.financiacion.obligacion.movimientoOrigen.cuenta.id = :cuentaId " +
+                    "AND c.saldoPendiente > 0",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
+
+            BigDecimal consumosSinObligacion = em.createQuery(
+                    "SELECT COALESCE(SUM(m.importe), 0) FROM Movimiento m " +
+                    "WHERE m.cuenta.id = :cuentaId " +
+                    "AND m.moneda = :moneda " +
+                    "AND m.tipoMovimiento = ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO " +
+                    "AND m.formaPago = ar.com.agmilevecich.sofp.domain.FormaPago.TARJETA_CREDITO " +
+                    "AND NOT EXISTS (SELECT o.id FROM Obligacion o WHERE o.movimientoOrigen.id = m.id)",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId())
+             .setParameter("moneda", d.cuenta().getMoneda())
+             .getSingleResult();
+
+            assertAll(
+                    () -> assertEquals(0, new BigDecimal("90000.00").compareTo(saldoLiquidaciones)),
+                    () -> assertEquals(0, BigDecimal.ZERO.compareTo(saldoFinanciacionesSobreLiquidacion)),
+                    () -> assertEquals(0, BigDecimal.ZERO.compareTo(saldoCargos)),
+                    () -> assertEquals(0, BigDecimal.ZERO.compareTo(consumosSinObligacion)),
+                    () -> assertEquals(
+                            0,
+                            new BigDecimal("90000.00").compareTo(
+                                    r.sumarCreditoUtilizadoPorCuenta(
+                                            d.cuenta().getId(),
+                                            d.cuenta().getMoneda()
+                                    )
                             )
                     )
             );
