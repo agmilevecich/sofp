@@ -332,7 +332,16 @@ class ObligacionRepositoryTest {
                     + ", liquidacion BD=" + saldoLiquidacionEnBd
                     + ", financiacion memoria=" + f.getSaldoCapital());
 
-            assertEquals(0, new BigDecimal("90000.00").compareTo(o.getSaldoLiquidacion()));
+            assertEquals(
+                    0,
+                    new BigDecimal("90000.00").compareTo(o.getSaldoLiquidacion()),
+                    "Saldo liquidación en memoria: " + o.getSaldoLiquidacion()
+            );
+            assertEquals(
+                    0,
+                    new BigDecimal("90000.00").compareTo(saldoLiquidacionEnBd),
+                    "Saldo liquidación en BD: " + saldoLiquidacionEnBd
+            );
 
             BigDecimal obligacionesSinCuotas = em.createQuery(
                     "SELECT COALESCE(SUM(o.saldoPendiente), 0) FROM Obligacion o " +
