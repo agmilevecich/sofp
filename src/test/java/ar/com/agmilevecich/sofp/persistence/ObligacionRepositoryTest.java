@@ -321,8 +321,8 @@ class ObligacionRepositoryTest {
             o.registrarPagoFinanciacion(f, new BigDecimal("60.00"));
             em.getTransaction().commit();
 
-            assertEquals(BigDecimal.ZERO, f.getSaldoCapital());
-            assertEquals(new BigDecimal("90000.00"), o.getSaldoLiquidacion());
+            assertEquals(0, BigDecimal.ZERO.compareTo(f.getSaldoCapital()));
+            assertEquals(0, new BigDecimal("90000.00").compareTo(o.getSaldoLiquidacion()));
 
             assertEquals(
                     0,
