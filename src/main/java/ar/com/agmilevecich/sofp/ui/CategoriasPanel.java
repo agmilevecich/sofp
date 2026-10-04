@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 
 import javax.swing.BorderFactory;
@@ -14,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JComboBox;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
@@ -31,6 +33,7 @@ public class CategoriasPanel extends JPanel {
     private final JList<String> listaCategorias;
     private final JTextField nombreField;
     private final JTextArea descripcionArea;
+    private final JComboBox<TipoMovimiento> tipoMovimientoComboBox;
     private final JButton registrarButton;
     private final JButton modificarButton;
     private final JButton estadoButton;
@@ -47,6 +50,7 @@ public class CategoriasPanel extends JPanel {
         listaCategorias = new JList<>(modeloCategorias);
         nombreField = new JTextField();
         descripcionArea = new JTextArea(3, 20);
+        tipoMovimientoComboBox = new JComboBox<>();
         registrarButton = new JButton("Registrar");
         modificarButton = new JButton("Modificar");
         estadoButton = new JButton("Activar/Desactivar");
@@ -87,6 +91,7 @@ public class CategoriasPanel extends JPanel {
         listaCategorias = new JList<>(modeloCategorias);
         nombreField = new JTextField(20);
         descripcionArea = new JTextArea(3, 20);
+        tipoMovimientoComboBox = new JComboBox<>(TipoMovimiento.values());
         descripcionArea.setLineWrap(true);
         descripcionArea.setWrapStyleWord(true);
         registrarButton = new JButton("Registrar");
@@ -148,6 +153,14 @@ public class CategoriasPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.weightx = 0;
+        formulario.add(new JLabel("Tipo"), gbc);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        formulario.add(tipoMovimientoComboBox, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0;
         formulario.add(new JLabel("Descripción"), gbc);
         gbc.gridx = 1;
         gbc.weightx = 1;
@@ -160,7 +173,7 @@ public class CategoriasPanel extends JPanel {
         acciones.add(eliminarButton);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.weightx = 1;
         formulario.add(acciones, gbc);
@@ -180,7 +193,9 @@ public class CategoriasPanel extends JPanel {
     }
 
     void registrarCategoria() {
-        Categoria categoria = new Categoria(nombreField.getText(), perfilFinanciero);
+        TipoMovimiento tipoMovimiento = (TipoMovimiento) Objects.requireNonNull(
+                tipoMovimientoComboBox.getSelectedItem(), "El tipo de movimiento es obligatorio");
+        Categoria categoria = new Categoria(nombreField.getText(), perfilFinanciero, tipoMovimiento);
         categoria.cambiarDescripcion(descripcionArea.getText().isBlank()
                 ? null
                 : descripcionArea.getText());
@@ -205,6 +220,9 @@ public class CategoriasPanel extends JPanel {
                     usuarioId,
                     descripcionArea.getText().isBlank() ? null : descripcionArea.getText()
             );
+            TipoMovimiento tipoMovimiento = (TipoMovimiento) Objects.requireNonNull(
+                    tipoMovimientoComboBox.getSelectedItem(), "El tipo de movimiento es obligatorio");
+            categoriaService.modificarTipoMovimiento(categoria.getId(), usuarioId, tipoMovimiento);
             actualizarCategorias();
         } catch (RuntimeException e) {
             mostrarMensaje(
@@ -276,7 +294,9 @@ public class CategoriasPanel extends JPanel {
         ));
         for (Categoria categoria : categorias) {
             modeloCategorias.addElement(
-                    categoria.getNombre() + (categoria.isActiva() ? " (activa)" : " (inactiva)")
+                    categoria.getNombre() + " - " +
+                            (categoria.getTipoMovimiento() == null ? "Sin clasificar" : categoria.getTipoMovimiento()) +
+                            (categoria.isActiva() ? " (activa)" : " (inactiva)")
             );
         }
         if (!categorias.isEmpty()) {
@@ -294,6 +314,7 @@ public class CategoriasPanel extends JPanel {
         descripcionArea.setText(categoria.getDescripcion() == null
                 ? ""
                 : categoria.getDescripcion());
+        tipoMovimientoComboBox.setSelectedItem(categoria.getTipoMovimiento());
     }
 
     private Categoria getCategoriaSeleccionada() {
@@ -308,6 +329,7 @@ public class CategoriasPanel extends JPanel {
         listaCategorias.clearSelection();
         nombreField.setText("");
         descripcionArea.setText("");
+        tipoMovimientoComboBox.setSelectedItem(null);
     }
 
     public JList<String> getListaCategorias() {
@@ -320,6 +342,10 @@ public class CategoriasPanel extends JPanel {
 
     public JTextArea getDescripcionArea() {
         return descripcionArea;
+    }
+
+    public JComboBox<TipoMovimiento> getTipoMovimientoComboBox() {
+        return tipoMovimientoComboBox;
     }
 
     public JButton getRegistrarButton() {

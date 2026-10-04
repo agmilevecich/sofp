@@ -115,6 +115,23 @@ public class CategoriaService {
         }
     }
 
+    public Categoria modificarTipoMovimiento(Long categoriaId, Long usuarioId, ar.com.agmilevecich.sofp.domain.TipoMovimiento tipoMovimiento) {
+        validarIds(categoriaId, usuarioId);
+        Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
+        Categoria categoria = obtenerCategoriaAutorizada(categoriaId, usuarioId);
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            categoria.cambiarTipoMovimiento(tipoMovimiento);
+            entityManager.flush();
+            transaction.commit();
+            return categoria;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
+
     public Categoria modificarDescripcion(Long categoriaId, Long usuarioId, String descripcion) {
         validarIds(categoriaId, usuarioId);
         Categoria categoria = obtenerCategoriaAutorizada(categoriaId, usuarioId);

@@ -7,6 +7,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 
 import java.util.Objects;
 
@@ -23,6 +25,10 @@ public class Categoria extends EntidadAuditable {
     @Column(nullable = false)
     private boolean activa = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TipoMovimiento tipoMovimiento;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "perfil_financiero_id", nullable = false)
     private PerfilFinanciero perfilFinanciero;
@@ -37,6 +43,10 @@ public class Categoria extends EntidadAuditable {
      * Constructor principal del dominio.
      */
     public Categoria(String nombre, PerfilFinanciero perfilFinanciero) {
+        this(nombre, perfilFinanciero, null);
+    }
+
+    public Categoria(String nombre, PerfilFinanciero perfilFinanciero, TipoMovimiento tipoMovimiento) {
 
         this.nombre = Validaciones.textoObligatorio(
                 nombre,
@@ -63,6 +73,14 @@ public class Categoria extends EntidadAuditable {
 
     public PerfilFinanciero getPerfilFinanciero() {
         return perfilFinanciero;
+    }
+
+    public TipoMovimiento getTipoMovimiento() {
+        return tipoMovimiento;
+    }
+
+    public void cambiarTipoMovimiento(TipoMovimiento tipoMovimiento) {
+        this.tipoMovimiento = Objects.requireNonNull(tipoMovimiento, "El tipo de movimiento es obligatorio");
     }
 
     public void renombrar(String nuevoNombre) {

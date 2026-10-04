@@ -136,7 +136,8 @@ public class IngresosPanel extends JPanel {
         categoriaComboBox.removeAllItems();
         List<Categoria> categorias = categoriaService.listarPorPerfilFinanciero(perfilFinancieroId, usuarioId);
         for (Categoria categoria : categorias) {
-            if (categoria.isActiva()) {
+            if (categoria.isActiva()
+                    && (categoria.getTipoMovimiento() == null || categoria.getTipoMovimiento() == TipoMovimiento.INGRESO)) {
                 categoriaComboBox.addItem(categoria);
             }
         }

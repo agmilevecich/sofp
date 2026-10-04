@@ -1,6 +1,8 @@
 package ar.com.agmilevecich.sofp.domain;
 
 import org.junit.jupiter.api.Test;
+import static ar.com.agmilevecich.sofp.domain.TipoMovimiento.EGRESO;
+import static ar.com.agmilevecich.sofp.domain.TipoMovimiento.INGRESO;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -113,4 +115,16 @@ class CategoriaTest {
 
         assertTrue(categoria.isActiva());
     }
+    @Test
+    void deberiaCrearCategoriaConTipoMovimiento() {
+        Usuario usuario = new Usuario("Ariel", "Milevecich", "ariel-tipo@test.com", "hash");
+        PerfilFinanciero perfil = new PerfilFinanciero("Personal", usuario);
+        Categoria categoria = new Categoria("Sueldo", perfil, INGRESO);
+
+        assertEquals(INGRESO, categoria.getTipoMovimiento());
+
+        categoria.cambiarTipoMovimiento(EGRESO);
+        assertEquals(EGRESO, categoria.getTipoMovimiento());
+    }
+
 }
