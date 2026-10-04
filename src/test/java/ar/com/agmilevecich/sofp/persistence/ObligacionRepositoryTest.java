@@ -322,6 +322,16 @@ class ObligacionRepositoryTest {
             em.getTransaction().commit();
 
             assertEquals(0, BigDecimal.ZERO.compareTo(f.getSaldoCapital()));
+
+            BigDecimal saldoLiquidacionEnBd = em.createQuery(
+                    "SELECT o.saldoLiquidacion FROM Obligacion o WHERE o.id = :id",
+                    BigDecimal.class
+            ).setParameter("id", o.getId()).getSingleResult();
+
+            System.out.println("DIAGNOSTICO liquidacion memoria=" + o.getSaldoLiquidacion()
+                    + ", liquidacion BD=" + saldoLiquidacionEnBd
+                    + ", financiacion memoria=" + f.getSaldoCapital());
+
             assertEquals(0, new BigDecimal("90000.00").compareTo(o.getSaldoLiquidacion()));
 
             BigDecimal obligacionesSinCuotas = em.createQuery(
