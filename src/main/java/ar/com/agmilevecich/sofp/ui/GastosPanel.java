@@ -152,6 +152,15 @@ public class GastosPanel extends JPanel {
         cargarCuentas();
     }
 
+    /** Recarga las cuentas y categorías activas disponibles para registrar gastos. */
+    public void actualizarCuentasYCategorias() {
+        if (cuentaService == null || categoriaService == null || perfilFinancieroId == null || usuarioId == null) {
+            return;
+        }
+        cargarCuentas();
+        cargarCategorias();
+    }
+
     private JComboBox<Integer> crearCuotasComboBox() {
         JComboBox<Integer> comboBox = new JComboBox<>();
         for (int cantidad = 1; cantidad <= 12; cantidad++) {

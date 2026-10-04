@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.IngresoService;
