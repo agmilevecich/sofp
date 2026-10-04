@@ -64,3 +64,22 @@ Antes de iniciar el siguiente bloque: reconstruir desde GitHub rama → últimos
 Después de cambios importantes: tests específicos → tests relacionados → suite completa cuando corresponda → `git diff` → `git diff --check` → `git status` → documentación.
 
 No modificar ni mergear `main` automáticamente.
+
+
+## Actualización de continuidad — auditoría de pasivos — 04/10/2026
+
+La auditoría posterior de pasivos y patrimonio quedó cerrada sobre la misma rama.
+
+- `ObligacionRepositoryTest`: **17/17**.
+- `PatrimonioFinancieroServiceTest`: **13/13**.
+- `ObligacionServiceTest + RefinanciacionTest`: **36/36**.
+- Suite completa: **979/979**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`.
+- Finalización de la suite: **03/10/2026 22:54:12 -03:00**.
+- Duración: **24:47 min**.
+
+El cálculo de crédito utilizado fue corregido para no duplicar capital financiado cuando una obligación con cuotas tiene además una financiación normal pendiente. La corrección se realizó en `ObligacionRepository` y quedó cubierta por pruebas de repositorio y de patrimonio.
+
+La auditoría de resultado financiero y la auditoría de pasivos son bloques distintos: el resultado continúa separado por moneda y no se introduce conversión de presentación por inferencia contable.
+
+La suite 979/979 es ahora la última validación completa conocida y reemplaza el resultado 969/969 registrado anteriormente en este documento.
+
