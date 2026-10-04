@@ -324,6 +324,44 @@ class ObligacionRepositoryTest {
             assertEquals(0, BigDecimal.ZERO.compareTo(f.getSaldoCapital()));
             assertEquals(0, new BigDecimal("90000.00").compareTo(o.getSaldoLiquidacion()));
 
+            BigDecimal obligacionesSinCuotas = em.createQuery(
+                    "SELECT COALESCE(SUM(o.saldoPendiente), 0) FROM Obligacion o " +
+                    "WHERE o.movimientoOrigen.cuenta.id = :cuentaId " +
+                    "AND o.saldoLiquidacion IS NULL AND o.saldoPendiente > 0 " +
+                    "AND o.cuotas IS EMPTY",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
+
+            BigDecimal cuotasPendientes = em.createQuery(
+                    "SELECT COALESCE(SUM(c.saldoPendiente), 0) FROM Obligacion o JOIN o.cuotas c " +
+                    "WHERE o.movimientoOrigen.cuenta.id = :cuentaId " +
+                    "AND o.saldoLiquidacion IS NULL AND c.saldoPendiente > 0",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
+
+            BigDecimal financiacionesNoLiquidacion = em.createQuery(
+                    "SELECT COALESCE(SUM(f.saldoCapital), 0) FROM Financiacion f " +
+                    "WHERE f.obligacion.movimientoOrigen.cuenta.id = :cuentaId " +
+                    "AND f.origenLiquidacion = false AND f.saldoCapital > 0",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
+
+            BigDecimal refinanciaciones = em.createQuery(
+                    "SELECT COALESCE(SUM(r.saldoPlan), 0) FROM Refinanciacion r " +
+                    "WHERE r.obligacionOrigen.movimientoOrigen.cuenta.id = :cuentaId " +
+                    "AND r.saldoPlan > 0",
+                    BigDecimal.class
+            ).setParameter("cuentaId", d.cuenta().getId()).getSingleResult();
+
+            BigDecimal sumaComponentes = saldoLiquidaciones
+                    .add(saldoFinanciacionesSobreLiquidacion)
+                    .add(saldoCargos)
+                    .add(consumosSinObligacion)
+                    .add(obligacionesSinCuotas)
+                    .add(cuotasPendientes)
+                    .add(financiacionesNoLiquidacion)
+                    .add(refinanciaciones);
+
             BigDecimal saldoLiquidaciones = em.createQuery(
                     "SELECT COALESCE(SUM(o.saldoLiquidacion), 0) FROM Obligacion o " +
                     "WHERE o.movimientoOrigen.cuenta.id = :cuentaId " +
@@ -362,6 +400,7 @@ class ObligacionRepositoryTest {
                     () -> assertEquals(0, BigDecimal.ZERO.compareTo(saldoFinanciacionesSobreLiquidacion)),
                     () -> assertEquals(0, BigDecimal.ZERO.compareTo(saldoCargos)),
                     () -> assertEquals(0, BigDecimal.ZERO.compareTo(consumosSinObligacion)),
+                    () -> assertEquals(0, new BigDecimal("90000.00").compareTo(sumaComponentes)),
                     () -> assertEquals(
                             0,
                             new BigDecimal("90000.00").compareTo(
