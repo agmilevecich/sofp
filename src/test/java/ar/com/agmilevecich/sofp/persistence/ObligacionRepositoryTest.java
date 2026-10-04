@@ -334,12 +334,12 @@ class ObligacionRepositoryTest {
 
             assertEquals(
                     0,
-                    new BigDecimal("90000.00").compareTo(o.getSaldoLiquidacion()),
+                    new BigDecimal("149940.00").compareTo(o.getSaldoLiquidacion()),
                     "Saldo liquidación en memoria: " + o.getSaldoLiquidacion()
             );
             assertEquals(
                     0,
-                    new BigDecimal("90000.00").compareTo(saldoLiquidacionEnBd),
+                    new BigDecimal("149940.00").compareTo(saldoLiquidacionEnBd),
                     "Saldo liquidación en BD: " + saldoLiquidacionEnBd
             );
 
@@ -415,14 +415,14 @@ class ObligacionRepositoryTest {
                     .add(refinanciaciones);
 
             assertAll(
-                    () -> assertEquals(0, new BigDecimal("90000.00").compareTo(saldoLiquidaciones)),
+                    () -> assertEquals(0, new BigDecimal("149940.00").compareTo(saldoLiquidaciones)),
                     () -> assertEquals(0, BigDecimal.ZERO.compareTo(saldoFinanciacionesSobreLiquidacion)),
                     () -> assertEquals(0, BigDecimal.ZERO.compareTo(saldoCargos)),
                     () -> assertEquals(0, BigDecimal.ZERO.compareTo(consumosSinObligacion)),
-                    () -> assertEquals(0, new BigDecimal("90000.00").compareTo(sumaComponentes)),
+                    () -> assertEquals(0, new BigDecimal("149940.00").compareTo(sumaComponentes)),
                     () -> assertEquals(
                             0,
-                            new BigDecimal("90000.00").compareTo(
+                            new BigDecimal("149940.00").compareTo(
                                     r.sumarCreditoUtilizadoPorCuenta(
                                             d.cuenta().getId(),
                                             d.cuenta().getMoneda()
@@ -432,7 +432,7 @@ class ObligacionRepositoryTest {
             );
 
             em.getTransaction().begin();
-            o.registrarPagoLiquidacion(new BigDecimal("90000.00"));
+            o.registrarPagoLiquidacion(new BigDecimal("149940.00"));
             em.getTransaction().commit();
 
             assertEquals(
