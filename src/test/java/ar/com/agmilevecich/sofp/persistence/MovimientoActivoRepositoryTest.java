@@ -8,6 +8,7 @@ import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.OperacionFinanciera;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.MovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoMovimientoActivo;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
@@ -254,6 +255,15 @@ class MovimientoActivoRepositoryTest {
         em.persist(movimiento);
         em.persist(movimientoActivo);
         em.getTransaction().commit();
+    }
+
+    private Moneda crearMoneda() {
+        return new Moneda(
+                "ARS",
+                "Peso Argentino",
+                2,
+                TipoMoneda.FIAT
+        );
     }
 
     private Bono crearBono() {
