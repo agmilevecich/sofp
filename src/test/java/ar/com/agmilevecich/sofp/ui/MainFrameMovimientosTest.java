@@ -185,7 +185,7 @@ class MainFrameMovimientosTest {
     }
 
     @Test
-    void deberiaMostrarElFormularioDeAltaParaLaCuentaSeleccionada() throws Exception {
+    void deberiaMostrarElPanelInformativoParaLaCuentaSeleccionada() throws Exception {
         Usuario usuario = new Usuario(
                 "Ariel",
                 "Test",
@@ -230,6 +230,16 @@ class MainFrameMovimientosTest {
         entityManager.persist(categoria);
         entityManager.getTransaction().commit();
 
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("500000"),
+                LocalDateTime.of(2026, 10, 5, 10, 0),
+                "Sueldo",
+                usuario.getId()
+        );
+
         AtomicReference<MainFrame> frameRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> frameRef.set(
                 new MainFrame(
@@ -260,11 +270,14 @@ class MainFrameMovimientosTest {
             botonMovimientos.doClick();
         });
 
-        RegistrarMovimientoPanel formulario =
-                buscarFormulario(mainFrame.getContentPane());
-        assertNotNull(formulario);
-        assertEquals(2, formulario.getCategoriaComboBox().getItemCount());
-        assertTrue(formulario.getRegistrarButton().isEnabled());
+        MovimientosPanel panel = buscarPanel(mainFrame.getContentPane());
+        assertNotNull(panel);
+        assertEquals(1, panel.getListaMovimientos().getModel().getSize());
+        assertEquals(
+                "INGRESO - Sueldo - 500000",
+                panel.getListaMovimientos().getModel().getElementAt(0)
+        );
+        assertNull(buscarFormulario(mainFrame.getContentPane()));
 
         mainFrame.dispose();
     }
