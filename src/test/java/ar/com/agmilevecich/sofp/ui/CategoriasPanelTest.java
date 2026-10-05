@@ -109,6 +109,7 @@ class CategoriasPanelTest {
                 new CategoriasPanel(categoriaService, perfil, usuario.getId())
         ));
         CategoriasPanel panel = panelRef.get();
+        panel.getTipoMovimientoComboBox().setSelectedItem(TipoMovimiento.EGRESO);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -234,7 +235,7 @@ class CategoriasPanelTest {
         );
         assertEquals(1, categorias.size());
         assertFalse(categorias.get(0).isActiva());
-        assertEquals("Alimentación (inactiva)", panel.getListaCategorias().getModel().getElementAt(0));
+        assertEquals("Alimentación - Sin clasificar (inactiva)", panel.getListaCategorias().getModel().getElementAt(0));
         assertEquals(
                 "La categoría tiene movimientos asociados y no puede eliminarse. Se desactivó para conservar el historial.",
                 mensajeRef.get()
