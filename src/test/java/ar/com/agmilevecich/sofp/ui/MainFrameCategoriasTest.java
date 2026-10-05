@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CategoriaRepository;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
@@ -61,7 +62,11 @@ class MainFrameCategoriasTest {
         );
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
         usuario.agregarPerfilFinanciero(perfil);
-        Categoria categoria = new Categoria("Supermercado", perfil);
+        Categoria categoria = new Categoria(
+                "Supermercado",
+                perfil,
+                TipoMovimiento.EGRESO
+        );
 
         entityManager.getTransaction().begin();
         entityManager.persist(usuario);
@@ -98,7 +103,7 @@ class MainFrameCategoriasTest {
         CategoriasPanel panel = buscarPanel(mainFrame.getContentPane());
         assertNotNull(panel);
         assertEquals(1, panel.getListaCategorias().getModel().getSize());
-        assertEquals("Supermercado (activa)",
+        assertEquals("Supermercado - EGRESO (activa)",
                 panel.getListaCategorias().getModel().getElementAt(0));
 
         mainFrame.dispose();
