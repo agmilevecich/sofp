@@ -50,7 +50,7 @@ public class CategoriasPanel extends JPanel {
         listaCategorias = new JList<>(modeloCategorias);
         nombreField = new JTextField();
         descripcionArea = new JTextArea(3, 20);
-        tipoMovimientoComboBox = new JComboBox<>();
+        tipoMovimientoComboBox = new ComboBoxConSeleccione<>();
         registrarButton = new JButton("Registrar");
         modificarButton = new JButton("Modificar");
         estadoButton = new JButton("Activar/Desactivar");
@@ -91,7 +91,10 @@ public class CategoriasPanel extends JPanel {
         listaCategorias = new JList<>(modeloCategorias);
         nombreField = new JTextField(20);
         descripcionArea = new JTextArea(3, 20);
-        tipoMovimientoComboBox = new JComboBox<>(TipoMovimiento.values());
+        tipoMovimientoComboBox = new ComboBoxConSeleccione<>();
+        for (TipoMovimiento tipoMovimiento : TipoMovimiento.values()) {
+            tipoMovimientoComboBox.addItem(tipoMovimiento);
+        }
         descripcionArea.setLineWrap(true);
         descripcionArea.setWrapStyleWord(true);
         registrarButton = new JButton("Registrar");
