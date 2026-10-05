@@ -305,9 +305,19 @@ class MovimientosPanelTest {
     private JLabel buscarEtiqueta(Container container, String texto) {
         for (Component component : container.getComponents()) {
             if (component instanceof JLabel label && texto.equals(label.getText())) {
-                return label;\n            }\n            if (component instanceof Container hijo) {
-                JLabel encontrada = buscarEtiqueta(hijo, texto);\n                if (encontrada != null) {
-                    return encontrada;\n                }\n            }\n        }\n        return null;\n    }\n\n    private JList<?> buscarLista(Container container) {
+                return label;
+            }
+            if (component instanceof Container hijo) {
+                JLabel encontrada = buscarEtiqueta(hijo, texto);
+                if (encontrada != null) {
+                    return encontrada;
+                }
+            }
+        }
+        return null;
+    }
+
+    private JList<?> buscarLista(Container container) {
         for (Component component : container.getComponents()) {
             if (component instanceof JList<?> lista) {
                 return lista;
