@@ -402,6 +402,9 @@ public class MainFrame extends JFrame {
         if (GASTOS.equals(destino)) {
             gastosPanel.actualizarCuentasYCategorias();
         }
+        if (REPORTES.equals(destino)) {
+            reportesPanel.actualizar();
+        }
         cardLayout.show(areaCentral, destino);
     }
 
