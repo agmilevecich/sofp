@@ -21,6 +21,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.SwingUtilities;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import java.awt.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
