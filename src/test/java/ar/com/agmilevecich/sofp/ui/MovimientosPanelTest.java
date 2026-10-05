@@ -18,7 +18,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.JList;\nimport javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
@@ -301,7 +302,12 @@ class MovimientosPanelTest {
         );
     }
 
-    private JLabel buscarEtiqueta(Container container, String texto) {\n        for (Component component : container.getComponents()) {\n            if (component instanceof JLabel label && texto.equals(label.getText())) {\n                return label;\n            }\n            if (component instanceof Container hijo) {\n                JLabel encontrada = buscarEtiqueta(hijo, texto);\n                if (encontrada != null) {\n                    return encontrada;\n                }\n            }\n        }\n        return null;\n    }\n\n    private JList<?> buscarLista(Container container) {
+    private JLabel buscarEtiqueta(Container container, String texto) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof JLabel label && texto.equals(label.getText())) {
+                return label;\n            }\n            if (component instanceof Container hijo) {
+                JLabel encontrada = buscarEtiqueta(hijo, texto);\n                if (encontrada != null) {
+                    return encontrada;\n                }\n            }\n        }\n        return null;\n    }\n\n    private JList<?> buscarLista(Container container) {
         for (Component component : container.getComponents()) {
             if (component instanceof JList<?> lista) {
                 return lista;
