@@ -1,6 +1,6 @@
 # SOFP — Continuidad canónica actual
 
-> Última actualización: 04/10/2026.  
+> Última actualización: 05/10/2026.  
 > Fuente de verdad: código actual, tests y commits de GitHub. Esta documentación es auxiliar y puede quedar desactualizada; si contradice al código, prevalece el código.
 
 ## Estado actual
@@ -8,9 +8,9 @@
 - Rama de trabajo: `feature/swing-shell`.
 - Rama estable: `main`.
 - `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
-- Comparación GitHub: **320 commits ahead / 0 behind**.
+- Comparación GitHub: **345 commits ahead / 0 behind**.
 - No se modificó ni mergeó `main`.
-- Último commit de esta etapa: `5a8cb25be5f15c776007b136f243e5e01f2f6bb1` — `test: corregir monto de financiacion sobre liquidacion`.
+- Último commit relevante: `5c002c8776ee438771e3012cd0edb373c44951c7` — `fix: permitir crear la base H2 al arrancar`.
 
 ## Última validación completa
 
@@ -49,6 +49,14 @@ La corrección resta de la suma de cuotas el capital pendiente de financiaciones
 - suite completa: **979/979**
 
 Quedaron cubiertos, entre otros, obligación simple, cuotas, financiación completa y parcial, cargos, pagos de capital/cargos, liquidación, liquidación parcialmente financiada, refinanciación activa, multidivisa con cotización histórica y aislamiento de la deuda respecto del patrimonio.
+
+## Validación RC1 — ciclo de vida de H2
+
+Se validó manualmente el arranque de la aplicación con la base H2 ausente. El servidor H2 se inicia en el puerto 9092 antes de JPA y, mediante la opción `-ifNotExists`, permite crear automáticamente `database/sofp.mv.db` cuando todavía no existe. SOFP volvió a funcionar con el mismo flujo de uso habitual después de recrear la base.
+
+También se confirmó mediante `netstat` que el servidor H2 queda escuchando en 9092 y que la conexión de SOFP se establece correctamente.
+
+La prueba funcional de categorías conocida continúa en **5/5**, sin fallos ni errores. La última suite completa conocida sigue siendo la de **979/979** del 03/10/2026; todavía no se debe considerar una nueva suite completa ejecutada después de los cambios posteriores.
 
 ## Punto exacto para continuar
 
