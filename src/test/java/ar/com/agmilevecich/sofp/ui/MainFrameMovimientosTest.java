@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MainFrameMovimientosTest {
@@ -270,7 +271,7 @@ class MainFrameMovimientosTest {
             botonMovimientos.doClick();
         });
 
-        MovimientosPanel panel = buscarPanel(mainFrame.getContentPane());
+        MovimientosPanel panel = buscarPanelMovimientos(mainFrame.getContentPane());
         assertNotNull(panel);
         assertEquals(1, panel.getListaMovimientos().getModel().getSize());
         assertEquals(
@@ -371,6 +372,23 @@ class MainFrameMovimientosTest {
 
             if (component instanceof Container hijo) {
                 JButton encontrado = buscarBoton(hijo, texto);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private MovimientosPanel buscarPanelMovimientos(Container container) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof MovimientosPanel panel) {
+                return panel;
+            }
+
+            if (component instanceof Container hijo) {
+                MovimientosPanel encontrado = buscarPanelMovimientos(hijo);
                 if (encontrado != null) {
                     return encontrado;
                 }
