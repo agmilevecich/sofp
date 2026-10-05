@@ -2,6 +2,7 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.config.DatosInicialesDesarrollo;
 import ar.com.agmilevecich.sofp.config.DatosInicialesSistema;
+import ar.com.agmilevecich.sofp.config.H2ServerManager;
 import ar.com.agmilevecich.sofp.config.JpaManager;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.Usuario;
@@ -41,6 +42,7 @@ import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Function;
 
@@ -51,6 +53,18 @@ public class Main {
     }
 
     private static void iniciar() {
+        try {
+            H2ServerManager.start();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "No se pudo iniciar el servidor H2 en el puerto 9092.\\n\\n" + e.getMessage(),
+                    "SOFP - Error de base de datos",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
         EntityManager entityManager = JpaManager.createEntityManager();
 
         UsuarioService usuarioService = new UsuarioService(
@@ -241,6 +255,7 @@ public class Main {
                     entityManager.close();
                 }
                 JpaManager.close();
+                H2ServerManager.stop();
             }
         });
 
