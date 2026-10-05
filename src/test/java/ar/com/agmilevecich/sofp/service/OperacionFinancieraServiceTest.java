@@ -874,6 +874,96 @@ public class OperacionFinancieraServiceTest {
     }
 
     @Test
+    void deberiaRechazarCompraCuandoLaMonedaDelActivoDifiereDeLaCuenta() {
+
+        Moneda monedaUsd = new Moneda(
+                "USD",
+                "Dólar estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+        Activo activoUsd = new Bono(
+                "Bono USD",
+                "BONOUSD",
+                monedaUsd
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(monedaUsd);
+        entityManager.persist(activoUsd);
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.comprarActivo(
+                        usuario.getId(),
+                        cuentaOrigen,
+                        categoriaOrigen,
+                        activoUsd,
+                        new BigDecimal("10"),
+                        new BigDecimal("100"),
+                        LocalDateTime.of(2026, 9, 24, 10, 0),
+                        "Compra USD"
+                )
+        );
+
+        assertEquals(
+                0,
+                entityManager.createQuery(
+                                "SELECT m FROM MovimientoActivo m",
+                                MovimientoActivo.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
+
+    @Test
+    void deberiaRechazarVentaCuandoLaMonedaDelActivoDifiereDeLaCuenta() {
+
+        Moneda monedaUsd = new Moneda(
+                "USD",
+                "Dólar estadounidense",
+                2,
+                TipoMoneda.FIAT
+        );
+        Activo activoUsd = new Bono(
+                "Bono USD",
+                "BONOVENTAUSD",
+                monedaUsd
+        );
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(monedaUsd);
+        entityManager.persist(activoUsd);
+        entityManager.getTransaction().commit();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.venderActivo(
+                        usuario.getId(),
+                        cuentaDestino,
+                        categoriaDestino,
+                        activoUsd,
+                        new BigDecimal("1"),
+                        new BigDecimal("100"),
+                        LocalDateTime.of(2026, 9, 24, 10, 0),
+                        "Venta USD"
+                )
+        );
+
+        assertEquals(
+                0,
+                entityManager.createQuery(
+                                "SELECT m FROM MovimientoActivo m",
+                                MovimientoActivo.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
+
+    @Test
     void deberiaRechazarVentaQueUtilizaUnaCompraFutura() {
 
         Activo activo = crearActivo();
