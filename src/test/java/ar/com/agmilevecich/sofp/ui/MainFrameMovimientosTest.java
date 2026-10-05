@@ -383,7 +383,8 @@ class MainFrameMovimientosTest {
 
     private MovimientosPanel buscarPanelMovimientos(Container container) {
         for (Component component : container.getComponents()) {
-            if (component instanceof MovimientosPanel panel) {
+            if (component instanceof MovimientosPanel panel
+                    && panel.getListaMovimientos().getModel().getSize() > 0) {
                 return panel;
             }
 
