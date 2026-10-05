@@ -224,7 +224,7 @@ public class OperacionFinancieraService {
             throw new IllegalArgumentException("El precio unitario debe ser positivo");
         }
 
-        validarPosicionDisponible(cuentaDestino, activo, cantidad);
+        validarPosicionDisponible(cuentaDestino, activo, cantidad, fechaHora);
 
         BigDecimal importe = cantidad.multiply(precioUnitario);
 
@@ -272,14 +272,16 @@ public class OperacionFinancieraService {
     private void validarPosicionDisponible(
             Cuenta cuenta,
             Activo activo,
-            BigDecimal cantidad) {
+            BigDecimal cantidad,
+            LocalDateTime fechaHora) {
 
         PosicionActivo posicion = new PosicionActivo(activo);
 
         for (MovimientoActivo movimiento :
-                movimientoActivoRepository.listarPorActivoYPerfilFinanciero(
+                movimientoActivoRepository.listarPorActivoYPerfilFinancieroHastaFecha(
                         activo.getId(),
-                        cuenta.getPerfilFinanciero().getId())) {
+                        cuenta.getPerfilFinanciero().getId(),
+                        fechaHora)) {
             posicion.aplicarMovimiento(movimiento);
         }
 
