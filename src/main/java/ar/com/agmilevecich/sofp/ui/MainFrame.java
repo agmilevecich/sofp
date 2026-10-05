@@ -414,7 +414,7 @@ public class MainFrame extends JFrame {
         if (cuentaSeleccionada == null) {
             return;
         }
-        movimientosPanel = new MovimientosPanel(movimientoService, cuentaSeleccionada, usuarioId);
+        movimientosPanel = new MovimientosPanel(movimientoService, cuentaSeleccionada.getId(), usuarioId);
         areaCentral.add(movimientosPanel, MOVIMIENTOS);
         cardLayout.show(areaCentral, MOVIMIENTOS);
     }
