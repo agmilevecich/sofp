@@ -91,6 +91,7 @@ class CategoriasPanelTest {
         SwingUtilities.invokeAndWait(() -> {
             panel.getNombreField().setText("Servicios");
             panel.getDescripcionArea().setText("Luz, gas e internet");
+            panel.getTipoMovimientoComboBox().setSelectedItem(TipoMovimiento.EGRESO);
             panel.getRegistrarButton().doClick();
         });
 
@@ -136,6 +137,7 @@ class CategoriasPanelTest {
             panel.getListaCategorias().setSelectedIndex(0);
             panel.getNombreField().setText("Movilidad");
             panel.getDescripcionArea().setText("Transporte personal");
+            panel.getTipoMovimientoComboBox().setSelectedItem(TipoMovimiento.EGRESO);
             panel.getModificarButton().doClick();
         });
 
