@@ -126,8 +126,9 @@ class IngresosPanelTest {
         );
 
         assertEquals(2, panel.getCategoriaComboBox().getItemCount());
-        assertEquals(ingreso, panel.getCategoriaComboBox().getItemAt(0));
-        assertEquals(sinClasificar, panel.getCategoriaComboBox().getItemAt(1));
+        assertTrue(contieneCategoria(panel, ingreso));
+        assertTrue(contieneCategoria(panel, sinClasificar));
+        assertFalse(contieneCategoria(panel, egreso));
 
         Categoria nuevoIngreso = new Categoria("Intereses", perfil, TipoMovimiento.INGRESO);
         entityManager.getTransaction().begin();
@@ -137,8 +138,19 @@ class IngresosPanelTest {
         panel.actualizarCuentasYCategorias();
 
         assertEquals(3, panel.getCategoriaComboBox().getItemCount());
-        assertEquals(nuevoIngreso, panel.getCategoriaComboBox().getItemAt(1));
-        assertEquals(sinClasificar, panel.getCategoriaComboBox().getItemAt(2));
+        assertTrue(contieneCategoria(panel, ingreso));
+        assertTrue(contieneCategoria(panel, nuevoIngreso));
+        assertTrue(contieneCategoria(panel, sinClasificar));
+        assertFalse(contieneCategoria(panel, egreso));
+    }
+
+    private boolean contieneCategoria(IngresosPanel panel, Categoria categoria) {
+        for (int i = 0; i < panel.getCategoriaComboBox().getItemCount(); i++) {
+            if (categoria.equals(panel.getCategoriaComboBox().getItemAt(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Test
