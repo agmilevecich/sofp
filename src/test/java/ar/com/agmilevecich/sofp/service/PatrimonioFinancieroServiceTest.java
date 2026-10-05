@@ -155,6 +155,54 @@ class PatrimonioFinancieroServiceTest {
     }
 
     @Test
+    void deberiaReflejarGastoPorTransferenciaEnSaldoYPatrimonio() {
+        movimientoService.registrar(
+                cuenta,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("1500000.00"),
+                LocalDateTime.of(2026, 10, 5, 10, 0),
+                "Sueldo Septiembre",
+                usuario.getId()
+        );
+
+        var movimiento = gastoService.registrar(
+                cuenta,
+                categoria,
+                new BigDecimal("86000.00"),
+                LocalDateTime.of(2026, 10, 5, 11, 0),
+                "Supermercado",
+                FormaPago.TRANSFERENCIA,
+                usuario.getId()
+        );
+
+        assertEquals(TipoMovimiento.EGRESO, movimiento.getTipoMovimiento());
+        assertEquals(FormaPago.TRANSFERENCIA, movimiento.getFormaPago());
+        assertEquals(new BigDecimal("86000.00"), movimiento.getImporte());
+
+        CuentaService cuentaService = new CuentaService(
+                new CuentaRepository(entityManager),
+                new MovimientoRepository(entityManager),
+                entityManager
+        );
+
+        assertEquals(
+                new BigDecimal("1414000.00"),
+                cuentaService.calcularSaldo(cuenta.getId(), usuario.getId())
+        );
+
+        ResumenPatrimonial resumen = patrimonioService.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of()
+        );
+
+        assertEquals(new BigDecimal("1414000.00"), resumen.getActivosMonetarios());
+        assertEquals(new BigDecimal("1414000.00"), resumen.getActivosTotales());
+        assertEquals(new BigDecimal("1414000.00"), resumen.getPatrimonioNeto());
+    }
+
+    @Test
     void deberiaDescontarDeudaDeTarjetaSinContarLaTarjetaComoActivo() {
         movimientoService.registrar(
                 cuenta,
