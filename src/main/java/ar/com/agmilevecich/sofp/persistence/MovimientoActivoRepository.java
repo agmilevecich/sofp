@@ -113,6 +113,49 @@ public class MovimientoActivoRepository {
          .getResultList();
     }
 
+    public List<MovimientoActivo> listarPorActivoYPerfilFinancieroHastaFecha(
+            Long activoId,
+            Long perfilFinancieroId,
+            java.time.LocalDateTime fechaHora) {
+
+        Objects.requireNonNull(
+                activoId,
+                "El id del activo es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                perfilFinancieroId,
+                "El id del perfil financiero es obligatorio"
+        );
+
+        Objects.requireNonNull(
+                fechaHora,
+                "La fecha y hora son obligatorias"
+        );
+
+        return entityManager.createQuery(
+                """
+                SELECT m
+                FROM MovimientoActivo m
+                JOIN m.operacionFinanciera op
+                JOIN op.movimientos movimiento
+                LEFT JOIN op.cuentaOrigen origen
+                LEFT JOIN op.cuentaDestino destino
+                WHERE m.activo.id = :activoId
+                  AND movimiento.fechaHora <= :fechaHora
+                  AND (
+                       origen.perfilFinanciero.id = :perfilFinancieroId
+                       OR destino.perfilFinanciero.id = :perfilFinancieroId
+                  )
+                ORDER BY movimiento.fechaHora, m.id
+                """,
+                MovimientoActivo.class
+        ).setParameter("activoId", activoId)
+         .setParameter("perfilFinancieroId", perfilFinancieroId)
+         .setParameter("fechaHora", fechaHora)
+         .getResultList();
+    }
+
     public List<MovimientoActivo> listarPorPerfilFinanciero(Long perfilFinancieroId) {
 
         Objects.requireNonNull(
