@@ -120,6 +120,17 @@ class MainFrameReportesTest {
                 new MovimientoRepository(entityManager)
         );
 
+        movimientoService.registrar(
+                contexto.cuenta,
+                contexto.categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 10, 5, 9, 0),
+                "Saldo inicial para prueba UI",
+                FormaPago.TRANSFERENCIA,
+                contexto.usuario.getId()
+        );
+
         AtomicReference<MainFrame> frameRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> frameRef.set(new MainFrame(
                 cuentaService,
@@ -246,11 +257,11 @@ class MainFrameReportesTest {
 
         JList<?> lista = buscarListaConValor(
                 mainFrame.getContentPane(),
-                "  Patrimonio neto: -86000.00 ARS"
+                "  Patrimonio neto: 14000.00 ARS"
         );
         assertNotNull(lista);
-        assertEquals("  Patrimonio neto: -86000.00 ARS", lista.getModel().getElementAt(9));
-        assertEquals("  -86000.00 ARS", lista.getModel().getElementAt(17));
+        assertEquals("  Patrimonio neto: 14000.00 ARS", lista.getModel().getElementAt(9));
+        assertEquals("  14000.00 ARS", lista.getModel().getElementAt(17));
 
         mainFrame.dispose();
     }
