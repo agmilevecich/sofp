@@ -58,7 +58,7 @@ public class Main {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(
                     null,
-                    "No se pudo iniciar el servidor H2 en el puerto 9092.\\n\\n" + e.getMessage(),
+                    "No se pudo iniciar el servidor H2 en el puerto 9092.\n\n" + e.getMessage(),
                     "SOFP - Error de base de datos",
                     JOptionPane.ERROR_MESSAGE
             );
