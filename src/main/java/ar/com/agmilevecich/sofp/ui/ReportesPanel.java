@@ -26,6 +26,7 @@ import java.util.Objects;
 public class ReportesPanel extends JPanel {
 
     private final DefaultListModel<String> modeloReportes;
+    private CarteraActivoService carteraActivoService;
     private PatrimonioFinancieroService patrimonioFinancieroService;
     private ResultadoFinancieroService resultadoFinancieroService;
     private PerfilFinanciero perfilFinanciero;
@@ -51,6 +52,10 @@ public class ReportesPanel extends JPanel {
         Objects.requireNonNull(carteraActivoService, "El CarteraActivoService es obligatorio");
         Objects.requireNonNull(perfilFinanciero, "El perfil financiero es obligatorio");
         Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        this.carteraActivoService = carteraActivoService;
+        this.perfilFinanciero = perfilFinanciero;
+        this.usuarioId = usuarioId;
 
         modeloReportes = new DefaultListModel<>();
         setLayout(new BorderLayout(8, 8));
@@ -81,6 +86,12 @@ public class ReportesPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         add(new JLabel("Resultado financiero"), BorderLayout.NORTH);
         add(new JScrollPane(new JList<>(modeloReportes)), BorderLayout.CENTER);
+
+        this.resultadoFinancieroService = resultadoFinancieroService;
+        this.perfilFinanciero = perfilFinanciero;
+        this.usuarioId = usuarioId;
+        this.fechaDesde = fechaDesde;
+        this.fechaHasta = fechaHasta;
 
         cargarResultado(resultadoFinancieroService.calcular(
                 perfilFinanciero,
@@ -124,6 +135,30 @@ public class ReportesPanel extends JPanel {
                 patrimonioFinancieroService.calcular(perfilFinanciero, usuarioId),
                 resultadoFinancieroService.calcular(perfilFinanciero, usuarioId, fechaDesde, fechaHasta)
         );
+    }
+
+    /** Actualiza el reporte con los datos persistidos más recientes. */
+    public void actualizar() {
+        if (carteraActivoService != null && patrimonioFinancieroService == null
+                && resultadoFinancieroService == null && perfilFinanciero != null && usuarioId != null) {
+            modeloReportes.clear();
+            cargarMovimientos(carteraActivoService.obtenerMovimientos(perfilFinanciero, usuarioId));
+            return;
+        }
+        if (patrimonioFinancieroService != null && perfilFinanciero != null && usuarioId != null) {
+            modeloReportes.clear();
+            ResumenPatrimonial patrimonio = patrimonioFinancieroService.calcular(perfilFinanciero, usuarioId);
+            if (resultadoFinancieroService != null && fechaDesde != null && fechaHasta != null) {
+                cargarReporteConsolidado(
+                        patrimonio,
+                        resultadoFinancieroService.calcular(
+                                perfilFinanciero, usuarioId, fechaDesde, fechaHasta
+                        )
+                );
+            } else {
+                cargarPatrimonio(patrimonio);
+            }
+        }
     }
 
     /**
