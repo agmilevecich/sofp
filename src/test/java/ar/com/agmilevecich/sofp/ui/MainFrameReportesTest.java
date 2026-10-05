@@ -103,6 +103,75 @@ class MainFrameReportesTest {
     }
 
     @Test
+    void deberiaActualizarReporteAlNavegarDespuesDeRegistrarUnMovimiento() throws Exception {
+        Moneda moneda = crearMonedaPersistida();
+        Contexto contexto = crearContexto(moneda);
+
+        PatrimonioFinancieroService patrimonioService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraActivoService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+        ResultadoFinancieroService resultadoService = new ResultadoFinancieroService(
+                entityManager,
+                new MovimientoRepository(entityManager)
+        );
+
+        AtomicReference<MainFrame> frameRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> frameRef.set(new MainFrame(
+                cuentaService,
+                null,
+                null,
+                null,
+                null,
+                carteraActivoService,
+                contexto.perfil,
+                contexto.usuario.getId(),
+                null,
+                null,
+                null,
+                null,
+                patrimonioService,
+                null,
+                resultadoService,
+                java.time.LocalDate.of(2026, 10, 1),
+                java.time.LocalDate.of(2026, 10, 5)
+        )));
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(new Movimiento(
+                contexto.cuenta,
+                contexto.categoria,
+                TipoMovimiento.EGRESO,
+                new BigDecimal("86000.00"),
+                LocalDateTime.of(2026, 10, 5, 12, 0),
+                "Supermercado"
+        ));
+        entityManager.getTransaction().commit();
+
+        MainFrame mainFrame = frameRef.get();
+        assertNotNull(mainFrame);
+
+        SwingUtilities.invokeAndWait(() -> {
+            JButton botonReportes = buscarBoton(mainFrame.getContentPane(), "Reportes");
+            assertNotNull(botonReportes);
+            botonReportes.doClick();
+        });
+
+        JList<?> lista = buscarListaConValor(
+                mainFrame.getContentPane(),
+                "  86000.00 ARS"
+        );
+        assertNotNull(lista);
+        assertEquals("EGRESOS", lista.getModel().getElementAt(13));
+        assertEquals("  86000.00 ARS", lista.getModel().getElementAt(14));
+
+        mainFrame.dispose();
+    }
+
+    @Test
     void deberiaMostrarReporteConsolidadoAlNavegarDesdeMainFrame() throws Exception {
         Moneda moneda = crearMonedaPersistida();
         Contexto contexto = crearContexto(moneda);
