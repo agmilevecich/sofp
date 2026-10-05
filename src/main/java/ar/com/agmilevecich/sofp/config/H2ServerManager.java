@@ -25,7 +25,8 @@ public final class H2ServerManager {
         try {
             server = Server.createTcpServer(
                     "-tcpPort", String.valueOf(PUERTO),
-                    "-tcpDaemon"
+                    "-tcpDaemon",
+                    "-ifNotExists"
             ).start();
             servidorPropio = true;
         } catch (SQLException e) {
