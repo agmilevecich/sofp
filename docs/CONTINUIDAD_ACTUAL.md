@@ -8,23 +8,67 @@
 - Rama de trabajo: `feature/swing-shell`.
 - Rama estable: `main`.
 - `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
-- Comparación GitHub: **345 commits ahead / 0 behind**.
+- HEAD actual: `f60c225984a96d025d148f5368f21ecc67bd8e1b` — `fix: localizar panel de movimientos contextual en test`.
+- Comparación GitHub: **365 commits ahead / 0 behind**.
 - No se modificó ni mergeó `main`.
-- Último commit relevante: `5c002c8776ee438771e3012cd0edb373c44951c7` — `fix: permitir crear la base H2 al arrancar`.
 
 ## Última validación completa
 
 `mvn test` ejecutado por el usuario:
 
-- **979 tests**
-- 0 failures
-- 0 errors
-- 0 skipped
+- **986 tests**
+- **0 failures**
+- **0 errors**
+- **0 skipped**
 - `BUILD SUCCESS`
-- Finalizado: **03/10/2026 22:54:12 -03:00**
-- Duración: **24:47 min**
+- Finalizado: **05/10/2026 19:24:45 -03:00**
+- Duración: **28:05 min**
 
 Esta es la última suite completa conocida y reemplaza los resultados históricos anteriores.
+
+## Validación RC1 — estabilidad de uso real
+
+La etapa RC1 tuvo como objetivo verificar el arranque, persistencia y flujo de uso real de la aplicación sin introducir cambios contables implícitos.
+
+### Arranque y persistencia H2
+
+Se validó manualmente el arranque de la aplicación con la base H2 ausente. El servidor H2 se inicia en el puerto 9092 antes de JPA y, mediante `-ifNotExists`, permite crear automáticamente `database/sofp.mv.db` cuando todavía no existe.
+
+También se confirmó mediante `netstat` que el servidor H2 queda escuchando en 9092.
+
+Se validó persistencia entre reinicios: se creó una categoría desde la aplicación, se cerró SOFP completamente y, después del reinicio y login, la categoría continuó disponible.
+
+### Movimientos, gastos y patrimonio
+
+Se estableció que `MovimientosPanel` es un panel informativo de consulta. El alta de movimientos se realiza desde los paneles de Ingresos y Gastos.
+
+Se cubrió el flujo de gasto por transferencia desde la UI. La transferencia se comporta como egreso monetario normal y reduce el saldo de la cuenta cuando existen fondos suficientes.
+
+También se agregó cobertura para que un gasto de **86.000,00** sobre un ingreso previo de **1.500.000,00** produzca un saldo/patrimonio de **1.414.000,00**.
+
+### Reportes
+
+Se corrigió la actualización del panel de reportes al navegar hacia él después de registrar movimientos.
+
+Se verificó que el reporte refleje el gasto registrado desde la UI y que la navegación no muestre datos obsoletos.
+
+### Categorías
+
+Se consolidó la clasificación por tipo de movimiento. Las categorías nuevas pueden quedar asociadas a `INGRESO` o `EGRESO`; las categorías históricas sin clasificación explícita permanecen como `Sin clasificar` y no se infiere su tipo por el nombre.
+
+La cobertura específica de categorías continúa verde.
+
+### Ajustes de tests RC1
+
+Se corrigieron regresiones de tests provocadas por la evolución intencional de la UI:
+
+- `MainFrameCategoriasTest`: adaptado a categorías tipadas.
+- `MainFrameMovimientosTest`: adaptado al panel informativo de movimientos.
+- Se corrigió la localización del panel contextual de movimientos en el test.
+- Se corrigió la preparación de fondos del test de gastos.
+- Se corrigió la conservación de la cuenta seleccionada al cambiar la forma de pago en Gastos.
+
+La ejecución enfocada posterior a estas correcciones quedó en **4/4**, 0 failures, 0 errors, 0 skipped.
 
 ## Etapa cerrada: auditoría de pasivos y patrimonio neto
 
@@ -43,24 +87,23 @@ La corrección resta de la suma de cuotas el capital pendiente de financiaciones
 ### Cobertura validada
 
 - `ObligacionRepositoryTest`: **17/17**
-- `PatrimonioFinancieroServiceTest`: **13/13**
+- `PatrimonioFinancieroServiceTest`: **14/14**
 - `ObligacionServiceTest + RefinanciacionTest`: **36/36**
-- caso específico de liquidación parcialmente financiada: **1/1**
-- suite completa: **979/979**
-
-Quedaron cubiertos, entre otros, obligación simple, cuotas, financiación completa y parcial, cargos, pagos de capital/cargos, liquidación, liquidación parcialmente financiada, refinanciación activa, multidivisa con cotización histórica y aislamiento de la deuda respecto del patrimonio.
-
-## Validación RC1 — ciclo de vida de H2
-
-Se validó manualmente el arranque de la aplicación con la base H2 ausente. El servidor H2 se inicia en el puerto 9092 antes de JPA y, mediante la opción `-ifNotExists`, permite crear automáticamente `database/sofp.mv.db` cuando todavía no existe. SOFP volvió a funcionar con el mismo flujo de uso habitual después de recrear la base.
-
-También se confirmó mediante `netstat` que el servidor H2 queda escuchando en 9092 y que la conexión de SOFP se establece correctamente.
-
-La prueba funcional de categorías conocida continúa en **5/5**, sin fallos ni errores. La última suite completa conocida sigue siendo la de **979/979** del 03/10/2026; todavía no se debe considerar una nueva suite completa ejecutada después de los cambios posteriores.
+- suite completa posterior: **986/986**
 
 ## Punto exacto para continuar
 
-La auditoría de pasivos quedó validada técnicamente. No hay un fallo pendiente conocido en este bloque.
+**RC1 — estabilidad de uso real quedó validada técnicamente en la suite completa: 986/986.**
+
+No hay un fallo pendiente conocido en este bloque.
+
+Antes de iniciar una nueva funcionalidad, corresponde hacer la validación final de repositorio local indicada por el flujo del proyecto:
+
+`git syncsofp → git diff → git diff --check → git status`
+
+y revisar que el estado local coincida con el HEAD de GitHub.
+
+No hacer merge a `main` automáticamente.
 
 El próximo trabajo debe elegirse reconstruyendo nuevamente el estado desde GitHub y revisando código, tests y reglas de negocio actuales. No continuar agregando tests por inercia si no existe un hueco funcional real.
 
