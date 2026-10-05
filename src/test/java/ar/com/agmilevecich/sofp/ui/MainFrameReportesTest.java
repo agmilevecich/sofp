@@ -3,6 +3,7 @@ package ar.com.agmilevecich.sofp.ui;
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
 import ar.com.agmilevecich.sofp.domain.Bono;
 import ar.com.agmilevecich.sofp.domain.Categoria;
+import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
@@ -172,6 +173,89 @@ class MainFrameReportesTest {
     }
 
     @Test
+    void deberiaRegistrarGastoDesdeLaUIYActualizarReporteAlNavegar() throws Exception {
+        Moneda moneda = crearMonedaPersistida();
+        Contexto contexto = crearContexto(moneda);
+
+        ar.com.agmilevecich.sofp.service.CategoriaService categoriaService =
+                new ar.com.agmilevecich.sofp.service.CategoriaService(
+                        entityManager,
+                        new ar.com.agmilevecich.sofp.persistence.CategoriaRepository(entityManager),
+                        new MovimientoRepository(entityManager)
+                );
+        ar.com.agmilevecich.sofp.service.MovimientoService movimientoService =
+                new ar.com.agmilevecich.sofp.service.MovimientoService(
+                        entityManager,
+                        new MovimientoRepository(entityManager)
+                );
+        PatrimonioFinancieroService patrimonioService = new PatrimonioFinancieroService(
+                cuentaService,
+                carteraActivoService,
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                new MonedaRepository(entityManager)
+        );
+        ResultadoFinancieroService resultadoService = new ResultadoFinancieroService(
+                entityManager,
+                new MovimientoRepository(entityManager)
+        );
+
+        AtomicReference<MainFrame> frameRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> frameRef.set(new MainFrame(
+                cuentaService,
+                movimientoService,
+                categoriaService,
+                null,
+                null,
+                carteraActivoService,
+                contexto.perfil,
+                contexto.usuario.getId(),
+                null,
+                null,
+                null,
+                null,
+                patrimonioService,
+                null,
+                resultadoService,
+                java.time.LocalDate.of(2026, 10, 1),
+                java.time.LocalDate.of(2026, 10, 5)
+        )));
+
+        MainFrame mainFrame = frameRef.get();
+        assertNotNull(mainFrame);
+
+        GastosPanel gastosPanel = buscarGastosPanel(mainFrame.getContentPane());
+        assertNotNull(gastosPanel);
+        assertEquals(1, gastosPanel.getCuentaComboBox().getItemCount());
+        assertEquals(1, gastosPanel.getCategoriaComboBox().getItemCount());
+
+        gastosPanel.getCuentaComboBox().setSelectedItem(contexto.cuenta);
+        gastosPanel.getCategoriaComboBox().setSelectedItem(contexto.categoria);
+        gastosPanel.getFormaPagoComboBox().setSelectedItem(FormaPago.TRANSFERENCIA);
+        gastosPanel.getImporteField().setText("86000.00");
+        gastosPanel.getFechaField().setDate(java.time.LocalDate.of(2026, 10, 5));
+        gastosPanel.getDescripcionField().setText("Supermercado");
+
+        SwingUtilities.invokeAndWait(gastosPanel::registrarGasto);
+
+        SwingUtilities.invokeAndWait(() -> {
+            JButton botonReportes = buscarBoton(mainFrame.getContentPane(), "Reportes");
+            assertNotNull(botonReportes);
+            botonReportes.doClick();
+        });
+
+        JList<?> lista = buscarListaConValor(
+                mainFrame.getContentPane(),
+                "  Patrimonio neto: -86000.00 ARS"
+        );
+        assertNotNull(lista);
+        assertEquals("  Patrimonio neto: -86000.00 ARS", lista.getModel().getElementAt(9));
+        assertEquals("  -86000.00 ARS", lista.getModel().getElementAt(17));
+
+        mainFrame.dispose();
+    }
+
+    @Test
     void deberiaMostrarReporteConsolidadoAlNavegarDesdeMainFrame() throws Exception {
         Moneda moneda = crearMonedaPersistida();
         Contexto contexto = crearContexto(moneda);
@@ -311,6 +395,21 @@ class MainFrameReportesTest {
                 LocalDateTime.of(2026, 8, 27, 10, 0),
                 "Compra Bono GD30"
         );
+    }
+
+    private GastosPanel buscarGastosPanel(Container container) {
+        for (Component component : container.getComponents()) {
+            if (component instanceof GastosPanel panel) {
+                return panel;
+            }
+            if (component instanceof Container hijo) {
+                GastosPanel encontrado = buscarGastosPanel(hijo);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+        return null;
     }
 
     private JButton buscarBoton(Container container, String texto) {
