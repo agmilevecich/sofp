@@ -150,6 +150,34 @@ class GastosPanelTest {
     }
 
     @Test
+    void deberiaEvitarDuplicarCategoriasAlSolicitarRefresco() {
+        Usuario usuario = crearUsuario();
+        PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
+        usuario.agregarPerfilFinanciero(perfil);
+        InstitucionFinanciera institucion = new InstitucionFinanciera("Banco Test", TipoInstitucionFinanciera.BANCO);
+        Moneda moneda = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta cuenta = new Cuenta("Cuenta principal", TipoCuenta.CAJA_AHORRO, perfil, institucion, moneda);
+        Categoria categoria = new Categoria("Alimentos", perfil, TipoMovimiento.EGRESO);
+
+        persistir(usuario, perfil, institucion, moneda, cuenta, categoria);
+
+        GastosPanel panel = new GastosPanel(
+                new GastoService(movimientoService),
+                cuentaService,
+                categoriaService,
+                perfil.getId(),
+                usuario.getId()
+        );
+
+        assertEquals(1, panel.getCategoriaComboBox().getItemCount());
+
+        panel.actualizarCuentasYCategorias();
+
+        assertEquals(1, panel.getCategoriaComboBox().getItemCount());
+        assertEquals(categoria, panel.getCategoriaComboBox().getItemAt(0));
+    }
+
+    @Test
     void deberiaRegistrarElGastoComoEgresoConFormaDePago() {
         Usuario usuario = crearUsuario();
         PerfilFinanciero perfil = new PerfilFinanciero("Perfil principal", usuario);
