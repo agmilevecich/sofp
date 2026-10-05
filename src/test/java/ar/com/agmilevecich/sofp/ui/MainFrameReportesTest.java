@@ -120,17 +120,6 @@ class MainFrameReportesTest {
                 new MovimientoRepository(entityManager)
         );
 
-        movimientoService.registrar(
-                contexto.cuenta,
-                contexto.categoria,
-                TipoMovimiento.INGRESO,
-                new BigDecimal("100000.00"),
-                LocalDateTime.of(2026, 10, 5, 9, 0),
-                "Saldo inicial para prueba UI",
-                FormaPago.TRANSFERENCIA,
-                contexto.usuario.getId()
-        );
-
         AtomicReference<MainFrame> frameRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> frameRef.set(new MainFrame(
                 cuentaService,
@@ -209,6 +198,17 @@ class MainFrameReportesTest {
         ResultadoFinancieroService resultadoService = new ResultadoFinancieroService(
                 entityManager,
                 new MovimientoRepository(entityManager)
+        );
+
+        movimientoService.registrar(
+                contexto.cuenta,
+                contexto.categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 10, 5, 9, 0),
+                "Saldo inicial para prueba UI",
+                FormaPago.TRANSFERENCIA,
+                contexto.usuario.getId()
         );
 
         AtomicReference<MainFrame> frameRef = new AtomicReference<>();
