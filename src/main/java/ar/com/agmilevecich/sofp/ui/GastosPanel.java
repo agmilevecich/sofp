@@ -251,8 +251,13 @@ public class GastosPanel extends JPanel {
         }
 
         FormaPago formaPago = (FormaPago) formaPagoComboBox.getSelectedItem();
+        Cuenta cuentaSeleccionada = (Cuenta) cuentaComboBox.getSelectedItem();
+
         if (formaPago != FormaPago.TARJETA_CREDITO) {
             cargarCuentas();
+            if (cuentaSeleccionada != null) {
+                cuentaComboBox.setSelectedItem(cuentaSeleccionada);
+            }
             return;
         }
 
