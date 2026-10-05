@@ -2,7 +2,6 @@ package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.Movimiento;
-import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 
 import javax.swing.BorderFactory;
@@ -44,15 +43,13 @@ public class MovimientosPanel extends JPanel {
     public MovimientosPanel(MovimientoService movimientoService,
                             Long cuentaId,
                             Long usuarioId) {
-        this(movimientoService, null, cuentaId, usuarioId);
+        this.movimientoService = Objects.requireNonNull(\n                movimientoService,\n                "El MovimientoService es obligatorio"\n        );\n        this.cuentaId = Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");\n        this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");\n\n        modeloMovimientos = new DefaultListModel<>();\n        listaMovimientos = new JList<>(modeloMovimientos);\n\n        setLayout(new BorderLayout(12, 12));\n        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));\n\n        JLabel titulo = new JLabel("Movimientos");\n        add(titulo, BorderLayout.NORTH);\n\n        JPanel panelLista = new JPanel(new BorderLayout());\n        panelLista.setBorder(BorderFactory.createTitledBorder(\n                BorderFactory.createEtchedBorder(),\n                "Movimientos registrados",\n                TitledBorder.LEFT,\n                TitledBorder.TOP\n        ));\n        panelLista.add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);\n        add(panelLista, BorderLayout.CENTER);\n        actualizarMovimientos();
     }
 
     /**
-     * Constructor para consultar y registrar movimientos de una cuenta autorizada.
-     * Las categorías se obtienen mediante CategoriaService y el alta se delega en MovimientoService.
+     * Constructor para consultar los movimientos de una cuenta autorizada.
      */
     public MovimientosPanel(MovimientoService movimientoService,
-                            CategoriaService categoriaService,
                             Cuenta cuenta,
                             Long usuarioId) {
         this.movimientoService = Objects.requireNonNull(
@@ -104,38 +101,6 @@ public class MovimientosPanel extends JPanel {
 
     public JList<String> getListaMovimientos() {
         return listaMovimientos;
-    }
-
-    private MovimientosPanel(MovimientoService movimientoService,
-                             CategoriaService categoriaService,
-                             Long cuentaId,
-                             Long usuarioId) {
-        this.movimientoService = Objects.requireNonNull(
-                movimientoService,
-                "El MovimientoService es obligatorio"
-        );
-        this.cuentaId = Objects.requireNonNull(cuentaId, "El id de la cuenta es obligatorio");
-        this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
-
-        modeloMovimientos = new DefaultListModel<>();
-        listaMovimientos = new JList<>(modeloMovimientos);
-
-        setLayout(new BorderLayout(12, 12));
-        setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
-
-        JLabel titulo = new JLabel("Movimientos");
-        add(titulo, BorderLayout.NORTH);
-
-        JPanel panelLista = new JPanel(new BorderLayout());
-        panelLista.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createEtchedBorder(),
-                "Movimientos registrados",
-                TitledBorder.LEFT,
-                TitledBorder.TOP
-        ));
-        panelLista.add(new JScrollPane(listaMovimientos), BorderLayout.CENTER);
-        add(panelLista, BorderLayout.CENTER);
-        actualizarMovimientos();
     }
 
     void actualizarMovimientos() {
