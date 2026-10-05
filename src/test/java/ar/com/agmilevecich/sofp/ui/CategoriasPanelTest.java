@@ -103,6 +103,37 @@ class CategoriasPanelTest {
     }
 
     @Test
+    void deberiaMostrarSeleccioneEnElTipoYPermitirLimpiarLaSeleccion() throws Exception {
+        AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
+        SwingUtilities.invokeAndWait(() -> panelRef.set(
+                new CategoriasPanel(categoriaService, perfil, usuario.getId())
+        ));
+
+        CategoriasPanel panel = panelRef.get();
+        JComboBox<TipoMovimiento> combo = panel.getTipoMovimientoComboBox();
+
+        assertEquals(null, combo.getSelectedItem());
+        assertEquals(TipoMovimiento.values().length + 1, combo.getItemCount());
+        assertEquals(null, combo.getItemAt(0));
+
+        Component rendererComponent = combo.getRenderer().getListCellRendererComponent(
+                new JList<>(),
+                combo.getItemAt(0),
+                0,
+                false,
+                false
+        );
+        assertEquals("Seleccione...", ((JLabel) rendererComponent).getText());
+
+        combo.setSelectedItem(TipoMovimiento.INGRESO);
+        assertEquals(TipoMovimiento.INGRESO, combo.getSelectedItem());
+
+        combo.setSelectedItem(null);
+        assertEquals(null, combo.getSelectedItem());
+        assertEquals(null, combo.getItemAt(0));
+    }
+
+    @Test
     void deberiaRechazarRegistroSinNombre() throws Exception {
         AtomicReference<CategoriasPanel> panelRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> panelRef.set(
