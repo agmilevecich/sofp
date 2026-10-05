@@ -874,6 +874,48 @@ public class OperacionFinancieraServiceTest {
     }
 
     @Test
+    void deberiaRechazarVentaQueUtilizaUnaCompraFutura() {
+
+        Activo activo = crearActivo();
+        persistirActivo(activo);
+
+        operacionFinancieraService.comprarActivo(
+                usuario.getId(),
+                cuentaOrigen,
+                categoriaOrigen,
+                activo,
+                new BigDecimal("100"),
+                new BigDecimal("125"),
+                LocalDateTime.of(2026, 9, 24, 12, 0),
+                "Compra futura"
+        );
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> operacionFinancieraService.venderActivo(
+                        usuario.getId(),
+                        cuentaDestino,
+                        categoriaDestino,
+                        activo,
+                        new BigDecimal("1"),
+                        new BigDecimal("130"),
+                        LocalDateTime.of(2026, 9, 24, 11, 0),
+                        "Venta histórica"
+                )
+        );
+
+        assertEquals(
+                1,
+                entityManager.createQuery(
+                                "SELECT m FROM MovimientoActivo m",
+                                MovimientoActivo.class
+                        )
+                        .getResultList()
+                        .size()
+        );
+    }
+
+    @Test
     void deberiaRechazarVentaSuperiorALaPosicionDisponible() {
 
         Activo activo = crearActivo();
