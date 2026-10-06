@@ -28,6 +28,7 @@ import ar.com.agmilevecich.sofp.service.MovimientoService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
+import ar.com.agmilevecich.sofp.service.RefinanciacionService;
 import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
 import ar.com.agmilevecich.sofp.service.PerfilFinancieroService;
 import ar.com.agmilevecich.sofp.service.ResultadoFinancieroService;
@@ -199,6 +200,7 @@ public class Main {
                 movimientoRepository,
                 obligacionRepository
         );
+        RefinanciacionService refinanciacionService = new RefinanciacionService(entityManager);
         OperacionFinancieraService operacionFinancieraService = new OperacionFinancieraService(
                 entityManager,
                 movimientoRepository,
@@ -244,7 +246,8 @@ public class Main {
                 cotizacionActivoService,
                 resultadoFinancieroService,
                 fechaDesde,
-                fechaHasta
+                fechaHasta,
+                refinanciacionService
         );
 
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
