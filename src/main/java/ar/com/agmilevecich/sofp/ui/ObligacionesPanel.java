@@ -101,40 +101,6 @@ public class ObligacionesPanel extends JPanel {
                              Long usuarioId,
                              TipoCambioService tipoCambioService,
                              RefinanciacionService refinanciacionService) {
-        this.obligacionService = Objects.requireNonNull(
-                obligacionService,
-                "El ObligacionService es obligatorio"
-        );
-        this.pagoTarjetaService = pagoTarjetaService;
-        this.cuentaService = cuentaService;
-        this.categoriaService = categoriaService;
-        this.tipoCambioService = tipoCambioService;
-        this.refinanciacionService = refinanciacionService;
-        this.perfilFinancieroId = perfilFinancieroId;
-        this.usuarioId = Objects.requireNonNull(
-                usuarioId,
-                "El id del usuario es obligatorio"
-        );
-        obligacionesList = new JList<>();
-        cuentaPagadoraCombo = new JComboBox<>();
-        categoriaCombo = new JComboBox<>();
-        importePagoField = new JTextField(12);
-        cerrarCicloButton = new JButton("Cerrar ciclo");
-        registrarPagoButton = new JButton("Registrar pago");
-        refinanciarButton = new JButton("Refinanciar");
-
-        configurarLista();
-        configurarCombos();
-        construirPanel();
-        obligacionesList.addListSelectionListener(evento -> actualizarEstadoBotones());
-        cerrarCicloButton.addActionListener(evento -> cerrarCiclo());
-        registrarPagoButton.addActionListener(evento -> registrarPago());
-        refinanciarButton.addActionListener(evento -> refinanciar());
-        if (pagoTarjetaService != null && cuentaService != null && categoriaService != null && perfilFinancieroId != null) {
-            refrescarCuentasYCategorias();
-        }
-        refrescar();
-    }
 
     public ObligacionesPanel(ObligacionService obligacionService,
                              PagoTarjetaService pagoTarjetaService,
