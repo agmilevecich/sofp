@@ -9,6 +9,7 @@ import ar.com.agmilevecich.sofp.service.CategoriaService;
 import ar.com.agmilevecich.sofp.service.CuentaService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
+import ar.com.agmilevecich.sofp.service.RefinanciacionService;
 import ar.com.agmilevecich.sofp.service.TipoCambioService;
 
 import javax.swing.BorderFactory;
@@ -43,6 +44,7 @@ public class ObligacionesPanel extends JPanel {
     private final CuentaService cuentaService;
     private final CategoriaService categoriaService;
     private final TipoCambioService tipoCambioService;
+    private final RefinanciacionService refinanciacionService;
     private final Long perfilFinancieroId;
     private final Long usuarioId;
     private final JList<Obligacion> obligacionesList;
@@ -51,6 +53,7 @@ public class ObligacionesPanel extends JPanel {
     private final JTextField importePagoField;
     private final JButton cerrarCicloButton;
     private final JButton registrarPagoButton;
+    private final JButton refinanciarButton;
 
     /** Constructor del shell sin contexto de usuario. */
     public ObligacionesPanel() {
@@ -59,6 +62,7 @@ public class ObligacionesPanel extends JPanel {
         cuentaService = null;
         categoriaService = null;
         tipoCambioService = null;
+        refinanciacionService = null;
         perfilFinancieroId = null;
         usuarioId = null;
         obligacionesList = new JList<>();
@@ -67,9 +71,11 @@ public class ObligacionesPanel extends JPanel {
         importePagoField = new JTextField(12);
         cerrarCicloButton = new JButton("Cerrar ciclo");
         registrarPagoButton = new JButton("Registrar pago");
+        refinanciarButton = new JButton("Refinanciar");
         construirPanel();
         cerrarCicloButton.setEnabled(false);
         registrarPagoButton.setEnabled(false);
+        refinanciarButton.setEnabled(false);
     }
 
     /** Constructor de compatibilidad para consulta de obligaciones sin pago coordinado. */
@@ -84,7 +90,19 @@ public class ObligacionesPanel extends JPanel {
                              Long perfilFinancieroId,
                              Long usuarioId) {
         this(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
-                perfilFinancieroId, usuarioId, null);
+                perfilFinancieroId, usuarioId, null, null);
+    }
+
+    public ObligacionesPanel(ObligacionService obligacionService,
+                             PagoTarjetaService pagoTarjetaService,
+                             CuentaService cuentaService,
+                             CategoriaService categoriaService,
+                             Long perfilFinancieroId,
+                             Long usuarioId,
+                             TipoCambioService tipoCambioService,
+                             RefinanciacionService refinanciacionService) {
+        this(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
+                perfilFinancieroId, usuarioId, tipoCambioService, null);
     }
 
     public ObligacionesPanel(ObligacionService obligacionService,
@@ -102,6 +120,7 @@ public class ObligacionesPanel extends JPanel {
         this.cuentaService = cuentaService;
         this.categoriaService = categoriaService;
         this.tipoCambioService = tipoCambioService;
+        this.refinanciacionService = refinanciacionService;
         this.perfilFinancieroId = perfilFinancieroId;
         this.usuarioId = Objects.requireNonNull(
                 usuarioId,
@@ -113,6 +132,7 @@ public class ObligacionesPanel extends JPanel {
         importePagoField = new JTextField(12);
         cerrarCicloButton = new JButton("Cerrar ciclo");
         registrarPagoButton = new JButton("Registrar pago");
+        refinanciarButton = new JButton("Refinanciar");
 
         configurarLista();
         configurarCombos();
@@ -120,6 +140,7 @@ public class ObligacionesPanel extends JPanel {
         obligacionesList.addListSelectionListener(evento -> actualizarEstadoBotones());
         cerrarCicloButton.addActionListener(evento -> cerrarCiclo());
         registrarPagoButton.addActionListener(evento -> registrarPago());
+        refinanciarButton.addActionListener(evento -> refinanciar());
         if (pagoTarjetaService != null && cuentaService != null && categoriaService != null && perfilFinancieroId != null) {
             refrescarCuentasYCategorias();
         }
@@ -148,6 +169,10 @@ public class ObligacionesPanel extends JPanel {
 
     public JButton getRegistrarPagoButton() {
         return registrarPagoButton;
+    }
+
+    public JButton getRefinanciarButton() {
+        return refinanciarButton;
     }
 
     /** Recarga las obligaciones del usuario autorizado. */
@@ -397,12 +422,21 @@ public class ObligacionesPanel extends JPanel {
         constraints.gridx = 3;
         panelPago.add(cerrarCicloButton, constraints);
 
+        constraints.gridx = 4;
+        panelPago.add(refinanciarButton, constraints);
+
         add(panelPago, BorderLayout.SOUTH);
     }
 
     private void actualizarEstadoBotones() {
         Obligacion seleccionada = obligacionesList.getSelectedValue();
         cerrarCicloButton.setEnabled(seleccionada != null);
+        refinanciarButton.setEnabled(
+                refinanciacionService != null
+                        && seleccionada != null
+                        && seleccionada.getEstado() != EstadoObligacion.PAGADA
+                        && seleccionada.getEstado() != EstadoObligacion.REFINANCIADA
+        );
         registrarPagoButton.setEnabled(
                 pagoTarjetaService != null
                         && cuentaPagadoraCombo.getSelectedItem() != null
@@ -410,6 +444,58 @@ public class ObligacionesPanel extends JPanel {
                         && seleccionada != null
                         && seleccionada.getEstado() != EstadoObligacion.PAGADA
         );
+    }
+
+
+    void refinanciarSeleccionado(RefinanciacionForm form) {
+        if (refinanciacionService == null) {
+            throw new IllegalStateException("La refinanciación no está configurada");
+        }
+        Obligacion obligacion = Objects.requireNonNull(
+                obligacionesList.getSelectedValue(),
+                "La obligación es obligatoria"
+        );
+        refinanciacionService.crear(
+                obligacion.getId(),
+                usuarioId,
+                form.getFechaInicio(),
+                form.getCantidadCuotas(),
+                form.getInteresInicial(),
+                form.getCargosIniciales(),
+                form.getTasaAnual()
+        );
+        refrescar();
+    }
+
+    private void refinanciar() {
+        try {
+            RefinanciacionForm form = new RefinanciacionForm();
+            form.setFechaInicio(LocalDate.now());
+            int resultado = JOptionPane.showConfirmDialog(
+                    this,
+                    form,
+                    "Refinanciar obligación",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+            if (resultado != JOptionPane.OK_OPTION) {
+                return;
+            }
+            refinanciarSeleccionado(form);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Refinanciación registrada correctamente",
+                    "Obligaciones",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (RuntimeException e) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    e.getMessage(),
+                    "No se pudo refinanciar la obligación",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void cerrarCiclo() {
