@@ -214,7 +214,7 @@ public class MainFrame extends JFrame {
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
                 obligacionService, operacionFinancieraService, pagoTarjetaService,
                 tipoCambioService, patrimonioFinancieroService, cotizacionActivoService,
-                resultadoFinancieroService, fechaDesde, fechaHasta, null, null);
+                resultadoFinancieroService, fechaDesde, fechaHasta, null);
     }
 
     public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -237,7 +237,7 @@ public class MainFrame extends JFrame {
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
                 obligacionService, operacionFinancieraService, pagoTarjetaService,
                 tipoCambioService, patrimonioFinancieroService, cotizacionActivoService,
-                resultadoFinancieroService, fechaDesde, fechaHasta, refinanciacionService, null);
+                resultadoFinancieroService, fechaDesde, fechaHasta, refinanciacionService);
     }
 
     private MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
