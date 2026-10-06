@@ -101,18 +101,6 @@ public class ObligacionesPanel extends JPanel {
                              Long usuarioId,
                              TipoCambioService tipoCambioService,
                              RefinanciacionService refinanciacionService) {
-
-    public ObligacionesPanel(ObligacionService obligacionService,
-                             PagoTarjetaService pagoTarjetaService,
-                             CuentaService cuentaService,
-                             CategoriaService categoriaService,
-                             Long perfilFinancieroId,
-                             Long usuarioId,
-                             TipoCambioService tipoCambioService) {
-        this(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
-                perfilFinancieroId, usuarioId, tipoCambioService, null);
-    }
-
         this.obligacionService = Objects.requireNonNull(
                 obligacionService,
                 "El ObligacionService es obligatorio"
@@ -146,6 +134,17 @@ public class ObligacionesPanel extends JPanel {
             refrescarCuentasYCategorias();
         }
         refrescar();
+    }
+
+    public ObligacionesPanel(ObligacionService obligacionService,
+                             PagoTarjetaService pagoTarjetaService,
+                             CuentaService cuentaService,
+                             CategoriaService categoriaService,
+                             Long perfilFinancieroId,
+                             Long usuarioId,
+                             TipoCambioService tipoCambioService) {
+        this(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
+                perfilFinancieroId, usuarioId, tipoCambioService, null);
     }
 
     public JList<Obligacion> getObligacionesList() {
