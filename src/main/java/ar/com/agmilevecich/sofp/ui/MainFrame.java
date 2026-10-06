@@ -15,6 +15,7 @@ import ar.com.agmilevecich.sofp.service.MovimientoService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.OperacionFinancieraService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
+import ar.com.agmilevecich.sofp.service.RefinanciacionService;
 import ar.com.agmilevecich.sofp.service.PatrimonioFinancieroService;
 import ar.com.agmilevecich.sofp.service.ResultadoFinancieroService;
 import ar.com.agmilevecich.sofp.service.TipoCambioService;
@@ -213,7 +214,30 @@ public class MainFrame extends JFrame {
                 perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
                 obligacionService, operacionFinancieraService, pagoTarjetaService,
                 tipoCambioService, patrimonioFinancieroService, cotizacionActivoService,
-                resultadoFinancieroService, fechaDesde, fechaHasta);
+                resultadoFinancieroService, fechaDesde, fechaHasta, null);
+    }
+
+    public MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
+                     CategoriaService categoriaService,
+                     InstitucionFinancieraService institucionFinancieraService,
+                     MonedaService monedaService, CarteraActivoService carteraActivoService,
+                     PerfilFinanciero perfilFinanciero, Long usuarioId,
+                     ObligacionService obligacionService,
+                     OperacionFinancieraService operacionFinancieraService,
+                     PagoTarjetaService pagoTarjetaService,
+                     TipoCambioService tipoCambioService,
+                     PatrimonioFinancieroService patrimonioFinancieroService,
+                     CotizacionActivoService cotizacionActivoService,
+                     ResultadoFinancieroService resultadoFinancieroService,
+                     java.time.LocalDate fechaDesde,
+                     java.time.LocalDate fechaHasta,
+                     RefinanciacionService refinanciacionService) {
+        this(cuentaService, movimientoService, categoriaService, institucionFinancieraService,
+                monedaService, carteraActivoService, perfilFinanciero,
+                perfilFinanciero != null ? perfilFinanciero.getId() : null, usuarioId,
+                obligacionService, operacionFinancieraService, pagoTarjetaService,
+                tipoCambioService, patrimonioFinancieroService, cotizacionActivoService,
+                resultadoFinancieroService, fechaDesde, fechaHasta, refinanciacionService);
     }
 
     private MainFrame(CuentaService cuentaService, MovimientoService movimientoService,
@@ -229,7 +253,8 @@ public class MainFrame extends JFrame {
                       CotizacionActivoService cotizacionActivoService,
                       ResultadoFinancieroService resultadoFinancieroService,
                       java.time.LocalDate fechaDesde,
-                      java.time.LocalDate fechaHasta) {
+                      java.time.LocalDate fechaHasta,
+                      RefinanciacionService refinanciacionService) {
         super("SOFP - Sistema Operativo Financiero Personal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 700);
@@ -317,7 +342,7 @@ public class MainFrame extends JFrame {
         areaCentral.add(tarjetasPanel, TARJETAS);
         areaCentral.add(obligacionService != null && usuarioId != null
                 ? new ObligacionesPanel(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
-                perfilFinancieroId, usuarioId, tipoCambioService)
+                perfilFinancieroId, usuarioId, tipoCambioService, refinanciacionService)
                 : new ObligacionesPanel(), OBLIGACIONES);
 
         if (carteraActivoService != null && perfilFinanciero != null && usuarioId != null) {
