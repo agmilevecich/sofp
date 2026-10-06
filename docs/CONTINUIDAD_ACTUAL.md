@@ -1,6 +1,6 @@
 # SOFP — Continuidad canónica actual
 
-> Última actualización: 05/10/2026.  
+> Última actualización: 06/10/2026.  
 > Fuente de verdad: código actual, tests y commits de GitHub. Esta documentación es auxiliar y puede quedar desactualizada; si contradice al código, prevalece el código.
 
 ## Estado actual
@@ -8,104 +8,87 @@
 - Rama de trabajo: `feature/swing-shell`.
 - Rama estable: `main`.
 - `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
-- HEAD actual: `f60c225984a96d025d148f5368f21ecc67bd8e1b` — `fix: localizar panel de movimientos contextual en test`.
-- Comparación GitHub: **365 commits ahead / 0 behind**.
+- HEAD actual: `26bf0f3a44956d8bbb5978893c8b12019e664015` — `fix: completar test de consulta temporal de movimientos de activos`.
+- Comparación GitHub: **365 commits ahead / 0 behind** según la última comparación registrada.
 - No se modificó ni mergeó `main`.
+- Validación local posterior: rama sincronizada con GitHub/Bitbucket y working tree limpio.
 
 ## Última validación completa
 
 `mvn test` ejecutado por el usuario:
 
-- **986 tests**
+- **991 tests**
 - **0 failures**
 - **0 errors**
 - **0 skipped**
 - `BUILD SUCCESS`
-- Finalizado: **05/10/2026 19:24:45 -03:00**
-- Duración: **28:05 min**
+- Finalizado: **06/10/2026 15:07:38 -03:00**
+- Duración: **31:08 min**
 
-Esta es la última suite completa conocida y reemplaza los resultados históricos anteriores.
+Este resultado reemplaza al anterior de 986/986 y es la última suite completa conocida.
 
-## Validación RC1 — estabilidad de uso real
+## Etapa cerrada: auditoría de inversiones
 
-La etapa RC1 tuvo como objetivo verificar el arranque, persistencia y flujo de uso real de la aplicación sin introducir cambios contables implícitos.
-
-### Arranque y persistencia H2
-
-Se validó manualmente el arranque de la aplicación con la base H2 ausente. El servidor H2 se inicia en el puerto 9092 antes de JPA y, mediante `-ifNotExists`, permite crear automáticamente `database/sofp.mv.db` cuando todavía no existe.
-
-También se confirmó mediante `netstat` que el servidor H2 queda escuchando en 9092.
-
-Se validó persistencia entre reinicios: se creó una categoría desde la aplicación, se cerró SOFP completamente y, después del reinicio y login, la categoría continuó disponible.
-
-### Movimientos, gastos y patrimonio
-
-Se estableció que `MovimientosPanel` es un panel informativo de consulta. El alta de movimientos se realiza desde los paneles de Ingresos y Gastos.
-
-Se cubrió el flujo de gasto por transferencia desde la UI. La transferencia se comporta como egreso monetario normal y reduce el saldo de la cuenta cuando existen fondos suficientes.
-
-También se agregó cobertura para que un gasto de **86.000,00** sobre un ingreso previo de **1.500.000,00** produzca un saldo/patrimonio de **1.414.000,00**.
-
-### Reportes
-
-Se corrigió la actualización del panel de reportes al navegar hacia él después de registrar movimientos.
-
-Se verificó que el reporte refleje el gasto registrado desde la UI y que la navegación no muestre datos obsoletos.
-
-### Categorías
-
-Se consolidó la clasificación por tipo de movimiento. Las categorías nuevas pueden quedar asociadas a `INGRESO` o `EGRESO`; las categorías históricas sin clasificación explícita permanecen como `Sin clasificar` y no se infiere su tipo por el nombre.
-
-La cobertura específica de categorías continúa verde.
-
-### Ajustes de tests RC1
-
-Se corrigieron regresiones de tests provocadas por la evolución intencional de la UI:
-
-- `MainFrameCategoriasTest`: adaptado a categorías tipadas.
-- `MainFrameMovimientosTest`: adaptado al panel informativo de movimientos.
-- Se corrigió la localización del panel contextual de movimientos en el test.
-- Se corrigió la preparación de fondos del test de gastos.
-- Se corrigió la conservación de la cuenta seleccionada al cambiar la forma de pago en Gastos.
-
-La ejecución enfocada posterior a estas correcciones quedó en **4/4**, 0 failures, 0 errors, 0 skipped.
-
-## Etapa cerrada: auditoría de pasivos y patrimonio neto
-
-Se auditó el recorrido:
-
-`ObligacionRepository → Obligacion / Financiacion / Refinanciacion → PatrimonioFinancieroService → ResumenPatrimonial`
-
-y su interacción con obligaciones de tarjeta, liquidaciones, cuotas, financiación, cargos, refinanciación, pagos y escenarios multidivisa.
+La auditoría de inversiones verificó el recorrido de operaciones de compra/venta, movimientos de activos, posiciones, cartera, valorización, cotizaciones y aislamiento por perfil financiero.
 
 ### Corrección de producción
 
-Se corrigió `ObligacionRepository.sumarCreditoUtilizadoPorCuenta()` para evitar duplicar el capital de una financiación normal cuando la obligación también tiene cuotas pendientes.
+Se detectó y corrigió un hueco real en la validación de ventas: la posición disponible no debía incluir compras posteriores al momento de la venta.
 
-La corrección resta de la suma de cuotas el capital pendiente de financiaciones normales asociadas a obligaciones con cuotas. No se modificaron reglas contables nuevas ni se introdujeron conversiones implícitas.
+Se incorporó en `MovimientoActivoRepository` una consulta temporal por activo, perfil y fecha/hora, y `OperacionFinancieraService.venderActivo()` pasó a validar la posición disponible al momento de la venta.
 
-### Cobertura validada
+También quedó validada la compatibilidad de moneda entre activo y cuenta para compra y venta.
 
-- `ObligacionRepositoryTest`: **17/17**
-- `PatrimonioFinancieroServiceTest`: **14/14**
-- `ObligacionServiceTest + RefinanciacionTest`: **36/36**
-- suite completa posterior: **986/986**
+### Cobertura específica
+
+La batería específica de inversiones quedó en:
+
+- `OperacionFinancieraServiceTest`: **29/29**
+- `MovimientoActivoRepositoryTest`: **11/11**
+- `CarteraActivoServiceTest` + `CarteraActivoServiceMovimientosTest` + `PosicionActivoServiceTest`: **20/20**
+- Batería completa de inversiones, incluyendo `OperacionFinancieraCompraServiceTest` y `OperacionFinancieraVentaServiceTest`: **177/177**
+- Suite completa posterior: **991/991**
+
+Todos los resultados fueron 0 failures, 0 errors y 0 skipped.
+
+### Decisiones y límites actuales
+
+- La posición de activos se reconstruye a partir de `MovimientoActivo`.
+- La venta se valida contra la posición disponible al momento de la operación.
+- No se introdujo una regla nueva que obligue a disponer de saldo monetario suficiente para comprar un activo; esa decisión queda fuera de esta auditoría porque implicaría una regla de negocio explícita.
+- Las cotizaciones actuales pueden persistirse mediante `CotizacionActivoService`.
+- Las conversiones y valorizaciones mantienen las reglas existentes; no se introdujeron conversiones implícitas.
+
+## RC1 — estabilidad de uso real
+
+La etapa RC1 quedó validada previamente con **986/986**. La suite completa posterior a la auditoría de inversiones subió a **991/991**, sin regresiones.
+
+Se mantienen validadas las comprobaciones anteriores de:
+
+- arranque y creación/recuperación de H2;
+- persistencia entre reinicios;
+- login y navegación principal;
+- categorías tipadas por movimiento;
+- gastos y transferencias;
+- actualización de reportes;
+- patrimonio financiero;
+- movimientos informativos;
+- pasivos, financiación y refinanciación.
 
 ## Punto exacto para continuar
 
-**RC1 — estabilidad de uso real quedó validada técnicamente en la suite completa: 986/986.**
+**RC1 y la auditoría de inversiones están técnicamente validadas.**
 
-No hay un fallo pendiente conocido en este bloque.
+El repositorio local fue sincronizado con GitHub y quedó limpio:
 
-Antes de iniciar una nueva funcionalidad, corresponde hacer la validación final de repositorio local indicada por el flujo del proyecto:
+`git syncsofp` → actualizado/sincronizado  
+`git status` → working tree clean  
+`git diff` → sin cambios  
+`git diff --check` → sin problemas
 
-`git syncsofp → git diff → git diff --check → git status`
-
-y revisar que el estado local coincida con el HEAD de GitHub.
+El siguiente paso no es ejecutar nuevamente la suite. Corresponde cerrar documentalmente esta auditoría y, después, reconstruir desde GitHub el próximo hueco funcional real antes de implementar otra funcionalidad.
 
 No hacer merge a `main` automáticamente.
-
-El próximo trabajo debe elegirse reconstruyendo nuevamente el estado desde GitHub y revisando código, tests y reglas de negocio actuales. No continuar agregando tests por inercia si no existe un hueco funcional real.
 
 ## Pendientes conocidos
 
