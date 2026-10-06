@@ -222,7 +222,7 @@ class ObligacionesPanelTest {
         Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId(), usuario.getId()).orElseThrow();
         assertEquals(EstadoObligacion.REFINANCIADA, actualizada.getEstado());
         assertEquals(1L, entityManager.createQuery(
-                "select count(r) from Refinanciacion r where r.obligacion.id = :obligacionId",
+                "select count(r) from Refinanciacion r where r.obligacionOrigen.id = :obligacionId",
                 Long.class
         ).setParameter("obligacionId", obligacion.getId()).getSingleResult());
     }
