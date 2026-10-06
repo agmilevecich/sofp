@@ -6,7 +6,9 @@ import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.FormaPago;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.EstadoObligacion;
 import ar.com.agmilevecich.sofp.domain.Obligacion;
+import ar.com.agmilevecich.sofp.domain.Refinanciacion;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCambio;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
@@ -24,6 +26,7 @@ import ar.com.agmilevecich.sofp.service.GastoService;
 import ar.com.agmilevecich.sofp.service.MovimientoService;
 import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
+import ar.com.agmilevecich.sofp.service.RefinanciacionService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +53,7 @@ class ObligacionesPanelTest {
     private CuentaService cuentaService;
     private CategoriaService categoriaService;
     private PagoTarjetaService pagoTarjetaService;
+    private RefinanciacionService refinanciacionService;
     private Usuario usuario;
     private PerfilFinanciero perfil;
     private Cuenta cuenta;
@@ -78,6 +82,7 @@ class ObligacionesPanelTest {
                 movimientoRepository,
                 obligacionRepository
         );
+        refinanciacionService = new RefinanciacionService(entityManager);
         gastoService = new GastoService(movimientoService, obligacionService);
 
         usuario = new Usuario(
@@ -198,6 +203,43 @@ class ObligacionesPanelTest {
     }
 
     @Test
+    void deberiaRefinanciarLaObligacionSeleccionada() {
+        Obligacion obligacion = crearObligacion(new BigDecimal("15000.00"));
+        ObligacionesPanel panel = crearPanelConRefinanciacion();
+        RefinanciacionForm form = new RefinanciacionForm();
+        form.setFechaInicio(java.time.LocalDate.of(2026, 10, 6));
+        form.setCantidadCuotas(6);
+        form.setInteresInicial(new BigDecimal("500.00"));
+        form.setCargosIniciales(new BigDecimal("100.00"));
+        form.setTasaAnual(new BigDecimal("48.00"));
+
+        panel.getObligacionesList().setSelectedIndex(0);
+
+        assertTrue(panel.getRefinanciarButton().isEnabled());
+        panel.refinanciarSeleccionado(form);
+
+        entityManager.clear();
+        Obligacion actualizada = obligacionService.buscarPorId(obligacion.getId(), usuario.getId()).orElseThrow();
+        assertEquals(EstadoObligacion.REFINANCIADA, actualizada.getEstado());
+        assertEquals(1L, entityManager.createQuery(
+                "select count(r) from Refinanciacion r where r.obligacion.id = :obligacionId",
+                Long.class
+        ).setParameter("obligacionId", obligacion.getId()).getSingleResult());
+    }
+
+    @Test
+    void deberiaDeshabilitarRefinanciacionParaObligacionPagada() {
+        crearObligacion(new BigDecimal("15000.00"));
+        Obligacion obligacion = obligacionService.listarPorUsuario(usuario.getId()).get(0);
+        obligacionService.registrarPago(obligacion.getId(), new BigDecimal("15000.00"), usuario.getId());
+
+        ObligacionesPanel panel = crearPanelConRefinanciacion();
+        panel.getObligacionesList().setSelectedIndex(0);
+
+        assertFalse(panel.getRefinanciarButton().isEnabled());
+    }
+
+    @Test
     void deberiaDeshabilitarPagoParaObligacionPagada() throws Exception {
         crearObligacion(new BigDecimal("15000.00"));
         Obligacion obligacion = obligacionService.listarPorUsuario(usuario.getId()).get(0);
@@ -277,6 +319,19 @@ class ObligacionesPanelTest {
                 categoriaService,
                 perfil.getId(),
                 usuario.getId()
+        );
+    }
+
+    private ObligacionesPanel crearPanelConRefinanciacion() {
+        return new ObligacionesPanel(
+                obligacionService,
+                pagoTarjetaService,
+                cuentaService,
+                categoriaService,
+                perfil.getId(),
+                usuario.getId(),
+                null,
+                refinanciacionService
         );
     }
 
