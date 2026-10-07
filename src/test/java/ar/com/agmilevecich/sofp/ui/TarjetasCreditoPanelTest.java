@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 
