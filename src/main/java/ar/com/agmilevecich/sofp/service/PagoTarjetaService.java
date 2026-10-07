@@ -76,6 +76,88 @@ public class PagoTarjetaService {
     }
 
     /**
+     * Registra un pago parcial de tarjeta y lo distribuye entre las obligaciones
+     * pendientes en el orden en que son devueltas por el repositorio.
+     */
+    public BigDecimal registrarPagoParcialTarjeta(Long tarjetaId,
+                                                   Cuenta cuentaPagadora,
+                                                   Categoria categoria,
+                                                   BigDecimal importe,
+                                                   LocalDateTime fechaHora,
+                                                   String descripcion,
+                                                   Long usuarioId) {
+        Objects.requireNonNull(tarjetaId, "El id de la tarjeta es obligatorio");
+        Objects.requireNonNull(cuentaPagadora, "La cuenta pagadora es obligatoria");
+        Objects.requireNonNull(categoria, "La categoría es obligatoria");
+        Objects.requireNonNull(importe, "El importe es obligatorio");
+        Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+        Objects.requireNonNull(descripcion, "La descripción es obligatoria");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        if (importe.signum() <= 0) {
+            throw new IllegalArgumentException("El importe debe ser positivo");
+        }
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            Cuenta tarjeta = entityManager.find(Cuenta.class, tarjetaId);
+            if (tarjeta == null) {
+                throw new IllegalArgumentException("La tarjeta no existe");
+            }
+            validarPropietario(usuarioId, tarjeta);
+            if (tarjeta.getTipoCuenta() != ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO) {
+                throw new IllegalArgumentException("La cuenta indicada no es una tarjeta de crédito");
+            }
+            validarPropietario(usuarioId, cuentaPagadora);
+            validarPropietario(usuarioId, categoria);
+
+            List<Obligacion> obligaciones = obligacionRepository.listarPorUsuario(usuarioId).stream()
+                    .filter(o -> o.getMovimientoOrigen().getCuenta().getId().equals(tarjetaId))
+                    .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.PAGADA)
+                    .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA)
+                    .toList();
+            if (obligaciones.isEmpty()) {
+                throw new IllegalArgumentException("La tarjeta no tiene deuda pendiente para pagar");
+            }
+
+            BigDecimal saldoExigibleTotal = BigDecimal.ZERO.setScale(2);
+            for (Obligacion obligacion : obligaciones) {
+                validarFechaPago(obligacion, fechaHora);
+                Financiacion financiacion = buscarFinanciacionPendiente(obligacion, fechaHora);
+                Refinanciacion refinanciacion = buscarRefinanciacionPendiente(obligacion, fechaHora);
+                actualizarInteresesSiCorresponde(financiacion, fechaHora.toLocalDate(), obligacion);
+                validarMonedaPagadora(obligacion, cuentaPagadora, financiacion, refinanciacion);
+                saldoExigibleTotal = saldoExigibleTotal.add(calcularSaldoExigible(obligacion, financiacion, refinanciacion));
+            }
+            if (importe.compareTo(saldoExigibleTotal) > 0) {
+                throw new IllegalArgumentException("El pago supera el saldo pendiente de la tarjeta");
+            }
+            if (calcularSaldo(cuentaPagadora).compareTo(importe) < 0) {
+                throw new IllegalArgumentException("No hay fondos suficientes en la cuenta para pagar la tarjeta");
+            }
+
+            BigDecimal restante = importe;
+            for (Obligacion obligacion : obligaciones) {
+                if (restante.signum() <= 0) break;
+                Financiacion financiacion = buscarFinanciacionPendiente(obligacion, fechaHora);
+                Refinanciacion refinanciacion = buscarRefinanciacionPendiente(obligacion, fechaHora);
+                BigDecimal saldoExigible = calcularSaldoExigible(obligacion, financiacion, refinanciacion);
+                BigDecimal pago = restante.min(saldoExigible);
+                if (pago.signum() > 0) {
+                    registrarPagoEnTransaccion(obligacion, cuentaPagadora, categoria, pago,
+                            fechaHora, descripcion, usuarioId);
+                    restante = restante.subtract(pago);
+                }
+            }
+            transaction.commit();
+            return importe;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
+
+    /**
      * Registra el pago total pendiente de una tarjeta distribuyéndolo entre todas
      * sus obligaciones pendientes. Cada obligación conserva su propio movimiento
      * y trazabilidad de PagoTarjeta, pero toda la operación es atómica.
