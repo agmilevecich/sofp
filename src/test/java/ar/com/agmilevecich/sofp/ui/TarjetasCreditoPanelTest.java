@@ -156,9 +156,11 @@ class TarjetasCreditoPanelTest {
     }
 
     @Test
-    void deberiaMostrarAccionParaPagarLaTotalidadDeLaTarjeta() {
+    void deberiaMostrarAccionesDePagoParcialMinimoYTotal() {
         TarjetasCreditoPanel panel = new TarjetasCreditoPanel();
 
+        assertNotNull(encontrarBoton(panel, "Pagar importe"));
+        assertNotNull(encontrarBoton(panel, "Pagar mínimo"));
         assertNotNull(encontrarBoton(panel, "Pagar totalidad"));
     }
 
