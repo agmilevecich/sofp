@@ -78,6 +78,7 @@ public class TarjetasCreditoPanel extends JPanel {
         categoriaService = null;
         perfilFinancieroId = null;
         usuarioId = null;
+        configurarRenderers();
         construir();
     }
 
