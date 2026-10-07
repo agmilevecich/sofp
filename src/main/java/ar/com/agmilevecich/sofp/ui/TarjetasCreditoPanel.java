@@ -171,14 +171,19 @@ public class TarjetasCreditoPanel extends JPanel {
         c.gridx = 2;
         c.gridy = 2;
         pago.add(pagar, c);
-        c.gridx = 0;
+        JButton pagarTotal = new JButton("Pagar totalidad");
+        c.gridx = 2;
         c.gridy = 3;
+        pago.add(pagarTotal, c);
+        c.gridx = 0;
+        c.gridy = 4;
         c.gridwidth = 3;
         pago.add(detalleLabel, c);
         JButton refrescar = new JButton("Actualizar");
-        c.gridy = 4;
+        c.gridy = 5;
         pago.add(refrescar, c);
         pagar.addActionListener(e -> registrarPago());
+        pagarTotal.addActionListener(e -> registrarPagoTotal());
         refrescar.addActionListener(e -> cargarDatos());
         add(pago, BorderLayout.SOUTH);
     }
@@ -273,6 +278,36 @@ public class TarjetasCreditoPanel extends JPanel {
     private String describirFinanciacion(Financiacion f) {
         return String.format("saldo %.2f %s, inicio %s, cargos %.2f",
                 f.getSaldoCapital(), f.getMoneda().getCodigo(), f.getFechaInicio(), f.getSaldoCargosPendiente());
+    }
+
+    private void registrarPagoTotal() {
+        try {
+            Cuenta tarjeta = (Cuenta) tarjetasCombo.getSelectedItem();
+            Cuenta cuentaPagadora = (Cuenta) cuentaPagadoraCombo.getSelectedItem();
+            Categoria categoria = (Categoria) categoriaCombo.getSelectedItem();
+
+            BigDecimal total = pagoTarjetaService.registrarPagoTotalTarjeta(
+                    tarjeta.getId(),
+                    cuentaPagadora,
+                    categoria,
+                    LocalDateTime.now(),
+                    "Pago total de tarjeta",
+                    usuarioId
+            );
+            importeField.setText("");
+            cargarDatos();
+            javax.swing.JOptionPane.showMessageDialog(
+                    this,
+                    "Pago total registrado: " + total + " " + tarjeta.getMoneda().getCodigo(),
+                    "Pago de tarjeta",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (RuntimeException e) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this, e.getMessage(), "No se pudo registrar el pago total",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     private void registrarPago() {
