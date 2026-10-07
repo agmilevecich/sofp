@@ -11,6 +11,7 @@ import ar.com.agmilevecich.sofp.service.ObligacionService;
 import ar.com.agmilevecich.sofp.service.PagoTarjetaService;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -64,6 +65,7 @@ public class TarjetasCreditoPanel extends JPanel {
         this.perfilFinancieroId = Objects.requireNonNull(perfilFinancieroId, "El id del perfil financiero es obligatorio");
         this.usuarioId = Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
 
+        configurarRenderers();
         construir();
         tarjetasCombo.addActionListener(e -> actualizarTarjeta());
         cargarDatos();
@@ -77,6 +79,38 @@ public class TarjetasCreditoPanel extends JPanel {
         perfilFinancieroId = null;
         usuarioId = null;
         construir();
+    }
+
+
+    private void configurarRenderers() {
+        tarjetasCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Cuenta cuenta) {
+                    setText(cuenta.getNombre() + " | " + cuenta.getMoneda().getCodigo());
+                } else {
+                    setText("Seleccione una tarjeta");
+                }
+                return this;
+            }
+        });
+        cuentaPagadoraCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public java.awt.Component getListCellRendererComponent(
+                    JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Cuenta cuenta) {
+                    setText(cuenta.getNombre() + " | " + cuenta.getMoneda().getCodigo());
+                } else {
+                    setText("Seleccione una cuenta pagadora");
+                }
+                return this;
+            }
+        });
     }
 
     private void construir() {
