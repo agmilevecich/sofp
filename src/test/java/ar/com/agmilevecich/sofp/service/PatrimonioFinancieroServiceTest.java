@@ -877,6 +877,49 @@ class PatrimonioFinancieroServiceTest {
     }
 
     @Test
+    void deberiaTratarMonedasConMismoCodigoComoMismaMoneda() {
+        Moneda monedaEquivalente = new Moneda(
+                "ARS",
+                "Peso argentino equivalente",
+                2,
+                TipoMoneda.FIAT
+        );
+
+        MonedaRepository monedaRepository = new MonedaRepository(entityManager) {
+            @Override
+            public java.util.Optional<Moneda> buscarPorCodigo(String codigo) {
+                if ("ARS".equals(codigo)) {
+                    return java.util.Optional.of(monedaEquivalente);
+                }
+                return super.buscarPorCodigo(codigo);
+            }
+        };
+
+        PatrimonioFinancieroService service = new PatrimonioFinancieroService(
+                new CuentaService(
+                        new CuentaRepository(entityManager),
+                        new MovimientoRepository(entityManager),
+                        entityManager
+                ),
+                new CarteraActivoService(
+                        new MovimientoActivoRepository(entityManager)
+                ),
+                new ObligacionRepository(entityManager),
+                new TipoCambioRepository(entityManager),
+                monedaRepository
+        );
+
+        ResumenPatrimonial resumen = service.calcular(
+                perfil,
+                usuario.getId(),
+                Map.of()
+        );
+
+        assertEquals(BigDecimal.ZERO, resumen.getActivosMonetarios());
+        assertEquals(BigDecimal.ZERO, resumen.getPasivosTarjetas());
+    }
+
+    @Test
     void deberiaRechazarPerfilDeOtroUsuario() {
         Usuario otroUsuario = new Usuario(
                 "Otro",
