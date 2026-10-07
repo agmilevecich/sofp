@@ -62,7 +62,7 @@ class TarjetasCreditoPanelTest {
         TarjetasCreditoPanel panel = new TarjetasCreditoPanel();
 
         assertNotNull(panel);
-        assertNotNull(encontrarEtiqueta(panel, "Tarjetas"));
+        assertNotNull(encontrarEtiqueta(panel, "Límite"));
     }
 
     @Test
