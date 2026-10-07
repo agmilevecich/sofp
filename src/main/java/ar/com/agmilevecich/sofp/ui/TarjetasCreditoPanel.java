@@ -25,6 +25,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -47,6 +48,9 @@ public class TarjetasCreditoPanel extends JPanel {
     private final JLabel limiteLabel = new JLabel();
     private final JLabel disponibleLabel = new JLabel();
     private final JLabel consumidoLabel = new JLabel();
+    private final JLabel totalResumenLabel = new JLabel();
+    private final JLabel pagoMinimoLabel = new JLabel();
+    private final JLabel saldoTotalLabel = new JLabel();
     private final JLabel cicloLabel = new JLabel();
     private final JLabel vencimientoLabel = new JLabel();
     private final JLabel estadoLabel = new JLabel();
@@ -127,11 +131,14 @@ public class TarjetasCreditoPanel extends JPanel {
         agregarResumen(resumen, c, 0, "Límite", limiteLabel);
         agregarResumen(resumen, c, 1, "Disponible", disponibleLabel);
         agregarResumen(resumen, c, 2, "Consumido", consumidoLabel);
-        agregarResumen(resumen, c, 3, "Ciclo actual", cicloLabel);
-        agregarResumen(resumen, c, 4, "Vencimiento", vencimientoLabel);
-        agregarResumen(resumen, c, 5, "Estado", estadoLabel);
+        agregarResumen(resumen, c, 3, "Resumen del ciclo", totalResumenLabel);
+        agregarResumen(resumen, c, 4, "Pago mínimo", pagoMinimoLabel);
+        agregarResumen(resumen, c, 5, "Saldo total", saldoTotalLabel);
+        agregarResumen(resumen, c, 6, "Ciclo actual", cicloLabel);
+        agregarResumen(resumen, c, 7, "Vencimiento", vencimientoLabel);
+        agregarResumen(resumen, c, 8, "Estado", estadoLabel);
         c.gridx = 0;
-        c.gridy = 6;
+        c.gridy = 9;
         resumen.add(new JLabel("Tarjeta"), c);
         c.gridx = 1;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -248,17 +255,44 @@ public class TarjetasCreditoPanel extends JPanel {
                 .filter(o -> o.getMovimientoOrigen().getCuenta().getId().equals(tarjeta.getId()))
                 .forEach(model::addElement);
 
-        if (!model.isEmpty()) {
-            Obligacion primera = model.getElementAt(0);
-            cicloLabel.setText(primera.getCicloFacturacion().getFechaInicio()
-                    + " → " + primera.getCicloFacturacion().getFechaCierre());
-            vencimientoLabel.setText(primera.getFechaLimitePago().toString());
-            estadoLabel.setText(primera.getEstado().name());
-        } else {
-            cicloLabel.setText("-");
-            vencimientoLabel.setText("-");
-            estadoLabel.setText("SIN DEUDA");
+        actualizarResumenCiclo(tarjeta, model);
+    }
+
+    private void actualizarResumenCiclo(Cuenta tarjeta, DefaultListModel<Obligacion> model) {
+        ar.com.agmilevecich.sofp.domain.CicloFacturacion ciclo =
+                tarjeta.calcularCicloFacturacion(LocalDate.now());
+        BigDecimal totalResumen = BigDecimal.ZERO.setScale(2);
+        BigDecimal saldoTotal = BigDecimal.ZERO.setScale(2);
+        LocalDate vencimiento = null;
+        boolean tieneDeuda = false;
+
+        for (int i = 0; i < model.size(); i++) {
+            Obligacion obligacion = model.getElementAt(i);
+            if (obligacion.getEstado() == EstadoObligacion.PAGADA
+                    || obligacion.getEstado() == EstadoObligacion.ANULADA) {
+                continue;
+            }
+            saldoTotal = saldoTotal.add(obligacion.getSaldoPendiente());
+            if (ciclo.getFechaCierre().equals(obligacion.getCicloFacturacion().getFechaCierre())) {
+                BigDecimal saldoCiclo = obligacion.getSaldoPendienteDelCiclo(ciclo.getFechaCierre());
+                totalResumen = totalResumen.add(saldoCiclo);
+                tieneDeuda = tieneDeuda || saldoCiclo.signum() > 0;
+                LocalDate fecha = obligacion.getFechaLimitePago();
+                if (vencimiento == null || fecha.isBefore(vencimiento)) {
+                    vencimiento = fecha;
+                }
+            }
         }
+
+        BigDecimal pagoMinimo = tarjeta.calcularPagoMinimo(totalResumen);
+        String moneda = tarjeta.getMoneda().getCodigo();
+        totalResumenLabel.setText(totalResumen + " " + moneda);
+        pagoMinimoLabel.setText(pagoMinimo + " " + moneda);
+        saldoTotalLabel.setText(saldoTotal + " " + moneda);
+        cicloLabel.setText(ciclo.getFechaInicio() + " → " + ciclo.getFechaCierre());
+        vencimientoLabel.setText(tieneDeuda && vencimiento != null ? vencimiento.toString() : "-");
+        estadoLabel.setText(saldoTotal.signum() > 0 ? "CON DEUDA" : "SIN DEUDA");
+    }
     }
 
     private void actualizarDetalle(Obligacion obligacion) {
