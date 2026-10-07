@@ -174,22 +174,27 @@ public class TarjetasCreditoPanel extends JPanel {
         agregarCampo(pago, c, 0, "Cuenta pagadora", cuentaPagadoraCombo);
         agregarCampo(pago, c, 1, "Categoría", categoriaCombo);
         agregarCampo(pago, c, 2, "Importe", importeField);
-        JButton pagar = new JButton("Registrar pago");
+        JButton pagar = new JButton("Pagar importe");
         c.gridx = 2;
         c.gridy = 2;
         pago.add(pagar, c);
-        JButton pagarTotal = new JButton("Pagar totalidad");
+        JButton pagarMinimo = new JButton("Pagar mínimo");
         c.gridx = 2;
         c.gridy = 3;
+        pago.add(pagarMinimo, c);
+        JButton pagarTotal = new JButton("Pagar totalidad");
+        c.gridx = 2;
+        c.gridy = 4;
         pago.add(pagarTotal, c);
         c.gridx = 0;
-        c.gridy = 4;
+        c.gridy = 5;
         c.gridwidth = 3;
         pago.add(detalleLabel, c);
         JButton refrescar = new JButton("Actualizar");
-        c.gridy = 5;
+        c.gridy = 6;
         pago.add(refrescar, c);
-        pagar.addActionListener(e -> registrarPago());
+        pagar.addActionListener(e -> registrarPagoParcial());
+        pagarMinimo.addActionListener(e -> registrarPagoMinimo());
         pagarTotal.addActionListener(e -> registrarPagoTotal());
         refrescar.addActionListener(e -> cargarDatos());
         add(pago, BorderLayout.SOUTH);
@@ -343,29 +348,42 @@ public class TarjetasCreditoPanel extends JPanel {
         }
     }
 
-    private void registrarPago() {
+    private void registrarPagoParcial() {
         try {
-            Obligacion obligacion = obligacionesList.getSelectedValue();
-            if (obligacion == null) {
-                throw new IllegalArgumentException("Seleccione una obligación");
-            }
+            Cuenta tarjeta = (Cuenta) tarjetasCombo.getSelectedItem();
             Cuenta cuentaPagadora = (Cuenta) cuentaPagadoraCombo.getSelectedItem();
             Categoria categoria = (Categoria) categoriaCombo.getSelectedItem();
             BigDecimal importe = new BigDecimal(importeField.getText().trim());
-            pagoTarjetaService.registrarPago(
-                    obligacion.getId(),
-                    cuentaPagadora,
-                    categoria,
-                    importe,
-                    LocalDateTime.now(),
-                    "Pago de tarjeta",
-                    usuarioId
-            );
+            pagoTarjetaService.registrarPagoParcialTarjeta(
+                    tarjeta.getId(), cuentaPagadora, categoria, importe,
+                    LocalDateTime.now(), "Pago parcial de tarjeta", usuarioId);
             importeField.setText("");
             cargarDatos();
         } catch (RuntimeException e) {
             javax.swing.JOptionPane.showMessageDialog(
                     this, e.getMessage(), "No se pudo registrar el pago",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void registrarPagoMinimo() {
+        try {
+            Cuenta tarjeta = (Cuenta) tarjetasCombo.getSelectedItem();
+            Cuenta cuentaPagadora = (Cuenta) cuentaPagadoraCombo.getSelectedItem();
+            Categoria categoria = (Categoria) categoriaCombo.getSelectedItem();
+            BigDecimal minimo = new BigDecimal(pagoMinimoLabel.getText().split(" ")[0]);
+            if (minimo.signum() <= 0) {
+                throw new IllegalArgumentException("La tarjeta no tiene pago mínimo pendiente");
+            }
+            pagoTarjetaService.registrarPagoParcialTarjeta(
+                    tarjeta.getId(), cuentaPagadora, categoria, minimo,
+                    LocalDateTime.now(), "Pago mínimo de tarjeta", usuarioId);
+            importeField.setText("");
+            cargarDatos();
+        } catch (RuntimeException e) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this, e.getMessage(), "No se pudo registrar el pago mínimo",
                     javax.swing.JOptionPane.ERROR_MESSAGE
             );
         }
