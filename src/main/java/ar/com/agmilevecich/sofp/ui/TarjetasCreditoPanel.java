@@ -44,6 +44,8 @@ public class TarjetasCreditoPanel extends JPanel {
     private final JList<Obligacion> obligacionesList = new JList<>(new DefaultListModel<>());
     private final JComboBox<Cuenta> cuentaPagadoraCombo = new JComboBox<>();
     private final JComboBox<Categoria> categoriaCombo = new JComboBox<>();
+    private final JComboBox<String> modalidadPagoCombo = new JComboBox<>(
+            new String[]{"Pago mínimo", "Pago parcial", "Pago total"});
     private final JTextField importeField = new JTextField(12);
     private final JLabel limiteLabel = new JLabel();
     private final JLabel disponibleLabel = new JLabel();
@@ -152,9 +154,13 @@ public class TarjetasCreditoPanel extends JPanel {
                                                                     int index, boolean selected, boolean focus) {
                 super.getListCellRendererComponent(list, value, index, selected, focus);
                 if (value instanceof Obligacion o) {
-                    setText(String.format("%.2f %s | saldo %.2f %s | %s",
-                            o.getImporteOriginal(), o.getMonedaOriginal().getCodigo(),
-                            o.getSaldoPendiente(), o.getMonedaOriginal().getCodigo(), o.getEstado()));
+                    var movimiento = o.getMovimientoOrigen();
+                    setText(String.format("%s | %s | %.2f %s | %s",
+                            movimiento.getFechaHora().toLocalDate(),
+                            movimiento.getDescripcion(),
+                            movimiento.getImporte(),
+                            movimiento.getMoneda().getCodigo(),
+                            o.getEstado()));
                 }
                 return this;
             }
@@ -163,7 +169,7 @@ public class TarjetasCreditoPanel extends JPanel {
             if (!e.getValueIsAdjusting()) actualizarDetalle(obligacionesList.getSelectedValue());
         });
         JScrollPane obligacionesScroll = new JScrollPane(obligacionesList);
-        obligacionesScroll.setBorder(BorderFactory.createTitledBorder("Obligaciones, cuotas y financiaciones"));
+        obligacionesScroll.setBorder(BorderFactory.createTitledBorder("Consumos de la tarjeta"));
         add(obligacionesScroll, BorderLayout.CENTER);
 
         JPanel pago = new JPanel(new GridBagLayout());
@@ -173,30 +179,23 @@ public class TarjetasCreditoPanel extends JPanel {
         c.anchor = GridBagConstraints.WEST;
         agregarCampo(pago, c, 0, "Cuenta pagadora", cuentaPagadoraCombo);
         agregarCampo(pago, c, 1, "Categoría", categoriaCombo);
-        agregarCampo(pago, c, 2, "Importe", importeField);
-        JButton pagar = new JButton("Pagar importe");
-        c.gridx = 2;
-        c.gridy = 2;
-        pago.add(pagar, c);
-        JButton pagarMinimo = new JButton("Pagar mínimo");
+        agregarCampo(pago, c, 2, "Modalidad", modalidadPagoCombo);
+        agregarCampo(pago, c, 3, "Importe", importeField);
+        JButton pagar = new JButton("Pagar");
         c.gridx = 2;
         c.gridy = 3;
-        pago.add(pagarMinimo, c);
-        JButton pagarTotal = new JButton("Pagar totalidad");
-        c.gridx = 2;
-        c.gridy = 4;
-        pago.add(pagarTotal, c);
+        pago.add(pagar, c);
         c.gridx = 0;
-        c.gridy = 5;
+        c.gridy = 4;
         c.gridwidth = 3;
         pago.add(detalleLabel, c);
         JButton refrescar = new JButton("Actualizar");
-        c.gridy = 6;
+        c.gridy = 5;
         pago.add(refrescar, c);
-        pagar.addActionListener(e -> registrarPagoParcial());
-        pagarMinimo.addActionListener(e -> registrarPagoMinimo());
-        pagarTotal.addActionListener(e -> registrarPagoTotal());
+        modalidadPagoCombo.addActionListener(e -> actualizarImporteSegunModalidad());
+        pagar.addActionListener(e -> registrarPagoSeleccionado());
         refrescar.addActionListener(e -> cargarDatos());
+        actualizarImporteSegunModalidad();
         add(pago, BorderLayout.SOUTH);
     }
 
@@ -316,6 +315,30 @@ public class TarjetasCreditoPanel extends JPanel {
     private String describirFinanciacion(Financiacion f) {
         return String.format("saldo %.2f %s, inicio %s, cargos %.2f",
                 f.getSaldoCapital(), f.getMoneda().getCodigo(), f.getFechaInicio(), f.getSaldoCargosPendiente());
+    }
+
+    private void actualizarImporteSegunModalidad() {
+        String modalidad = (String) modalidadPagoCombo.getSelectedItem();
+        boolean editable = "Pago parcial".equals(modalidad);
+        importeField.setEditable(editable);
+        if ("Pago mínimo".equals(modalidad)) {
+            importeField.setText(pagoMinimoLabel.getText().split(" ")[0]);
+        } else if ("Pago total".equals(modalidad)) {
+            importeField.setText(saldoTotalLabel.getText().split(" ")[0]);
+        } else if (!editable) {
+            importeField.setText("");
+        }
+    }
+
+    private void registrarPagoSeleccionado() {
+        String modalidad = (String) modalidadPagoCombo.getSelectedItem();
+        if ("Pago mínimo".equals(modalidad)) {
+            registrarPagoMinimo();
+        } else if ("Pago total".equals(modalidad)) {
+            registrarPagoTotal();
+        } else {
+            registrarPagoParcial();
+        }
     }
 
     private void registrarPagoTotal() {
