@@ -224,7 +224,7 @@ public class PatrimonioFinancieroService {
             Moneda monedaOrigen,
             Moneda monedaDestino) {
 
-        if (monedaOrigen.equals(monedaDestino)) {
+        if (monedaOrigen.getCodigo().equals(monedaDestino.getCodigo())) {
             return importe;
         }
 
