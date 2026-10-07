@@ -63,14 +63,51 @@ public class PagoTarjetaService {
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-
             Obligacion obligacion = obligacionRepository.buscarPorId(obligacionId)
                     .orElseThrow(() -> new IllegalArgumentException("La obligación no existe"));
+            Obligacion resultado = registrarPagoEnTransaccion(
+                    obligacion, cuentaPagadora, categoria, importe, fechaHora, descripcion, usuarioId);
+            transaction.commit();
+            return resultado;
+        } catch (RuntimeException e) {
+            if (transaction.isActive()) transaction.rollback();
+            throw e;
+        }
+    }
 
-            validarPropietario(usuarioId, obligacion);
+    /**
+     * Registra el pago total pendiente de una tarjeta distribuyéndolo entre todas
+     * sus obligaciones pendientes. Cada obligación conserva su propio movimiento
+     * y trazabilidad de PagoTarjeta, pero toda la operación es atómica.
+     */
+    public BigDecimal registrarPagoTotalTarjeta(Long tarjetaId,
+                                                 Cuenta cuentaPagadora,
+                                                 Categoria categoria,
+                                                 LocalDateTime fechaHora,
+                                                 String descripcion,
+                                                 Long usuarioId) {
+        Objects.requireNonNull(tarjetaId, "El id de la tarjeta es obligatorio");
+        Objects.requireNonNull(cuentaPagadora, "La cuenta pagadora es obligatoria");
+        Objects.requireNonNull(categoria, "La categoría es obligatoria");
+        Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+        Objects.requireNonNull(descripcion, "La descripción es obligatoria");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+
+            Cuenta tarjeta = entityManager.find(Cuenta.class, tarjetaId);
+            if (tarjeta == null) {
+                throw new IllegalArgumentException("La tarjeta no existe");
+            }
+            validarPropietario(usuarioId, tarjeta);
+            if (tarjeta.getTipoCuenta() != ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO) {
+                throw new IllegalArgumentException("La cuenta indicada no es una tarjeta de crédito");
+            }
+
             validarPropietario(usuarioId, cuentaPagadora);
             validarPropietario(usuarioId, categoria);
-            validarFechaPago(obligacion, fechaHora);
             if (!cuentaPagadora.isActiva()) {
                 throw new IllegalArgumentException("No se puede pagar desde una cuenta desactivada");
             }
@@ -80,95 +117,165 @@ public class PagoTarjetaService {
             if (!Objects.equals(cuentaPagadora.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId())) {
                 throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
             }
-            Financiacion financiacionPendiente = buscarFinanciacionPendiente(obligacion, fechaHora);
-            Refinanciacion refinanciacionPendiente = buscarRefinanciacionPendiente(obligacion, fechaHora);
-            actualizarInteresesSiCorresponde(financiacionPendiente, fechaHora.toLocalDate(), obligacion);
-            validarMonedaPagadora(obligacion, cuentaPagadora, financiacionPendiente, refinanciacionPendiente);
-            if (importe.signum() <= 0) {
-                throw new IllegalArgumentException("El importe debe ser positivo");
+
+            List<Obligacion> obligaciones = obligacionRepository.listarPorUsuario(usuarioId).stream()
+                    .filter(o -> o.getMovimientoOrigen().getCuenta().getId().equals(tarjetaId))
+                    .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.PAGADA)
+                    .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA)
+                    .toList();
+
+            if (obligaciones.isEmpty()) {
+                throw new IllegalArgumentException("La tarjeta no tiene deuda pendiente para pagar");
             }
-            BigDecimal saldoPendiente = obligacion.getSaldoLiquidacion() != null
-                    ? obligacion.getSaldoLiquidacion()
-                    : obligacion.getSaldoPendiente();
-            if (refinanciacionPendiente != null) {
-                saldoPendiente = refinanciacionPendiente.getSaldoPlan();
-            } else if (financiacionPendiente != null) {
-                saldoPendiente = financiacionPendiente.getSaldoTotalPendiente();
-                if (obligacion.getSaldoLiquidacion() == null) {
-                    saldoPendiente = obligacion.getSaldoPendiente()
-                            .add(financiacionPendiente.getSaldoCargosPendiente());
-                }
-                if (obligacion.getSaldoLiquidacion() != null
-                        && importe.compareTo(financiacionPendiente.getSaldoTotalPendiente()) > 0) {
-                    throw new IllegalArgumentException("El pago supera el saldo total de la financiación");
-                }
+
+            BigDecimal total = BigDecimal.ZERO.setScale(2);
+            for (Obligacion obligacion : obligaciones) {
+                validarFechaPago(obligacion, fechaHora);
+                Financiacion financiacionPendiente = buscarFinanciacionPendiente(obligacion, fechaHora);
+                Refinanciacion refinanciacionPendiente = buscarRefinanciacionPendiente(obligacion, fechaHora);
+                actualizarInteresesSiCorresponde(financiacionPendiente, fechaHora.toLocalDate(), obligacion);
+                validarMonedaPagadora(obligacion, cuentaPagadora, financiacionPendiente, refinanciacionPendiente);
+                total = total.add(calcularSaldoExigible(
+                        obligacion, financiacionPendiente, refinanciacionPendiente));
             }
-            if (importe.compareTo(saldoPendiente) > 0) {
-                throw new IllegalArgumentException("El pago supera el saldo pendiente de la obligación");
+
+            if (total.signum() <= 0) {
+                throw new IllegalArgumentException("La tarjeta no tiene deuda pendiente para pagar");
             }
 
             BigDecimal saldoDisponible = calcularSaldo(cuentaPagadora);
-            if (saldoDisponible.compareTo(importe) < 0) {
+            if (saldoDisponible.compareTo(total) < 0) {
                 throw new IllegalArgumentException("No hay fondos suficientes en la cuenta para pagar la tarjeta");
             }
 
-            Movimiento movimientoPago = new Movimiento(
-                    cuentaPagadora, categoria, cuentaPagadora.getMoneda(), TipoMovimiento.EGRESO,
-                    importe, fechaHora, descripcion, FormaPago.TRANSFERENCIA
-            );
-
-            BigDecimal importeFinanciacion = BigDecimal.ZERO.setScale(2);
-            BigDecimal importeRefinanciacion = BigDecimal.ZERO.setScale(2);
-            BigDecimal importeObligacion = importe;
-            if (refinanciacionPendiente != null) {
-                importeRefinanciacion = importe;
-                importeObligacion = BigDecimal.ZERO.setScale(2);
-            } else if (financiacionPendiente != null) {
-                importeFinanciacion = importe.min(financiacionPendiente.getSaldoTotalPendiente());
-                importeObligacion = importe.subtract(importeFinanciacion);
-            }
-
-            if (refinanciacionPendiente != null) {
-                refinanciacionPendiente.registrarPago(importe);
-            } else if (financiacionPendiente != null) {
-                if (obligacion.getSaldoLiquidacion() != null) {
-                    obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
-                } else {
-                    BigDecimal pagoFinanciacion = importe.min(financiacionPendiente.getSaldoTotalPendiente());
-                    obligacion.registrarPagoFinanciacion(financiacionPendiente, pagoFinanciacion);
-                    BigDecimal restante = importe.subtract(pagoFinanciacion);
-                    if (restante.signum() > 0) {
-                        obligacion.registrarPago(restante);
-                    }
+            for (Obligacion obligacion : obligaciones) {
+                Financiacion financiacionPendiente = buscarFinanciacionPendiente(obligacion, fechaHora);
+                Refinanciacion refinanciacionPendiente = buscarRefinanciacionPendiente(obligacion, fechaHora);
+                BigDecimal importe = calcularSaldoExigible(
+                        obligacion, financiacionPendiente, refinanciacionPendiente);
+                if (importe.signum() > 0) {
+                    registrarPagoEnTransaccion(
+                            obligacion, cuentaPagadora, categoria, importe,
+                            fechaHora, descripcion, usuarioId);
                 }
-            } else if (obligacion.getSaldoLiquidacion() != null) {
-                obligacion.registrarPagoLiquidacion(importe);
-            } else {
-                obligacion.registrarPago(importe);
             }
-            movimientoRepository.guardar(movimientoPago);
-            PagoTarjeta pagoTarjeta = new PagoTarjeta(
-                    obligacion,
-                    financiacionPendiente,
-                    refinanciacionPendiente,
-                    movimientoPago,
-                    cuentaPagadora,
-                    categoria,
-                    cuentaPagadora.getMoneda(),
-                    importe,
-                    importeFinanciacion,
-                    importeObligacion,
-                    importeRefinanciacion,
-                    fechaHora
-            );
-            entityManager.persist(pagoTarjeta);
-            entityManager.flush();
+
             transaction.commit();
-            return obligacion;
+            return total;
         } catch (RuntimeException e) {
             if (transaction.isActive()) transaction.rollback();
             throw e;
         }
+    }
+
+    private BigDecimal calcularSaldoExigible(Obligacion obligacion,
+                                               Financiacion financiacionPendiente,
+                                               Refinanciacion refinanciacionPendiente) {
+        if (refinanciacionPendiente != null) {
+            return refinanciacionPendiente.getSaldoPlan();
+        }
+        if (financiacionPendiente != null) {
+            if (obligacion.getSaldoLiquidacion() == null) {
+                return obligacion.getSaldoPendiente()
+                        .add(financiacionPendiente.getSaldoCargosPendiente());
+            }
+            return financiacionPendiente.getSaldoTotalPendiente();
+        }
+        return obligacion.getSaldoLiquidacion() != null
+                ? obligacion.getSaldoLiquidacion()
+                : obligacion.getSaldoPendiente();
+    }
+
+    private Obligacion registrarPagoEnTransaccion(Obligacion obligacion,
+                                                   Cuenta cuentaPagadora,
+                                                   Categoria categoria,
+                                                   BigDecimal importe,
+                                                   LocalDateTime fechaHora,
+                                                   String descripcion,
+                                                   Long usuarioId) {
+        validarPropietario(usuarioId, obligacion);
+        validarPropietario(usuarioId, cuentaPagadora);
+        validarPropietario(usuarioId, categoria);
+        validarFechaPago(obligacion, fechaHora);
+        if (!cuentaPagadora.isActiva()) {
+            throw new IllegalArgumentException("No se puede pagar desde una cuenta desactivada");
+        }
+        if (cuentaPagadora.getTipoCuenta() == ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO) {
+            throw new IllegalArgumentException("La cuenta pagadora no puede ser una tarjeta de crédito");
+        }
+        if (!Objects.equals(cuentaPagadora.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId())) {
+            throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
+        }
+        Financiacion financiacionPendiente = buscarFinanciacionPendiente(obligacion, fechaHora);
+        Refinanciacion refinanciacionPendiente = buscarRefinanciacionPendiente(obligacion, fechaHora);
+        actualizarInteresesSiCorresponde(financiacionPendiente, fechaHora.toLocalDate(), obligacion);
+        validarMonedaPagadora(obligacion, cuentaPagadora, financiacionPendiente, refinanciacionPendiente);
+        if (importe.signum() <= 0) {
+            throw new IllegalArgumentException("El importe debe ser positivo");
+        }
+        BigDecimal saldoPendiente = calcularSaldoExigible(
+                obligacion, financiacionPendiente, refinanciacionPendiente);
+        if (importe.compareTo(saldoPendiente) > 0) {
+            throw new IllegalArgumentException("El pago supera el saldo pendiente de la obligación");
+        }
+
+        BigDecimal saldoDisponible = calcularSaldo(cuentaPagadora);
+        if (saldoDisponible.compareTo(importe) < 0) {
+            throw new IllegalArgumentException("No hay fondos suficientes en la cuenta para pagar la tarjeta");
+        }
+
+        Movimiento movimientoPago = new Movimiento(
+                cuentaPagadora, categoria, cuentaPagadora.getMoneda(), TipoMovimiento.EGRESO,
+                importe, fechaHora, descripcion, FormaPago.TRANSFERENCIA
+        );
+
+        BigDecimal importeFinanciacion = BigDecimal.ZERO.setScale(2);
+        BigDecimal importeRefinanciacion = BigDecimal.ZERO.setScale(2);
+        BigDecimal importeObligacion = importe;
+        if (refinanciacionPendiente != null) {
+            importeRefinanciacion = importe;
+            importeObligacion = BigDecimal.ZERO.setScale(2);
+        } else if (financiacionPendiente != null) {
+            importeFinanciacion = importe.min(financiacionPendiente.getSaldoTotalPendiente());
+            importeObligacion = importe.subtract(importeFinanciacion);
+        }
+
+        if (refinanciacionPendiente != null) {
+            refinanciacionPendiente.registrarPago(importe);
+        } else if (financiacionPendiente != null) {
+            if (obligacion.getSaldoLiquidacion() != null) {
+                obligacion.registrarPagoFinanciacion(financiacionPendiente, importe);
+            } else {
+                BigDecimal pagoFinanciacion = importe.min(financiacionPendiente.getSaldoTotalPendiente());
+                obligacion.registrarPagoFinanciacion(financiacionPendiente, pagoFinanciacion);
+                BigDecimal restante = importe.subtract(pagoFinanciacion);
+                if (restante.signum() > 0) {
+                    obligacion.registrarPago(restante);
+                }
+            }
+        } else if (obligacion.getSaldoLiquidacion() != null) {
+            obligacion.registrarPagoLiquidacion(importe);
+        } else {
+            obligacion.registrarPago(importe);
+        }
+        movimientoRepository.guardar(movimientoPago);
+        PagoTarjeta pagoTarjeta = new PagoTarjeta(
+                obligacion,
+                financiacionPendiente,
+                refinanciacionPendiente,
+                movimientoPago,
+                cuentaPagadora,
+                categoria,
+                cuentaPagadora.getMoneda(),
+                importe,
+                importeFinanciacion,
+                importeObligacion,
+                importeRefinanciacion,
+                fechaHora
+        );
+        entityManager.persist(pagoTarjeta);
+        entityManager.flush();
+        return obligacion;
     }
 
     public PagoTarjeta revertirUltimoPago(Long obligacionId,
