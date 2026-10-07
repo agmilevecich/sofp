@@ -153,6 +153,13 @@ class TarjetasCreditoPanelTest {
     }
 
     @Test
+    void deberiaMostrarAccionParaPagarLaTotalidadDeLaTarjeta() {
+        TarjetasCreditoPanel panel = new TarjetasCreditoPanel();
+
+        assertNotNull(encontrarBoton(panel, "Pagar totalidad"));
+    }
+
+    @Test
     void deberiaRechazarDependenciasObligatoriasNulas() {
         assertThrows(NullPointerException.class, () -> new TarjetasCreditoPanel(
                 null, null, null, null, 1L, 1L));
@@ -171,6 +178,21 @@ class TarjetasCreditoPanelTest {
         Field field = TarjetasCreditoPanel.class.getDeclaredField(nombre);
         field.setAccessible(true);
         return (T) field.get(objeto);
+    }
+
+    private javax.swing.JButton encontrarBoton(java.awt.Container container, String texto) {
+        for (java.awt.Component component : container.getComponents()) {
+            if (component instanceof javax.swing.JButton boton && texto.equals(boton.getText())) {
+                return boton;
+            }
+            if (component instanceof java.awt.Container hijo) {
+                javax.swing.JButton encontrado = encontrarBoton(hijo, texto);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+        return null;
     }
 
     private JLabel encontrarEtiqueta(java.awt.Container container, String texto) {
