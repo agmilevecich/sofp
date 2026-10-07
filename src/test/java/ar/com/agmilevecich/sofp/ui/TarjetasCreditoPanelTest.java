@@ -141,10 +141,11 @@ class TarjetasCreditoPanelTest {
         tarjetasCombo.addItem(tarjeta);
         cuentaPagadoraCombo.addItem(cuentaPagadora);
 
+        JList<Cuenta> lista = new JList<>();
         JLabel tarjetaRenderizada = (JLabel) tarjetasCombo.getRenderer()
-                .getListCellRendererComponent(tarjetasCombo, tarjeta, 0, false, false);
+                .getListCellRendererComponent(lista, tarjeta, 0, false, false);
         JLabel cuentaRenderizada = (JLabel) cuentaPagadoraCombo.getRenderer()
-                .getListCellRendererComponent(cuentaPagadoraCombo, cuentaPagadora, 0, false, false);
+                .getListCellRendererComponent(lista, cuentaPagadora, 0, false, false);
 
         assertEquals("Visa Test | ARS", tarjetaRenderizada.getText());
         assertEquals("Caja de ahorro | ARS", cuentaRenderizada.getText());
