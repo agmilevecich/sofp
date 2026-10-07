@@ -171,6 +171,25 @@ class TarjetasCreditoPanelTest {
                 null, null, null, null, 1L, 1L));
     }
 
+    private JComboBox<?> encontrarCombo(java.awt.Container container, String item) {
+        for (java.awt.Component component : container.getComponents()) {
+            if (component instanceof JComboBox<?> combo) {
+                for (int i = 0; i < combo.getItemCount(); i++) {
+                    if (item.equals(combo.getItemAt(i))) {
+                        return combo;
+                    }
+                }
+            }
+            if (component instanceof java.awt.Container hijo) {
+                JComboBox<?> encontrado = encontrarCombo(hijo, item);
+                if (encontrado != null) {
+                    return encontrado;
+                }
+            }
+        }
+        return null;
+    }
+
     private void persistir(Object... entidades) {
         entityManager.getTransaction().begin();
         for (Object entidad : entidades) {
