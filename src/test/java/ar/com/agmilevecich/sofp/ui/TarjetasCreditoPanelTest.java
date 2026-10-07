@@ -122,6 +122,35 @@ class TarjetasCreditoPanelTest {
     }
 
     @Test
+    void deberiaMostrarNombreYMonedaEnCombosDeTarjetaYCuentaPagadora() throws Exception {
+        TarjetasCreditoPanel panel = new TarjetasCreditoPanel();
+
+        JComboBox<Cuenta> tarjetasCombo = obtenerCampo(panel, "tarjetasCombo", JComboBox.class);
+        JComboBox<Cuenta> cuentaPagadoraCombo = obtenerCampo(panel, "cuentaPagadoraCombo", JComboBox.class);
+
+        InstitucionFinanciera institucion = new InstitucionFinanciera(
+                "Banco Test", TipoInstitucionFinanciera.BANCO);
+        Moneda ars = new Moneda("ARS", "Peso argentino", 2, TipoMoneda.FIAT);
+        Cuenta tarjeta = new Cuenta(
+                "Visa Test", perfil, institucion, ars,
+                new BigDecimal("500000.00"), 10, 25);
+        Cuenta cuentaPagadora = new Cuenta(
+                "Caja de ahorro", TipoCuenta.CAJA_AHORRO,
+                perfil, institucion, ars);
+
+        tarjetasCombo.addItem(tarjeta);
+        cuentaPagadoraCombo.addItem(cuentaPagadora);
+
+        JLabel tarjetaRenderizada = (JLabel) tarjetasCombo.getRenderer()
+                .getListCellRendererComponent(tarjetasCombo, tarjeta, 0, false, false);
+        JLabel cuentaRenderizada = (JLabel) cuentaPagadoraCombo.getRenderer()
+                .getListCellRendererComponent(cuentaPagadoraCombo, cuentaPagadora, 0, false, false);
+
+        assertEquals("Visa Test | ARS", tarjetaRenderizada.getText());
+        assertEquals("Caja de ahorro | ARS", cuentaRenderizada.getText());
+    }
+
+    @Test
     void deberiaRechazarDependenciasObligatoriasNulas() {
         assertThrows(NullPointerException.class, () -> new TarjetasCreditoPanel(
                 null, null, null, null, 1L, 1L));
