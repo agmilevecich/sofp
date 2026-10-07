@@ -293,7 +293,6 @@ public class TarjetasCreditoPanel extends JPanel {
         vencimientoLabel.setText(tieneDeuda && vencimiento != null ? vencimiento.toString() : "-");
         estadoLabel.setText(saldoTotal.signum() > 0 ? "CON DEUDA" : "SIN DEUDA");
     }
-    }
 
     private void actualizarDetalle(Obligacion obligacion) {
         if (obligacion == null) {
