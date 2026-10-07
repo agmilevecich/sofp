@@ -499,6 +499,11 @@ public class ObligacionService {
         return obligacionRepository.listarPorUsuario(usuarioId);
     }
 
+    public List<Obligacion> listarPorUsuarioConDetalles(Long usuarioId) {
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        return obligacionRepository.listarPorUsuarioConDetalles(usuarioId);
+    }
+
     private boolean esPropietario(Long usuarioId, Obligacion obligacion) {
         return Objects.equals(
                 usuarioId,
