@@ -96,6 +96,44 @@ public class ObligacionRepository {
                 .getResultList();
     }
 
+    /** Carga las colecciones que necesita la vista de detalle de una obligación. */
+    public List<Obligacion> listarPorUsuarioConDetalles(Long usuarioId) {
+        List<Obligacion> obligaciones = listarPorUsuario(usuarioId);
+        if (obligaciones.isEmpty()) {
+            return obligaciones;
+        }
+
+        List<Long> ids = obligaciones.stream()
+                .map(Obligacion::getId)
+                .toList();
+
+        entityManager.createQuery(
+                        """
+                        SELECT DISTINCT o
+                        FROM Obligacion o
+                        LEFT JOIN FETCH o.financiaciones
+                        WHERE o.id IN :ids
+                        """,
+                        Obligacion.class
+                )
+                .setParameter("ids", ids)
+                .getResultList();
+
+        entityManager.createQuery(
+                        """
+                        SELECT DISTINCT o
+                        FROM Obligacion o
+                        LEFT JOIN FETCH o.cuotas
+                        WHERE o.id IN :ids
+                        """,
+                        Obligacion.class
+                )
+                .setParameter("ids", ids)
+                .getResultList();
+
+        return obligaciones;
+    }
+
     public List<Obligacion> listarPorCuentaYCierreCiclo(
             Long cuentaId,
             LocalDate fechaCierre
