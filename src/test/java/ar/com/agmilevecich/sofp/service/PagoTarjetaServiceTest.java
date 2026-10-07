@@ -431,6 +431,57 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaRegistrarPagoTotalDistribuidoEntreLasObligacionesDeLaTarjeta() {
+        Obligacion primera = registrarGasto("120000.00");
+        Obligacion segunda = registrarGasto("30000.00");
+
+        BigDecimal total = pagoTarjetaService.registrarPagoTotalTarjeta(
+                tarjeta.getId(),
+                cuentaPagadora,
+                categoriaPago,
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago total tarjeta",
+                usuario.getId()
+        );
+
+        assertEquals(new BigDecimal("150000.00"), total);
+        assertEquals(new BigDecimal("0.00"), primera.getSaldoPendiente());
+        assertEquals(new BigDecimal("0.00"), segunda.getSaldoPendiente());
+        assertEquals("PAGADA", primera.getEstado().name());
+        assertEquals("PAGADA", segunda.getEstado().name());
+        assertEquals(new BigDecimal("50000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(new BigDecimal("500000.00"), cuentaService.calcularCreditoDisponible(tarjeta.getId(), usuario.getId()));
+        assertEquals(2L, entityManager.createQuery(
+                "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
+                Long.class
+        ).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
+    @Test
+    void noDeberiaModificarNadaSiElPagoTotalNoTieneFondosSuficientes() {
+        registrarGasto("120000.00");
+        registrarGasto("90000.00");
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> pagoTarjetaService.registrarPagoTotalTarjeta(
+                        tarjeta.getId(),
+                        cuentaPagadora,
+                        categoriaPago,
+                        LocalDateTime.of(2026, 9, 10, 10, 0),
+                        "Pago total tarjeta",
+                        usuario.getId()
+                )
+        );
+
+        assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(0L, entityManager.createQuery(
+                "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
+                Long.class
+        ).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
+    @Test
     void deberiaRechazarPagoQueSupereLosFondosDeLaCuentaPagadora() {
         Obligacion obligacion = registrarGasto("120000.00");
         assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPago(obligacion.getId(), cuentaPagadora, categoriaPago, new BigDecimal("200001.00"), LocalDateTime.of(2026, 9, 10, 10, 0), "Pago tarjeta", usuario.getId()));
