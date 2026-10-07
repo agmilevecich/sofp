@@ -244,7 +244,7 @@ public class TarjetasCreditoPanel extends JPanel {
 
         DefaultListModel<Obligacion> model = (DefaultListModel<Obligacion>) obligacionesList.getModel();
         model.clear();
-        obligacionService.listarPorUsuario(usuarioId).stream()
+        obligacionService.listarPorUsuarioConDetalles(usuarioId).stream()
                 .filter(o -> o.getMovimientoOrigen().getCuenta().getId().equals(tarjeta.getId()))
                 .forEach(model::addElement);
 
