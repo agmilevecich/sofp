@@ -585,6 +585,38 @@ class PagoTarjetaServiceTest {
         assertTrue(obligacion.estaEnMora(obligacion.getFechaLimitePago().plusDays(1)));
     }
 
+    @Test
+    void deberiaDistribuirPagoParcialEntreLasObligacionesDeLaTarjeta() {
+        Obligacion primera = registrarGasto("120000.00");
+        Obligacion segunda = registrarGasto("30000.00");
+
+        BigDecimal pagado = pagoTarjetaService.registrarPagoParcialTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("100000.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago parcial tarjeta", usuario.getId()
+        );
+
+        assertEquals(new BigDecimal("100000.00"), pagado);
+        assertEquals(new BigDecimal("20000.00"), primera.getSaldoPendiente());
+        assertEquals(new BigDecimal("30000.00"), segunda.getSaldoPendiente());
+        assertEquals(new BigDecimal("100000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
+    @Test
+    void noDeberiaRegistrarPagoParcialSiSuperaLaDeudaTotal() {
+        registrarGasto("120000.00");
+        registrarGasto("30000.00");
+
+        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPagoParcialTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago,
+                new BigDecimal("150001.00"),
+                LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago parcial tarjeta", usuario.getId()
+        ));
+        assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
     private Obligacion registrarGasto(String importe) { return registrarGasto(importe, 1); }
 
     private Obligacion registrarGasto(String importe, int cantidadCuotas) {
