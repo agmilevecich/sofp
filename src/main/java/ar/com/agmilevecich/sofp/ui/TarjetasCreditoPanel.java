@@ -130,20 +130,25 @@ public class TarjetasCreditoPanel extends JPanel {
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(4, 8, 4, 8);
         c.anchor = GridBagConstraints.WEST;
-        agregarResumen(resumen, c, 0, "Límite", limiteLabel);
-        agregarResumen(resumen, c, 1, "Disponible", disponibleLabel);
-        agregarResumen(resumen, c, 2, "Consumido", consumidoLabel);
-        agregarResumen(resumen, c, 3, "Consumo del ciclo", consumoCicloLabel);
-        agregarResumen(resumen, c, 4, "Resumen del ciclo", totalResumenLabel);
-        agregarResumen(resumen, c, 5, "Pago mínimo", pagoMinimoLabel);
-        agregarResumen(resumen, c, 6, "Saldo total", saldoTotalLabel);
-        agregarResumen(resumen, c, 7, "Ciclo actual", cicloLabel);
-        agregarResumen(resumen, c, 8, "Vencimiento", vencimientoLabel);
-        agregarResumen(resumen, c, 9, "Estado", estadoLabel);
+        agregarResumen(resumen, c, 0, 0, "Límite", limiteLabel);
+        agregarResumen(resumen, c, 0, 1, "Disponible", disponibleLabel);
+        agregarResumen(resumen, c, 1, 0, "Consumido", consumidoLabel);
+        agregarResumen(resumen, c, 1, 1, "Consumo del ciclo", consumoCicloLabel);
+        agregarResumen(resumen, c, 2, 0, "Resumen del ciclo", totalResumenLabel);
+        agregarResumen(resumen, c, 2, 1, "Pago mínimo", pagoMinimoLabel);
+        agregarResumen(resumen, c, 3, 0, "Saldo total", saldoTotalLabel);
+        agregarResumen(resumen, c, 3, 1, "Ciclo actual", cicloLabel);
+        agregarResumen(resumen, c, 4, 0, "Vencimiento", vencimientoLabel);
+        agregarResumen(resumen, c, 4, 1, "Estado", estadoLabel);
         c.gridx = 0;
-        c.gridy = 10;
+        c.gridy = 5;
+        c.gridwidth = 1;
+        c.weightx = 0;
+        c.fill = GridBagConstraints.NONE;
         resumen.add(new JLabel("Tarjeta"), c);
         c.gridx = 1;
+        c.gridwidth = 3;
+        c.weightx = 1;
         c.fill = GridBagConstraints.HORIZONTAL;
         resumen.add(tarjetasCombo, c);
 
@@ -200,11 +205,18 @@ public class TarjetasCreditoPanel extends JPanel {
         add(pago, BorderLayout.SOUTH);
     }
 
-    private void agregarResumen(JPanel panel, GridBagConstraints c, int fila, String nombre, JLabel valor) {
-        c.gridx = 0;
+    private void agregarResumen(JPanel panel, GridBagConstraints c, int fila, int columna,
+                                String nombre, JLabel valor) {
+        int columnaBase = columna * 2;
+        c.gridx = columnaBase;
         c.gridy = fila;
+        c.gridwidth = 1;
+        c.weightx = 0;
+        c.fill = GridBagConstraints.NONE;
         panel.add(new JLabel(nombre), c);
-        c.gridx = 1;
+        c.gridx = columnaBase + 1;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
         panel.add(valor, c);
     }
 
