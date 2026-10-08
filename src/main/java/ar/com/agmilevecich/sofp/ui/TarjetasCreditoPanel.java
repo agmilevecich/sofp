@@ -288,8 +288,20 @@ public class TarjetasCreditoPanel extends JPanel {
         }
 
         BigDecimal pagoMinimo = tarjeta.calcularPagoMinimo(totalResumen);
+        BigDecimal consumoCiclo = BigDecimal.ZERO.setScale(2);
+        for (int i = 0; i < model.size(); i++) {
+            Obligacion obligacion = model.getElementAt(i);
+            if (obligacion.getEstado() == EstadoObligacion.ANULADA) {
+                continue;
+            }
+            if (ciclo.getFechaCierre().equals(obligacion.getCicloFacturacion().getFechaCierre())) {
+                consumoCiclo = consumoCiclo.add(obligacion.getImporteOriginal());
+            }
+        }
+
         String moneda = tarjeta.getMoneda().getCodigo();
         totalResumenLabel.setText(totalResumen + " " + moneda);
+        consumoCicloLabel.setText(consumoCiclo + " " + moneda);
         pagoMinimoLabel.setText(pagoMinimo + " " + moneda);
         saldoTotalLabel.setText(saldoTotal + " " + moneda);
         cicloLabel.setText(ciclo.getFechaInicio() + " → " + ciclo.getFechaCierre());
