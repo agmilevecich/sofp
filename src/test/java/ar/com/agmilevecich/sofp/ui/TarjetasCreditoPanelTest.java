@@ -117,6 +117,7 @@ class TarjetasCreditoPanelTest {
         assertEquals("500000.00 ARS", obtenerCampo(panel, "limiteLabel", JLabel.class).getText());
         assertEquals("500000.00 ARS", obtenerCampo(panel, "disponibleLabel", JLabel.class).getText());
         assertEquals("0.00 ARS", obtenerCampo(panel, "consumidoLabel", JLabel.class).getText());
+        assertEquals("0.00 ARS", obtenerCampo(panel, "consumoCicloLabel", JLabel.class).getText());
         assertNotNull(obtenerCampo(panel, "cicloLabel", JLabel.class).getText());
         assertEquals("0.00 ARS", obtenerCampo(panel, "totalResumenLabel", JLabel.class).getText());
         assertEquals("0.00 ARS", obtenerCampo(panel, "pagoMinimoLabel", JLabel.class).getText());
