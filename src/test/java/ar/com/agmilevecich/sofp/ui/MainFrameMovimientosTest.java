@@ -158,10 +158,6 @@ class MainFrameMovimientosTest {
         assertNotNull(mainFrame);
 
         SwingUtilities.invokeAndWait(() -> {
-            JList<?> listaCuentas = buscarLista(mainFrame.getContentPane(), 1);
-            assertNotNull(listaCuentas);
-            listaCuentas.setSelectedIndex(0);
-
             JButton botonMovimientos = buscarBoton(
                     mainFrame.getContentPane(),
                     "Movimientos"
@@ -173,12 +169,16 @@ class MainFrameMovimientosTest {
         JList<?> listaMovimientos = buscarLista(mainFrame.getContentPane(), 2);
         assertNotNull(listaMovimientos);
         assertEquals(2, listaMovimientos.getModel().getSize());
+        MovimientosPanel panelMovimientos = buscarPanelMovimientos(mainFrame.getContentPane());
+        assertNotNull(panelMovimientos);
+        assertNotNull(panelMovimientos.getCuentaComboBox());
+        assertEquals(1, panelMovimientos.getCuentaComboBox().getItemCount());
         assertEquals(
-                "INGRESO - Sueldo - 500000",
+                "INGRESO - Sueldo - 500000.00.00",
                 listaMovimientos.getModel().getElementAt(0)
         );
         assertEquals(
-                "EGRESO - Alquiler - 200000",
+                "EGRESO - Alquiler - 200000.00.00",
                 listaMovimientos.getModel().getElementAt(1)
         );
 
@@ -275,7 +275,7 @@ class MainFrameMovimientosTest {
         assertNotNull(panel);
         assertEquals(1, panel.getListaMovimientos().getModel().getSize());
         assertEquals(
-                "INGRESO - Sueldo - 500000",
+                "INGRESO - Sueldo - 500000.00",
                 panel.getListaMovimientos().getModel().getElementAt(0)
         );
         assertNull(buscarFormulario(mainFrame.getContentPane()));
