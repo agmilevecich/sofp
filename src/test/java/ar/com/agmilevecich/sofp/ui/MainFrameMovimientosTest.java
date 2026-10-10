@@ -174,11 +174,11 @@ class MainFrameMovimientosTest {
         assertNotNull(panelMovimientos.getCuentaComboBox());
         assertEquals(1, panelMovimientos.getCuentaComboBox().getItemCount());
         assertEquals(
-                "INGRESO - Sueldo - 500000.00.00",
+                "INGRESO - Sueldo - 500000.00",
                 listaMovimientos.getModel().getElementAt(0)
         );
         assertEquals(
-                "EGRESO - Alquiler - 200000.00.00",
+                "EGRESO - Alquiler - 200000.00",
                 listaMovimientos.getModel().getElementAt(1)
         );
 
