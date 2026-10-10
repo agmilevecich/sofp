@@ -1,13 +1,16 @@
 package ar.com.agmilevecich.sofp.ui;
 
 import ar.com.agmilevecich.sofp.config.JpaTestManager;
+import ar.com.agmilevecich.sofp.domain.Categoria;
 import ar.com.agmilevecich.sofp.domain.Cuenta;
 import ar.com.agmilevecich.sofp.domain.InstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.Moneda;
+import ar.com.agmilevecich.sofp.domain.Movimiento;
 import ar.com.agmilevecich.sofp.domain.PerfilFinanciero;
 import ar.com.agmilevecich.sofp.domain.TipoCuenta;
 import ar.com.agmilevecich.sofp.domain.TipoInstitucionFinanciera;
 import ar.com.agmilevecich.sofp.domain.TipoMoneda;
+import ar.com.agmilevecich.sofp.domain.TipoMovimiento;
 import ar.com.agmilevecich.sofp.domain.Usuario;
 import ar.com.agmilevecich.sofp.persistence.CuentaRepository;
 import ar.com.agmilevecich.sofp.persistence.InstitucionFinancieraRepository;
@@ -25,6 +28,8 @@ import javax.swing.JList;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,6 +115,20 @@ class CuentasPanelTest {
         cuentaService.registrar(cuenta2, usuario.getId());
         entityManager.getTransaction().commit();
 
+        Categoria categoria = new Categoria("Ingreso test", perfil);
+        Movimiento ingreso = new Movimiento(
+                cuenta1,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("1000.00"),
+                LocalDateTime.now(),
+                "Ingreso de prueba"
+        );
+        entityManager.getTransaction().begin();
+        entityManager.persist(categoria);
+        entityManager.persist(ingreso);
+        entityManager.getTransaction().commit();
+
         AtomicReference<CuentasPanel> panelRef = new AtomicReference<>();
         SwingUtilities.invokeAndWait(() -> panelRef.set(
                 new CuentasPanel(
@@ -124,8 +143,8 @@ class CuentasPanelTest {
 
         assertNotNull(lista);
         assertEquals(2, lista.getModel().getSize());
-        assertEquals("Cuenta principal", lista.getModel().getElementAt(0));
-        assertEquals("Cuenta secundaria", lista.getModel().getElementAt(1));
+        assertEquals("Cuenta principal — ARS — Saldo: 1000.00", lista.getModel().getElementAt(0));
+        assertEquals("Cuenta secundaria — ARS — Saldo: 0.00", lista.getModel().getElementAt(1));
     }
 
     @Test
@@ -187,7 +206,7 @@ class CuentasPanelTest {
 
         JList<?> lista = buscarLista(panel);
         assertEquals(1, lista.getModel().getSize());
-        assertEquals("Cuenta nueva", lista.getModel().getElementAt(0));
+        assertEquals("Cuenta nueva — ARS — Saldo: 0.00", lista.getModel().getElementAt(0));
         assertEquals(1, cuentaService.listarPorPerfilFinanciero(
                 perfil.getId(),
                 usuario.getId()
