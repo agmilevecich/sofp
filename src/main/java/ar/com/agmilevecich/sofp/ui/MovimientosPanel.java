@@ -140,6 +140,7 @@ public class MovimientosPanel extends JPanel {
         cuentaCombo.addActionListener(event -> actualizarMovimientos());
         if (cuentaCombo.getItemCount() > 0) {
             cuentaCombo.setSelectedIndex(0);
+            actualizarMovimientos();
         } else {
             modeloMovimientos.clear();
         }
