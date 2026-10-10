@@ -135,11 +135,11 @@ class MovimientosPanelTest {
         assertNotNull(lista);
         assertEquals(2, lista.getModel().getSize());
         assertEquals(
-                "INGRESO - Sueldo - 500000",
+                "INGRESO - Sueldo - 500000.00",
                 lista.getModel().getElementAt(0)
         );
         assertEquals(
-                "EGRESO - Alquiler - 200000",
+                "EGRESO - Alquiler - 200000.00",
                 lista.getModel().getElementAt(1)
         );
     }
@@ -226,11 +226,11 @@ class MovimientosPanelTest {
 
         assertEquals(2, lista.getModel().getSize());
         assertEquals(
-                "INGRESO - Sueldo - 500000",
+                "INGRESO - Sueldo - 500000.00",
                 lista.getModel().getElementAt(0)
         );
         assertEquals(
-                "EGRESO - Alquiler - 200000",
+                "EGRESO - Alquiler - 200000.00",
                 lista.getModel().getElementAt(1)
         );
     }
