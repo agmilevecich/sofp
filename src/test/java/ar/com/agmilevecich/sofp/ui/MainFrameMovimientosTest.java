@@ -183,11 +183,10 @@ class MainFrameMovimientosTest {
             botonMovimientos.doClick();
         });
 
-        JList<?> listaMovimientos = buscarLista(mainFrame.getContentPane(), 2);
-        assertNotNull(listaMovimientos);
-        assertEquals(2, listaMovimientos.getModel().getSize());
         MovimientosPanel panelMovimientos = buscarPanelMovimientos(mainFrame.getContentPane());
         assertNotNull(panelMovimientos);
+        JList<?> listaMovimientos = panelMovimientos.getListaMovimientos();
+        assertEquals(2, listaMovimientos.getModel().getSize());
         assertNotNull(panelMovimientos.getCuentaComboBox());
         assertEquals(2, panelMovimientos.getCuentaComboBox().getItemCount());
         assertEquals(
