@@ -12,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import java.awt.BorderLayout;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
@@ -92,7 +93,7 @@ public class MovimientosPanel extends JPanel {
                             + " - "
                             + movimiento.getDescripcion()
                             + " - "
-                            + movimiento.getImporte()
+                            + movimiento.getImporte().setScale(2, RoundingMode.HALF_UP).toPlainString()
             );
         }
     }
