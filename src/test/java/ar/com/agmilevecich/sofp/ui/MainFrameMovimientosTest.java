@@ -185,9 +185,11 @@ class MainFrameMovimientosTest {
 
         MovimientosPanel panelMovimientos = buscarPanelMovimientos(mainFrame.getContentPane());
         assertNotNull(panelMovimientos);
+        assertNotNull(panelMovimientos.getCuentaComboBox());
+        SwingUtilities.invokeAndWait(() ->
+                panelMovimientos.getCuentaComboBox().setSelectedItem(cuenta));
         JList<?> listaMovimientos = panelMovimientos.getListaMovimientos();
         assertEquals(2, listaMovimientos.getModel().getSize());
-        assertNotNull(panelMovimientos.getCuentaComboBox());
         assertEquals(2, panelMovimientos.getCuentaComboBox().getItemCount());
         assertEquals(
                 "INGRESO - Sueldo - 500000.00",
