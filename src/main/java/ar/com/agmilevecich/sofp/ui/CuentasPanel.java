@@ -187,9 +187,14 @@ public class CuentasPanel extends JPanel {
     private void cargarCuentas(List<Cuenta> cuentas) {
         this.cuentas.addAll(cuentas);
         for (Cuenta cuenta : cuentas) {
-            String etiqueta = cuenta.getNombre();
+            String etiqueta = cuenta.getNombre() + " — " + cuenta.getMoneda().getCodigo();
             if (cuenta.getTipoCuenta() == TipoCuenta.TARJETA_CREDITO) {
                 etiqueta += " — Tarjeta de crédito";
+            } else {
+                etiqueta += " — Saldo: " + cuentaService.calcularSaldo(
+                        cuenta.getId(),
+                        usuarioId
+                ).setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
             }
             modeloCuentas.addElement(etiqueta);
         }
