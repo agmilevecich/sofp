@@ -111,6 +111,13 @@ class MainFrameMovimientosTest {
                 institucion,
                 moneda
         );
+        Cuenta cuentaSecundaria = new Cuenta(
+                "Cuenta secundaria",
+                TipoCuenta.CAJA_AHORRO,
+                perfil,
+                institucion,
+                moneda
+        );
         Categoria categoria = new Categoria(
                 "Supermercado",
                 perfil
@@ -122,6 +129,7 @@ class MainFrameMovimientosTest {
         entityManager.persist(institucion);
         entityManager.persist(moneda);
         entityManager.persist(cuenta);
+        entityManager.persist(cuentaSecundaria);
         entityManager.persist(categoria);
         entityManager.getTransaction().commit();
 
@@ -141,6 +149,15 @@ class MainFrameMovimientosTest {
                 new BigDecimal("200000"),
                 LocalDateTime.now(),
                 "Alquiler",
+                usuario.getId()
+        );
+        movimientoService.registrar(
+                cuentaSecundaria,
+                categoria,
+                TipoMovimiento.INGRESO,
+                new BigDecimal("25000"),
+                LocalDateTime.now(),
+                "Reintegro",
                 usuario.getId()
         );
 
@@ -172,7 +189,7 @@ class MainFrameMovimientosTest {
         MovimientosPanel panelMovimientos = buscarPanelMovimientos(mainFrame.getContentPane());
         assertNotNull(panelMovimientos);
         assertNotNull(panelMovimientos.getCuentaComboBox());
-        assertEquals(1, panelMovimientos.getCuentaComboBox().getItemCount());
+        assertEquals(2, panelMovimientos.getCuentaComboBox().getItemCount());
         assertEquals(
                 "INGRESO - Sueldo - 500000.00",
                 listaMovimientos.getModel().getElementAt(0)
@@ -180,6 +197,14 @@ class MainFrameMovimientosTest {
         assertEquals(
                 "EGRESO - Alquiler - 200000.00",
                 listaMovimientos.getModel().getElementAt(1)
+        );
+
+        SwingUtilities.invokeAndWait(() ->
+                panelMovimientos.getCuentaComboBox().setSelectedItem(cuentaSecundaria));
+        assertEquals(1, listaMovimientos.getModel().getSize());
+        assertEquals(
+                "INGRESO - Reintegro - 25000.00",
+                listaMovimientos.getModel().getElementAt(0)
         );
 
         mainFrame.dispose();
