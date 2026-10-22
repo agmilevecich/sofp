@@ -190,6 +190,7 @@ public class PagoTarjetaService {
             List<Obligacion> obligaciones = obligacionRepository.listarPorUsuario(usuarioId).stream()
                     .filter(o -> o.getMovimientoOrigen().getCuenta().getId().equals(tarjetaId))
                     .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.PAGADA)
+                    .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA)
                     .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA)
                     .filter(o -> o.getSaldoPendienteDelCiclo(fechaCierreCiclo).signum() > 0).toList();
             if (obligaciones.isEmpty()) throw new IllegalArgumentException("El ciclo indicado no tiene deuda pendiente para pagar");
