@@ -619,6 +619,23 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaPermitirPagarUnConsumoRegistradoEnLaMismaFechaAunqueSeGuardeAlFinalDelDia() {
+        LocalDateTime fechaConsumo = LocalDateTime.of(2026, 9, 9, 23, 59, 59, 999_999_999);
+        Obligacion obligacion = registrarGasto("120000.00", fechaConsumo);
+
+        BigDecimal pagado = pagoTarjetaService.registrarPagoCicloTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago, new BigDecimal("1000.00"),
+                obligacion.getCicloFacturacion().getFechaCierre(),
+                LocalDateTime.of(2026, 9, 9, 12, 0),
+                "Pago parcial del ciclo", usuario.getId());
+
+        assertEquals(new BigDecimal("1000.00"), pagado);
+        assertEquals(new BigDecimal("119000.00"), obligacion.getSaldoPendiente());
+        assertEquals(new BigDecimal("199000.00"),
+                cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+    }
+
+    @Test
     void deberiaAplicarPagoParcialSoloAlCicloSeleccionado() {
         Obligacion cicloAnterior = registrarGasto("120000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
         Obligacion cicloPosterior = registrarGasto("30000.00", LocalDateTime.of(2026, 10, 9, 10, 0));
