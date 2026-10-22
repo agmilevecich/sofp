@@ -499,3 +499,13 @@ Este es el último build completo conocido.
 - Duración: **26:49 min**.
 
 Esta es la última suite completa informada por el usuario y reemplaza como referencia operativa a 936/936 y resultados anteriores.
+
+## ACTUALIZACIÓN DE BUILD — 22/10/2026
+
+- Rama: `feature/swing-shell`.
+- Suite completa `mvn test`: **1006/1006**, 0 failures, 0 errors, 0 skipped.
+- Resultado: **BUILD SUCCESS**.
+- Finalización informada por el usuario: **22/10/2026 18:07:47 -03:00**.
+- Duración: **20:59 min**.
+
+Esta es la validación completa más reciente informada y reemplaza las cifras históricas anteriores como referencia operativa. La validación manual del pago de tarjeta por ciclo en la aplicación todavía está pendiente.
