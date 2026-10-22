@@ -640,6 +640,43 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaPagarElTotalDelCicloSinCancelarDeudaDeOtroCiclo() {
+        Obligacion cicloSeleccionado = registrarGasto(
+                "120000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
+        Obligacion otroCiclo = registrarGasto(
+                "30000.00", LocalDateTime.of(2026, 10, 9, 10, 0));
+        LocalDate cierre = cicloSeleccionado.getCicloFacturacion().getFechaCierre();
+        BigDecimal totalCiclo = cicloSeleccionado.getSaldoPendienteDelCiclo(cierre);
+
+        BigDecimal pagado = pagoTarjetaService.registrarPagoCicloTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago, totalCiclo,
+                cierre, LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago total del ciclo", usuario.getId());
+
+        assertEquals(totalCiclo, pagado);
+        assertEquals(new BigDecimal("0.00"), cicloSeleccionado.getSaldoPendiente());
+        assertEquals(new BigDecimal("30000.00"), otroCiclo.getSaldoPendiente());
+    }
+
+    @Test
+    void noDeberiaRegistrarPagoDeCicloSiLaCuentaNoTieneFondosSuficientes() {
+        Obligacion obligacion = registrarGasto(
+                "250000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
+        LocalDate cierre = obligacion.getCicloFacturacion().getFechaCierre();
+
+        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPagoCicloTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago, new BigDecimal("250000.00"),
+                cierre, LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago total del ciclo", usuario.getId()));
+
+        assertEquals(new BigDecimal("200000.00"),
+                cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(0L, entityManager.createQuery(
+                "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
+                Long.class).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
+    @Test
     void deberiaAplicarPagoDeCuotasSoloALasCuotasDelCicloSeleccionado() {
         Obligacion obligacion = registrarGasto(
                 "120000.00", 3, LocalDateTime.of(2026, 8, 9, 10, 0));
