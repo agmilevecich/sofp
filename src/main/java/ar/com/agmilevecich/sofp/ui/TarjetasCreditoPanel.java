@@ -231,6 +231,10 @@ public class TarjetasCreditoPanel extends JPanel {
         c.weightx = 0;
     }
 
+    void actualizarDatos() {
+        cargarDatos();
+    }
+
     private void cargarDatos() {
         if (cuentaService == null) {
             return;
