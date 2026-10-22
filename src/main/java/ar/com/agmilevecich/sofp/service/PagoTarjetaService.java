@@ -600,7 +600,9 @@ public class PagoTarjetaService {
 
     private void validarFechaPago(Obligacion obligacion, LocalDateTime fechaHora) {
         LocalDateTime fechaOrigen = obligacion.getFechaOrigen();
-        if (fechaHora.isBefore(fechaOrigen)) {
+        // El formulario de gastos registra una fecha, no una hora, y la persiste al final del día.
+        // Por eso, para consumos ingresados desde la UI, la validación debe comparar fechas.
+        if (fechaHora.toLocalDate().isBefore(fechaOrigen.toLocalDate())) {
             throw new IllegalArgumentException("La fecha de pago no puede ser anterior al consumo que origina la obligación");
         }
         if (fechaHora.isAfter(LocalDateTime.now(clock))) {
