@@ -617,6 +617,44 @@ class PagoTarjetaServiceTest {
         assertEquals(new BigDecimal("200000.00"), cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
     }
 
+    @Test
+    void deberiaAplicarPagoParcialSoloAlCicloSeleccionado() {
+        Obligacion cicloAnterior = registrarGasto("120000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
+        Obligacion cicloPosterior = registrarGasto("30000.00", LocalDateTime.of(2026, 10, 9, 10, 0));
+        LocalDate cierreCicloAnterior = cicloAnterior.getCicloFacturacion().getFechaCierre();
+
+        BigDecimal pagado = pagoTarjetaService.registrarPagoCicloTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago, new BigDecimal("50000.00"),
+                cierreCicloAnterior, LocalDateTime.of(2026, 9, 10, 10, 0),
+                "Pago parcial del ciclo", usuario.getId());
+
+        assertEquals(new BigDecimal("50000.00"), pagado);
+        assertEquals(new BigDecimal("70000.00"), cicloAnterior.getSaldoPendiente());
+        assertEquals(new BigDecimal("30000.00"), cicloPosterior.getSaldoPendiente());
+        assertEquals(new BigDecimal("150000.00"),
+                cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(1L, entityManager.createQuery(
+                "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
+                Long.class).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
+    @Test
+    void noDeberiaPermitirQuePagoDeCicloSupereLaDeudaDeEseCicloAunqueExistaOtraDeuda() {
+        Obligacion cicloAnterior = registrarGasto("120000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
+        registrarGasto("30000.00", LocalDateTime.of(2026, 10, 9, 10, 0));
+
+        assertThrows(IllegalArgumentException.class, () -> pagoTarjetaService.registrarPagoCicloTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago, new BigDecimal("120001.00"),
+                cicloAnterior.getCicloFacturacion().getFechaCierre(),
+                LocalDateTime.of(2026, 9, 10, 10, 0), "Pago ciclo", usuario.getId()));
+
+        assertEquals(new BigDecimal("200000.00"),
+                cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(0L, entityManager.createQuery(
+                "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
+                Long.class).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
     private Obligacion registrarGasto(String importe) { return registrarGasto(importe, 1); }
 
     private Obligacion registrarGasto(String importe, int cantidadCuotas) {
