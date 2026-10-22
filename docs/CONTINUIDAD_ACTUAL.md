@@ -144,3 +144,47 @@ Después de cambios importantes:
 `tests específicos → tests relacionados → suite completa → git diff → git diff --check → git status → documentación`
 
 No modificar ni mergear `main` automáticamente.
+
+## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 22/10/2026
+
+Esta actualización reemplaza como referencia operativa los resultados de pruebas y el punto de continuidad anteriores cuando exista contradicción.
+
+### Estado Git reconstruido desde GitHub
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación GitHub: `feature/swing-shell` está **442 commits ahead / 0 behind**.
+- Último commit de código/test identificado en la secuencia reciente: `73062cd41806717dd687c476e536c5a9299836a6` — `test: validar etiqueta de cuenta en integracion de login`.
+- No se modificó ni mergeó `main`.
+
+### Última suite completa informada por el usuario
+- Comando: `mvn test`.
+- **1006 tests**.
+- **0 failures, 0 errors, 0 skipped**.
+- **BUILD SUCCESS**.
+- Finalización: **22/10/2026 18:07:47 -03:00**.
+- Duración: **20:59 min**.
+
+Esta validación sucede a la ejecución anterior que había reportado 3 fallos de expectativas en tests de navegación/cuentas. Los tres tests se ajustaron para reflejar el comportamiento actual de la UI y la batería específica posterior pasó: **4 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**. La suite completa posterior quedó verde.
+
+### Bloque reciente: pago de tarjeta por ciclo
+Se añadieron y ajustaron pruebas para asegurar que el pago de tarjeta:
+- se aplique solo a las obligaciones del ciclo seleccionado;
+- no supere la deuda pendiente de ese ciclo;
+- no cancele deuda perteneciente a otro ciclo;
+- rechace pagos cuando la cuenta pagadora no tenga fondos suficientes;
+- refleje el egreso de la cuenta pagadora y registre el pago transaccionalmente.
+
+La suite automatizada valida el estado actual, pero no reemplaza la comprobación manual desde la aplicación ejecutable.
+
+### Próximo paso exacto
+**Validación manual pendiente de pagos de tarjeta en la aplicación Swing.** Con la rama sincronizada:
+1. iniciar H2 según la configuración local si no está activo;
+2. ejecutar SOFP desde IntelliJ;
+3. abrir Tarjetas de crédito y seleccionar una tarjeta/ciclo con deuda;
+4. verificar total del ciclo y cuenta pagadora;
+5. realizar un pago parcial controlado;
+6. confirmar que baja la deuda del ciclo seleccionado, que otro ciclo no cambia, que se registra el movimiento y que baja el saldo de la cuenta pagadora;
+7. cerrar y reabrir la aplicación y comprobar persistencia.
+
+No dar por cerrada la validación RC1 hasta registrar el resultado de este flujo manual. Después, revisar `git diff`, `git diff --check` y `git status` localmente. No hacer merge a `main` automáticamente.
