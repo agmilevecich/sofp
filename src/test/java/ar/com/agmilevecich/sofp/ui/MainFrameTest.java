@@ -119,7 +119,7 @@ class MainFrameTest {
         assertNotNull(lista);
         assertEquals(1, lista.getModel().getSize());
         assertEquals(
-                "Cuenta de MainFrame",
+                "Cuenta de MainFrame — ARS — Saldo: 0.00",
                 lista.getModel().getElementAt(0)
         );
 
