@@ -372,14 +372,14 @@ public class TarjetasCreditoPanel extends JPanel {
             Cuenta cuentaPagadora = (Cuenta) cuentaPagadoraCombo.getSelectedItem();
             Categoria categoria = (Categoria) categoriaCombo.getSelectedItem();
 
-            BigDecimal total = pagoTarjetaService.registrarPagoTotalTarjeta(
-                    tarjeta.getId(),
-                    cuentaPagadora,
-                    categoria,
-                    LocalDateTime.now(),
-                    "Pago total de tarjeta",
-                    usuarioId
-            );
+            BigDecimal total = new BigDecimal(totalResumenLabel.getText().split(" ")[0]);
+            if (total.signum() <= 0) {
+                throw new IllegalArgumentException("El ciclo actual no tiene deuda pendiente para pagar");
+            }
+            pagoTarjetaService.registrarPagoCicloTarjeta(
+                    tarjeta.getId(), cuentaPagadora, categoria, total,
+                    tarjeta.calcularCicloFacturacion(LocalDate.now()).getFechaCierre(),
+                    LocalDateTime.now(), "Pago total del ciclo de tarjeta", usuarioId);
             importeField.setText("");
             cargarDatos();
             javax.swing.JOptionPane.showMessageDialog(
@@ -402,9 +402,10 @@ public class TarjetasCreditoPanel extends JPanel {
             Cuenta cuentaPagadora = (Cuenta) cuentaPagadoraCombo.getSelectedItem();
             Categoria categoria = (Categoria) categoriaCombo.getSelectedItem();
             BigDecimal importe = new BigDecimal(importeField.getText().trim());
-            pagoTarjetaService.registrarPagoParcialTarjeta(
+            pagoTarjetaService.registrarPagoCicloTarjeta(
                     tarjeta.getId(), cuentaPagadora, categoria, importe,
-                    LocalDateTime.now(), "Pago parcial de tarjeta", usuarioId);
+                    tarjeta.calcularCicloFacturacion(LocalDate.now()).getFechaCierre(),
+                    LocalDateTime.now(), "Pago parcial del ciclo de tarjeta", usuarioId);
             importeField.setText("");
             cargarDatos();
         } catch (RuntimeException e) {
@@ -424,9 +425,10 @@ public class TarjetasCreditoPanel extends JPanel {
             if (minimo.signum() <= 0) {
                 throw new IllegalArgumentException("La tarjeta no tiene pago mínimo pendiente");
             }
-            pagoTarjetaService.registrarPagoParcialTarjeta(
+            pagoTarjetaService.registrarPagoCicloTarjeta(
                     tarjeta.getId(), cuentaPagadora, categoria, minimo,
-                    LocalDateTime.now(), "Pago mínimo de tarjeta", usuarioId);
+                    tarjeta.calcularCicloFacturacion(LocalDate.now()).getFechaCierre(),
+                    LocalDateTime.now(), "Pago mínimo del ciclo de tarjeta", usuarioId);
             importeField.setText("");
             cargarDatos();
         } catch (RuntimeException e) {
