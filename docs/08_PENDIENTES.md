@@ -76,3 +76,12 @@ Antes de comenzar otro bloque:
 ## Regla de cierre
 
 Tests específicos → relacionados → suite completa → `git diff` → `git diff --check` → `git status` → documentación.
+
+## ACTUALIZACIÓN — 22/10/2026
+
+La última suite completa informada por el usuario es `mvn test`: **1006/1006**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**, finalizada el 22/10/2026 a las 18:07:47 -03:00 (20:59 min).
+
+### Próximo paso prioritario
+Validar manualmente en la aplicación Swing el pago parcial de tarjeta por ciclo: deuda del ciclo seleccionado, deuda de otros ciclos sin cambios, movimiento de egreso, saldo de la cuenta pagadora y persistencia tras cerrar/reabrir SOFP.
+
+La suite verde no sustituye esa prueba de uso real. No hacer merge a `main` automáticamente.
