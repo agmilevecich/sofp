@@ -525,3 +525,20 @@ La etapa queda cerrada técnicamente. El próximo bloque debe comenzar reconstru
 El resultado incluye la nueva cobertura de gestión de instituciones financieras y del estado inicial `Seleccione...` del combo de tipo de institución, además de las pruebas existentes del shell Swing.
 
 Los **940/940** son la última validación completa conocida y deben utilizarse como referencia operativa hasta una nueva ejecución.
+
+## ACTUALIZACIÓN DE VALIDACIÓN — 22/10/2026
+
+### Suite completa
+- Comando: `mvn test`.
+- Tests: **1006**.
+- Failures: **0**.
+- Errors: **0**.
+- Skipped: **0**.
+- Resultado: **BUILD SUCCESS**.
+- Finalización: **22/10/2026 18:07:47 -03:00**.
+- Duración: **20:59 min**.
+
+### Tests dirigidos anteriores
+Después de corregir tres expectativas obsoletas de navegación/etiquetas de cuenta, el usuario ejecutó `mvn -Dtest=MainFrameNavigationTest,MainFrameTest,RegistroLoginMainFrameIntegrationTest test`: **4 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**.
+
+El resultado completo de **1006/1006** es ahora la última suite conocida informada por el usuario. No se declara validación manual de UI a partir de estos tests.
