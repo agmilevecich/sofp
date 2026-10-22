@@ -286,6 +286,7 @@ public class TarjetasCreditoPanel extends JPanel {
         for (int i = 0; i < model.size(); i++) {
             Obligacion obligacion = model.getElementAt(i);
             if (obligacion.getEstado() == EstadoObligacion.PAGADA
+                    || obligacion.getEstado() == EstadoObligacion.REFINANCIADA
                     || obligacion.getEstado() == EstadoObligacion.ANULADA) {
                 continue;
             }
