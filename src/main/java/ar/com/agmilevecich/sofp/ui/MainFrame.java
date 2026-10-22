@@ -425,6 +425,9 @@ public class MainFrame extends JFrame {
             return;
         }
         if (CUENTAS.equals(destino)) {
+            if (cuentaService != null && perfilFinancieroId != null) {
+                cuentasPanel.actualizarCuentas();
+            }
             cuentasPanel.actualizarInstituciones();
         }
         if (INGRESOS.equals(destino)) {
