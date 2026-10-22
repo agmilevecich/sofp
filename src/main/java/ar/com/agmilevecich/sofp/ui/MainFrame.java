@@ -430,6 +430,9 @@ public class MainFrame extends JFrame {
             }
             cuentasPanel.actualizarInstituciones();
         }
+        if (TARJETAS.equals(destino)) {
+            tarjetasPanel.actualizarDatos();
+        }
         if (INGRESOS.equals(destino)) {
             ingresosPanel.actualizarCuentasYCategorias();
         }
