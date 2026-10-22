@@ -17,6 +17,7 @@ import jakarta.persistence.EntityTransaction;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -155,6 +156,90 @@ public class PagoTarjetaService {
             if (transaction.isActive()) transaction.rollback();
             throw e;
         }
+    }
+
+    public BigDecimal registrarPagoCicloTarjeta(Long tarjetaId, Cuenta cuentaPagadora,
+            Categoria categoria, BigDecimal importe, LocalDate fechaCierreCiclo,
+            LocalDateTime fechaHora, String descripcion, Long usuarioId) {
+        Objects.requireNonNull(tarjetaId, "El id de la tarjeta es obligatorio");
+        Objects.requireNonNull(cuentaPagadora, "La cuenta pagadora es obligatoria");
+        Objects.requireNonNull(categoria, "La categoría es obligatoria");
+        Objects.requireNonNull(importe, "El importe es obligatorio");
+        Objects.requireNonNull(fechaCierreCiclo, "La fecha de cierre del ciclo es obligatoria");
+        Objects.requireNonNull(fechaHora, "La fecha y hora son obligatorias");
+        Objects.requireNonNull(descripcion, "La descripción es obligatoria");
+        Objects.requireNonNull(usuarioId, "El id del usuario es obligatorio");
+        if (importe.signum() <= 0) throw new IllegalArgumentException("El importe debe ser positivo");
+
+        EntityTransaction tx = entityManager.getTransaction();
+        try {
+            tx.begin();
+            Cuenta tarjeta = entityManager.find(Cuenta.class, tarjetaId);
+            if (tarjeta == null) throw new IllegalArgumentException("La tarjeta no existe");
+            validarPropietario(usuarioId, tarjeta);
+            if (tarjeta.getTipoCuenta() != ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO)
+                throw new IllegalArgumentException("La cuenta indicada no es una tarjeta de crédito");
+            validarPropietario(usuarioId, cuentaPagadora);
+            validarPropietario(usuarioId, categoria);
+            if (!cuentaPagadora.isActiva()) throw new IllegalArgumentException("No se puede pagar desde una cuenta desactivada");
+            if (cuentaPagadora.getTipoCuenta() == ar.com.agmilevecich.sofp.domain.TipoCuenta.TARJETA_CREDITO)
+                throw new IllegalArgumentException("La cuenta pagadora no puede ser una tarjeta de crédito");
+            if (!Objects.equals(cuentaPagadora.getPerfilFinanciero().getId(), categoria.getPerfilFinanciero().getId()))
+                throw new IllegalArgumentException("La cuenta y la categoría deben pertenecer al mismo perfil financiero");
+
+            List<Obligacion> obligaciones = obligacionRepository.listarPorUsuario(usuarioId).stream()
+                    .filter(o -> o.getMovimientoOrigen().getCuenta().getId().equals(tarjetaId))
+                    .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.PAGADA)
+                    .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA)
+                    .filter(o -> o.getSaldoPendienteDelCiclo(fechaCierreCiclo).signum() > 0).toList();
+            if (obligaciones.isEmpty()) throw new IllegalArgumentException("El ciclo indicado no tiene deuda pendiente para pagar");
+
+            BigDecimal total = BigDecimal.ZERO.setScale(2);
+            for (Obligacion o : obligaciones) {
+                validarFechaPago(o, fechaHora);
+                Financiacion fin = buscarFinanciacionPendiente(o, fechaHora);
+                Refinanciacion ref = buscarRefinanciacionPendiente(o, fechaHora);
+                if (fin != null || ref != null || o.getSaldoLiquidacion() != null)
+                    throw new IllegalArgumentException("No se puede pagar por ciclo una obligación financiada, refinanciada o liquidada");
+                validarMonedaPagadora(o, cuentaPagadora, null, null);
+                total = total.add(o.getSaldoPendienteDelCiclo(fechaCierreCiclo));
+            }
+            if (importe.compareTo(total) > 0) throw new IllegalArgumentException("El pago supera el saldo pendiente del ciclo");
+            if (calcularSaldo(cuentaPagadora).compareTo(importe) < 0)
+                throw new IllegalArgumentException("No hay fondos suficientes en la cuenta para pagar la tarjeta");
+
+            BigDecimal restante = importe;
+            for (Obligacion o : obligaciones) {
+                if (restante.signum() <= 0) break;
+                BigDecimal pago = restante.min(o.getSaldoPendienteDelCiclo(fechaCierreCiclo));
+                if (pago.signum() > 0) {
+                    registrarPagoCicloEnTransaccion(o, cuentaPagadora, categoria, pago,
+                            fechaCierreCiclo, fechaHora, descripcion);
+                    restante = restante.subtract(pago);
+                }
+            }
+            tx.commit();
+            return importe;
+        } catch (RuntimeException e) {
+            if (tx.isActive()) tx.rollback();
+            throw e;
+        }
+    }
+
+    private void registrarPagoCicloEnTransaccion(Obligacion o, Cuenta cuentaPagadora,
+            Categoria categoria, BigDecimal importe, LocalDate cierre, LocalDateTime fechaHora,
+            String descripcion) {
+        BigDecimal saldo = o.getSaldoPendienteDelCiclo(cierre);
+        if (importe.signum() <= 0 || importe.compareTo(saldo) > 0)
+            throw new IllegalArgumentException("El pago supera el saldo pendiente del ciclo");
+        Movimiento movimiento = new Movimiento(cuentaPagadora, categoria, cuentaPagadora.getMoneda(),
+                TipoMovimiento.EGRESO, importe, fechaHora, descripcion, FormaPago.TRANSFERENCIA);
+        o.registrarPagoDelCiclo(importe, cierre);
+        movimientoRepository.guardar(movimiento);
+        entityManager.persist(new PagoTarjeta(o, null, null, movimiento, cuentaPagadora, categoria,
+                cuentaPagadora.getMoneda(), importe, BigDecimal.ZERO.setScale(2), importe,
+                BigDecimal.ZERO.setScale(2), fechaHora));
+        entityManager.flush();
     }
 
     /**
