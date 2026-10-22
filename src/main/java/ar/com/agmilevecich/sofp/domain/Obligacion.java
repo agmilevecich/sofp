@@ -145,6 +145,50 @@ public class Obligacion extends EntidadAuditable {
                 .reduce(BigDecimal.ZERO.setScale(2), BigDecimal::add);
     }
 
+    /**
+     * Aplica un pago exclusivamente al saldo del ciclo indicado, sin consumir
+     * cuotas pertenecientes a otros ciclos.
+     */
+    public void registrarPagoDelCiclo(BigDecimal importe, LocalDate fechaCierre) {
+        Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
+        if (estado == EstadoObligacion.PAGADA || estado == EstadoObligacion.REFINANCIADA
+                || estado == EstadoObligacion.ANULADA) {
+            throw new IllegalStateException("La obligación no admite pagos en su estado actual");
+        }
+        BigDecimal pago = Validaciones.importePositivo(importe, "El importe del pago es obligatorio");
+        BigDecimal saldoCiclo = getSaldoPendienteDelCiclo(fechaCierre);
+        if (saldoCiclo.signum() <= 0) {
+            throw new IllegalArgumentException("El ciclo indicado no tiene saldo pendiente");
+        }
+        if (pago.compareTo(saldoCiclo) > 0) {
+            throw new IllegalArgumentException("El pago supera el saldo pendiente del ciclo");
+        }
+
+        if (cuotas.isEmpty()) {
+            saldoPendiente = saldoPendiente.subtract(pago);
+        } else {
+            BigDecimal restante = pago;
+            for (Cuota cuota : cuotas) {
+                if (restante.signum() == 0) {
+                    break;
+                }
+                if (!fechaCierre.equals(cuota.getFechaCierreCiclo())) {
+                    continue;
+                }
+                BigDecimal pagoCuota = restante.min(cuota.getSaldoPendiente());
+                if (pagoCuota.signum() > 0) {
+                    cuota.registrarPago(pagoCuota);
+                    restante = restante.subtract(pagoCuota);
+                }
+            }
+            if (restante.signum() > 0) {
+                throw new IllegalStateException("No se pudo distribuir el pago dentro del ciclo indicado");
+            }
+            saldoPendiente = saldoPendiente.subtract(pago);
+        }
+        estado = saldoPendiente.signum() == 0 ? EstadoObligacion.PAGADA : EstadoObligacion.PARCIAL;
+    }
+
     public LocalDate getFechaInicioFinanciacion(LocalDate fechaCierre) {
         Objects.requireNonNull(fechaCierre, "La fecha de cierre es obligatoria");
         if (cuotas.isEmpty()) {
