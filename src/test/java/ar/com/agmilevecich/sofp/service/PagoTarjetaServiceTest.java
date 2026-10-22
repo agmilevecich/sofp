@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PagoTarjetaServiceTest {
@@ -636,6 +637,26 @@ class PagoTarjetaServiceTest {
         assertEquals(1L, entityManager.createQuery(
                 "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
                 Long.class).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
+    @Test
+    void deberiaAplicarPagoDeCuotasSoloALasCuotasDelCicloSeleccionado() {
+        Obligacion obligacion = registrarGasto(
+                "120000.00", 3, LocalDateTime.of(2026, 8, 9, 10, 0));
+        BigDecimal saldoPrimeraCuota = obligacion.getCuotas().get(0).getSaldoPendiente();
+        BigDecimal saldoSegundaCuota = obligacion.getCuotas().get(1).getSaldoPendiente();
+        LocalDate cierrePrimeraCuota = obligacion.getCuotas().get(0).getFechaCierreCiclo();
+        LocalDate cierreSegundaCuota = obligacion.getCuotas().get(1).getFechaCierreCiclo();
+        assertNotEquals(cierrePrimeraCuota, cierreSegundaCuota);
+
+        pagoTarjetaService.registrarPagoCicloTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago, new BigDecimal("10000.00"),
+                cierrePrimeraCuota, LocalDateTime.of(2026, 8, 10, 10, 0),
+                "Pago de cuota del ciclo", usuario.getId());
+
+        assertEquals(saldoPrimeraCuota.subtract(new BigDecimal("10000.00")),
+                obligacion.getCuotas().get(0).getSaldoPendiente());
+        assertEquals(saldoSegundaCuota, obligacion.getCuotas().get(1).getSaldoPendiente());
     }
 
     @Test
