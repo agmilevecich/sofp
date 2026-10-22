@@ -70,7 +70,7 @@ class MainFrameNavigationTest {
             if (component instanceof MovimientosPanel) return etiquetaDelPanel(component);
             if (component instanceof InversionesPanel) return etiquetaDelPanel(component);
             if (component instanceof ObligacionesPanel) return etiquetaDelPanel(component);
-            if (component instanceof TarjetasCreditoPanel) return etiquetaDelPanel(component);
+            if (component instanceof TarjetasCreditoPanel) return "Tarjetas";
             if (component instanceof TransferenciasPanel) return etiquetaDelPanel(component);
             if (component instanceof Container hijo) {
                 String encontrado = tarjetaVisible(hijo);
