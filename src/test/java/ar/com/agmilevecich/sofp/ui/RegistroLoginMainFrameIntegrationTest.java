@@ -129,7 +129,7 @@ class RegistroLoginMainFrameIntegrationTest {
         JList<?> lista = buscarLista(frame.getContentPane());
         assertNotNull(lista);
         assertEquals(1, lista.getModel().getSize());
-        assertEquals(cuenta.getNombre(), lista.getModel().getElementAt(0));
+        assertEquals("Cuenta principal — ARS — Saldo: 0.00", lista.getModel().getElementAt(0));
 
         frame.dispose();
     }
