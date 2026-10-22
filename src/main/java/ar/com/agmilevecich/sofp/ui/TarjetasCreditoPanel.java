@@ -290,13 +290,21 @@ public class TarjetasCreditoPanel extends JPanel {
                 continue;
             }
             saldoTotal = saldoTotal.add(obligacion.getSaldoPendiente());
-            if (ciclo.getFechaCierre().equals(obligacion.getCicloFacturacion().getFechaCierre())) {
-                BigDecimal saldoCiclo = obligacion.getSaldoPendienteDelCiclo(ciclo.getFechaCierre());
-                totalResumen = totalResumen.add(saldoCiclo);
-                tieneDeuda = tieneDeuda || saldoCiclo.signum() > 0;
-                LocalDate fecha = obligacion.getFechaLimitePago();
-                if (vencimiento == null || fecha.isBefore(vencimiento)) {
-                    vencimiento = fecha;
+
+            BigDecimal saldoCiclo = obligacion.getSaldoPendienteDelCiclo(ciclo.getFechaCierre());
+            totalResumen = totalResumen.add(saldoCiclo);
+            if (saldoCiclo.signum() > 0) {
+                tieneDeuda = true;
+                LocalDate fechaVencimientoCiclo = obligacion.getCuotas().isEmpty()
+                        ? obligacion.getFechaLimitePago()
+                        : obligacion.getCuotas().stream()
+                                .filter(cuota -> ciclo.getFechaCierre().equals(cuota.getFechaCierreCiclo()))
+                                .filter(cuota -> cuota.getSaldoPendiente().signum() > 0)
+                                .map(ar.com.agmilevecich.sofp.domain.Cuota::getFechaVencimiento)
+                                .min(LocalDate::compareTo)
+                                .orElse(obligacion.getFechaLimitePago());
+                if (vencimiento == null || fechaVencimientoCiclo.isBefore(vencimiento)) {
+                    vencimiento = fechaVencimientoCiclo;
                 }
             }
         }
