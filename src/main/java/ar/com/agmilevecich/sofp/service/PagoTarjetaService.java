@@ -192,6 +192,7 @@ public class PagoTarjetaService {
                     .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.PAGADA)
                     .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.REFINANCIADA)
                     .filter(o -> o.getEstado() != ar.com.agmilevecich.sofp.domain.EstadoObligacion.ANULADA)
+                    .filter(o -> !o.getFechaOrigen().toLocalDate().isAfter(fechaHora.toLocalDate()))
                     .filter(o -> o.getSaldoPendienteDelCiclo(fechaCierreCiclo).signum() > 0).toList();
             if (obligaciones.isEmpty()) throw new IllegalArgumentException("El ciclo indicado no tiene deuda pendiente para pagar");
 
