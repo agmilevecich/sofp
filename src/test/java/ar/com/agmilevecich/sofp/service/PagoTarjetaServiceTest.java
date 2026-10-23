@@ -636,6 +636,29 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaPermitirPagarConsumosAnterioresSinIncluirConsumosFuturosDelMismoCiclo() {
+        Obligacion consumoAnterior = registrarGasto(
+                "120000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
+        Obligacion consumoFuturo = registrarGasto(
+                "30000.00", LocalDateTime.of(2026, 9, 10, 10, 0));
+        LocalDate cierreCiclo = consumoAnterior.getCicloFacturacion().getFechaCierre();
+
+        BigDecimal pagado = pagoTarjetaService.registrarPagoCicloTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago, new BigDecimal("10000.00"),
+                cierreCiclo, LocalDateTime.of(2026, 9, 9, 12, 0),
+                "Pago parcial del ciclo", usuario.getId());
+
+        assertEquals(new BigDecimal("10000.00"), pagado);
+        assertEquals(new BigDecimal("110000.00"), consumoAnterior.getSaldoPendiente());
+        assertEquals(new BigDecimal("30000.00"), consumoFuturo.getSaldoPendiente());
+        assertEquals(new BigDecimal("190000.00"),
+                cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(1L, entityManager.createQuery(
+                "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
+                Long.class).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
+    @Test
     void deberiaAplicarPagoParcialSoloAlCicloSeleccionado() {
         Obligacion cicloAnterior = registrarGasto("120000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
         Obligacion cicloPosterior = registrarGasto("30000.00", LocalDateTime.of(2026, 10, 9, 10, 0));
