@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -215,12 +216,17 @@ class GastosPanelTest {
 
         panel.registrarGasto();
 
+        entityManager.clear();
         var movimientos = movimientoService.listarPorCuenta(cuenta.getId(), usuario.getId());
         assertEquals(2, movimientos.size());
         assertEquals(TipoMovimiento.EGRESO, movimientos.get(1).getTipoMovimiento());
         assertEquals(FormaPago.TARJETA_DEBITO, movimientos.get(1).getFormaPago());
         assertEquals(new BigDecimal("100"), movimientos.get(1).getImporte());
         assertEquals("Compra supermercado", movimientos.get(1).getDescripcion());
+        assertEquals(
+                LocalDateTime.of(2026, 9, 4, 23, 59, 59, 999_999_000),
+                movimientos.get(1).getFechaHora()
+        );
         assertEquals(LocalDate.of(2026, 9, 4), movimientos.get(1).getFechaHora().toLocalDate());
     }
 
