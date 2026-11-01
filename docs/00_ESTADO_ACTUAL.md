@@ -1,51 +1,61 @@
 # SOFP — Estado actual
 
-## 04/10/2026
+> Actualizado: 01/11/2026. Esta síntesis refleja el estado informado por el usuario y reconstruido desde GitHub. Para cualquier cambio, volver a consultar rama, commits, código y tests.
 
-### Git
+## Git
 
-- Rama de trabajo: `feature/swing-shell`
-- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`
-- Feature vs main: **320 ahead / 0 behind**
-- Sin merge a `main`
-- Último commit validado de la etapa: `5a8cb25be5f15c776007b136f243e5e01f2f6bb1`
+- Rama de trabajo: `feature/swing-shell`.
+- Rama estable: `main`.
+- HEAD de código previo a esta actualización documental: `afc66589c9d32988fa6e011fd0293e71fbf47c39` — `fix: refrescar obligaciones al registrar gastos`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación verificada en GitHub: **457 ahead / 0 behind** antes de estos commits documentales.
+- No se modificó ni mergeó `main`.
 
-### Suite
+## Última validación completa informada
 
-Última ejecución informada por el usuario:
+Comando: `mvn clean test`.
 
-- `mvn test`
-- **979/979**
-- Failures 0
-- Errors 0
-- Skipped 0
-- `BUILD SUCCESS`
-- 03/10/2026 22:54:12 -03:00
-- 24:47 min
+- **1008 tests**.
+- 0 failures, 0 errors, 0 skipped.
+- `BUILD SUCCESS`.
+- Finalizada: **01/11/2026 18:12:30 -03:00**.
 
-### Bloques funcionales auditados recientemente
+Validación específica anterior al último commit de código:
+- `MainFrameTest`, `GastosPanelTest`, `ObligacionesPanelTest`: **18/18**, 0 failures/errors/skipped, `BUILD SUCCESS`, finalizada **01/11/2026 16:34:22 -03:00**.
 
-- Tarjetas de crédito.
-- Multiusuario y aislamiento de recursos.
-- Resultado financiero.
-- Patrimonio financiero y valorización.
-- Pasivos: obligaciones, cuotas, financiación, cargos, liquidaciones y refinanciaciones.
+## Último cambio funcional
 
-### Cierre de pasivos
+Commit `afc6658` — `fix: refrescar obligaciones al registrar gastos`.
 
-El cálculo de crédito utilizado fue auditado porque una obligación con cuotas y financiación podía contar dos veces el capital financiado. Se corrigió únicamente la consulta de `ObligacionRepository`.
+En `MainFrame.java`, el marco principal conserva la referencia a `ObligacionesPanel` y pasa a `GastosPanel` una acción de refresco. Al registrar un gasto que genera una obligación, el panel de obligaciones se actualiza sin cerrar/reabrir la aplicación. El usuario confirmó también que el consumo aparece inmediatamente en Obligaciones y Tarjetas.
 
-Validación posterior:
+## RC1 — estabilidad de uso real
 
-- `ObligacionRepositoryTest`: 17/17.
-- `PatrimonioFinancieroServiceTest`: 13/13.
-- `ObligacionServiceTest + RefinanciacionTest`: 36/36.
-- Suite completa: 979/979.
+Continúan validados por tests y pruebas manuales reportadas:
+- arranque, login y navegación Swing;
+- persistencia entre reinicios;
+- categorías por tipo de movimiento;
+- ingresos, gastos, transferencias y movimientos;
+- inversiones, cartera y patrimonio;
+- resultado financiero y reportes;
+- obligaciones, cuotas, financiación y refinanciación;
+- tarjetas de crédito y pagos por ciclo;
+- actualización inmediata de Obligaciones al registrar consumos.
 
-No se realizó ningún cambio en `main`.
+## Pendiente inmediato
 
-### Regla de fuente de verdad
+Completar la validación manual del flujo de pago de tarjeta desde la aplicación:
+- identificar los saldos y estados actuales de las obligaciones;
+- comprobar pago parcial/total del ciclo seleccionado;
+- verificar que obligaciones de otros ciclos no cambien;
+- verificar movimiento de egreso, saldo de cuenta pagadora y persistencia tras reiniciar.
 
-Código actual → tests → commits → comparación con `main` → documentación → conversaciones históricas.
+El usuario no puede adjuntar capturas por el momento y retomará esta inspección cuando pueda. No inferir importes actuales a partir de capturas antiguas. La validación manual de pagos sigue abierta.
 
-Si documentación y código contradicen, prevalecen código y tests.
+## Próximo paso
+
+Al retomar, solicitar la captura actual del panel Tarjetas/Obligaciones y analizar los ciclos, importes y estados antes de recomendar cualquier operación. No realizar cambios de código hasta que la evidencia indique un defecto reproducible.
+
+## Regla de fuente de verdad
+
+Código actual → tests → commits de GitHub → comparación con `main` → documentación → conversaciones históricas. La documentación es auxiliar y nunca prevalece sobre el código o los tests.
