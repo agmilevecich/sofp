@@ -572,3 +572,16 @@ Se estabilizó la hora de los gastos registrados desde `GastosPanel`: la fecha s
 
 ### Continuidad
 El resultado **901/901** es la última validación completa conocida y reemplaza como referencia operativa los resultados históricos anteriores. Los próximos cambios deben partir del código y tests actuales, reconstruyendo el estado desde GitHub antes de modificar cualquier funcionalidad. No modificar ni mergear `main` automáticamente.
+
+
+## ACTUALIZACIÓN DE CONTINUIDAD — 01/11/2026
+
+Estado reconstruido para la rama `feature/swing-shell`. El commit de código más reciente es `afc6658`, que refresca Obligaciones al registrar un gasto con tarjeta; el usuario confirmó que el consumo aparece inmediatamente en Obligaciones y Tarjetas.
+
+### Diferencia entre pago del ciclo y deuda total
+
+La inspección actual de `TarjetasCreditoPanel.java`, `PagoTarjetaService.java` y `Obligacion.java` confirmó que **Pago total** en el panel de tarjetas se aplica al saldo del ciclo seleccionado. No implica necesariamente cancelar toda la deuda histórica de la tarjeta. El saldo total de obligaciones es una magnitud diferente. Las obligaciones de otros ciclos y las financiadas, refinanciadas o liquidadas pueden conservar saldos pendientes sujetos a sus propias reglas.
+
+### Validación pendiente
+
+La suite completa informada por el usuario es **1008/1008**, `BUILD SUCCESS`, 01/11/2026 18:12:30 -03:00. Sin embargo, queda pendiente la comprobación manual de pagos desde la aplicación: identificar ciclos, importes y estados actuales; verificar la cuenta pagadora y fondos; y comprobar movimiento de egreso y persistencia. No usar importes históricos como saldos actuales ni recomendar una operación antes de revisar evidencia actual.
