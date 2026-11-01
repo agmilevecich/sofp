@@ -1,63 +1,19 @@
-# SOFP — Contexto final de continuidad
+# SOFP — Contexto compacto de continuidad
 
-## Estado de cierre — 04/10/2026
+Actualizado 01/11/2026. Reconstruir siempre el estado desde GitHub antes de trabajar.
 
-### Rama
+- Repo: `agmilevecich/sofp`.
+- Rama: `feature/swing-shell`; estable: `main`.
+- Main SHA: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Último commit de código: `afc6658` — `fix: refrescar obligaciones al registrar gastos`.
+- Comparación anterior a docs: 457 ahead / 0 behind; main no fue modificada.
+- Suite completa informada: **1008/1008**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 18:12:30 -03:00.
+- Batería específica: 18/18 (`MainFrameTest,GastosPanelTest,ObligacionesPanelTest`), 01/11/2026 16:34:22 -03:00.
+- El callback agregado en `MainFrame` refresca Obligaciones al registrar gastos. Usuario confirmó que el consumo aparece inmediatamente en Obligaciones y Tarjetas.
 
-`feature/swing-shell`
+## Pendiente exacto
+Validación manual de pagos de tarjeta en la UI. **Pago total** aplica al ciclo seleccionado, no necesariamente a toda la deuda histórica. El saldo total de obligaciones es distinto y puede incluir otros ciclos/obligaciones financiadas, refinanciadas o liquidadas.
 
-### main
+El usuario no puede adjuntar capturas temporalmente. Esperar una captura actual antes de indicar pagos. No asumir vigentes los importes históricos de $30.000/$45.000. Revisar ciclos, estados, cuenta pagadora y fondos; después comprobar egreso, saldos y persistencia.
 
-`a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`
-
-### Comparación
-
-**320 commits ahead / 0 behind**
-
-No se modificó ni mergeó `main`.
-
-### Suite completa
-
-**979/979**
-
-- failures: 0
-- errors: 0
-- skipped: 0
-- BUILD SUCCESS
-- finalizada: 03/10/2026 22:54:12 -03:00
-- duración: 24:47 min
-
-## Última etapa: auditoría de pasivos
-
-La auditoría confirmó que el pasivo usado para el cálculo patrimonial se reconstruye desde obligaciones, financiaciones, cargos, liquidaciones y refinanciaciones.
-
-Se encontró y corrigió una doble contabilización del capital financiado cuando una obligación con cuotas tenía además una financiación normal pendiente.
-
-La corrección quedó limitada a `ObligacionRepository`; no se inventó una nueva regla contable.
-
-### Tests finales de la etapa
-
-- `ObligacionRepositoryTest`: 17/17.
-- `PatrimonioFinancieroServiceTest`: 13/13.
-- `ObligacionServiceTest` + `RefinanciacionTest`: 36/36.
-- Caso específico de liquidación parcialmente financiada: 1/1.
-- Suite completa: 979/979.
-
-## Estado funcional
-
-Pasivos y patrimonio quedan validados técnicamente en los escenarios auditados.
-
-La siguiente etapa no debe partir de documentación histórica. Debe comenzar por:
-
-`GitHub → rama → commits → comparación con main → código → tests → reglas → próximo cambio mínimo`
-
-## Pendientes técnicos
-
-- calendario bancario de feriados;
-- `Clock`;
-- migraciones/versionado formal de esquema;
-- estabilización del arranque/parada de H2;
-- mejoras de UI avanzada;
-- optimizaciones de repositorio cuando sean necesarias.
-
-Las decisiones contables o financieras no definidas explícitamente requieren definición antes de implementarse.
+No cambiar código sin evidencia reproducible. No modificar ni mergear main. Flujo: GitHub → código/tests → cambio mínimo → commit → usuario sincroniza y prueba → análisis → documentación.
