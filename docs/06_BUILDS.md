@@ -516,3 +516,10 @@ Esta es la validación completa más reciente informada y reemplaza las cifras h
 Última suite completa informada por el usuario: `mvn clean test`, **1008/1008**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada el **01/11/2026 18:12:30 -03:00**. La batería específica `MainFrameTest`, `GastosPanelTest` y `ObligacionesPanelTest` pasó **18/18** el 01/11/2026 16:34:22 -03:00.
 
 El commit de código más reciente antes de esta actualización documental es `afc6658` (`fix: refrescar obligaciones al registrar gastos`). La suite completa fue ejecutada después de ese cambio. No se ejecutaron tests por las modificaciones exclusivamente documentales.
+
+
+## ACTUALIZACIÓN CANÓNICA — 01/11/2026
+
+Última suite completa informada por el usuario: `mvn clean test`, **1008/1008**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada el **01/11/2026 18:12:30 -03:00**. La batería específica `MainFrameTest`, `GastosPanelTest` y `ObligacionesPanelTest` pasó **18/18**, finalizada el 01/11/2026 16:34:22 -03:00.
+
+El commit de código más reciente antes de esta actualización documental es `afc6658` (`fix: refrescar obligaciones al registrar gastos`). La suite completa fue ejecutada después de ese cambio. No se ejecutaron tests por las modificaciones exclusivamente documentales.
