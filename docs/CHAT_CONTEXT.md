@@ -1,45 +1,45 @@
 # SOFP — Contexto de continuidad
 
-## Snapshot operativo — 04/10/2026
+> Snapshot: 01/11/2026. Antes de cualquier cambio, reconstruir el estado actual desde GitHub.
 
-SOFP es una aplicación Java Swing de finanzas personales con JPA/Hibernate, H2, Maven y JUnit 5.
+## Proyecto
+SOFP (Sistema Operativo Financiero Personal), Java Swing, JPA/Hibernate, H2, Maven y JUnit 5.
 
-### Git
+## Git
+- Repositorio: `agmilevecich/sofp`.
+- Rama activa: `feature/swing-shell`.
+- Rama estable: `main`.
+- SHA de main: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Último commit de código previo a docs: `afc66589c9d32988fa6e011fd0293e71fbf47c39` — `fix: refrescar obligaciones al registrar gastos`.
+- Comparación antes de documentación: 457 ahead / 0 behind.
+- Nunca modificar ni mergear main automáticamente.
 
-- Trabajo: `feature/swing-shell`
-- Estable: `main`
-- main: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`
-- feature: **320 commits ahead / 0 behind**
-- No merge a main.
+## Últimos tests informados
+- Suite `mvn clean test`: **1008/1008**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 18:12:30 -03:00.
+- Tests específicos `MainFrameTest,GastosPanelTest,ObligacionesPanelTest`: **18/18**, 01/11/2026 16:34:22 -03:00, `BUILD SUCCESS`.
 
-### Última validación
+## Último cambio
+Commit `afc6658`, archivo `MainFrame.java`: se conecta un callback de `GastosPanel` a `ObligacionesPanel.refrescar()`. El usuario confirmó que los consumos con tarjeta aparecen inmediatamente en Obligaciones y Tarjetas sin cerrar/reabrir SOFP.
 
-`mvn test`:
+## Situación actual de tarjetas
+El código inspeccionado distingue:
+- saldo del ciclo seleccionado;
+- saldo total de obligaciones;
+- obligaciones de otros ciclos;
+- obligaciones financiadas, refinanciadas o liquidadas.
 
-**979/979 — 0 failures — 0 errors — 0 skipped — BUILD SUCCESS**
+La acción **Pago total** del panel de tarjetas cancela el ciclo seleccionado, no necesariamente toda la deuda histórica. No recomendar una operación sin verificar saldos y estados actuales.
 
-03/10/2026 22:54:12 -03:00, 24:47 min.
+## Punto exacto para continuar
+La suite completa está aprobada, pero sigue pendiente la validación manual de pagos de tarjeta en la aplicación. El usuario temporalmente no puede adjuntar capturas; esperar a que pueda enviar una captura actual del panel Tarjetas y, si hace falta, Obligaciones. Los importes de capturas antiguas no son saldos actuales.
 
-### Último bloque trabajado
+Al recibirlas:
+1. reconstruir importes/ciclos/estados;
+2. distinguir deuda del ciclo y deuda histórica;
+3. comprobar cuenta pagadora y fondos;
+4. indicar la operación adecuada sin duplicar movimientos;
+5. verificar egreso, deuda restante y persistencia.
 
-Auditoría de pasivos y patrimonio neto.
-
-Se detectó una duplicación en `ObligacionRepository.sumarCreditoUtilizadoPorCuenta()`: cuando una obligación tenía cuotas y una financiación normal, el capital financiado podía quedar contado tanto dentro de las cuotas como dentro de las financiaciones.
-
-Se agregó la cobertura correspondiente y se corrigió la consulta para descontar de `cuotas` el capital pendiente de financiaciones normales sobre obligaciones con cuotas.
-
-### Validación
-
-- Repositorio: 17/17.
-- Patrimonio: 13/13.
-- Obligaciones + refinanciación: 36/36.
-- Caso específico de liquidación financiada: 1/1.
-- Suite completa: 979/979.
-
-La financiación sobre liquidación fue validada además en un escenario multidivisa. El diagnóstico inicial del test reveló que el fixture financiaba 60,00 y no 60.000, por lo que se corrigieron las expectativas del test; no era un defecto de JPA ni del repositorio.
-
-### Próximo punto
-
-La auditoría de pasivos está cerrada. Antes de iniciar una nueva funcionalidad hay que reconstruir el estado actual desde GitHub y elegir el siguiente bloque a partir del código y tests reales.
-
-No asumir ningún resultado histórico.
+## Reglas de trabajo
+Inspeccionar → entender → probar → corregir → volver a probar → documentar → commit.
+Antes de modificar: revisar implementación, clases relacionadas, repositorios, tests y reglas de negocio. Cambios mínimos y commits pequeños. No asumir sincronización ni resultados de tests no informados.
