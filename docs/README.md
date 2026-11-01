@@ -221,3 +221,15 @@ La referencia operativa de continuidad queda actualizada en `CONTINUIDAD_ACTUAL.
 Estado confirmado: `feature/swing-shell`, HEAD `4a23f726be4af3f12c701476b9d88f40954a0b8b`; `main` `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`; **176 ahead / 0 behind**; suite completa **936/936** verde, finalizada 29/09/2026 10:42:40 -03:00.
 
 La documentación es auxiliar. Ante cualquier contradicción prevalecen código, tests y commits actuales de GitHub.
+
+
+## Estado canónico de continuidad — 01/11/2026
+
+Los snapshots anteriores fechados son antecedentes históricos. Para continuar, consultar primero `CONTINUIDAD_ACTUAL.md`, `00_ESTADO_ACTUAL.md` y `08_PENDIENTES.md`, y reconstruir rama/commits/código/tests desde GitHub.
+
+- Rama activa: `feature/swing-shell`; `main` permanece estable y sin merge.
+- Último commit de código: `afc6658` — refresco de Obligaciones al registrar gastos.
+- Última suite completa informada: **1008/1008**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 18:12:30 -03:00.
+- Pendiente prioritario: validación manual de pagos de tarjeta con saldos, ciclos y estados actuales.
+
+La documentación es auxiliar: código y tests prevalecen si existe contradicción.
