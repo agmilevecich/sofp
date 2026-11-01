@@ -1,87 +1,65 @@
 # SOFP — Pendientes y próximos pasos
 
-## Estado al 04/10/2026
+> Actualizado: 01/11/2026. El código y los tests de GitHub prevalecen sobre cualquier nota histórica.
 
-Rama: `feature/swing-shell`  
-`main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`  
-Comparación: **320 ahead / 0 behind**  
-No se realizó merge a `main`.
+## Estado Git
 
-Última suite completa conocida: **979/979**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada 03/10/2026 22:54:12 -03:00.
+- Rama activa: `feature/swing-shell`.
+- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Último commit de código: `afc66589c9d32988fa6e011fd0293e71fbf47c39` — `fix: refrescar obligaciones al registrar gastos`.
+- Comparación anterior a los commits documentales: **457 ahead / 0 behind**.
+- No hubo merge ni modificación de `main`.
 
-## Bloques cerrados
+## Última suite completa
 
-- Shell Swing y navegación.
-- Cuentas, categorías, movimientos e inversiones.
-- Tarjetas de crédito.
-- Obligaciones, cuotas, liquidaciones, financiación y refinanciación auditadas.
+`mvn clean test`: **1008/1008**, 0 failures, 0 errors, 0 skipped, `BUILD SUCCESS`, finalizada **01/11/2026 18:12:30 -03:00** (informado por el usuario).
+
+Batería específica previa: `MainFrameTest`, `GastosPanelTest`, `ObligacionesPanelTest`: **18/18**, `BUILD SUCCESS`, 01/11/2026 16:34:22 -03:00.
+
+## Bloques validados
+
+- Shell Swing, login y navegación.
+- Persistencia entre reinicios.
+- Cuentas, categorías, ingresos, gastos, transferencias y movimientos.
+- Tarjetas de crédito, obligaciones, cuotas, financiación y refinanciación.
+- Inversiones, cartera y patrimonio financiero.
+- Resultado financiero y reportes.
 - Aislamiento multiusuario.
-- Patrimonio financiero.
-- Resultado financiero.
-- Reportes que combinan patrimonio y resultado.
-- Valorización histórica multidivisa.
-- Corrección del cálculo de crédito utilizado para evitar duplicación de capital financiado en obligaciones con cuotas.
+- Actualización de Obligaciones al registrar un gasto con tarjeta.
 
-## Auditoría de pasivos — cerrada
+## Pendiente prioritario: validación manual de pagos de tarjeta
 
-Se validó el recorrido desde obligaciones hasta patrimonio:
+El último cambio de código (`afc6658`) refresca automáticamente Obligaciones después de registrar un gasto. El usuario confirmó que el nuevo consumo aparece en Obligaciones y Tarjetas sin reiniciar la aplicación.
 
-- obligación sin refinanciación;
-- obligación con cuotas;
-- financiación completa;
-- financiación parcial;
-- cargos financieros;
-- pago de cargos y capital;
-- liquidación;
-- liquidación parcialmente financiada;
-- pago completo de liquidación;
-- refinanciación activa;
-- financiación multidivisa con cotización histórica;
-- aislamiento del pasivo en el patrimonio.
+Sigue pendiente verificar los pagos reales en la UI:
+- saldo del ciclo seleccionado;
+- obligaciones de ciclos anteriores/otros ciclos;
+- estados de obligaciones (pendiente, financiada, refinanciada, liquidada, pagada);
+- pago parcial o total del ciclo;
+- movimiento de egreso y saldo de cuenta pagadora;
+- persistencia después de cerrar/reabrir.
 
-La suite completa posterior quedó en **979/979**.
+El usuario no puede adjuntar capturas temporalmente. Esperar a que pueda compartir una captura actual. No utilizar importes de capturas antiguas como saldos vigentes y no recomendar una operación sin reconstruir primero las obligaciones.
 
-No queda un defecto conocido pendiente en este bloque.
+### Distinción funcional importante
 
-## Pendientes funcionales
+**Pago total** en el panel de tarjetas se aplica al ciclo seleccionado; no significa cancelar necesariamente toda la deuda histórica. El saldo total de obligaciones es distinto. Las obligaciones financiadas, refinanciadas o liquidadas siguen sus propias reglas.
 
-Estos puntos requieren una decisión de negocio o una evolución separada; no deben implementarse por inferencia:
+## Pendientes técnicos no prioritarios
 
-1. Modalidades adicionales de financiación/refinanciación que no estén definidas explícitamente.
-2. Reglas financieras de conversión multidivisa que todavía no estén modeladas.
-3. Evolución de la UI avanzada de financiación/refinanciación.
-4. Calendario bancario explícito para feriados.
-5. Integración de una abstracción `Clock` para fechas dependientes del reloj.
-6. Migraciones/versionado formal del esquema.
-7. Estabilización del ciclo de vida de H2 al arrancar y cerrar la aplicación.
+- calendario bancario explícito de feriados;
+- abstracción `Clock`;
+- migraciones/versionado formal del esquema;
+- robustez adicional del ciclo de vida de H2;
+- optimizaciones de consultas cuando se justifiquen;
+- definiciones financieras aún no formalizadas.
 
-## Mejoras técnicas futuras
-
-- Optimización de consultas de movimientos en repositorio cuando aporte valor.
-- Revisar APIs de compatibilidad antiguas que todavía existan por evolución histórica.
-- No mezclar estas mejoras con reglas contables.
+No implementar decisiones contables o financieras por inferencia.
 
 ## Próximo paso
 
-Antes de comenzar otro bloque:
+Retomar la revisión manual de tarjetas cuando estén disponibles las capturas actuales. Si la evidencia muestra un defecto de código, inspeccionar primero implementación, servicios, repositorios y tests; luego aplicar el cambio mínimo.
 
-1. reconstruir estado desde GitHub;
-2. comparar `feature/swing-shell` con `main`;
-3. revisar código y tests actuales;
-4. identificar una funcionalidad concreta pendiente;
-5. definir la regla de negocio si es material;
-6. hacer el cambio mínimo;
-7. validar tests específicos, relacionados y suite completa cuando corresponda.
+## Criterio de cierre
 
-## Regla de cierre
-
-Tests específicos → relacionados → suite completa → `git diff` → `git diff --check` → `git status` → documentación.
-
-## ACTUALIZACIÓN — 22/10/2026
-
-La última suite completa informada por el usuario es `mvn test`: **1006/1006**, 0 failures, 0 errors, 0 skipped, **BUILD SUCCESS**, finalizada el 22/10/2026 a las 18:07:47 -03:00 (20:59 min).
-
-### Próximo paso prioritario
-Validar manualmente en la aplicación Swing el pago parcial de tarjeta por ciclo: deuda del ciclo seleccionado, deuda de otros ciclos sin cambios, movimiento de egreso, saldo de la cuenta pagadora y persistencia tras cerrar/reabrir SOFP.
-
-La suite verde no sustituye esa prueba de uso real. No hacer merge a `main` automáticamente.
+Tests específicos → relacionados → suite completa cuando corresponda → `git diff` → `git diff --check` → `git status` → documentación. No hacer merge a `main` automáticamente.
