@@ -532,3 +532,14 @@ Validaciones informadas por el usuario:
 - `mvn clean test`: **1008/1008**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 18:12:30 -03:00.
 
 La validación manual de los pagos de tarjeta sigue pendiente: se deben distinguir saldo del ciclo, deuda histórica y estados de obligaciones antes de realizar una operación. No se da por cerrada RC1 hasta registrar esa comprobación.
+
+
+## HITO — 01/11/2026: refresco inmediato de obligaciones y RC1
+
+El commit `afc66589c9d32988fa6e011fd0293e71fbf47c39` (`fix: refrescar obligaciones al registrar gastos`) conecta el registro de gastos con la actualización de `ObligacionesPanel` desde `MainFrame`. Se conserva la referencia al panel y se pasa a `GastosPanel` un callback que invoca `refrescar()`. El usuario verificó manualmente que el consumo de tarjeta aparece en Obligaciones y Tarjetas sin cerrar/reabrir la aplicación.
+
+Validaciones informadas por el usuario:
+- `MainFrameTest`, `GastosPanelTest`, `ObligacionesPanelTest`: 18/18, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 16:34:22 -03:00.
+- `mvn clean test`: **1008/1008**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 18:12:30 -03:00.
+
+La validación manual de los pagos de tarjeta sigue pendiente: se deben distinguir saldo del ciclo, deuda histórica y estados de obligaciones antes de realizar una operación. No se da por cerrada RC1 hasta registrar esa comprobación.
