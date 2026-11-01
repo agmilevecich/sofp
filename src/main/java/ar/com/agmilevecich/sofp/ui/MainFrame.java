@@ -63,6 +63,7 @@ public class MainFrame extends JFrame {
     private final TipoCambioService tipoCambioService;
     private final PatrimonioFinancieroService patrimonioFinancieroService;
     private MovimientosPanel movimientosPanel;
+    private ObligacionesPanel obligacionesPanel;
     private ReportesPanel reportesPanel;
 
     public MainFrame() {
@@ -312,7 +313,7 @@ public class MainFrame extends JFrame {
             }
             if (gastoService != null && categoriaService != null && perfilFinanciero != null && usuarioId != null) {
                 this.gastosPanel = new GastosPanel(gastoService, cuentaService, categoriaService,
-                        perfilFinanciero.getId(), usuarioId);
+                        perfilFinanciero.getId(), usuarioId, this::refrescarObligaciones);
             } else {
                 this.gastosPanel = new GastosPanel();
             }
@@ -346,10 +347,11 @@ public class MainFrame extends JFrame {
         areaCentral.add(gastosPanel, GASTOS);
         areaCentral.add(new MovimientosPanel(), MOVIMIENTOS);
         areaCentral.add(tarjetasPanel, TARJETAS);
-        areaCentral.add(obligacionService != null && usuarioId != null
+        obligacionesPanel = obligacionService != null && usuarioId != null
                 ? new ObligacionesPanel(obligacionService, pagoTarjetaService, cuentaService, categoriaService,
                 perfilFinancieroId, usuarioId, tipoCambioService, refinanciacionService)
-                : new ObligacionesPanel(), OBLIGACIONES);
+                : new ObligacionesPanel();
+        areaCentral.add(obligacionesPanel, OBLIGACIONES);
 
         if (carteraActivoService != null && perfilFinanciero != null && usuarioId != null) {
             if (patrimonioFinancieroService != null) {
@@ -443,6 +445,12 @@ public class MainFrame extends JFrame {
             reportesPanel.actualizar();
         }
         cardLayout.show(areaCentral, destino);
+    }
+
+    private void refrescarObligaciones() {
+        if (obligacionesPanel != null) {
+            obligacionesPanel.refrescar();
+        }
     }
 
     private void mostrarMovimientos() {
