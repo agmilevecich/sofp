@@ -1,190 +1,78 @@
 # SOFP — Continuidad canónica actual
 
-> Última actualización: 06/10/2026.  
-> Fuente de verdad: código actual, tests y commits de GitHub. Esta documentación es auxiliar y puede quedar desactualizada; si contradice al código, prevalece el código.
+> Actualizado: 01/11/2026. La documentación es auxiliar. La fuente de verdad es el código, los tests y los commits actuales de GitHub.
 
-## Estado actual
+## Estado Git reconstruido
 
+- Repositorio: `agmilevecich/sofp`.
 - Rama de trabajo: `feature/swing-shell`.
 - Rama estable: `main`.
-- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
-- HEAD actual: `d03e26e44766ea76889381223360f0e57894bb34` — `test: corregir consulta de refinanciacion en obligaciones`.
-- Comparación GitHub: **385 commits ahead / 0 behind**.
+- Último commit de código antes de esta actualización documental: `afc66589c9d32988fa6e011fd0293e71fbf47c39` — `fix: refrescar obligaciones al registrar gastos`.
+- SHA de `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
+- Comparación consultada antes de actualizar docs: **457 commits ahead / 0 behind**.
 - No se modificó ni mergeó `main`.
 
-## Última validación completa
+## Último resultado de tests informado por el usuario
 
-`mvn test` ejecutado por el usuario después de integrar la UI de refinanciación:
+`mvn clean test`:
+- **1008 tests**.
+- 0 failures, 0 errors, 0 skipped.
+- `BUILD SUCCESS`.
+- Finalización: **01/11/2026 18:12:30 -03:00**.
 
-- **994 tests**
-- **0 failures**
-- **0 errors**
-- **0 skipped**
-- `BUILD SUCCESS`
-- Finalizado: **06/10/2026 17:55:38 -03:00**
-- Duración: **30:47 min**
+Batería específica anterior:
+- `MainFrameTest`, `GastosPanelTest`, `ObligacionesPanelTest`: **18/18**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 16:34:22 -03:00.
 
-Este resultado reemplaza al anterior de 991/991.
+Estos resultados fueron comunicados por el usuario. Los commits documentales no requieren ejecutar tests de producción; no se afirma una nueva ejecución local.
 
-## Etapa cerrada: auditoría de inversiones
+## Último cambio de código: refresco de Obligaciones
 
-La auditoría de inversiones verificó el recorrido de operaciones de compra/venta, movimientos de activos, posiciones, cartera, valorización, cotizaciones y aislamiento por perfil financiero.
+Commit `afc6658`:
+- Archivo: `src/main/java/ar/com/agmilevecich/sofp/ui/MainFrame.java`.
+- Se conserva una referencia a `ObligacionesPanel`.
+- `GastosPanel` recibe una acción de callback para refrescar obligaciones.
+- `MainFrame.refrescarObligaciones()` ejecuta `obligacionesPanel.refrescar()` si el panel está inicializado.
+- El usuario confirmó manualmente que un gasto con tarjeta se refleja inmediatamente en Obligaciones y Tarjetas, sin cerrar/reabrir SOFP.
 
-### Corrección de producción
+## Interpretación actual del flujo de pagos de tarjeta
 
-Se detectó y corrigió un hueco real en la validación de ventas: la posición disponible no debía incluir compras posteriores al momento de la venta.
-
-Se incorporó en `MovimientoActivoRepository` una consulta temporal por activo, perfil y fecha/hora, y `OperacionFinancieraService.venderActivo()` pasó a validar la posición disponible al momento de la venta.
-
-También quedó validada la compatibilidad de moneda entre activo y cuenta para compra y venta.
-
-### Cobertura específica
-
-La batería específica de inversiones quedó en:
-
-- `OperacionFinancieraServiceTest`: **29/29**
-- `MovimientoActivoRepositoryTest`: **11/11**
-- `CarteraActivoServiceTest` + `CarteraActivoServiceMovimientosTest` + `PosicionActivoServiceTest`: **20/20**
-- Batería completa de inversiones, incluyendo compra y venta: **177/177**
-- Suite completa posterior: **991/991**
-
-Todos los resultados fueron 0 failures, 0 errors y 0 skipped.
-
-## Etapa actual: UI de refinanciación
-
-Se incorporó la primera integración funcional de refinanciación en la interfaz Swing.
-
-### Implementación
-
-- Nuevo `RefinanciacionForm` para capturar fecha de inicio, cantidad de cuotas, interés inicial, cargos iniciales y tasa anual.
-- `ObligacionesPanel` incorpora la acción de refinanciar la obligación seleccionada.
-- `RefinanciacionService` quedó conectado al flujo de `MainFrame` y se inicializa desde `Main` usando el mismo `EntityManager`.
-- Se preservaron los constructores legacy de `MainFrame` y `ObligacionesPanel` mediante delegaciones compatibles.
-- La refinanciación queda restringida a obligaciones que corresponden al flujo de tarjeta de crédito y que no estén pagadas o ya refinanciadas.
-
-### Validación específica
-
-La integración quedó validada con:
-
-- `MainFrameTest` + `MainFrameReportesTest` + `ObligacionesPanelTest` + `RefinanciacionFormTest`: **15/15**
-- Suite completa posterior: **994/994**
-- 0 failures, 0 errors y 0 skipped.
-
-Los commits principales de esta integración fueron:
-
-- `d764811` — `feat: agregar formulario de refinanciacion`
-- `42e8c6e` — `test: cubrir formulario de refinanciacion`
-- `9e86434` — `feat: integrar refinanciacion en obligaciones`
-- `2121d2c` — `test: cubrir refinanciacion desde obligaciones`
-- `318e29b` — `feat: pasar refinanciacion al marco principal`
-- `f274b85` — `feat: inicializar servicio de refinanciacion`
-- `c8672fd`, `ddf323a`, `8110039`, `57df93a`, `bb940b4` — correcciones de constructores y delegaciones.
-- `d03e26e` — corrección de la consulta de refinanciación en el test de obligaciones.
-
-## RC1 — estabilidad de uso real
-
-La estabilidad de RC1 mantiene validación completa. La suite pasó de 991/991 a **994/994** después de la incorporación de la UI de refinanciación, sin regresiones.
-
-Se mantienen validadas las comprobaciones anteriores de:
-
-- arranque y creación/recuperación de H2;
-- persistencia entre reinicios;
-- login y navegación principal;
-- categorías tipadas por movimiento;
-- gastos y transferencias;
-- actualización de reportes;
-- patrimonio financiero;
-- movimientos informativos;
-- pasivos, financiación y refinanciación;
-- inversiones y validación temporal de posiciones.
+La inspección del código de `TarjetasCreditoPanel.java`, `PagoTarjetaService.java` y `Obligacion.java` confirmó:
+- La acción **Pago total** del panel de tarjetas cancela el saldo correspondiente al ciclo seleccionado; no equivale necesariamente a cancelar toda la deuda histórica.
+- El saldo total de obligaciones es una magnitud distinta del saldo del ciclo.
+- Obligaciones de otros ciclos y obligaciones financiadas, refinanciadas o liquidadas tienen tratamiento propio y pueden continuar pendientes.
+- No recomendar pagos ni registrar movimientos hasta identificar importes, ciclos y estados actuales.
 
 ## Punto exacto para continuar
 
-**La integración UI de refinanciación está validada por la suite completa 994/994.**
+La suite completa está verde (**1008/1008**), y el refresco automático de Obligaciones al registrar gastos está validado. Sigue pendiente cerrar la prueba manual del pago de tarjeta en uso real.
 
-El siguiente paso es una **validación funcional manual del flujo de refinanciación desde la aplicación ejecutable**, no otra ejecución automática de la suite.
+El usuario informó que temporalmente no puede adjuntar capturas y debe esperar aproximadamente 21 horas. Cuando pueda, solicitar una captura actual del panel Tarjetas y, si hace falta, de Obligaciones. No usar como valores vigentes los importes históricos de capturas anteriores (por ejemplo, $30.000 y $45.000).
 
-Orden propuesto:
+### Secuencia de validación manual pendiente
 
-1. `git syncsofp`
-2. `git status`
-3. ejecutar la aplicación;
-4. ingresar con el usuario de desarrollo;
-5. abrir Obligaciones;
-6. seleccionar una obligación de tarjeta elegible;
-7. verificar que aparece/habilita **Refinanciar**;
-8. completar el formulario;
-9. confirmar la refinanciación;
-10. comprobar que la obligación cambia de estado y que la refinanciación queda persistida;
-11. cerrar y volver a abrir la aplicación para comprobar persistencia.
+1. Revisar tarjeta, ciclo, fecha de cierre/vencimiento y saldos visibles.
+2. Identificar cada obligación pendiente y su estado.
+3. Distinguir saldo del ciclo de saldo total histórico.
+4. Comprobar qué acción corresponde sin afectar otros ciclos.
+5. Verificar cuenta pagadora y fondos disponibles antes de cualquier pago.
+6. Después de la operación controlada, comprobar egreso, deuda restante, otros ciclos y persistencia al reiniciar.
 
-Después de esa validación manual, revisar `git diff`, `git diff --check` y `git status`, y mantener la documentación actualizada.
+No considerar cerrada RC1 hasta documentar el resultado de esta prueba manual.
 
-No hacer merge a `main` automáticamente.
+## Otros pendientes técnicos conocidos
 
-## Pendientes conocidos
+No convertirlos en trabajo inmediato sin priorización y revisión de código:
+- calendario bancario explícito para feriados;
+- abstracción `Clock` para fechas dependientes del reloj;
+- migraciones/versionado formal del esquema;
+- estabilización adicional del ciclo de vida de H2;
+- optimizaciones de consultas solo cuando aporten valor;
+- decisiones financieras no modeladas explícitamente.
 
-- Validación funcional manual completa de la UI de refinanciación.
-- Definiciones financieras que todavía no estén expresadas explícitamente en el modelo, especialmente donde impliquen nuevas reglas contables.
-- Evolución de UI avanzada de financiación/refinanciación.
-- Calendario bancario de feriados.
-- Abstracción `Clock`.
-- Migraciones/versionado formal de esquema.
-- Estabilización futura del arranque/parada de H2 y manejo de errores de arranque.
-- Optimización técnica de consultas de movimientos cuando corresponda, separada de reglas contables.
+## Flujo obligatorio de trabajo
 
-## Regla permanente de continuidad
+Antes de cualquier cambio: GitHub → rama → últimos commits → comparación con `main` → implementación relacionada → repositorios → tests → reglas de negocio → documentación → cambio mínimo.
 
-Antes de cualquier cambio:
+Después de cambios importantes: tests específicos → tests relacionados → suite completa cuando corresponda → `git diff` → `git diff --check` → `git status`.
 
-`GitHub → rama → últimos commits → comparación con main → código → repositorios → tests → reglas de negocio → documentación → último resultado → cambio mínimo`
-
-Después de cambios importantes:
-
-`tests específicos → tests relacionados → suite completa → git diff → git diff --check → git status → documentación`
-
-No modificar ni mergear `main` automáticamente.
-
-## ACTUALIZACIÓN CANÓNICA DE CONTINUIDAD — 22/10/2026
-
-Esta actualización reemplaza como referencia operativa los resultados de pruebas y el punto de continuidad anteriores cuando exista contradicción.
-
-### Estado Git reconstruido desde GitHub
-- Rama de trabajo: `feature/swing-shell`.
-- Rama estable: `main`.
-- `main`: `a23d3a5c0658ffbca93391c34f79ad8bc37fdc10`.
-- Comparación GitHub: `feature/swing-shell` está **442 commits ahead / 0 behind**.
-- Último commit de código/test identificado en la secuencia reciente: `73062cd41806717dd687c476e536c5a9299836a6` — `test: validar etiqueta de cuenta en integracion de login`.
-- No se modificó ni mergeó `main`.
-
-### Última suite completa informada por el usuario
-- Comando: `mvn test`.
-- **1006 tests**.
-- **0 failures, 0 errors, 0 skipped**.
-- **BUILD SUCCESS**.
-- Finalización: **22/10/2026 18:07:47 -03:00**.
-- Duración: **20:59 min**.
-
-Esta validación sucede a la ejecución anterior que había reportado 3 fallos de expectativas en tests de navegación/cuentas. Los tres tests se ajustaron para reflejar el comportamiento actual de la UI y la batería específica posterior pasó: **4 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**. La suite completa posterior quedó verde.
-
-### Bloque reciente: pago de tarjeta por ciclo
-Se añadieron y ajustaron pruebas para asegurar que el pago de tarjeta:
-- se aplique solo a las obligaciones del ciclo seleccionado;
-- no supere la deuda pendiente de ese ciclo;
-- no cancele deuda perteneciente a otro ciclo;
-- rechace pagos cuando la cuenta pagadora no tenga fondos suficientes;
-- refleje el egreso de la cuenta pagadora y registre el pago transaccionalmente.
-
-La suite automatizada valida el estado actual, pero no reemplaza la comprobación manual desde la aplicación ejecutable.
-
-### Próximo paso exacto
-**Validación manual pendiente de pagos de tarjeta en la aplicación Swing.** Con la rama sincronizada:
-1. iniciar H2 según la configuración local si no está activo;
-2. ejecutar SOFP desde IntelliJ;
-3. abrir Tarjetas de crédito y seleccionar una tarjeta/ciclo con deuda;
-4. verificar total del ciclo y cuenta pagadora;
-5. realizar un pago parcial controlado;
-6. confirmar que baja la deuda del ciclo seleccionado, que otro ciclo no cambia, que se registra el movimiento y que baja el saldo de la cuenta pagadora;
-7. cerrar y reabrir la aplicación y comprobar persistencia.
-
-No dar por cerrada la validación RC1 hasta registrar el resultado de este flujo manual. Después, revisar `git diff`, `git diff --check` y `git status` localmente. No hacer merge a `main` automáticamente.
+Nunca asumir que el usuario sincronizó o ejecutó tests sin que lo informe. No modificar ni mergear `main` automáticamente.
