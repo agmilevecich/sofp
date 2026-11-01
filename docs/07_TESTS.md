@@ -551,3 +551,12 @@ La última suite completa informada por el usuario es `mvn clean test`: **1008 t
 Validación específica anterior: `MainFrameTest`, `GastosPanelTest`, `ObligacionesPanelTest`: **18/18**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 16:34:22 -03:00.
 
 La suite cubre el estado de código que incluye el refresco automático de Obligaciones al registrar gastos. No se afirma una nueva ejecución por esta actualización documental.
+
+
+## ESTADO CANÓNICO — 01/11/2026
+
+La última suite completa informada por el usuario es `mvn clean test`: **1008 tests, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS**, finalizada el **01/11/2026 18:12:30 -03:00**. Este resultado reemplaza como referencia operativa a los hitos históricos anteriores.
+
+Validación específica anterior: `MainFrameTest`, `GastosPanelTest`, `ObligacionesPanelTest`: **18/18**, 0 failures/errors/skipped, `BUILD SUCCESS`, 01/11/2026 16:34:22 -03:00.
+
+La suite cubre el estado de código que incluye el refresco automático de Obligaciones al registrar gastos. No se afirma una nueva ejecución por esta actualización documental.
