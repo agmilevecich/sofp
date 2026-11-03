@@ -362,7 +362,7 @@ public class TarjetasCreditoPanel extends JPanel {
         if ("Pago mínimo".equals(modalidad)) {
             importeField.setText(pagoMinimoLabel.getText().split(" ")[0]);
         } else if ("Pago total".equals(modalidad)) {
-            importeField.setText(saldoTotalLabel.getText().split(" ")[0]);
+            importeField.setText("Se calcula al pagar");
         } else if (!editable) {
             importeField.setText("");
         }
