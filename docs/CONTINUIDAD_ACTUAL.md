@@ -85,7 +85,7 @@ Se confirmó como regla de negocio que **Pago total** debe cancelar toda la deud
 ### Cambio aplicado
 - TarjetasCreditoPanel.registrarPagoTotal() ahora utiliza PagoTarjetaService.registrarPagoTotalTarjeta(...), que distribuye el pago entre todas las obligaciones pendientes de esa tarjeta, incluyendo las correspondientes a otros ciclos y los saldos gestionados por financiación/refinanciación según las reglas del servicio.
 - El importe informado por la operación es el total calculado por el servicio.
-- Al seleccionar Pago total, el campo de importe muestra el saldo total presentado por el panel; la validación y el importe efectivamente debitado se calculan en el servicio.
+- Al seleccionar Pago total, el campo indica que el importe se calcula al confirmar; evita mostrar como total una cifra del resumen que no necesariamente incluye todos los saldos financiados/refinanciados. El importe efectivamente debitado se calcula en el servicio.
 - Pago mínimo y Pago parcial conservan el flujo de pago del ciclo actual.
 
 ### Cobertura agregada
