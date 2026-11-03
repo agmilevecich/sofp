@@ -362,7 +362,7 @@ public class TarjetasCreditoPanel extends JPanel {
         if ("Pago mínimo".equals(modalidad)) {
             importeField.setText(pagoMinimoLabel.getText().split(" ")[0]);
         } else if ("Pago total".equals(modalidad)) {
-            importeField.setText(totalResumenLabel.getText().split(" ")[0]);
+            importeField.setText(saldoTotalLabel.getText().split(" ")[0]);
         } else if (!editable) {
             importeField.setText("");
         }
@@ -385,14 +385,9 @@ public class TarjetasCreditoPanel extends JPanel {
             Cuenta cuentaPagadora = (Cuenta) cuentaPagadoraCombo.getSelectedItem();
             Categoria categoria = (Categoria) categoriaCombo.getSelectedItem();
 
-            BigDecimal total = new BigDecimal(totalResumenLabel.getText().split(" ")[0]);
-            if (total.signum() <= 0) {
-                throw new IllegalArgumentException("El ciclo actual no tiene deuda pendiente para pagar");
-            }
-            pagoTarjetaService.registrarPagoCicloTarjeta(
-                    tarjeta.getId(), cuentaPagadora, categoria, total,
-                    tarjeta.calcularCicloFacturacion(LocalDate.now()).getFechaCierre(),
-                    LocalDateTime.now(), "Pago total del ciclo de tarjeta", usuarioId);
+            BigDecimal total = pagoTarjetaService.registrarPagoTotalTarjeta(
+                    tarjeta.getId(), cuentaPagadora, categoria,
+                    LocalDateTime.now(), "Pago total de tarjeta", usuarioId);
             importeField.setText("");
             cargarDatos();
             javax.swing.JOptionPane.showMessageDialog(
