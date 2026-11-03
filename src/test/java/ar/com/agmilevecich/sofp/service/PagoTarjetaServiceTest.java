@@ -459,6 +459,30 @@ class PagoTarjetaServiceTest {
     }
 
     @Test
+    void deberiaPagarConPagoTotalLasObligacionesDeTodosLosCiclos() {
+        Obligacion cicloAnterior = registrarGasto(
+                "120000.00", LocalDateTime.of(2026, 9, 9, 10, 0));
+        Obligacion cicloActual = registrarGasto(
+                "30000.00", LocalDateTime.of(2026, 10, 9, 10, 0));
+
+        BigDecimal total = pagoTarjetaService.registrarPagoTotalTarjeta(
+                tarjeta.getId(), cuentaPagadora, categoriaPago,
+                LocalDateTime.of(2026, 10, 10, 10, 0),
+                "Pago total de tarjeta", usuario.getId());
+
+        assertEquals(new BigDecimal("150000.00"), total);
+        assertEquals(new BigDecimal("0.00"), cicloAnterior.getSaldoPendiente());
+        assertEquals(new BigDecimal("0.00"), cicloActual.getSaldoPendiente());
+        assertEquals("PAGADA", cicloAnterior.getEstado().name());
+        assertEquals("PAGADA", cicloActual.getEstado().name());
+        assertEquals(new BigDecimal("50000.00"),
+                cuentaService.calcularSaldo(cuentaPagadora.getId(), usuario.getId()));
+        assertEquals(2L, entityManager.createQuery(
+                "SELECT COUNT(p) FROM PagoTarjeta p WHERE p.cuentaPagadora.id = :cuentaId",
+                Long.class).setParameter("cuentaId", cuentaPagadora.getId()).getSingleResult());
+    }
+
+    @Test
     void noDeberiaModificarNadaSiElPagoTotalNoTieneFondosSuficientes() {
         registrarGasto("120000.00");
         registrarGasto("90000.00");
