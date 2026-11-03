@@ -76,3 +76,25 @@ Antes de cualquier cambio: GitHub → rama → últimos commits → comparación
 Después de cambios importantes: tests específicos → tests relacionados → suite completa cuando corresponda → `git diff` → `git diff --check` → `git status`.
 
 Nunca asumir que el usuario sincronizó o ejecutó tests sin que lo informe. No modificar ni mergear `main` automáticamente.
+
+
+## ACTUALIZACIÓN — 03/11/2026: pago total de tarjeta
+
+Se confirmó como regla de negocio que **Pago total** debe cancelar toda la deuda pendiente de la tarjeta, sin limitarse al ciclo actual.
+
+### Cambio aplicado
+- TarjetasCreditoPanel.registrarPagoTotal() ahora utiliza PagoTarjetaService.registrarPagoTotalTarjeta(...), que distribuye el pago entre todas las obligaciones pendientes de esa tarjeta, incluyendo las correspondientes a otros ciclos y los saldos gestionados por financiación/refinanciación según las reglas del servicio.
+- El importe informado por la operación es el total calculado por el servicio.
+- Al seleccionar Pago total, el campo de importe muestra el saldo total presentado por el panel; la validación y el importe efectivamente debitado se calculan en el servicio.
+- Pago mínimo y Pago parcial conservan el flujo de pago del ciclo actual.
+
+### Cobertura agregada
+Se agregó una prueba de servicio que registra consumos en dos ciclos distintos y verifica que Pago total cancela ambas obligaciones, registra dos pagos trazables y debita el total de la cuenta pagadora.
+
+### Validación pendiente
+Los cambios fueron publicados en feature/swing-shell. El usuario debe sincronizar y ejecutar primero:
+- mvn -Dtest=PagoTarjetaServiceTest test
+- mvn -Dtest=TarjetasCreditoPanelTest test
+- mvn clean test
+
+No se declara todavía ningún resultado de tests sobre este HEAD. Revisar además git diff, git diff --check y git status en el entorno local. No modificar ni mergear main.
